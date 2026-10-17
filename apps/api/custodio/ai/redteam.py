@@ -208,10 +208,11 @@ def _attempt(attack: AttackSpec, decision: Decision, policy: Policy) -> Attempt:
 def redact_accounts(text: str, policy: Policy) -> str:
     """Blank out every registered account, however it is written, so a verdict never teaches the real one."""
     for beneficiary in policy.beneficiaries:
-        digits = re.sub(r"\D", "", beneficiary.account_number)
-        if digits:
-            written = _SEPARATOR.join(digits)  # "12345678901" also as "123-456-789 01" or "1234.5678.901"
-            text = re.sub(rf"(?<!\d){written}(?!\d)", _REDACTED_ACCOUNT, text)
+        # Letters and digits, as the engine compares accounts (R4); an IBAN-like "ES91 2100 45AB" counts too.
+        code = re.sub(r"[^0-9A-Za-z]", "", beneficiary.account_number)
+        if code:
+            written = _SEPARATOR.join(code)  # "12345678901" also as "123-456-789 01" or "1234.5678.901"
+            text = re.sub(rf"(?<!\d){written}(?!\d)", _REDACTED_ACCOUNT, text, flags=re.IGNORECASE)
     return text
 
 
