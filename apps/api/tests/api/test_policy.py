@@ -1,5 +1,8 @@
+from decimal import Decimal
+
 from fastapi.testclient import TestClient
 
+from custodio.contracts import Policy
 from custodio.services.lanes import Lanes
 
 from .doubles import failing
@@ -74,6 +77,25 @@ def test_compiling_rules_proposes_and_simulates_without_applying(client: TestCli
     assert proposal["simulation"]["changed"][0]["invoice_id"] == "F01"
     assert proposal["simulation"]["changed"][0]["after"] == "pending_approval"
     assert client.get("/api/v1/policy", headers=workspace.headers).json()["version"] == 1
+
+
+def test_rules_compile_against_a_draft_policy_when_one_is_given(client: TestClient) -> None:
+    workspace = new_workspace(client)
+    draft = Policy(base_currency="COP", approval_threshold=Decimal("8000000"), allowed_currencies=["COP"])
+
+    response = client.post(
+        "/api/v1/policy/compile",
+        headers=workspace.headers,
+        json={"text": "Nada sobre 3000000 sin aprobación", "base": draft.model_dump(mode="json")},
+    )
+
+    assert response.status_code == 200
+    proposal = response.json()
+    assert proposal["changes"][0]["before"] == 8000000.0
+    assert proposal["proposed"]["base_currency"] == "COP"
+    assert proposal["proposed"]["approval_threshold"] == 3000000.0
+    assert proposal["proposed"]["beneficiaries"] == []  # nothing leaks from the workspace's own policy
+    assert proposal["simulation"] is None  # a draft has no history of its own to replay
 
 
 def test_a_model_failure_while_compiling_is_an_honest_503(client: TestClient, lanes: Lanes) -> None:
