@@ -50,8 +50,8 @@ NO_BENEFICIARY = "El pago no tiene un beneficiario registrado; no se envió nada
 NO_AMOUNT = "El monto a transferir no es válido; no se envió nada a Stripe."
 NO_TEST_FUNDS = "El saldo de prueba de Stripe no alcanzó ni después de recargarlo; no se transfirió dinero."
 FUNDS_NOT_AVAILABLE = (
-    "Recargamos el saldo de prueba, pero Stripe no dejó los fondos disponibles en 15 s; no se transfirió dinero. "
-    "Reintentar es seguro."
+    f"Recargamos el saldo de prueba, pero Stripe no dejó los fondos disponibles en {MAX_FUNDS_WAIT_SECONDS:g} s; "
+    "no se transfirió dinero. Reintentar es seguro."
 )
 UNCONFIRMED = "No pudimos confirmar el pago con Stripe. Reintentar es seguro: Stripe no repite una transferencia."
 KEY_REJECTED = "Stripe rechazó la clave de prueba configurada; no se transfirió dinero."
@@ -177,7 +177,7 @@ class StripeTestRail:
         )
 
     def _wait_for_funds(self, cents: int) -> None:
-        """Checks the available balance with growing waits until it covers the transfer, for at most 15 s."""
+        """Checks the available balance with growing waits until it covers the transfer, for at most the wait cap."""
         waited = 0.0
         wait = FIRST_FUNDS_WAIT_SECONDS
         while self._available_cents() < cents:
