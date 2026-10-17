@@ -9,6 +9,8 @@ import { watch } from "./problems";
 
 const PAGE_CODE_LATE_MS = 1_500;
 const PAGES: { path: string; heading: string | RegExp; sentence: string }[] = [
+  { path: "/", heading: "El agente de pagos que no se deja engañar.", sentence: "El modelo lee, el código decide" },
+  { path: "/reto", heading: "Róbale a Custodio", sentence: "Intenta que pague algo indebido" },
   { path: "/panel", heading: "Panel", sentence: "Lo que Custodio decidió este mes" },
   { path: "/reglas", heading: "Reglas", sentence: "Tú pones los límites" },
   { path: "/arena", heading: /Arena/, sentence: "Un atacante genera facturas" },
@@ -77,13 +79,28 @@ test.describe("cold loads in Bogotá with the server in UTC", () => {
     });
   }
 
+  test("a cookie naming a workspace the API no longer has is replaced by a new demo", async ({ page, baseURL }) => {
+    const stale = "ws_borrado_al_reiniciar_la_base";
+    await page.context().addCookies([{ name: WORKSPACE_COOKIE, value: stale, url: baseURL ?? "" }]);
+    const calls = apiCalls(page);
+
+    await page.goto("/panel");
+
+    await expect(page.getByRole("region", { name: "Facturas por decidir" })).toBeVisible();
+    await expect(page.getByText("No encontramos eso en tu espacio de trabajo.")).toHaveCount(0);
+    const cookie = (await page.context().cookies()).find(({ name }) => name === WORKSPACE_COOKIE);
+    expect(cookie?.value).toBeTruthy();
+    expect(cookie?.value).not.toBe(stale);
+    expect(calls.filter((call) => call === "POST /workspaces")).toHaveLength(1);
+  });
+
   test("the panel's HTML already carries the panel, so a deep link never starts from an empty main", async ({
     request,
   }) => {
     const html = await (await request.get(`/panel?acta=${workspace.decisionId}`)).text();
     const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
 
-    expect(main).toContain(PAGES[0].sentence);
+    expect(main).toContain(PANEL_CODE[0]);
   });
 
   for (const deepLink of ["/panel?acta={id}", "/acta/{id}"]) {
