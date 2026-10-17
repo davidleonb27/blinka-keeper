@@ -59,7 +59,7 @@ const VARIABLES: readonly Variable[] = [
 ];
 
 const WITHOUT_MODEL = [
-  ["Motor de 12 reglas y auditor independiente", "funciona"],
+  ["Motor de 15 reglas y auditor independiente", "funciona"],
   ["Registro encadenado y su verificación", "funciona"],
   ["Firewall por API y MCP", "funciona: la intención se lee por etiquetas"],
   ["Facturas en texto y PDF con texto", "funciona: se leen las líneas «Campo: valor»; lo que ninguna dice queda sin leer y R1 lo escala"],

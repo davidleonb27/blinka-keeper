@@ -41,7 +41,7 @@ describe("docs pages", () => {
   it("explains the twelve rules with their effect", () => {
     render(<RulesPage />);
 
-    const rows = within(screen.getByRole("table", { name: /Las 12 reglas/ })).getAllByRole("row").slice(1);
+    const rows = within(screen.getByRole("table", { name: /Las 15 reglas/ })).getAllByRole("row").slice(1);
     expect(rows.map((row) => row.querySelector("th")?.textContent)).toEqual(RULES.map((rule) => rule.id));
   });
 
