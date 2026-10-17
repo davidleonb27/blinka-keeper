@@ -96,9 +96,41 @@ def test_r1_a_bare_dollar_sign_is_an_ambiguous_currency_whatever_the_confidence(
     assert "La moneda no es clara" in result.reason and "«$ 4.800»" in result.reason
 
 
-@pytest.mark.parametrize("quote", ["US$ 4,800.00", "USD 4,800.00", "$ 4,800.00 USD"])
+@pytest.mark.parametrize("quote", ["US$ 4,800.00", "USD 4,800.00", "$ 4,800.00 USD", "4,800.00USD $"])
 def test_r1_a_dollar_sign_with_an_iso_code_is_not_ambiguous(quote: str) -> None:
     assert rule(one(invoice(currency_quote=quote)), "R1").outcome is PASS
+
+
+@pytest.mark.parametrize(("currency", "quote"), [("BRL", "R$ 18.000,00"), ("MXN", "MX$ 9,500.00"), ("COP", "COL$ 1")])
+def test_r1_a_national_dollar_prefix_names_its_currency(currency: str, quote: str) -> None:
+    assert rule(one(invoice(currency=currency, currency_quote=quote)), "R1").outcome is PASS
+
+
+@pytest.mark.parametrize("quote", ["$ 4.800 IVA incluido", "TOTAL $ 4.800", "COP $ 4.800", "MX$ 4.800"])
+def test_r1_a_dollar_quote_that_does_not_name_the_currency_read_is_ambiguous(quote: str) -> None:
+    decision = one(invoice(currency_quote=quote))
+    result = rule(decision, "R1")
+    assert result.outcome is ESCALATE
+    assert "La moneda no es clara" in result.reason
+    assert decision.agent_verdict is AgentVerdict.ESCALATE
+
+
+@pytest.mark.parametrize(("unverified", "confidence"), [(frozenset({"supplier_tax_id"}), 0.98), (frozenset(), 0.5)])
+def test_r1_a_tax_id_read_without_a_trusted_quote_counts_as_not_read(
+    unverified: frozenset[str], confidence: float
+) -> None:
+    case = invoice(
+        supplier="Orbit Growth Partners LLC", unverified=unverified, confidence={"supplier_tax_id": confidence}
+    )
+    decision = one(case)
+    result = rule(decision, "R1")
+    assert result.outcome is ESCALATE
+    assert "identificación fiscal" in result.reason
+    assert decision.agent_verdict is AgentVerdict.ESCALATE
+
+
+def test_r1_a_tax_id_that_was_not_read_is_not_required() -> None:
+    assert rule(one(invoice(tax_id=None)), "R1").outcome is PASS
 
 
 # R2 · instructions ----------------------------------------------------------------------------------------------
