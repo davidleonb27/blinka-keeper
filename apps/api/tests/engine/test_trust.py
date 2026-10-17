@@ -65,9 +65,7 @@ def decision(
         for spec in RULES
     ]
     given_approval = (
-        Approval(invoice_id="F-1", decision=approval, approver="Ana Gómez", channel="web", at=AT)
-        if approval
-        else None
+        Approval(invoice_id="F-1", decision=approval, approver="Ana Gómez", channel="web", at=AT) if approval else None
     )
     return Decision(
         invoice_id="F-1",
@@ -223,11 +221,11 @@ def test_the_events_are_read_back_from_the_ledger_by_supplier_and_in_order() -> 
 
 
 def test_the_cap_given_to_the_engine_explains_itself() -> None:
-    supervised = trust_cap(fold([incident(), clean("1000")], TERMS), TERMS)
+    supervised = trust_cap(fold([incident(), clean("1000")], TERMS), TERMS, "b1")
     assert supervised.cap == Decimal(0)
     assert supervised.supervised
     assert "1 de 3 pagos limpios" in supervised.reason
-    earned = trust_cap(fold([incident(), clean("900"), clean("1000"), clean("1100")], TERMS), TERMS)
+    earned = trust_cap(fold([incident(), clean("900"), clean("1000"), clean("1100")], TERMS), TERMS, "b1")
     assert "3 pagos limpios seguidos" in earned.reason
     assert "USD 1.000" in earned.reason
 
