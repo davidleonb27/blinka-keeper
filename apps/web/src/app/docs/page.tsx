@@ -65,7 +65,8 @@ export default function IntroductionPage() {
 
       <h2>Licencia</h2>
       <p>
-        Custodio se publica bajo licencia {LICENSE_NAME}. El código, los tests y las mediciones están en{" "}
+        Custodio se publica bajo licencia {LICENSE_NAME}, a nombre del equipo DreamMakers (Adriano Joao Souza Reyna, Juan
+        David Leon y Leober Ramos). El código, los tests y las mediciones están en{" "}
         <a href={REPO_URL}>GitHub</a>.
       </p>
     </DocPage>

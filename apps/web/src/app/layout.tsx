@@ -10,7 +10,7 @@ const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: [
 export const metadata: Metadata = {
   title: { default: "Custodio · el agente de cuentas por pagar de código abierto", template: "%s · Custodio" },
   description:
-    "Custodio revisa las facturas de tu empresa: el modelo lee, el código decide y una persona autoriza. Código abierto bajo Apache 2.0: úsalo en la demo o autoalójalo con un comando.",
+    "Custodio revisa las facturas de tu empresa: el modelo lee, el código decide y una persona autoriza. Código abierto bajo licencia MIT: úsalo en la demo o autoalójalo con un comando.",
 };
 
 export const viewport: Viewport = {

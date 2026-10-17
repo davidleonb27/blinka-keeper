@@ -2,7 +2,7 @@
 name = "custodio-api"
 version = "0.1.0"
 description = "Custodio: the accounts-payable agent that cannot be tricked. The model reads, code decides, a person authorizes."
-license = "Apache-2.0"
+license = "MIT"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.115",

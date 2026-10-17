@@ -92,7 +92,8 @@ que mueva dinero real necesita revisión de seguridad aparte.
 - Una idea por PR, idealmente bajo 800 líneas.
 - Usa la plantilla: qué cambió, cómo se verificó (comandos y conteos exactos, p. ej. `pytest: 84 passed`) y qué NO se
   verificó.
-- Al contribuir aceptas que tu aporte se publique bajo la [licencia Apache 2.0](LICENSE) del proyecto.
+- Al contribuir aceptas que tu aporte entre al proyecto bajo la licencia MIT ([`LICENSE`](LICENSE)), la misma del resto
+  del código.
 
 ## Conducta
 

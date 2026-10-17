@@ -1,7 +1,7 @@
 # Custodio
 
 [![CI](https://github.com/davidleonb27/custodio-blinka/actions/workflows/ci.yml/badge.svg)](https://github.com/davidleonb27/custodio-blinka/actions/workflows/ci.yml)
-[![Licencia: Apache 2.0](https://img.shields.io/badge/licencia-Apache%202.0-047857.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-047857.svg)](LICENSE)
 
 **El agente de cuentas por pagar de código abierto.** *El modelo lee, el código decide, la persona autoriza.*
 Revisa las facturas, paga sólo lo que cabe en tus reglas, retiene lo indebido y le pregunta a una persona lo demás.
@@ -9,7 +9,7 @@ Revisa las facturas, paga sólo lo que cabe en tus reglas, retiene lo indebido y
 - **Demo:** <https://custodio-blinka-green.vercel.app>, sin registro y sin dinero real.
 - **Autoalojar en un comando:** `docker compose up --build` ([guía](docs/SELF_HOSTING.md)) o
   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fcustodio-blinka&project-name=custodio&repository-name=custodio&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
-- **Licencia:** [Apache 2.0](LICENSE). Documentación en [/docs](https://custodio-blinka-green.vercel.app/docs).
+- **Licencia:** [MIT](LICENSE). Documentación en [/docs](https://custodio-blinka-green.vercel.app/docs).
 
 **The open-source accounts-payable agent.** *The model reads, code decides, a person authorizes.*
 It reviews invoices, pays only what fits your rules, holds what is clearly improper and asks a person about the rest.
@@ -17,7 +17,7 @@ It reviews invoices, pays only what fits your rules, holds what is clearly impro
 - **Demo:** <https://custodio-blinka-green.vercel.app>, no sign-up, no real money.
 - **Self-host in one command:** `docker compose up --build` ([guide, in Spanish](docs/SELF_HOSTING.md)) or the
   Vercel button above.
-- **License:** [Apache 2.0](LICENSE).
+- **License:** [MIT](LICENSE).
 
 ## Pruébalo en 30 segundos
 
@@ -178,7 +178,7 @@ Empresa demo y facturas con trampa etiquetadas, publicadas y reproducibles: [`do
 
 ## Licencia
 
-[Apache 2.0](LICENSE). Contribuciones bienvenidas: lee [`CONTRIBUTING.md`](CONTRIBUTING.md) y, para reportar una
+[MIT](LICENSE), a nombre de DreamMakers (Adriano Joao Souza Reyna, Juan David Leon y Leober Ramos). Contribuciones bienvenidas: lee [`CONTRIBUTING.md`](CONTRIBUTING.md) y, para reportar una
 vulnerabilidad en privado, [`SECURITY.md`](SECURITY.md).
 
 ## English summary
@@ -191,4 +191,4 @@ altered. Other agents can use Custodio as a payment firewall through an API or a
 break it on the public "Róbale a Custodio" challenge. Try it: **https://custodio-blinka-green.vercel.app**. Figures are published only when
 measured (2026-10-17: 36 golden invoices in production, 0 improper payments, 61.1 % autonomy; 1,000 simulated companies
 and 25,139 invoices in the stress run, 0 improper payments); the rest reads NO MEDIDO ("not measured"). Built by team DreamMakers for the 30X hackathon, Blinka
-challenge. Licensed under Apache 2.0.
+challenge. MIT licensed.
