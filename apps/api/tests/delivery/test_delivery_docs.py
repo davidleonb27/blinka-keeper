@@ -9,7 +9,17 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parents[4]
-OWNED_DOCS = ("PITCH", "DATASET", "BUSINESS", "BUILD_IN_PUBLIC", "COPY", "ARCHITECTURE", "MEASUREMENTS")
+OWNED_DOCS = (
+    "PITCH",
+    "DATASET",
+    "BUSINESS",
+    "BUILD_IN_PUBLIC",
+    "COPY",
+    "ARCHITECTURE",
+    "MEASUREMENTS",
+    "BLINKA",
+    "PAYMENTS",
+)
 MAX_SPOKEN_WORDS_PER_SECOND = 2.6
 X_MAX_CHARS = 280
 X_LINK_CHARS = 23
@@ -36,6 +46,19 @@ INFLATED_WORDS = (
 )
 OUT_OF_SCOPE_SERVICES = ("telegram", "gemini", "celular")
 FORBIDDEN_TRAILERS = ("Co-Authored-By", "Generated with")
+BLINKA_SECTIONS = (
+    "El problema de sus clientes",
+    "Dónde va Custodio",
+    "Qué gana Blinka",
+    "Lo que ya está medido",
+    "Integración en 2 semanas",
+    "Precio propuesto",
+    "Seguridad",
+    "Lo que falta para producción",
+)
+MEASURED_SOURCES = ("README.md", "docs/DATASET.md", "docs/MEASUREMENTS.md", "docs/PAYMENTS.md")
+CLOSING_LINE = "Custodio decide; Blinka paga"
+NUMBER = re.compile(r"\d[\d.,]*\d|\d")
 WRITTEN_SEGMENT = re.compile(r"^### (\d+):(\d\d)–(\d+):(\d\d) · .+$", re.MULTILINE)
 
 
@@ -266,3 +289,42 @@ def test_reading_measurement_gives_exact_counts_and_how_to_repeat_it() -> None:
     assert "scripts/measure_reading.py --base-url" in text
     assert MEASURED_ON in text
     assert "](MEASUREMENTS.md)" in read("docs/DATASET.md")
+
+
+def test_the_blinka_page_covers_what_the_blinka_team_needs() -> None:
+    text = read("docs/BLINKA.md")
+    for heading in BLINKA_SECTIONS:
+        assert section(text, heading).strip()
+
+
+def test_every_figure_on_the_blinka_page_is_already_published_as_measured() -> None:
+    measured = section(read("docs/BLINKA.md"), "Lo que ya está medido")
+    published = "\n".join(read(path) for path in MEASURED_SOURCES)
+    missing = [number for number in NUMBER.findall(measured) if number not in published]
+    assert missing == []
+
+
+def test_the_blinka_price_is_presented_as_a_proposal() -> None:
+    price = section(read("docs/BLINKA.md"), "Precio propuesto").lower()
+    assert "propuesta" in price
+    assert "por decisión" in price
+    assert "volumen" in price
+
+
+def test_the_blinka_page_names_what_is_missing_for_production() -> None:
+    missing = section(read("docs/BLINKA.md"), "Lo que falta para producción")
+    for item in ("API", "KYC", "SOC 2"):
+        assert item in missing
+
+
+def test_the_pitch_shows_the_real_test_payment_and_closes_on_the_rail_split() -> None:
+    parts = segments(section(read("docs/PITCH.md"), "Versión de 3:00"))
+    assert any("Stripe" in part.body and "tr_" in part.body for part in parts)
+    assert CLOSING_LINE in labelled_line(parts[-1].body, "Se oye")
+
+
+def test_readme_links_the_blinka_page_and_the_rails_section() -> None:
+    text = read("README.md")
+    assert "](docs/BLINKA.md)" in text
+    assert "](docs/PAYMENTS.md#los-rieles)" in text
+    assert "## Los rieles" in read("docs/PAYMENTS.md")
