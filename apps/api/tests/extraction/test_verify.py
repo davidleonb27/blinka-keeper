@@ -31,15 +31,20 @@ SUPPORT_CASES = [
     (FieldKind.TEXT, "Acme Cloud S.A.S.", "Proveedor: ACME  CLOUD S.A.S.", True),
     (FieldKind.TEXT, "Compañía Andina", "COMPANIA ANDINA LTDA", True),
     (FieldKind.TEXT, "Acme Cloud", "Proveedor: Beta Ltda", False),
+    (FieldKind.TEXT, "Andina", "Proveedor: Andinas Ltda", False),  # whole words, not a piece of one
     # identifiers: same letters and digits in order, separators free, not part of a longer code
     (FieldKind.IDENTIFIER, "FE-1234", "Factura No. FE 1234", True),
     (FieldKind.IDENTIFIER, "FE-123", "Factura No. FE-1234", False),
     (FieldKind.IDENTIFIER, "fe-1234", "FE-1234", True),
+    (FieldKind.IDENTIFIER, "FE-1234", "Factura FE-1234-B", False),  # a suffix after a separator is still the code
+    (FieldKind.IDENTIFIER, "900.123.456", "NIT 900.123.456-7", False),  # without its check digit
     # digits: tax ids and accounts compare digits only
     (FieldKind.DIGITS, "900123456-7", "NIT 900.123.456-7", True),
     (FieldKind.DIGITS, "12345678901", "Cuenta de ahorros No. 123-456789-01", True),
     (FieldKind.DIGITS, "12345678901", "Cuenta de ahorros No. 123-456789-02", False),
     (FieldKind.DIGITS, "4567", "Cuenta 1234567", False),
+    (FieldKind.DIGITS, "12345678", "Cuenta 1234 5678 9", False),  # the account goes on after a space
+    (FieldKind.DIGITS, "45678901", "Cuenta No. 123-456789-01", False),  # and starts before a dash
     (FieldKind.DIGITS, "N/A", "Cuenta N/A", False),
     # amounts: some amount in the quote parses to the same number
     (FieldKind.AMOUNT, "4200000.00", "Total a pagar: $ 4.200.000,00", True),
