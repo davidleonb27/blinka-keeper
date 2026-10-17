@@ -124,6 +124,38 @@ describe("Acta", () => {
     expect(payment).not.toHaveTextContent(/enviado/);
   });
 
+  it("shows the instruction Blinka would receive, in the invoiced currency, and says it was not sent", () => {
+    render(
+      paidWith({
+        rail: "blinka_simulated",
+        status: "simulated",
+        executed_at: "2026-10-17T15:00:00Z",
+        instruction: {
+          network: "bre_b",
+          amount: 2600000,
+          currency: "COP",
+          beneficiary_name: "Distribuidora Andina SAS",
+          beneficiary_tax_id: "900.112.334-5",
+          beneficiary_country: "CO",
+          bank_name: "Bancolombia",
+          account_number: "40021204",
+          reference: "https://custodio.test/acta/F-001",
+          idempotency_key: "ws-1:F-001",
+        },
+      }),
+    );
+
+    const payment = screen.getByRole("region", { name: "Ejecución del pago" });
+    expect(payment).toHaveTextContent("Blinka · simulado");
+    expect(payment).toHaveTextContent("Bre-B");
+    expect(payment).toHaveTextContent(/COP/);
+    expect(payment).not.toHaveTextContent(/USD/);
+    expect(payment).toHaveTextContent("Bancolombia ••1204");
+    expect(payment).not.toHaveTextContent("40021204");
+    expect(payment).toHaveTextContent(/no se envió/);
+    expect(payment).not.toHaveTextContent(/sin riel real/);
+  });
+
   it("shows no payment block for an invoice that was not paid", () => {
     render(demoItem("F-020"));
 
