@@ -4,7 +4,7 @@ import pytest
 
 from custodio import llm
 from custodio.ai import red_team
-from custodio.ai.redteam import MAX_ROUNDS
+from custodio.ai.redteam import MAX_ROUNDS, redact_accounts
 from custodio.contracts import AttackSpec, Decision, RuleOutcome
 
 from .conftest import FakeLLM, make_decision, make_policy, make_state, recorded
@@ -160,3 +160,21 @@ def test_the_attacker_sees_what_was_paid_before_but_not_the_balance(fake_llm: Fa
     assert "NB-2201" in text
     assert "Demo Andina S.A.S." in text
     assert "98000" not in text
+
+
+@pytest.mark.parametrize(
+    ("reason", "expected"),
+    [
+        (
+            "Cuenta leída 000999 12345678901 frente a la registrada.",
+            "Cuenta leída 000999 [cuenta registrada] frente a la registrada.",
+        ),
+        ("La registrada es 1234.5678.901.", "La registrada es [cuenta registrada]."),
+        (
+            "Registrada: 12345678901; leída: 123456789012.",
+            "Registrada: [cuenta registrada]; leída: 123456789012.",
+        ),
+    ],
+)
+def test_redaction_finds_the_account_next_to_other_numbers(reason: str, expected: str) -> None:
+    assert redact_accounts(reason, make_policy()) == expected
