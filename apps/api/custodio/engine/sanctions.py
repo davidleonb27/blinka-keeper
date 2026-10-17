@@ -11,7 +11,7 @@ scores 0.86 or less against it, while a one-letter typo of a listed name scores 
 ~40.000 names of the list, a name is only compared with entries that share a word with it up to one deleted letter.
 
 The copy of the list ships with the code (custodio/dataset/ofac/sdn.json, dated and versioned) and is read once per
-process; the same name and the same copy always give the same answer.
+process, indexed once; the same name and the same copy always give the same answer.
 """
 
 from __future__ import annotations
@@ -85,6 +85,11 @@ class SanctionsList:
     _by_key: defaultdict[str, set[int]] = field(default_factory=lambda: defaultdict(set), init=False, repr=False)
     _screened: dict[str, SanctionsHit | None] = field(default_factory=dict, init=False, repr=False)
 
+    def __post_init__(self) -> None:
+        # Built here, not on first use: a list is complete before any request can screen against it, even when
+        # several threads share it.
+        self._index()
+
     @classmethod
     def from_json(cls, text: str) -> SanctionsList:
         raw = SanctionsFile.model_validate_json(text)
@@ -114,8 +119,6 @@ class SanctionsList:
         return best
 
     def _candidates(self, tokens: tuple[str, ...]) -> set[int]:
-        if not self._variants:
-            self._index()
         return {index for token in tokens for key in _keys(token) for index in self._by_key.get(key, ())}
 
     def _index(self) -> None:
