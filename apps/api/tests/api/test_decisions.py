@@ -144,3 +144,10 @@ def test_the_narrative_explains_a_decision_in_plain_words(client: TestClient) ->
 
     assert response.status_code == 200
     assert response.json()["narrative"].startswith("En palabras simples")
+
+
+def test_approvals_are_web_only_and_there_is_no_telegram_route(client: TestClient) -> None:
+    response = client.post("/api/v1/telegram/webhook", json={"update_id": 1})
+
+    assert response.status_code == 404
+    assert not any("telegram" in path for path in client.get("/api/v1/openapi.json").json()["paths"])
