@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Building2,
   CalendarClock,
   Code2,
   Landmark,
@@ -15,6 +16,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Wordmark } from "@/components/brand/seal";
+import { SETUP_LABEL, SETUP_PATH } from "@/components/landing/use-company-button";
 import { useWorkspaceSummary } from "@/lib/api/hooks";
 import { cn } from "@/lib/utils";
 import { ModeBadge } from "./mode-badge";
@@ -36,6 +38,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/reto", label: "Róbale a Custodio", icon: Target },
   { href: "/registro", label: "Registro", icon: Link2 },
   { href: "/desarrolladores", label: "Desarrolladores", icon: Code2 },
+  { href: SETUP_PATH, label: SETUP_LABEL, icon: Building2 },
 ];
 
 function PendingBadge() {

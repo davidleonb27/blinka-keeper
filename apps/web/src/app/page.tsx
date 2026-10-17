@@ -20,6 +20,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { CodeBlock } from "@/components/developers/code-block";
 import { ActaPreview } from "@/components/landing/acta-preview";
+import { UseCompanyButton } from "@/components/landing/use-company-button";
 import { GitHubStars } from "@/components/site/github-stars";
 import { LiveGitHubStars } from "@/components/site/live-github-stars";
 import { SiteFooter } from "@/components/site/site-footer";
@@ -154,6 +155,7 @@ function Hero() {
                 Probar la demo <ArrowRight aria-hidden />
               </Link>
             </Button>
+            <UseCompanyButton />
             <Button asChild size="lg" variant="outline">
               <Link href="/docs/inicio-rapido#autoalojado">
                 <Container aria-hidden /> Autoalojar en 1 comando
