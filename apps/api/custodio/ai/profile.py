@@ -1,7 +1,7 @@
 """Company profile for the onboarding: Claude reads the company's own public site and the first answers.
 
 The model may fetch only the URL the user gave and pages of the same domain (web_fetch with `allowed_domains`);
-code keeps only evidence URLs on that domain and normalizes every coded value.
+code keeps only evidence URLs on that domain that web_fetch really read, and normalizes every coded value.
 """
 
 from __future__ import annotations
@@ -70,15 +70,15 @@ do not know something, use null instead of guessing.
 def profile_company(company_name: str, website: str | None, answers: Mapping[str, str]) -> CompanyProfile:
     """Infer a company profile from its public website and onboarding answers, citing the pages used."""
     url = normalize_website(website) if website and website.strip() else None
-    draft = llm.structured(
+    result = llm.structured(
         model=get_settings().model_smart,
         system=SYSTEM,
         content=_user_turn(company_name, url, answers),
         schema=DraftProfile,
         effort="medium",
         tools=[_web_fetch(url)] if url else None,
-    ).value
-    return _profile(company_name, url, draft)
+    )
+    return _profile(company_name, url, result.value, result.fetched_urls)
 
 
 def normalize_website(website: str) -> str:
@@ -120,7 +120,7 @@ def _user_turn(company_name: str, url: str | None, answers: Mapping[str, str]) -
     return f"Company: {company_name}\n{site}\n\n<onboarding_answers>\n{as_json(dict(answers))}\n</onboarding_answers>"
 
 
-def _profile(company_name: str, url: str | None, draft: DraftProfile) -> CompanyProfile:
+def _profile(company_name: str, url: str | None, draft: DraftProfile, fetched: tuple[str, ...]) -> CompanyProfile:
     country = _code(draft.country, _COUNTRY)
     currency = _code(draft.base_currency, _CURRENCY)
     return CompanyProfile(
@@ -132,7 +132,7 @@ def _profile(company_name: str, url: str | None, draft: DraftProfile) -> Company
         summary=_text(draft.summary),
         likely_suppliers=_categories(draft.likely_suppliers),
         suggested_rules_text=_text(draft.suggested_rules_text),
-        evidence_urls=_evidence(draft.evidence_urls, url),
+        evidence_urls=_evidence(draft.evidence_urls, url, fetched),
     )
 
 
@@ -150,15 +150,25 @@ def _categories(values: list[str]) -> list[str]:
     return list(cleaned)[:_MAX_SUPPLIER_CATEGORIES]
 
 
-def _evidence(urls: list[str], website: str | None) -> list[str]:
-    """Keep http(s) URLs on the given site (or its subdomains), once each, in the model's order."""
+def _evidence(urls: list[str], website: str | None, fetched: tuple[str, ...]) -> list[str]:
+    """Keep cited URLs that web_fetch read and that sit on the given site (or its subdomains), once each."""
     if website is None:
         return []
     domain = site_domain(website)
+    read = {_comparable(url) for url in fetched}
     kept = []
-    for url in urls:
-        parts = urlsplit(url.strip())
+    for url in (u.strip() for u in urls):
+        parts = urlsplit(url)
         host = (parts.hostname or "").lower()
-        if parts.scheme in {"http", "https"} and (host == domain or host.endswith(f".{domain}")):
-            kept.append(url.strip())
+        on_site = parts.scheme in {"http", "https"} and (host == domain or host.endswith(f".{domain}"))
+        if on_site and _comparable(url) in read:
+            kept.append(url)
     return list(dict.fromkeys(kept))
+
+
+def _comparable(url: str) -> str:
+    """The same page whatever the case of the host, a trailing slash or a fragment."""
+    parts = urlsplit(url.strip())
+    path = parts.path.rstrip("/")
+    query = f"?{parts.query}" if parts.query else ""
+    return f"{parts.scheme.lower()}://{(parts.hostname or '').lower()}{path}{query}"
