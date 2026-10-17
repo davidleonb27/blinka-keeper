@@ -68,6 +68,13 @@ export default function QuickstartPage() {
         con <code>POST /api/v1/invoices/process</code>.
       </p>
       <p>
+        Custodio paga por su cuenta sólo a proveedores registrados, a su cuenta registrada. Para sumar uno después,
+        entra a <Link href="/proveedores">Proveedores</Link> (también desde el diálogo de subida y desde el acta de una
+        factura de un proveedor desconocido): importa un CSV con el mismo formato o escríbelo a mano, revisa la vista
+        previa y aplícala. Queda como una versión nueva de la política en el registro. Los proveedores ya registrados no
+        se cambian desde ahí: un cambio de cuenta llega en una factura y se verifica fuera de banda (R15).
+      </p>
+      <p>
         <strong>«Exportar CSV»</strong>, en la lista de facturas, descarga lo que ves (con el filtro y la búsqueda) con
         proveedor, número, monto, moneda, estado, regla decisiva, fecha e id de transferencia. Los pagos salen por el riel
         que tenga configurado tu instalación; sin configuración es el simulado y no se mueve dinero (ver{" "}

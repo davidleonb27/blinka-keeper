@@ -4,6 +4,7 @@ import { CheckCircle2, CircleAlert, FileUp, LoaderCircle, Scale, Upload } from "
 import Link from "next/link";
 import { useId, useRef, useState, useSyncExternalStore, type DragEvent } from "react";
 import { toast } from "sonner";
+import { SUPPLIERS_PATH } from "@/components/suppliers/unknown-supplier-hint";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import type { InvoiceInput } from "@/lib/api/client";
@@ -65,8 +66,8 @@ function SuppliersNote() {
     <p className="rounded-xl bg-surface-2 px-3.5 py-3 text-[13px] text-ink-2">
       Custodio paga por su cuenta sólo a tus {suppliers} {suppliers === 1 ? "proveedor registrado" : "proveedores registrados"}; la
       factura de cualquier otro se retiene o espera tu aprobación, y su acta dice por qué.{" "}
-      <Link href="/reglas" className="font-semibold text-brand underline-offset-4 hover:underline">
-        Ver proveedores
+      <Link href={SUPPLIERS_PATH} className="font-semibold text-brand underline-offset-4 hover:underline">
+        Agregar proveedores
       </Link>
     </p>
   );

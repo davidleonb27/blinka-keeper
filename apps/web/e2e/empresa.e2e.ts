@@ -15,16 +15,19 @@ const SUPPLIERS_CSV = [
   "Nube Segura SAS,901554210,Davivienda,7781",
 ].join("\n");
 
-function invoice(number: string, amount: string): string {
+const ANDINA = { name: "Distribuidora Andina SAS", taxId: "900112334", bank: "Bancolombia", account: "1204" };
+const ESPIGA = { name: "Panadería La Espiga SAS", taxId: "900777123", bank: "Davivienda", account: "5566" };
+
+function invoice(number: string, amount: string, supplier = ANDINA): string {
   return [
-    "Proveedor: Distribuidora Andina SAS",
-    "Identificación tributaria: 900112334",
+    `Proveedor: ${supplier.name}`,
+    `Identificación tributaria: ${supplier.taxId}`,
     `Número de factura: ${number}`,
     "Fecha de emisión: 2026-10-15",
     `Monto: ${amount}`,
     "Moneda: USD",
-    "Banco: Bancolombia",
-    "Cuenta: 1204",
+    `Banco: ${supplier.bank}`,
+    `Cuenta: ${supplier.account}`,
     "Concepto: Insumos de octubre",
   ].join("\n");
 }
@@ -173,6 +176,60 @@ test("a real company sets up, uploads its own invoices, decides them and exports
     );
     await page.waitForLoadState("networkidle");
     await shot("panel");
+  });
+
+  await test.step("proveedor desconocido: su acta enlaza a «Agregar proveedores»", async () => {
+    const list = page.getByRole("region", { name: "Facturas", exact: true });
+    await list.getByRole("button", { name: "Subir facturas" }).click();
+    const dialog = page.getByRole("dialog", { name: "Subir facturas" });
+    await dialog.getByLabel("O pega el texto de un correo con la factura").fill(invoice("LE-77", "300.00", ESPIGA));
+    await dialog.getByRole("button", { name: "Enviar el texto" }).click();
+    await dialog.getByRole("button", { name: "Decidir 1 factura" }).click();
+    await expect(page.getByText("Custodio decidió 1 factura.")).toBeVisible();
+    await list.getByRole("link", { name: new RegExp(ESPIGA.name) }).click();
+    const acta = page.getByRole("dialog");
+    await expect(acta).toContainText(`${ESPIGA.name} no está entre tus proveedores registrados`);
+    await acta.getByRole("link", { name: "Agregar proveedores" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Proveedores" })).toBeVisible();
+  });
+
+  await test.step("proveedores: CSV y a mano, con vista previa; los registrados no cambian", async () => {
+    const workspace = (await page.context().cookies()).find((cookie) => cookie.name === "custodio_ws")?.value ?? "";
+    const headers = { "X-Custodio-Workspace": workspace };
+    const before = await (await page.request.get("/api/v1/policy", { headers })).json();
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "mas-proveedores.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(
+        ["Nube Segura SAS,901554210,Bancolombia,0000", "Transportes El Cóndor,800443981,Banco de Bogotá,3390"].join(
+          "\n",
+        ),
+      ),
+    });
+    const preview = page.getByRole("region", { name: "Vista previa de los cambios" });
+    await expect(preview).toContainText("Transportes El Cóndor");
+    await expect(preview.getByRole("listitem").filter({ hasText: "Nube Segura SAS" })).toContainText(
+      "Ya está registrado",
+    );
+    const form = page.getByRole("form", { name: "Agregar a mano" });
+    await form.getByLabel("Nombre").fill(ESPIGA.name);
+    await form.getByLabel("NIT o identificación tributaria").fill(ESPIGA.taxId);
+    await form.getByLabel("Banco").fill(ESPIGA.bank);
+    await form.getByLabel("Cuenta, como aparece en sus facturas").fill(ESPIGA.account);
+    await form.getByRole("button", { name: "Añadir a la vista previa" }).click();
+    await expect(preview).toContainText(ESPIGA.name);
+    await shot("proveedores");
+    await preview.getByRole("button", { name: "Agregar 2 proveedores" }).click();
+    await expect(
+      page.getByText(`Se agregaron 2 proveedores. La política v${before.version + 1} quedó en el registro.`),
+    ).toBeVisible();
+    const after = await (await page.request.get("/api/v1/policy", { headers })).json();
+    expect(after.beneficiaries.slice(0, before.beneficiaries.length)).toEqual(before.beneficiaries);
+    expect(after.beneficiaries.map((b: { name: string }) => b.name)).toEqual(
+      expect.arrayContaining(["Transportes El Cóndor", ESPIGA.name]),
+    );
+    const ledger = await (await page.request.get("/api/v1/ledger", { headers })).json();
+    expect(ledger.at(-1)).toMatchObject({ kind: "policy_changed" });
   });
 
   expect(problems.list, problems.list.join("\n")).toEqual([]);
