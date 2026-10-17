@@ -1,13 +1,12 @@
 # Arquitectura
 
 Un proyecto en Vercel con dos servicios: la web (Next.js) y la API (FastAPI), sobre Neon Postgres. Claude estructura,
-narra, compila reglas, perfila empresas y ataca; Gemini transcribe imágenes. **Ninguno decide un pago.**
+lee imágenes y PDFs escaneados, narra, compila reglas, perfila empresas y ataca. **Ninguno decide un pago.**
 
 ```mermaid
 flowchart TB
     subgraph Entradas
         WEB["Web (Next.js)"]
-        TG["Telegram"]
         AG["Otros agentes: API y MCP"]
     end
     subgraph API["API (FastAPI, /api/v1)"]
@@ -19,17 +18,14 @@ flowchart TB
         LED["Registro encadenado SHA-256"]
     end
     subgraph Modelos
-        CL["Claude: estructurar, narrar, compilar reglas, atacar"]
-        GE["Gemini: OCR de imágenes"]
+        CL["Claude: leer imágenes y PDFs, estructurar, narrar, compilar reglas, atacar"]
     end
     DB[("Neon Postgres: estado, documentos y registro")]
     WEB --> RUTAS
-    TG --> RUTAS
     AG --> RUTAS
     RUTAS --> SERV
     SERV --> LECT
     LECT --> CL
-    LECT --> GE
     SERV --> MOTOR
     SERV --> AUD
     SERV --> LED
@@ -50,7 +46,7 @@ reloj ni modelos.
 | Registro | cadena SHA-256; `verify()` dice en qué entrada se rompió | `apps/api/custodio/engine/ledger.py` |
 | Lectura | PDF, imágenes, texto oculto, estructuración y verificación de citas | `apps/api/custodio/extraction/` |
 | IA | compilador de reglas, narración, perfil, importación, red team | `apps/api/custodio/ai/` |
-| API | rutas, persistencia, aprobaciones, Telegram, firewall, MCP, reto público | `apps/api/custodio/api/`, `db/` |
+| API | rutas, persistencia, aprobaciones, firewall, MCP, reto público | `apps/api/custodio/api/`, `db/` |
 | Web | panel, acta, onboarding, reglas, arena, reto, registro, desarrolladores | `apps/web/` |
 
 ## Recorrido de una factura
@@ -60,7 +56,7 @@ Una factura PDF con la cuenta cambiada, de punta a punta:
 1. **Llega.** Una persona la sube desde la web, o un agente envía una intención de pago por API o MCP. El archivo se
    guarda (hasta 4 MB) y se anota en el registro.
 2. **Se extrae el texto.** `pdfplumber` lee el texto visible por carácter con su color, tamaño y posición. Un PDF sin
-   texto se rasteriza y va a OCR; una imagen va directo a OCR.
+   texto o una imagen los lee Claude con visión.
 3. **Se busca texto escondido.** Texto del color del fondo, de menos de 2 pt, fuera de la página, tapado o en metadatos
    queda como hallazgo. Eso activa R2: escalar, sin importar qué diga el texto.
 4. **El modelo estructura.** Claude devuelve proveedor, NIT, número, fechas, monto, moneda y cuenta, y por cada campo la
@@ -76,7 +72,7 @@ Una factura PDF con la cuenta cambiada, de punta a punta:
 9. **Se escribe el acta.** Explicación en español, contrafactual («se habría pagado si la cuenta nueva se verificara con
    el proveedor y se registrara») y, opcionalmente, una narración del modelo en la que se valida cada número.
 10. **Se registra.** La decisión entra al registro con su hash: `sha256(hash_anterior + json_canónico(entrada))`.
-11. **La persona ve y decide lo dudoso.** Si el veredicto fuera «escalar», el acta llega al panel y a Telegram; aprobar
+11. **La persona ve y decide lo dudoso.** Si el veredicto fuera «escalar», el acta queda en el panel para que la persona decida; aprobar
     se aplica después del lote y sólo paga si el saldo sigue por encima de la reserva.
 12. **Se puede comprobar.** `GET /api/v1/ledger/verify` revisa la cadena; «alterar una copia» muestra cómo se rompe sin
     tocar el registro real.
@@ -94,7 +90,7 @@ La lista completa y la especificación de cada pieza están en [`DESIGN.md`](DES
 
 ## Despliegue y secretos
 
-`vercel.json` declara dos servicios, `web` y `api`, y reenvía `/api/v1/*` a la API. Las claves (`ANTHROPIC_API_KEY`,
-`GEMINI_API_KEY`, `DATABASE_URL`, `TELEGRAM_BOT_TOKEN`) viven sólo en variables de entorno; no se escriben en logs,
+`vercel.json` declara dos servicios, `web` y `api`, y reenvía `/api/v1/*` a la API. Las claves (`ANTHROPIC_API_KEY` y
+`DATABASE_URL`) viven sólo en variables de entorno; no se escriben en logs,
 errores, prompts ni respuestas. Las rutas que llaman modelos tienen límite por IP y por espacio, y el gasto en modelos
 tiene un tope diario.

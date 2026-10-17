@@ -47,13 +47,13 @@ Entrega: video de 3:00 exactos, demo en vivo y repo público. Equipo DreamMakers
 
 **Respaldo:** Una ejecución de la Arena grabada, con el marcador final visible; captura del contador del reto.
 
-### 2:00–2:20 · El celular aprueba
+### 2:00–2:20 · Una persona aprueba
 
-**Se oye:** Si algo es legítimo pero grande, Custodio no decide solo. Le llega el acta a Ana por Telegram. Un toque para aprobar, y el panel se actualiza. Ni aprobando se rompe la reserva de caja.
+**Se oye:** Si algo es legítimo pero grande, Custodio no decide solo. Deja el acta abierta para Ana. Ella la lee, toca aprobar, y el panel se actualiza. Ni aprobando se rompe la reserva de caja.
 
-**Se ve:** Pantalla dividida: el celular con el mensaje de Telegram y los botones; el panel que pasa de «pendiente» a «pagado por una persona».
+**Se ve:** Pantalla dividida: el acta con los botones «Aprobar» y «Rechazar»; el panel que pasa de «pendiente» a «pagado por una persona».
 
-**Respaldo:** Captura de pantalla del celular con el mensaje y del panel antes y después.
+**Respaldo:** Capturas del acta pendiente y del panel antes y después de aprobar.
 
 ### 2:20–2:40 · Firewall y modelo de negocio
 

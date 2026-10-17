@@ -50,7 +50,7 @@ Una pregunta por pantalla. Enter avanza; Escape vuelve. Barra de progreso con «
 | 1 | ¿Cómo se llama tu empresa? | Y su sitio web, si tiene. Con eso proponemos un perfil que tú corriges. | Continuar |
 | 2 | Esto entendimos de {empresa} | Lo sacamos de {sitio}. Corrige lo que esté mal. | Está bien |
 | 3 | ¿En qué país y moneda trabajas? | También el saldo con el que paga Custodio y la reserva que nunca se toca. | Continuar |
-| 4 | ¿Quién aprueba lo que Custodio no decide solo? | Nombre y usuario de Telegram. El acta le llega con dos botones: aprobar o rechazar. | Continuar |
+| 4 | ¿Quién aprueba lo que Custodio no decide solo? | Nombre y cargo. Verá lo pendiente en el panel y decidirá desde el acta con dos botones: aprobar o rechazar. | Continuar |
 | 5 | ¿Qué reglas quieres? Cuéntalas con tus palabras | Por ejemplo: «Nada sobre 3.000 USD sin que lo apruebe Ana». Te mostramos cómo las entendimos. | Ver cómo las entendí |
 | 6 | ¿A quién le pagas? | Sube una lista, un contrato o facturas viejas. Tú revisas antes de guardar. | Continuar |
 | 7 | Así habría ido tu primera semana | Simulamos tus reglas con las facturas de ejemplo. Nada se paga de verdad. | Todo bien, activar |
@@ -146,16 +146,6 @@ Una pregunta por pantalla. Enter avanza; Escape vuelve. Barra de progreso con «
 - **API key:** Tu clave · Copiar · «Guárdala; no la volveremos a mostrar.»
 - **Ejemplo:** el comando `curl` de la sección «Firewall y MCP» del README, con la URL y la clave del espacio.
 - **MCP:** Configuración para Claude Desktop · Copiar
-
-## Telegram (mensaje al aprobador)
-
-> **{empresa}: hay un pago para ti.**
-> {proveedor} cobra {monto} ({número de factura}).
-> Custodio no lo pagó solo porque {razón}.
-> [Aprobar] [Rechazar]
-
-- **Después de tocar:** Listo, {aprobado/rechazado}. Quedó anotado en el registro.
-- **Botón usado antes:** Este botón ya se usó.
 
 ## Estados vacíos
 

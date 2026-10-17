@@ -47,7 +47,7 @@ escribir otro motor de reglas de pagos y necesita un freno que no dependa de lo 
 
 ## Qué vendemos
 
-1. **Custodio para cuentas por pagar.** La app: lectura de facturas, reglas en español, actas, aprobación por celular.
+1. **Custodio para cuentas por pagar.** La app: lectura de facturas, reglas en español, actas, aprobación en la web.
 2. **Firewall de pagos para agentes.** API y servidor MCP. Un agente envía una intención de pago y recibe pagar,
    retener o escalar, con su acta y su hash en el registro.
 

@@ -120,16 +120,16 @@ lanzamiento del reto público «Róbale a Custodio».
 >
 > Para que no tengas que creernos, la demo trae «alterar una copia»: cambia un dato en una copia del registro y muestra en qué entrada se rompe la cadena. El registro real no se toca. Proyecto para el hackathon 30X, reto Blinka. #30X #Blinka
 
-### 2026-10-18 04:00 · Aprobar desde el celular y firewall para agentes
+### 2026-10-18 04:00 · Aprobar en un clic y firewall para agentes
 **Imagen:** `panel.png`
 
 #### X
-> Lo dudoso no lo decide Custodio: el acta llega por Telegram y un toque aprueba o rechaza. Y otros agentes pueden pedirle decisiones por API o MCP, como firewall de pagos. Hackathon 30X, reto Blinka. #30X #RetoBlinka
+> Lo dudoso no lo decide Custodio: queda pendiente en el acta web y un clic aprueba o rechaza. Y otros agentes pueden pedirle decisiones por API o MCP, como firewall de pagos. Hackathon 30X, reto Blinka. #30X #RetoBlinka
 
 #### LinkedIn
 > Dos piezas finales de Custodio para el reto Blinka del hackathon 30X:
 >
-> 1. Aprobación por celular: lo que supera un tope o no está claro llega como acta por Telegram, y un toque aprueba o rechaza. Aun aprobada, una factura no se paga si rompe la reserva de caja.
+> 1. Aprobación en un clic: lo que supera un tope o no está claro queda pendiente en el acta web, y la persona aprueba o rechaza. Aun aprobada, una factura no se paga si rompe la reserva de caja.
 > 2. Firewall de pagos para otros agentes: por API o MCP, cualquier agente envía una intención de pago y recibe pagar, retener o escalar, con su acta. #30X #Blinka
 
 ### 2026-10-18 08:00 · Últimas horas

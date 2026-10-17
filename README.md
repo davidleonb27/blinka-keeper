@@ -69,7 +69,7 @@ Sólo se publican cifras medidas. Mientras el coordinador no las mida sobre la v
    unas reglas iniciales; se importan los proveedores y se simula la primera semana.
 6. **Prueba, no promesa.** Tests de propiedades sobre miles de empresas aleatorias en cada commit y un botón «alterar el
    registro» que muestra dónde se rompe la cadena.
-7. **Aprobar desde el celular.** El acta llega por Telegram; un toque aprueba o rechaza.
+7. **Aprobar en un clic.** Lo dudoso queda pendiente en el acta web, donde la persona aprueba o rechaza.
 
 ## Arquitectura
 
@@ -79,7 +79,7 @@ flowchart LR
     L --> M[Motor: 12 reglas puras]
     M -->|pagar| A[Auditor independiente]
     M -->|retener| R[Registro encadenado]
-    M -->|escalar| P[Persona: web o Telegram]
+    M -->|escalar| P[Persona: acta en la web]
     A --> R
     P --> M
 ```
@@ -98,8 +98,7 @@ curl http://127.0.0.1:8000/api/v1/health
 cd apps/web && npm install && npm run dev            # web en http://localhost:3000
 ```
 
-Variables de entorno (sólo por entorno, nunca en el repo): `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DATABASE_URL`,
-`TELEGRAM_BOT_TOKEN`. La lista completa está en `docs/DESIGN.md` §11. Sin claves, los tests con modelo se omiten.
+Variables de entorno (sólo por entorno, nunca en el repo): `ANTHROPIC_API_KEY` y `DATABASE_URL`. La lista completa está en `docs/DESIGN.md` §11. Sin claves, los tests con modelo se omiten.
 
 ## Firewall y MCP para otros agentes
 
