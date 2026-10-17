@@ -198,3 +198,21 @@ def test_the_summary_counts_the_period() -> None:
     assert summary.differences.total == Decimal("-0.28")  # -0.13 - 0.15 + 0.22 - 0.22
     assert summary.alerts_open == 2  # the transfer to Orbit and the duplicate
     assert summary.pending_in_bank.count == 1
+
+
+def test_text_from_the_statement_cannot_become_a_spreadsheet_formula() -> None:
+    evidence = source()
+    tampered = [
+        movement.model_copy(update={"description": '=HYPERLINK("https://example.test","x")', "reference": "+1-2"})
+        if index == 0
+        else movement
+        for index, movement in enumerate(evidence.statement.movements)
+    ]
+    evidence = evidence.model_copy(update={"statement": evidence.statement.model_copy(update={"movements": tampered})})
+
+    files = files_of(evidence_pack(evidence, GENERATED))
+    first = next(csv.DictReader(io.StringIO(files["conciliacion.csv"].decode("utf-8-sig")), delimiter=";"))
+
+    assert first["descripcion"] == "'=HYPERLINK(\"https://example.test\",\"x\")"
+    assert first["referencia"] == "'+1-2"
+    assert first["monto"] == "18500.00"
