@@ -1,8 +1,13 @@
+import json
 from pathlib import Path
 
-from sqlalchemy import create_engine, inspect
+from alembic.config import Config
+from sqlalchemy import create_engine, inspect, text
 
+from alembic import command
+from custodio.contracts import Policy
 from custodio.db import Database
+from custodio.db.database import MIGRATIONS
 
 TABLES = {
     "workspaces",
@@ -31,6 +36,29 @@ def test_migrating_twice_is_harmless(tmp_path: Path) -> None:
 
     database.migrate()
     database.migrate()
+
+
+def test_upgrade_drops_the_retired_messaging_contact_from_stored_approvers(tmp_path: Path) -> None:
+    url = f"sqlite:///{tmp_path / 'legacy.db'}"
+    engine = create_engine(url)
+    legacy = Policy().model_dump(mode="json") | {
+        "approvers": [{"name": "Ana Gómez", "role": None, "telegram_chat_id": None, "email": None}]
+    }
+    with engine.begin() as connection:
+        config = Config()
+        config.set_main_option("script_location", str(MIGRATIONS))
+        config.attributes["connection"] = connection
+        command.upgrade(config, "0001")
+        connection.execute(
+            text("INSERT INTO policies (workspace_id, version, document, created_at) VALUES ('w', 1, :doc, '2026')"),
+            {"doc": json.dumps(legacy)},
+        )
+
+    Database(url).migrate()
+
+    with engine.connect() as connection:
+        stored = connection.execute(text("SELECT document FROM policies")).scalar_one()
+    assert Policy.model_validate(json.loads(stored)).approvers[0].name == "Ana Gómez"
 
 
 def test_neon_urls_use_the_psycopg_driver() -> None:
