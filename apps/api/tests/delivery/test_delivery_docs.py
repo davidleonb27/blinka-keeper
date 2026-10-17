@@ -13,6 +13,8 @@ OWNED_DOCS = ("PITCH", "DATASET", "BUSINESS", "BUILD_IN_PUBLIC", "COPY", "ARCHIT
 MAX_SPOKEN_WORDS_PER_SECOND = 2.6
 X_MAX_CHARS = 280
 X_LINK_CHARS = 23
+DEMO_URL = "https://custodio-blinka-green.vercel.app"
+URL_PLACEHOLDER = "{{DEMO_URL}}"
 POST_INTERVAL = timedelta(hours=4)
 DEADLINE = datetime(2026, 10, 18, 11, 59)
 LAUNCH = datetime(2026, 10, 17, 12, 0)
@@ -181,7 +183,7 @@ def test_the_public_challenge_launches_saturday_at_noon() -> None:
 
 def test_every_post_fits_x_and_names_the_hackathon_and_blinka() -> None:
     for post in posts(read("docs/BUILD_IN_PUBLIC.md")):
-        length = len(post.x.replace("{{DEMO_URL}}", "x" * X_LINK_CHARS))
+        length = len(post.x.replace(DEMO_URL, "x" * X_LINK_CHARS))
         assert length <= X_MAX_CHARS, f"{post.when}: {length} chars"
         for text in (post.x, post.linkedin):
             assert "30X" in text
@@ -217,7 +219,14 @@ def test_readme_sells_and_explains_the_trial_on_the_first_screen() -> None:
     assert "El modelo lee, el código decide, la persona autoriza" in first_screen
     assert "Pruébalo en 30 segundos" in first_screen
     trial = section(read("README.md"), "Pruébalo en 30 segundos")
-    assert "{{DEMO_URL}}" in trial or "https://" in trial
+    assert DEMO_URL in trial
+
+
+@pytest.mark.parametrize("path", ["README.md", "docs/BUILD_IN_PUBLIC.md"])
+def test_documents_link_the_deployed_demo_instead_of_a_placeholder(path: str) -> None:
+    text = read(path)
+    assert URL_PLACEHOLDER not in text
+    assert DEMO_URL in text
 
 
 def test_readme_metrics_are_not_measured_until_the_coordinator_measures_them() -> None:
