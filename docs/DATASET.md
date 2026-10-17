@@ -8,12 +8,12 @@ el reto. Está en `apps/api/custodio/dataset/` y es sintético: ningún nombre, 
 1. **Empresa demo.** Cobalto Labs, Inc., con saldo, reserva, política y beneficiarios con su cuenta registrada y, donde
    aplica, un acuerdo (monto fijo o tope mensual). Parte del prototipo navegable que ya estaba publicado
    (`prototype/engine.js`).
-2. **Facturas legítimas variadas.** Servicios profesionales, nómina tercerizada, hosting, arriendo, en USD, COP, MXN y
-   BRL, para que las reglas también se prueben dejando pasar lo correcto.
+2. **Facturas legítimas variadas.** Servicios profesionales, nómina tercerizada, hosting, arriendo, en USD, COP, MXN,
+   BRL y EUR, para que las reglas también se prueben dejando pasar lo correcto.
 3. **Una trampa por regla y varias por combinación.** Cada trampa nace de una pregunta: ¿qué cambia un atacante en una
    factura real para que se pague mal? La tabla de abajo es la lista.
-4. **Etiquetas.** Cada caso trae `expected` (pagar, retener o escalar) y `trap` (el nombre de la trampa). Las puso una
-   persona antes de ver qué decidía el motor, y el motor nunca las lee: un test comprueba que quitarlas no cambia
+4. **Etiquetas.** Cada caso trae `expected` (pagar, retener o escalar) y `trap` (el nombre de la trampa). Se escriben
+   junto con el caso, no se calculan con el motor, y el motor nunca las lee: un test comprueba que quitarlas no cambia
    ninguna decisión.
 5. **Un solo origen para todo.** Cada caso se describe como `InvoiceSpec`. De ahí salen los casos de prueba del motor, los
    PDF que genera `render_invoice` para probar la lectura y las facturas que escribe el atacante del red team. Así lo
@@ -33,7 +33,7 @@ Una factura puede incumplir varias reglas a la vez. La columna indica la regla p
 | Cuenta cambiada | la cuenta no es la registrada del proveedor | retener | R4 |
 | Desacuerdo con lo pactado (monto fijo) | monto fuera de la tolerancia del acuerdo | escalar | R6 |
 | Desacuerdo con lo pactado (tope mensual) | la suma del mes supera el tope del acuerdo | escalar | R6 |
-| Moneda distinta a la pactada | el acuerdo es en una moneda y la factura en otra | escalar | R6 |
+| Suplantación de un proveedor conocido | el nombre es el de un proveedor registrado, pero el NIT leído no es el suyo y pide pagar a otra cuenta | escalar | R3 |
 | Sobre el límite por pago | monto base mayor que el límite por pago | escalar | R10 |
 | Sobre el tope de aprobación | monto base mayor que el tope de pago automático | escalar | R9 |
 | Cupo agotado | lo pagado solo en el mes más este pago supera el cupo | escalar | R11 |
@@ -59,8 +59,8 @@ uv run python -c "from custodio.dataset import demo_cases; print(len(demo_cases(
 uv run python scripts/stress.py --companies 1000 --seed 7    # empresas y lotes aleatorios, semilla fija
 ```
 
-`stress.py` imprime un JSON con las decisiones, los pagos indebidos que encuentra el auditor (debe ser 0) y el tiempo.
-Con la misma semilla el resultado es el mismo.
+`stress.py` imprime un JSON con los conteos de decisiones, los pagos indebidos que encuentra el auditor (debe ser 0) y el
+tiempo. Con la misma semilla los conteos son los mismos; el tiempo cambia. Sale con código 1 si algo falla.
 
 ## Qué se ha medido
 
