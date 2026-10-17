@@ -1,0 +1,274 @@
+"""The single write path for invoices: receive → read → decide → audit → ledger.
+
+The screen, Telegram, the firewall, MCP, the public challenge and the red team all end in `decide`, so every surface
+gets the same rules, the same independent audit and the same ledger.
+"""
+
+from __future__ import annotations
+
+import uuid
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from datetime import datetime
+from decimal import Decimal
+from typing import Any, Literal
+
+from pydantic import BaseModel
+
+from custodio.contracts import (
+    Approval,
+    AuditReport,
+    BatchResult,
+    Decision,
+    DecisionStatus,
+    ExtractedField,
+    ExtractedInvoice,
+    InvoiceCase,
+    InvoiceSource,
+    LedgerKind,
+    RuleOutcome,
+)
+from custodio.db.models import DocumentRow, InvoiceRow, WorkspaceRow
+from custodio.llm import LLMError
+from custodio.services import approval_tokens, ledger_service, policy_service, records
+from custodio.services.context import ServiceContext
+from custodio.services.errors import PayloadTooLarge, UnsupportedMediaType
+from custodio.services.workspace_service import new_id, received_payload
+
+MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
+DOCUMENT_MEDIA_TYPES = frozenset({"application/pdf", "image/png", "image/jpeg", "image/webp"})
+TEXT_MEDIA_TYPE = "text/plain"
+UNREAD_READER = "sin-lectura"
+FIELD_NAMES = tuple(name for name, info in ExtractedInvoice.model_fields.items() if info.annotation is ExtractedField)
+
+
+class InvoiceView(BaseModel):
+    id: str
+    received_at: datetime
+    document_id: str | None
+    status: Literal["received", "decided"]
+    read_ok: bool
+    extraction: ExtractedInvoice
+
+
+class Outcome(BaseModel):
+    batch: BatchResult
+    audit: AuditReport
+
+
+def receive_document(
+    ctx: ServiceContext, workspace: WorkspaceRow, data: bytes, *, filename: str, media_type: str
+) -> InvoiceView:
+    if len(data) > MAX_DOCUMENT_BYTES:
+        raise PayloadTooLarge()
+    if media_type == TEXT_MEDIA_TYPE:
+        return receive_text(ctx, workspace, data.decode("utf-8", errors="replace"))
+    if media_type not in DOCUMENT_MEDIA_TYPES:
+        raise UnsupportedMediaType()
+    document = _store_document(ctx, workspace.id, data, filename=filename, media_type=media_type)
+    source = InvoiceSource.PDF if media_type == "application/pdf" else InvoiceSource.IMAGE
+
+    def read() -> ExtractedInvoice:
+        return ctx.lanes.extract_document(data, filename=filename, media_type=media_type, document_id=document.id)
+
+    return _receive(ctx, workspace, document, read, source=source, visible_text="")
+
+
+def receive_text(
+    ctx: ServiceContext, workspace: WorkspaceRow, text: str, source: InvoiceSource = InvoiceSource.TEXT
+) -> InvoiceView:
+    data = text.encode()
+    if len(data) > MAX_DOCUMENT_BYTES:
+        raise PayloadTooLarge()
+    document = _store_document(ctx, workspace.id, data, filename="factura.txt", media_type=TEXT_MEDIA_TYPE)
+
+    def read() -> ExtractedInvoice:
+        return ctx.lanes.extract_text(text, document_id=document.id, source=source)
+
+    return _receive(ctx, workspace, document, read, source=source, visible_text=text)
+
+
+def process_pending(ctx: ServiceContext, workspace: WorkspaceRow) -> Outcome:
+    return decide(ctx, workspace, records.pending_invoices(ctx, workspace.id))
+
+
+def decide(
+    ctx: ServiceContext,
+    workspace: WorkspaceRow,
+    invoices: Sequence[InvoiceRow],
+    approvals: Mapping[str, Approval] | None = None,
+) -> Outcome:
+    cases = [records.as_case(row) for row in invoices]
+    state = records.company_state(ctx, workspace)
+    policy = policy_service.current(ctx, workspace.id)
+    batch = ctx.lanes.decide_all(cases, state, policy, approvals)
+    report = ctx.lanes.audit(batch, cases, state, policy)
+    blocked = _vetoed_invoices(batch, report)
+    final = _attach_approvals(_apply_veto(batch, report, blocked), approvals or {})
+    for decision in final.decisions:
+        _record(ctx, workspace.id, decision, (approvals or {}).get(decision.invoice_id), decision.invoice_id in blocked)
+    pending = [d for d in final.decisions if d.status is DecisionStatus.PENDING_APPROVAL]
+    approval_tokens.request_approvals(ctx, workspace, policy, pending)
+    return Outcome(batch=final, audit=report)
+
+
+def view(row: InvoiceRow, *, decided: bool) -> InvoiceView:
+    return InvoiceView(
+        id=row.id,
+        received_at=row.received_at,
+        document_id=row.document_id,
+        status="decided" if decided else "received",
+        read_ok=row.read_ok,
+        extraction=ExtractedInvoice.model_validate(row.extraction),
+    )
+
+
+def _receive(
+    ctx: ServiceContext,
+    workspace: WorkspaceRow,
+    document: DocumentRow,
+    read: Callable[[], ExtractedInvoice],
+    *,
+    source: InvoiceSource,
+    visible_text: str,
+) -> InvoiceView:
+    try:
+        extraction, read_ok = read(), True
+    except LLMError:
+        # Kept unread on purpose: R1 escalates it, so a person reviews it instead of anyone guessing.
+        extraction, read_ok = _unread(document.id, source, visible_text), False
+    case = InvoiceCase(id=_new_invoice_id(), received_at=ctx.now(), extraction=extraction)
+    row = records.store_invoice(ctx, workspace.id, case, document_id=document.id, read_ok=read_ok)
+    payload = {**received_payload(case, document.id), "read": read_ok}
+    ledger_service.append(ctx, workspace.id, LedgerKind.INVOICE_RECEIVED, case.id, payload)
+    return view(row, decided=False)
+
+
+def _store_document(
+    ctx: ServiceContext, workspace_id: str, data: bytes, *, filename: str, media_type: str
+) -> DocumentRow:
+    document = DocumentRow(
+        id=new_id(),
+        workspace_id=workspace_id,
+        filename=filename[:255],
+        media_type=media_type,
+        data=data,
+        created_at=ctx.now(),
+    )
+    ctx.session.add(document)
+    ctx.session.flush()
+    return document
+
+
+def _unread(document_id: str, source: InvoiceSource, visible_text: str) -> ExtractedInvoice:
+    unread = ExtractedField(value=None, confidence=0.0, verified=False)
+    return ExtractedInvoice(
+        document_id=document_id,
+        source=source,
+        visible_text=visible_text,
+        reader=UNREAD_READER,
+        overall_confidence=0.0,
+        **dict.fromkeys(FIELD_NAMES, unread),
+    )
+
+
+def _vetoed_invoices(batch: BatchResult, report: AuditReport) -> set[str]:
+    """Payments the auditor does not confirm. If it cannot say which, none of the batch's payments go out."""
+    paid = {d.invoice_id for d in batch.decisions if d.status in records.PAID}
+    named = {f.invoice_id for f in report.findings if f.severity == "critical"} & paid
+    return paid if report.improper_payments > len(named) else named
+
+
+def _apply_veto(batch: BatchResult, report: AuditReport, blocked: set[str]) -> BatchResult:
+    if not blocked:
+        return batch
+    reasons = {f.invoice_id: f.message for f in report.findings if f.severity == "critical"}
+    decisions = [
+        _held_by_auditor(d, reasons.get(d.invoice_id)) if d.invoice_id in blocked else d for d in batch.decisions
+    ]
+    released = _total(d for d in batch.decisions if d.invoice_id in blocked)
+    released_auto = _total(
+        d for d in batch.decisions if d.invoice_id in blocked and d.status is DecisionStatus.PAID_AUTO
+    )
+    return batch.model_copy(
+        update={
+            "decisions": decisions,
+            "balance_end": batch.balance_end + released,
+            "spent_auto_base": batch.spent_auto_base - released_auto,
+            "metrics": records.count_metrics(decisions, improper_payments=len(blocked)),
+        }
+    )
+
+
+def _attach_approvals(batch: BatchResult, approvals: Mapping[str, Approval]) -> BatchResult:
+    if not approvals:
+        return batch
+    decisions = [
+        _with_approval(d, approvals[d.invoice_id]) if d.invoice_id in approvals else d for d in batch.decisions
+    ]
+    return batch.model_copy(update={"decisions": decisions})
+
+
+def _with_approval(decision: Decision, approval: Approval) -> Decision:
+    """The acta always shows who approved, and says plainly when an approval did not turn into a payment."""
+    update: dict[str, Any] = {"approval": decision.approval or approval}
+    unpaid = approval.decision == "approved" and decision.status not in records.PAID
+    if unpaid and not decision.blocked_reason:
+        update["blocked_reason"] = f"{approval.approver} la aprobó, pero no se pagó: {decision.explanation}"
+    return decision.model_copy(update=update)
+
+
+def _held_by_auditor(decision: Decision, finding: str | None) -> Decision:
+    reason = "El auditor independiente no confirmó este pago y no se hizo"
+    return decision.model_copy(
+        update={
+            "status": DecisionStatus.HOLD,
+            "balance_after": decision.balance_before,
+            "blocked_reason": f"{reason}: {finding}" if finding else f"{reason}.",
+        }
+    )
+
+
+def _record(
+    ctx: ServiceContext, workspace_id: str, decision: Decision, approval: Approval | None, audit_blocked: bool
+) -> None:
+    records.save_decision(ctx, workspace_id, decision, audit_blocked=audit_blocked)
+    kind = LedgerKind.APPROVAL if approval else LedgerKind.DECISION
+    payload = _decision_payload(decision, audit_blocked)
+    if approval:
+        payload["approval"] = approval.model_dump(mode="json")
+    ledger_service.append(ctx, workspace_id, kind, decision.invoice_id, payload)
+    if decision.status in records.PAID:
+        ledger_service.append(ctx, workspace_id, LedgerKind.PAYMENT, decision.invoice_id, _payment_payload(decision))
+
+
+def _decision_payload(decision: Decision, audit_blocked: bool) -> dict[str, Any]:
+    failed = [r.rule_id for r in decision.rules if r.outcome in (RuleOutcome.HOLD, RuleOutcome.ESCALATE)]
+    return {
+        "status": decision.status.value,
+        "agent_verdict": decision.agent_verdict.value,
+        "amount_base": _number(decision.amount_base),
+        "failed_rules": failed,
+        "audit_blocked": audit_blocked,
+    }
+
+
+def _payment_payload(decision: Decision) -> dict[str, Any]:
+    return {
+        "beneficiary_id": decision.beneficiary_id,
+        "amount": _number(decision.amount),
+        "currency": decision.currency,
+        "amount_base": _number(decision.amount_base),
+        "by": "person" if decision.status is DecisionStatus.PAID_HUMAN else "agent",
+    }
+
+
+def _number(value: Decimal | None) -> str | None:
+    return None if value is None else str(value)
+
+
+def _total(decisions: Iterable[Decision]) -> Decimal:
+    return sum((d.amount_base or Decimal(0) for d in decisions), Decimal(0))
+
+
+def _new_invoice_id() -> str:
+    return "INV-" + uuid.uuid4().hex[:12].upper()
