@@ -193,3 +193,11 @@ def test_only_the_demo_workspace_can_simulate_a_month(client: TestClient) -> Non
     blank = new_workspace(client, mode="blank")
     response = client.post("/api/v1/trust/simulate", headers=blank.headers)
     assert response.status_code == 409
+
+
+def test_the_simulated_month_leaves_the_real_scheduled_payments_on_their_day(stripe_client: TestClient) -> None:
+    client = stripe_client
+    workspace = new_workspace(client)
+    simulate(client, workspace)
+    calendar = client.get("/api/v1/schedule", headers=workspace.headers).json()
+    assert "F-024" in {item["invoice_id"] for item in calendar["items"]}  # due on 23 October, in real time
