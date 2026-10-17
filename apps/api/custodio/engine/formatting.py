@@ -51,18 +51,6 @@ def clip(text: str) -> str:
     return flat if len(flat) <= QUOTE_LIMIT else flat[: QUOTE_LIMIT - 1] + "…"
 
 
-def _compact(value: Decimal) -> str:
-    """At most two decimals, without trailing zeros: `97,5`, `2,01`, `90`."""
-    hundredths = value.quantize(CENT, rounding=ROUND_HALF_EVEN)
-    places = next(places for places in (0, 1, 2) if hundredths == round(hundredths, places))
-    return _es_number(hundredths, places)
-
-
-def _es_number(value: Decimal, places: int) -> str:
-    english = f"{value:,.{places}f}"
-    return english.replace(",", "\0").replace(".", ",").replace("\0", ".")
-
-
 def plus_minus_percent(points: Decimal) -> str:
     return f"±{_compact(points)} %"
 
@@ -85,3 +73,15 @@ def money_with_base(amount: Decimal | None, currency: str | None, amount_base: D
     if currency == base or amount is None or currency is None:
         return money(amount_base, base)
     return f"{money(amount, currency)} (≈ {money(amount_base, base)})"
+
+
+def _compact(value: Decimal) -> str:
+    """At most two decimals, without trailing zeros: `97,5`, `2,01`, `90`."""
+    hundredths = value.quantize(CENT, rounding=ROUND_HALF_EVEN)
+    places = next(places for places in (0, 1, 2) if hundredths == round(hundredths, places))
+    return _es_number(hundredths, places)
+
+
+def _es_number(value: Decimal, places: int) -> str:
+    english = f"{value:,.{places}f}"
+    return english.replace(",", "\0").replace(".", ",").replace("\0", ".")
