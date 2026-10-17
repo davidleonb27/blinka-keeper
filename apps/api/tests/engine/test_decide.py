@@ -145,6 +145,12 @@ def test_an_approval_cannot_lift_a_hold_rule() -> None:
     assert decision.blocked_reason is not None and "Cuenta registrada" in decision.blocked_reason
 
 
+def test_an_approval_filed_under_another_invoice_id_is_ignored() -> None:
+    batch = decide_all([invoice(amount="6500.00")], state(), CAPPED, {"F-001": approval("F-999")})
+    assert batch.decisions[0].status is DecisionStatus.PENDING_APPROVAL
+    assert batch.decisions[0].approval is None
+
+
 def test_an_approval_for_an_unknown_invoice_is_ignored() -> None:
     batch = decide_all([invoice()], state(), policy(), {"F-404": approval("F-404")})
     assert batch.decisions[0].status is DecisionStatus.PAID_AUTO

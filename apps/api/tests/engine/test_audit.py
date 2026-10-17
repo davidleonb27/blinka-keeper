@@ -90,6 +90,13 @@ def test_a_human_payment_without_an_approval_is_improper() -> None:
     assert audit(forged, [case], state(), CAPPED).improper_payments == 1
 
 
+def test_a_human_payment_on_an_approval_for_another_invoice_is_improper() -> None:
+    case = invoice(amount="6500.00")
+    forged = forge(decide_all([case], state(), CAPPED), case.id, DecisionStatus.PAID_HUMAN, approval=approval("F-999"))
+    report = audit(forged, [case], state(), CAPPED)
+    assert report.improper_payments == 1 and "aprobación" in report.findings[0].message
+
+
 def test_a_human_payment_that_breaks_a_hold_rule_is_improper() -> None:
     case = invoice(account="7788-9902")
     batch = decide_all([case], state(), policy(), {case.id: approval(case.id)})
