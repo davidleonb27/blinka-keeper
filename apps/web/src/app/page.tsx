@@ -149,7 +149,7 @@ function Hero() {
             persona lo demás. <b className="font-semibold text-ink">El modelo lee, el código decide, la persona autoriza.</b>{" "}
             Úsalo en la demo o córrelo en tu infraestructura.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button asChild size="lg">
               <Link href="/panel">
                 Probar la demo <ArrowRight aria-hidden />

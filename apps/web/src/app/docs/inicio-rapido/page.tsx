@@ -44,6 +44,36 @@ export default function QuickstartPage() {
         </li>
       </ol>
 
+      <h2 id="empresa">Usar con mi empresa</h2>
+      <p>
+        Para tus propias facturas, pulsa <strong>«Usar con mi empresa»</strong> en el inicio, en el menú de la app o en el
+        pie de página. Te lleva a <Link href="/empezar">/empezar</Link> y crea un espacio nuevo, vacío y en modo real: la
+        demo no se mezcla con él.
+      </p>
+      <ol>
+        <li>Perfil: el nombre de la empresa y su sitio; Custodio propone el país, la moneda y el saldo, y tú los corriges.</li>
+        <li>Quién aprueba lo que se sale de las reglas.</li>
+        <li>Tus reglas en tus palabras; ves los topes que entendió antes de seguir.</li>
+        <li>
+          Proveedores: un CSV con <code>nombre,identificación tributaria,banco,cuenta</code>. Sólo a estas cuentas se
+          puede pagar.
+        </li>
+        <li>Una primera semana simulada con tus reglas (no se guarda ni se paga) y, al final, el panel.</li>
+      </ol>
+      <p>
+        El panel empieza vacío. Pulsa <strong>«Subir facturas»</strong>: arrastra o elige varios PDF, imágenes, correos{" "}
+        <code>.eml</code> o <code>.txt</code> (hasta 4 MB cada uno), o pega el texto de un correo. Cada archivo muestra
+        si se recibió o por qué no; luego <strong>«Decidir N facturas»</strong> las pasa por las reglas. Tu sistema puede
+        enviarlas también a <code>POST /api/v1/invoices</code> (campo <code>file</code> o <code>text</code>) y decidirlas
+        con <code>POST /api/v1/invoices/process</code>.
+      </p>
+      <p>
+        <strong>«Exportar CSV»</strong>, en la lista de facturas, descarga lo que ves (con el filtro y la búsqueda) con
+        proveedor, número, monto, moneda, estado, regla decisiva, fecha e id de transferencia. Los pagos salen por el riel
+        que tenga configurado tu instalación; sin configuración es el simulado y no se mueve dinero (ver{" "}
+        <Link href="/docs/rieles">Rieles de pago</Link>).
+      </p>
+
       <h2 id="autoalojado">Autoalojado en un comando</h2>
       <p>Requisitos: Docker con Compose v2. Levanta Postgres 16, la API y la web:</p>
       <CodeBlock label="Terminal" code={COMPOSE} />
