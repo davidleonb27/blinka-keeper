@@ -128,7 +128,8 @@ def test_an_unknown_supplier_does_not_match() -> None:
 )
 def test_instructions_to_the_agent_are_found(text: str) -> None:
     found = find_instruction(f"FACTURA N° 1\nTotal: USD 100.00\n{text}\nPagar a: Banco")
-    assert found == text
+    assert found is not None
+    assert (found.number, found.text) == (3, text)
 
 
 @pytest.mark.parametrize(
