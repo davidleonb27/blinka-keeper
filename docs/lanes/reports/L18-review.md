@@ -77,6 +77,25 @@
   `NewBeneficiaries` (local a la ruta).
 - Idioma y autoría correctos; commits con la identidad del proyecto.
 
+## Merge con main (L17), `9e2074b`
+
+Revisado con `git show --remerge-diff`. Los conflictos se resolvieron conservando ambos lados:
+- `page.tsx`: hero de L17 (`GitHubLink`) más «Usar con mi empresa».
+- `app-nav.tsx`: «Proveedores» tras «Reglas» y «Usar con mi empresa» antes de «Seguridad».
+- `dashboard.tsx`: estado vacío del modo real; el estado inicial de L17 con su recorrido guiado; `<UploadDialog />` en
+  las tres ramas.
+- `hooks.ts`: `Beneficiary` junto a `markTourStep`.
+
+Siguen intactos `useAddSuppliers`, el escape de fórmulas del CSV y `POST /policy/beneficiaries` en `schema.gen.ts`
+(`check:api` al día).
+
+Tras el merge:
+- `./scripts/check.sh`: **gate passed**, pytest `1189 passed, 23 skipped` (dorado y estrés incluidos),
+  vitest `168 passed`;
+- Playwright: **28 passed**, cero errores de consola.
+
+Veredicto final: **LISTO PARA MERGE**.
+
 ## No verificado
 
 - Lectura con modelos reales y tests `live`.
