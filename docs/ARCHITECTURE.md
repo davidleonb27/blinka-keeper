@@ -67,8 +67,8 @@ Una factura PDF con la cuenta cambiada, de punta a punta:
    leída no es la registrada del proveedor. Es una regla de retener.
 7. **Se decide el veredicto.** Si falla alguna regla de retener, se retiene; si no, si falla alguna de escalar, queda
    pendiente de aprobación; si no, se paga y se descuenta del saldo y del cupo. Aquí: **retener**.
-8. **El auditor recalcula.** Con código distinto al del motor revisa cada pago. Si un pago no pasa, no se hace y cuenta
-   como pago indebido. En el ejemplo no hay pago que revisar.
+8. **El auditor recalcula.** Con código distinto al del motor revisa cada pago. Si un pago no pasa, no se hace y la
+   decisión queda con el motivo del veto. En el ejemplo no hay pago que revisar.
 9. **Se escribe el acta.** Explicación en español, contrafactual («se habría pagado si la cuenta nueva se verificara con
    el proveedor y se registrara») y, opcionalmente, una narración del modelo en la que se valida cada número.
 10. **Se registra.** La decisión entra al registro con su hash: `sha256(hash_anterior + json_canónico(entrada))`.
