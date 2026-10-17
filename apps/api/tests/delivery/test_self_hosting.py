@@ -3,6 +3,7 @@
 CI builds both images and runs `docker compose config`; these checks keep the contract readable without Docker.
 """
 
+import json
 import re
 from pathlib import Path
 
@@ -113,3 +114,9 @@ def test_ci_builds_both_images() -> None:
     assert "apps/api/Dockerfile" in workflow or "context: apps/api" in workflow
     assert "apps/web/Dockerfile" in workflow or "context: apps/web" in workflow
     assert "docker compose config" in workflow
+
+
+def test_vercel_builds_the_web_as_next_even_with_its_dockerfile_beside_it() -> None:
+    # Vercel reads a Dockerfile in a service root as a second framework and refuses to build unless one is named.
+    services = json.loads(read("vercel.json"))["services"]
+    assert services["web"]["framework"] == "nextjs"
