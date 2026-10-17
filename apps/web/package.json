@@ -9,8 +9,9 @@
     "lint": "eslint --max-warnings=0",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "gen:api": "uv run --directory ../api python -c \"import json; from main import app; print(json.dumps(app.openapi()))\" > openapi.json && openapi-typescript openapi.json -o src/lib/api/openapi.d.ts && rm openapi.json",
-    "gen:mock": "node scripts/port-prototype-dataset.mjs"
+    "gen:api": "node scripts/gen-api-schema.mjs",
+    "gen:mock": "node scripts/port-prototype-dataset.mjs",
+    "check:api": "node scripts/gen-api-schema.mjs --check"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.3",

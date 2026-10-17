@@ -5,16 +5,50 @@ import { createMockClient } from "./mock-client";
 
 const instant = { latencyMs: 0 };
 
+async function processedDemo() {
+  const api = createMockClient(instant);
+  await api.processInvoices();
+  return api;
+}
+
 describe("mock client", () => {
-  it("serves the prototype company with twelve rules per decision", async () => {
+  it("starts like a fresh API demo workspace: invoices received, nothing decided yet", async () => {
     const api = createMockClient(instant);
+    const workspace = await api.getWorkspace();
+
+    expect(workspace.company_name).toBe("Cobalto Labs, Inc.");
+    expect(workspace.pending_invoices).toBeGreaterThan(0);
+    expect(workspace.metrics.total).toBe(0);
+    expect(workspace.audit).toEqual({ agrees: true, checked: 0, improper_payments: 0, findings: [] });
+    expect(await api.listDecisions()).toEqual([]);
+  });
+
+  it("decides every pending invoice when they are processed, with twelve rules each", async () => {
+    const api = createMockClient(instant);
+    const { pending_invoices: pending } = await api.getWorkspace();
+
+    const outcome = await api.processInvoices();
     const workspace = await api.getWorkspace();
     const decisions = await api.listDecisions();
 
-    expect(workspace.company_name).toBe("Cobalto Labs, Inc.");
+    expect(outcome.batch.decisions).toHaveLength(pending);
+    expect(outcome.vetoed).toEqual([]);
+    expect(workspace.pending_invoices).toBe(0);
     expect(workspace.metrics.improper_payments).toBe(0);
+    expect(workspace.audit.checked).toBe(workspace.metrics.paid_auto);
     expect(decisions).toHaveLength(workspace.metrics.total);
     expect(decisions.every((item) => item.decision.rules.length === 12)).toBe(true);
+    expect((await api.verifyLedger()).valid).toBe(true);
+  });
+
+  it("serves an acta with the invoice as read and the ledger entries about it", async () => {
+    const api = await processedDemo();
+
+    const acta = await api.getDecision("F-001");
+
+    expect(acta.decision.invoice_id).toBe("F-001");
+    expect(acta.invoice).toMatchObject({ id: "F-001", status: "decided", read_ok: true });
+    expect(acta.ledger.map((entry) => entry.subject_id)).toEqual(["F-001"]);
   });
 
   it("carries no trace of a messaging channel for approvals", () => {
@@ -22,7 +56,7 @@ describe("mock client", () => {
   });
 
   it("pays an approved invoice and records it in the ledger", async () => {
-    const api = createMockClient(instant);
+    const api = await processedDemo();
     const before = await api.getLedger();
 
     const decision = await api.approveDecision("F-015", { approver: "Ana Gómez" });
@@ -53,7 +87,7 @@ describe("mock client", () => {
   });
 
   it("rejects without touching the balance", async () => {
-    const api = createMockClient(instant);
+    const api = await processedDemo();
     const { balance } = await api.getWorkspace();
 
     const decision = await api.rejectDecision("F-022", { approver: "Tomás Rivera" });
@@ -63,14 +97,14 @@ describe("mock client", () => {
   });
 
   it("refuses to approve something that is not pending", async () => {
-    const api = createMockClient(instant);
+    const api = await processedDemo();
     await expect(api.approveDecision("F-001", { approver: "Ana Gómez" })).rejects.toThrow(
       /no espera aprobación/,
     );
   });
 
   it("compiles a threshold sentence into a policy change with its quote", async () => {
-    const api = createMockClient(instant);
+    const api = await processedDemo();
     const proposal = await api.compilePolicy("Nada sobre 3.000 USD sin que lo apruebe Ana");
 
     expect(proposal.changes).toEqual([
@@ -88,13 +122,45 @@ describe("mock client", () => {
     expect(proposal.unsupported).toEqual(["Págale primero a los que me caen bien"]);
   });
 
-  it("shows a tampered copy breaking at the altered entry", async () => {
+  it("compiles against a draft without simulating it, like the API", async () => {
     const api = createMockClient(instant);
+    const draft = await api.getPolicy();
+
+    const proposal = await api.compilePolicy("Nada sobre 3.000 USD sin que lo apruebe Ana", draft);
+
+    expect(proposal.proposed.approval_threshold).toBe(3000);
+    expect(proposal.simulation).toBeNull();
+  });
+
+  it("shows a tampered copy breaking at the altered entry while the real one stays valid", async () => {
+    const api = await processedDemo();
     const result = await api.tamperDemo();
 
-    expect(result.verification.valid).toBe(false);
-    expect(result.verification.first_broken_seq).toBe(result.tampered_seq);
+    expect(result.altered_field).toBe("payload");
+    expect(result.tampered.valid).toBe(false);
+    expect(result.tampered.first_broken_seq).toBe(result.altered_seq);
+    expect(result.real.valid).toBe(true);
     expect((await api.verifyLedger()).valid).toBe(true);
+  });
+
+  it("completes onboarding on a blank workspace and simulates one agreed invoice per supplier", async () => {
+    const api = createMockClient(instant);
+    await api.createWorkspace("blank");
+    const policy = await api.getPolicy();
+    const supplier = (await api.importSuppliers(new File(["x"], "lista.pdf"))).beneficiaries[0];
+
+    const result = await api.completeOnboarding({
+      profile: await api.proposeProfile({ company_name: "Café La Montaña", website: null }),
+      policy,
+      suppliers: [supplier],
+      opening_balance: 50_000_000,
+    });
+
+    expect(result.workspace.company_name).toBe("Café La Montaña");
+    expect(result.workspace.balance).toBe(50_000_000);
+    expect(result.workspace.metrics.total).toBe(0);
+    expect(result.first_week.decisions.map((d) => d.supplier_name)).toEqual([supplier.name]);
+    expect(await api.listDecisions()).toEqual([]);
   });
 
   it("streams red-team rounds ending in a summary with zero improper payments", async () => {

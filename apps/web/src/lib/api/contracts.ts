@@ -1,10 +1,17 @@
 /**
- * Mirror of apps/api/custodio/contracts.py. Money is a JSON number; dates are ISO-8601 strings.
- * Keep field names identical to the Python models: this file is the seam with the API.
+ * The shapes of apps/api/custodio/contracts.py as the API serves them, taken from the generated OpenAPI types
+ * (schema.gen.ts) so tsc fails on any drift. Only the rules catalogue and the field list are values here.
+ * Models the API both reads and writes come in two flavours: `-Output` is what it answers (amounts are numbers),
+ * `-Input` what it accepts; the web reads the first and sends it back, which the second accepts.
  */
+import type { components } from "./schema.gen";
+
+type Schemas = components["schemas"];
 
 export type ISODate = string;
 export type ISODateTime = string;
+
+// --- Rules catalogue --------------------------------------------------------
 
 export type RuleEffect = "hold" | "escalate";
 
@@ -15,6 +22,7 @@ export interface RuleSpec {
   effect: RuleEffect;
 }
 
+/** Mirrors contracts.RULES: fixed ids, evaluated in this order. */
 export const RULES: readonly RuleSpec[] = [
   { id: "R1", key: "reading", label: "Lectura confiable", effect: "escalate" },
   { id: "R2", key: "injection", label: "Sin instrucciones escondidas", effect: "escalate" },
@@ -32,84 +40,22 @@ export const RULES: readonly RuleSpec[] = [
 
 // --- Company configuration -------------------------------------------------
 
-export type AgreementKind = "fixed" | "monthly_cap";
-
-export interface Agreement {
-  kind: AgreementKind;
-  amount: number;
-  currency: string;
-  tolerance_pct?: number | null;
-  source?: string | null;
-}
-
-export interface Beneficiary {
-  id: string;
-  name: string;
-  tax_id: string;
-  aliases?: string[];
-  country?: string | null;
-  bank_name: string;
-  account_number: string;
-  currency: string;
-  agreement?: Agreement | null;
-  allowed?: boolean;
-  approver_contact?: string | null;
-}
-
-export interface Approver {
-  name: string;
-  role?: string | null;
-  email?: string | null;
-}
-
-export interface Policy {
-  version: number;
-  base_currency: string;
-  approval_threshold: number;
-  per_payment_limit: number;
-  period_budget: number;
-  reserve: number;
-  agreement_tolerance_pct: number;
-  duplicate_window_days: number;
-  split_window_days: number;
-  min_confidence: number;
-  allowed_currencies: string[];
-  beneficiaries: Beneficiary[];
-  approvers: Approver[];
-}
+export type AgreementKind = Schemas["AgreementKind"];
+export type Agreement = Schemas["Agreement-Output"];
+export type Beneficiary = Schemas["Beneficiary-Output"];
+export type Approver = Schemas["Approver"];
+export type Policy = Schemas["Policy-Output"];
+export type PolicyInput = Schemas["Policy-Input"];
 
 // --- Reading invoices ------------------------------------------------------
 
-export interface Evidence {
-  quote: string;
-  page?: number | null;
-  char_start?: number | null;
-  char_end?: number | null;
-}
-
-export interface ExtractedField {
-  value: string | null;
-  evidence?: Evidence | null;
-  confidence: number;
-  verified: boolean;
-}
-
-export type HiddenTextKind =
-  | "invisible_color"
-  | "tiny_font"
-  | "off_page"
-  | "covered"
-  | "metadata"
-  | "instruction";
-
-export interface HiddenTextFinding {
-  kind: HiddenTextKind;
-  text: string;
-  page?: number | null;
-  detail: string;
-}
-
-export type InvoiceSource = "pdf" | "image" | "text" | "email" | "whatsapp" | "intent";
+export type Evidence = Schemas["Evidence"];
+export type ExtractedField = Schemas["ExtractedField"];
+export type HiddenTextKind = Schemas["HiddenTextKind"];
+export type HiddenTextFinding = Schemas["HiddenTextFinding"];
+export type InvoiceSource = Schemas["InvoiceSource"];
+export type ExtractedInvoice = Schemas["ExtractedInvoice"];
+export type InvoiceView = Schemas["InvoiceView"];
 
 export const EXTRACTED_FIELD_NAMES = [
   "supplier_name",
@@ -122,228 +68,48 @@ export const EXTRACTED_FIELD_NAMES = [
   "bank_name",
   "account_number",
   "description",
-] as const;
+] as const satisfies readonly (keyof ExtractedInvoice)[];
 
 export type ExtractedFieldName = (typeof EXTRACTED_FIELD_NAMES)[number];
 
-export type ExtractedInvoice = Record<ExtractedFieldName, ExtractedField> & {
-  document_id: string;
-  source: InvoiceSource;
-  visible_text: string;
-  hidden_findings: HiddenTextFinding[];
-  reader: string;
-  overall_confidence: number;
-};
-
 // --- Decisions, audit and ledger -------------------------------------------
 
-export type RuleOutcome = "pass" | "hold" | "escalate" | "skipped";
-
-export interface RuleResult {
-  rule_id: string;
-  key: string;
-  label: string;
-  outcome: RuleOutcome;
-  reason: string;
-  facts?: Record<string, unknown>;
-}
-
-export type AgentVerdict = "pay" | "hold" | "escalate";
-
-export type DecisionStatus = "paid_auto" | "paid_human" | "hold" | "pending_approval" | "rejected";
-
-export interface Approval {
-  invoice_id: string;
-  decision: "approved" | "rejected";
-  approver: string;
-  channel: "web" | "api";
-  at: ISODateTime;
-  note?: string | null;
-}
-
-export type PaymentRailName = "simulated" | "stripe_test";
-
-export type ExecutionStatus = "executed" | "simulated" | "failed";
-
-/** How the rail carried out a payment the engine decided. The rail executes; it never decides. */
-export interface PaymentExecution {
-  rail: PaymentRailName;
-  status: ExecutionStatus;
-  external_id?: string | null;
-  dashboard_url?: string | null;
-  executed_at: ISODateTime;
-  error?: string | null;
-}
-
-export interface Decision {
-  invoice_id: string;
-  beneficiary_id: string | null;
-  supplier_name: string | null;
-  amount: number | null;
-  currency: string | null;
-  amount_base: number | null;
-  agent_verdict: AgentVerdict;
-  status: DecisionStatus;
-  rules: RuleResult[];
-  explanation: string;
-  counterfactual: string | null;
-  narrative?: string | null;
-  balance_before?: number | null;
-  balance_after?: number | null;
-  approval?: Approval | null;
-  blocked_reason?: string | null;
-  execution?: PaymentExecution | null;
-}
-
-export interface Metrics {
-  total: number;
-  paid_auto: number;
-  paid_human: number;
-  hold: number;
-  pending: number;
-  rejected: number;
-  autonomy_rate: number;
-  accuracy?: number | null;
-  improper_payments: number;
-}
-
-export interface AuditFinding {
-  invoice_id: string;
-  severity: "critical" | "warning";
-  message: string;
-}
-
-export interface AuditReport {
-  agrees: boolean;
-  checked: number;
-  improper_payments: number;
-  findings: AuditFinding[];
-}
-
-export type LedgerKind =
-  | "policy_changed"
-  | "invoice_received"
-  | "decision"
-  | "approval"
-  | "payment"
-  | "redteam_attack"
-  | "challenge_attempt"
-  | "intent";
-
-export interface LedgerEntry {
-  seq: number;
-  at: ISODateTime;
-  kind: LedgerKind;
-  subject_id: string | null;
-  payload: Record<string, unknown>;
-  prev_hash: string;
-  hash: string;
-}
-
-export interface LedgerVerification {
-  valid: boolean;
-  length: number;
-  first_broken_seq: number | null;
-  head_hash: string | null;
-}
+export type RuleOutcome = Schemas["RuleOutcome"];
+export type RuleResult = Schemas["RuleResult"];
+export type AgentVerdict = Schemas["AgentVerdict"];
+export type DecisionStatus = Schemas["DecisionStatus"];
+export type Approval = Schemas["Approval"];
+export type PaymentExecution = Schemas["PaymentExecution"];
+export type PaymentRailName = PaymentExecution["rail"];
+export type ExecutionStatus = PaymentExecution["status"];
+export type Decision = Schemas["Decision"];
+export type Metrics = Schemas["Metrics"];
+export type BatchResult = Schemas["BatchResult"];
+export type AuditFinding = Schemas["AuditFinding"];
+export type AuditReport = Schemas["AuditReport"];
+export type LedgerKind = Schemas["LedgerKind"];
+export type LedgerEntry = Schemas["LedgerEntry"];
+export type LedgerVerification = Schemas["LedgerVerification"];
 
 // --- Policy compiler and simulation ----------------------------------------
 
-export interface PolicyChange {
-  field: string;
-  label: string;
-  before: unknown;
-  after: unknown;
-  source_quote: string;
-}
-
-export interface SimulatedChange {
-  invoice_id: string;
-  supplier_name: string | null;
-  before: DecisionStatus;
-  after: DecisionStatus;
-  reason: string;
-}
-
-export interface SimulationReport {
-  before: Metrics;
-  after: Metrics;
-  changed: SimulatedChange[];
-}
-
-export interface PolicyProposal {
-  text: string;
-  changes: PolicyChange[];
-  unsupported: string[];
-  questions: string[];
-  proposed: Policy;
-  simulation?: SimulationReport | null;
-}
+export type PolicyChange = Schemas["PolicyChange"];
+export type SimulatedChange = Schemas["SimulatedChange"];
+export type SimulationReport = Schemas["SimulationReport"];
+export type PolicyProposal = Schemas["PolicyProposal"];
 
 // --- Adaptive onboarding ---------------------------------------------------
 
-export interface CompanyProfile {
-  company_name: string;
-  website?: string | null;
-  industry?: string | null;
-  country?: string | null;
-  base_currency: string;
-  summary?: string | null;
-  likely_suppliers: string[];
-  suggested_rules_text?: string | null;
-  evidence_urls: string[];
-}
-
-export interface SupplierImport {
-  beneficiaries: Beneficiary[];
-  warnings: string[];
-}
+export type CompanyProfile = Schemas["CompanyProfile"];
+export type SupplierImport = Schemas["SupplierImport"];
 
 // --- Live red team ---------------------------------------------------------
 
-export interface AttackSpec {
-  round: number;
-  technique: string;
-  rationale: string;
-  target_rules: string[];
-  render_as: "pdf" | "text" | "image";
-  invoice_text: string;
-  hidden_text?: string | null;
-}
-
-export type RedTeamEventType =
-  | "round_started"
-  | "attack_generated"
-  | "verdict"
-  | "round_finished"
-  | "summary"
-  | "error";
-
-export interface RedTeamEvent {
-  type: RedTeamEventType;
-  round: number;
-  attack?: AttackSpec | null;
-  decision?: Decision | null;
-  caught?: boolean | null;
-  message?: string | null;
-}
+export type AttackSpec = Schemas["AttackSpec"];
+export type RedTeamEventType = Schemas["RedTeamEvent"]["type"];
+export type RedTeamEvent = Schemas["RedTeamEvent"];
 
 // --- Firewall and public challenge -----------------------------------------
 
-export interface ChallengeAttempt {
-  id: string;
-  alias: string | null;
-  technique: string | null;
-  decision: Decision;
-  broke_through: boolean;
-  at: ISODateTime;
-}
-
-export interface ChallengeStats {
-  attempts: number;
-  improper_payments: number;
-  held: number;
-  escalated: number;
-  paid_legitimately: number;
-  hall_of_fame: ChallengeAttempt[];
-}
+export type ChallengeAttempt = Schemas["ChallengeAttempt"];
+export type ChallengeStats = Schemas["ChallengeStats"];
