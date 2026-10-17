@@ -10,8 +10,9 @@ function finderAt(modules: boolean[][], x: number, y: number): boolean {
 
 describe("encodeQr", () => {
   it("picks the smallest version that holds the text", () => {
-    expect(encodeQr("https://x.co/reto").size).toBe(21);
-    expect(encodeQr(`https://custodio.example.com/${"r".repeat(40)}`).size).toBe(29);
+    expect(encodeQr("https://x.co").size).toBe(21);
+    expect(encodeQr("https://x.co/reto").size).toBe(25);
+    expect(encodeQr("x".repeat(30)).size).toBe(29);
   });
 
   it("draws the three finder patterns a camera looks for", () => {
