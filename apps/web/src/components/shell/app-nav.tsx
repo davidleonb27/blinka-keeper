@@ -1,6 +1,6 @@
 "use client";
 
-import { Code2, LayoutGrid, Link2, SlidersHorizontal, Swords, Target, type LucideIcon } from "lucide-react";
+import { Code2, Landmark, LayoutGrid, Link2, SlidersHorizontal, Swords, Target, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Wordmark } from "@/components/brand/seal";
@@ -17,6 +17,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/panel", label: "Panel", icon: LayoutGrid },
+  { href: "/conciliacion", label: "Conciliación", icon: Landmark },
   { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
   { href: "/arena", label: "Arena", icon: Swords },
   { href: "/reto", label: "Róbale a Custodio", icon: Target },

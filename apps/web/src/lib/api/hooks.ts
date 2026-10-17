@@ -2,7 +2,15 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "@/components/providers/api-provider";
-import type { ApprovalInput, ChallengeInput, OnboardingRequest, ProfileRequest } from "./client";
+import type {
+  ApprovalInput,
+  ChallengeInput,
+  OnboardingRequest,
+  ProfileRequest,
+  ReconciliationView,
+  ResolveInput,
+  StatementInput,
+} from "./client";
 import type { Policy } from "./contracts";
 import { browserWorkspaceStore, type WorkspaceStore } from "./workspace";
 
@@ -15,6 +23,8 @@ const queryKeys = {
   policy: ["policy"] as const,
   ledger: ["ledger"] as const,
   challenge: ["challenge-stats"] as const,
+  reconciliations: ["reconciliations"] as const,
+  reconciliation: (id: string) => ["reconciliations", id] as const,
 };
 
 export function useHealth() {
@@ -155,4 +165,55 @@ export function useProcessInvoices() {
   const api = useApi();
   const invalidate = useInvalidateWorkspace();
   return useMutation({ mutationFn: () => api.processInvoices(), onSuccess: invalidate });
+}
+
+export function useReconciliations() {
+  const api = useApi();
+  return useQuery({ queryKey: queryKeys.reconciliations, queryFn: () => api.listReconciliations() });
+}
+
+export function useReconciliation(id: string | null) {
+  const api = useApi();
+  return useQuery({
+    queryKey: queryKeys.reconciliation(id ?? ""),
+    queryFn: () => api.getReconciliation(id ?? ""),
+    enabled: id !== null,
+  });
+}
+
+/** Keeps the reconciliation the API just answered, and refreshes the list and the ledger it wrote to. */
+function useStoreReconciliation() {
+  const client = useQueryClient();
+  return (view: ReconciliationView) => {
+    client.setQueryData(queryKeys.reconciliation(view.id), view);
+    return Promise.all(
+      [queryKeys.reconciliations, queryKeys.ledger].map((queryKey) => client.invalidateQueries({ queryKey })),
+    );
+  };
+}
+
+export function useReconcileStatement() {
+  const api = useApi();
+  const store = useStoreReconciliation();
+  return useMutation({ mutationFn: (input: StatementInput) => api.reconcileStatement(input), onSuccess: store });
+}
+
+export function useResolveMovement(id: string) {
+  const api = useApi();
+  const store = useStoreReconciliation();
+  return useMutation({ mutationFn: (input: ResolveInput) => api.resolveMovement(id, input), onSuccess: store });
+}
+
+export function useClosePeriod(id: string) {
+  const api = useApi();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ period, closedBy }: { period: string; closedBy: string }) => api.closePeriod(period, closedBy),
+    onSuccess: () =>
+      Promise.all(
+        [queryKeys.reconciliation(id), queryKeys.reconciliations, queryKeys.ledger].map((queryKey) =>
+          client.invalidateQueries({ queryKey }),
+        ),
+      ),
+  });
 }

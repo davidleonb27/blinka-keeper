@@ -42,6 +42,7 @@ describe("ReconciliationPage", () => {
     const download = vi.spyOn(api, "downloadEvidence").mockResolvedValue(new Blob(["PK"]));
     URL.createObjectURL = vi.fn(() => "blob:paquete");
     URL.revokeObjectURL = vi.fn();
+    const save = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
     const closing = screen.getByRole("region", { name: "Cierre del mes" });
     expect(within(closing).getByRole("button", { name: /Cerrar octubre/ })).toBeDisabled();
 
@@ -59,5 +60,6 @@ describe("ReconciliationPage", () => {
     await userEvent.click(within(closing).getByRole("button", { name: /Descargar el paquete/ }));
 
     expect(download).toHaveBeenCalledWith("2026-10");
+    expect(save.mock.contexts[0]).toHaveProperty("download", "custodio-cierre-2026-10.zip");
   });
 });

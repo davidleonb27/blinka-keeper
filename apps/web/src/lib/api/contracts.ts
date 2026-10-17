@@ -115,3 +115,16 @@ export type RedTeamEvent = Schemas["RedTeamEvent"];
 
 export type ChallengeAttempt = Schemas["ChallengeAttempt"];
 export type ChallengeStats = Schemas["ChallengeStats"];
+
+// --- Bank reconciliation and month-end close -------------------------------
+
+export type StatementMovement = Schemas["StatementMovement"];
+export type MovementStatus = Schemas["MovementStatus"];
+export type MatchLevel = Schemas["MatchLevel"];
+export type MovementResult = Schemas["MovementResult"];
+export type MovementView = Schemas["MovementView"];
+export type PaymentResult = Schemas["PaymentResult"];
+export type PeriodSummary = Schemas["PeriodSummary"];
+export type Tally = Schemas["Tally"];
+export type Review = Schemas["Review"];
+export type PeriodClose = Schemas["PeriodClose"];

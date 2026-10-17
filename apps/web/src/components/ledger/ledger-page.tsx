@@ -21,7 +21,17 @@ const KIND_LABEL: Record<LedgerKind, string> = {
   redteam_attack: "Ataque del red team",
   challenge_attempt: "Intento del reto",
   intent: "Intención de otro agente",
+  reconciliation: "Conciliación bancaria",
+  reconciliation_review: "Revisión de un movimiento",
+  period_closed: "Cierre del mes",
 };
+// Reconciliations and closes are about a statement or a month, not an invoice: they have no acta to open.
+const WITHOUT_ACTA = new Set<LedgerKind>(["reconciliation_review", "period_closed"]);
+
+/** A reconciliation's own entry names its statement; the ones that confirm a payment name the invoice. */
+function isReconciliationId(entry: LedgerEntry): boolean {
+  return entry.kind === "reconciliation" && "statement_sha256" in entry.payload;
+}
 
 function statusLabel(status: unknown): string | null {
   return isDecisionStatus(status) ? STATUS_META[status].label : null;
@@ -76,7 +86,7 @@ function LedgerTable({ entries, brokenSeq }: { entries: LedgerEntry[]; brokenSeq
             {entry.seq === brokenSeq ? <span className="ml-2 text-xs font-semibold text-crit">alterado en la copia</span> : null}
           </span>
           <span className="col-start-2 min-w-0 text-[13px] text-ink-2 sm:col-start-auto">
-            {entry.subject_id ? (
+            {entry.subject_id && !WITHOUT_ACTA.has(entry.kind) && !isReconciliationId(entry) ? (
               <Link href={`/panel?acta=${entry.subject_id}`} className="font-mono text-[12.5px] text-brand hover:underline">
                 {entry.subject_id}
               </Link>

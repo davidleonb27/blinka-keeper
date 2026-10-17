@@ -85,7 +85,7 @@ describe("live client", () => {
   });
 
   it("downloads the evidence pack and the demo statement as files", async () => {
-    const fetchMock = vi.fn<typeof fetch>(async () => new Response(new Blob(["PK"]), { status: 200 }));
+    const fetchMock = vi.fn<typeof fetch>(async () => new Response("PK", { status: 200 }));
     const client = clientWith(fetchMock);
     const pack = await client.downloadEvidence("2026-10");
     await client.downloadDemoStatement("pdf");
