@@ -122,6 +122,7 @@ test("a real company sets up, uploads its own invoices, decides them and exports
       .getByRole("button", { name: "Subir facturas" })
       .click();
     const dialog = page.getByRole("dialog", { name: "Subir facturas" });
+    await expect(dialog).toContainText("sólo a tus 2 proveedores registrados");
     await dialog.locator('input[type="file"]').setInputFiles([
       {
         name: "DA-501.pdf",

@@ -1,13 +1,14 @@
 "use client";
 
 import { CheckCircle2, CircleAlert, FileUp, LoaderCircle, Scale, Upload } from "lucide-react";
+import Link from "next/link";
 import { useId, useRef, useState, useSyncExternalStore, type DragEvent } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import type { InvoiceInput } from "@/lib/api/client";
 import { messageOf } from "@/lib/api/errors";
-import { useProcessInvoices, useUploadInvoice, useWorkspaceSummary } from "@/lib/api/hooks";
+import { usePolicy, useProcessInvoices, useUploadInvoice, useWorkspaceSummary } from "@/lib/api/hooks";
 import { cn } from "@/lib/utils";
 import { ACCEPTED_INVOICES, invoiceInputOf, type PreparedInvoice } from "./intake";
 
@@ -53,6 +54,21 @@ function Progress({ rows }: { rows: Row[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/** Custodio only pays registered suppliers to their registered accounts on its own (R3, R4): say so before the upload, so a held invoice is no surprise. */
+function SuppliersNote() {
+  const suppliers = usePolicy().data?.beneficiaries.filter((b) => b.allowed).length;
+  if (suppliers === undefined) return null;
+  return (
+    <p className="rounded-xl bg-surface-2 px-3.5 py-3 text-[13px] text-ink-2">
+      Custodio paga por su cuenta sólo a tus {suppliers} {suppliers === 1 ? "proveedor registrado" : "proveedores registrados"}; la
+      factura de cualquier otro se retiene o espera tu aprobación, y su acta dice por qué.{" "}
+      <Link href="/reglas" className="font-semibold text-brand underline-offset-4 hover:underline">
+        Ver proveedores
+      </Link>
+    </p>
   );
 }
 
@@ -164,6 +180,7 @@ function UploadForm({ onDecided }: { onDecided: () => void }) {
           <Upload aria-hidden /> Enviar el texto
         </Button>
       </div>
+      <SuppliersNote />
       <Progress rows={rows} />
       {toDecide > 0 && !busy ? (
         <Button size="lg" onClick={() => void decide()} disabled={process.isPending}>
