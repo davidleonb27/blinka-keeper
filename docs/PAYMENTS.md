@@ -29,12 +29,12 @@ devuelve el mismo recibo y no llama al riel.
 |---|---|---|
 | Panel: procesar facturas | sí | es la empresa pagando sus facturas |
 | Panel: aprobar una factura | sí, sólo después de aprobar | la persona autoriza; antes no sale nada |
-| Firewall y MCP | no | responden a otro agente; ese agente paga con su riel |
+| Firewall y MCP | no, ni siquiera si una persona aprueba la intención en el panel | responden a otro agente; ese agente paga con su riel |
 | «Róbale a Custodio» | no | cada intento corre en un espacio aislado |
 | Red team | no | los ataques corren en un espacio aislado |
 
-Hay dos guardias: `decide` sólo ejecuta cuando quien llama lo pide (`execute_payments=True`, sólo el panel), y aun así
-nunca en un espacio que no sea de un visitante. Un test lo prueba para el firewall, el reto y el red team con facturas
+Hay tres guardias: `decide` sólo ejecuta cuando quien llama lo pide (`execute_payments=True`, sólo el panel), nunca en
+un espacio que no sea de un visitante y nunca una intención del firewall (origen `intent`), aunque se apruebe en el panel. Un test lo prueba para el firewall, el reto y el red team con facturas
 legítimas que sí quedan pagadas en papel.
 
 ## Los dos rieles
