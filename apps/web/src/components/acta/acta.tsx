@@ -56,7 +56,7 @@ function ApprovalActions({ policy, onDecide, deciding }: Omit<ActaProps, "detail
   const [approver, setApprover] = useState(names[0] ?? "");
   return (
     <div className="sticky bottom-0 -mx-5 mt-2 flex flex-wrap items-center gap-2.5 border-t border-line-2 bg-surface px-5 py-3.5 sm:-mx-6 sm:px-6">
-      <label htmlFor={selectId} className="mr-auto flex items-center gap-2 text-[12.5px] text-ink-3">
+      <label htmlFor={selectId} className="flex w-full items-center gap-2 text-[12.5px] text-ink-3 sm:mr-auto sm:w-auto">
         Decides como
         <select
           id={selectId}
@@ -69,10 +69,10 @@ function ApprovalActions({ policy, onDecide, deciding }: Omit<ActaProps, "detail
           ))}
         </select>
       </label>
-      <Button variant="reject" disabled={deciding || !approver} onClick={() => onDecide(false, approver)}>
+      <Button variant="reject" className="flex-1 sm:flex-none" disabled={deciding || !approver} onClick={() => onDecide(false, approver)}>
         <X aria-hidden /> Rechazar
       </Button>
-      <Button variant="approve" disabled={deciding || !approver} onClick={() => onDecide(true, approver)}>
+      <Button variant="approve" className="flex-1 sm:flex-none" disabled={deciding || !approver} onClick={() => onDecide(true, approver)}>
         <Check aria-hidden /> Aprobar pago
       </Button>
     </div>

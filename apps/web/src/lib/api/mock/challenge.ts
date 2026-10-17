@@ -2,7 +2,7 @@
 import type { ChallengeAttempt, ChallengeStats } from "../contracts";
 import type { ChallengeInput } from "../client";
 import { decisionFrom } from "./decision-builder";
-import { normalize } from "./policy-compiler";
+import { normalize } from "../../text";
 
 const INSTRUCTION = /(asistente|agente|ignora|ignore|aprobad|sin revision|procesala|urgente|transfiere)/;
 const ACCOUNT_CHANGE = /(nueva cuenta|cambiamos|actualizamos|otra cuenta)/;

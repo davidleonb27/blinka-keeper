@@ -11,6 +11,7 @@ import type {
   SimulatedChange,
 } from "../contracts";
 import { formatMoney } from "../../format";
+import { normalize } from "../../text";
 import type { DemoItem } from "./dataset";
 
 type NumericField =
@@ -42,13 +43,6 @@ const BLOCK = /(?:bloquea|no (?:le )?pagues? (?:mas )?a)\s+(?:a\s+)?(.+)/;
 const APPROVER = /(?:apruebe|autorice)\s+([a-zñ]+)/;
 const CLAUSE_SPLIT = /\.(?=\s|$)|[;\n]+|\s+y\s+(?=(?:la|el|bloquea|pide|nada|el cupo|la reserva)\b)/i;
 const MULTIPLIERS: Record<string, number> = { k: 1e3, mil: 1e3, millon: 1e6, millones: 1e6 };
-
-export function normalize(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "");
-}
 
 export function parseAmountPhrase(normalized: string): number | null {
   const match = AMOUNT.exec(normalized);

@@ -4,7 +4,7 @@
  */
 import type { CompanyProfile } from "../contracts";
 import type { ProfileRequest } from "../client";
-import { normalize } from "./policy-compiler";
+import { normalize } from "../../text";
 
 interface CountryGuess {
   country: string;

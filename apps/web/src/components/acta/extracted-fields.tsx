@@ -1,6 +1,6 @@
 import { BadgeCheck } from "lucide-react";
 import type { ExtractedFieldName, ExtractedInvoice } from "@/lib/api/contracts";
-import { formatPercent } from "@/lib/format";
+import { formatDate, formatMoney, formatPercent } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const FIELD_LABELS: Record<ExtractedFieldName, string> = {
@@ -19,6 +19,14 @@ const FIELD_LABELS: Record<ExtractedFieldName, string> = {
 // R1 reads these four; they are shown even when missing so the gap is visible.
 const ALWAYS_SHOWN = new Set<ExtractedFieldName>(["supplier_name", "amount", "currency", "account_number"]);
 
+function displayValue(name: ExtractedFieldName, extraction: ExtractedInvoice): string | null {
+  const value = extraction[name].value;
+  if (value === null) return null;
+  if (name === "amount") return formatMoney(Number(value), extraction.currency.value);
+  if (name === "issue_date" || name === "due_date") return formatDate(value);
+  return value;
+}
+
 export function ExtractedFields({
   extraction,
   minConfidence,
@@ -32,7 +40,7 @@ export function ExtractedFields({
     (name) => ALWAYS_SHOWN.has(name) || extraction[name].value !== null,
   );
   return (
-    <ul aria-label="Lo que leyó" className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+    <ul aria-label="Lo que leyó" className="grid grid-cols-2 gap-2">
       {fields.map((name) => {
         const field = extraction[name];
         const low = field.confidence < minConfidence;
@@ -52,7 +60,7 @@ export function ExtractedFields({
               {formatPercent(field.confidence)}
             </span>
             <span className="col-span-2 font-semibold break-words">
-              {field.value ?? <em className="font-medium text-crit not-italic">No se leyó</em>}
+              {displayValue(name, extraction) ?? <em className="font-medium text-crit not-italic">No se leyó</em>}
             </span>
             <span aria-hidden className="col-span-2 mt-1 h-[3px] overflow-hidden rounded-full bg-surface-3">
               <i

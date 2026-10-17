@@ -75,13 +75,20 @@ const companyClock = new Intl.DateTimeFormat("en-CA", {
   hourCycle: "h23",
 });
 
+function companyClockParts(iso: string): Record<string, string> {
+  return Object.fromEntries(companyClock.formatToParts(new Date(iso)).map((part) => [part.type, part.value]));
+}
+
+/** The calendar day (YYYY-MM-DD) of a timestamp in the company's time zone. */
+export function companyDay(iso: string): string {
+  const parts = companyClockParts(iso);
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
 export function formatDateTime(iso: string | null | undefined): string {
   if (!iso) return MISSING;
-  const parts = Object.fromEntries(
-    companyClock.formatToParts(new Date(iso)).map((part) => [part.type, part.value]),
-  );
-  const date = `${parts.year}-${parts.month}-${parts.day}`;
-  return `${formatDate(date)} · ${parts.hour}:${parts.minute}`;
+  const parts = companyClockParts(iso);
+  return `${formatDate(companyDay(iso))} · ${parts.hour}:${parts.minute}`;
 }
 
 export function shortHash(hash: string): string {
