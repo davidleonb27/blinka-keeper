@@ -9,6 +9,7 @@ accounts must carry the same characters, currencies need an explicit marker.
 from __future__ import annotations
 
 import re
+import string
 from collections.abc import Callable
 from datetime import date
 from decimal import Decimal
@@ -27,6 +28,9 @@ _PLAIN_DECIMAL = re.compile(r"\d+(?:\.\d+)?")
 _ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 _ISO_CURRENCY = re.compile(r"[A-Z]{3}")
 _CENTS = 2
+# What may sit between the pieces of a code: identifiers break at spaces, accounts are often written in groups.
+_IDENTIFIER_SEPARATORS = "-./#_"
+_DIGIT_SEPARATORS = string.whitespace + ".-"
 
 
 class FieldKind(StrEnum):
@@ -103,24 +107,35 @@ def _normalize_currency(value: str) -> str | None:
 
 
 def _same_text(value: str, quote: str) -> bool:
-    return fold(value) in fold(quote)
+    return re.search(rf"(?<!\w){re.escape(fold(value))}(?!\w)", fold(quote)) is not None
 
 
 def _same_characters(value: str, quote: str) -> bool:
     characters = [char for char in value if char.isalnum()]
     if not characters:
         return False
-    separators = r"[\s\-./#_]*"
-    pattern = r"(?<![0-9A-Za-z])" + separators.join(map(re.escape, characters)) + r"(?![0-9A-Za-z])"
-    return re.search(pattern, quote, flags=re.IGNORECASE) is not None
+    pattern = r"[\s\-./#_]*".join(map(re.escape, characters))
+    return _whole_code(pattern, quote, separators=_IDENTIFIER_SEPARATORS, continues=str.isalnum)
 
 
 def _same_digits(value: str, quote: str) -> bool:
     digits = [char for char in value if char.isdigit()]
     if not digits:
         return False
-    pattern = r"(?<!\d)" + r"[\s.\-]*".join(digits) + r"(?!\d)"
-    return re.search(pattern, quote) is not None
+    return _whole_code(r"[\s.\-]*".join(digits), quote, separators=_DIGIT_SEPARATORS, continues=str.isdigit)
+
+
+def _whole_code(pattern: str, quote: str, *, separators: str, continues: Callable[[str], bool]) -> bool:
+    """Whether `pattern` matches a whole code in `quote`, not one cut short of characters past a separator.
+
+    "900.123.456" must not pass for "900.123.456-7", nor "1234 5678" for the account "1234 5678 9".
+    """
+    for match in re.finditer(pattern, quote, flags=re.IGNORECASE):
+        before = quote[: match.start()].rstrip(separators)
+        after = quote[match.end() :].lstrip(separators)
+        if not (before and continues(before[-1])) and not (after and continues(after[0])):
+            return True
+    return False
 
 
 def _same_amount(value: str, quote: str) -> bool:
