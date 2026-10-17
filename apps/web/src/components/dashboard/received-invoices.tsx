@@ -10,11 +10,13 @@ import { useProcessInvoices } from "@/lib/api/hooks";
 export function ReceivedInvoices({ count }: { count: number }) {
   const process = useProcessInvoices();
   const one = count === 1;
+  // A promise, not mutate callbacks: this banner unmounts as soon as the refreshed summary has nothing pending,
+  // and React Query drops the callbacks of an unmounted caller.
   const decide = () =>
-    process.mutate(undefined, {
-      onSuccess: ({ batch }) => toast.success(`Custodio decidió ${batch.metrics.total} ${batch.metrics.total === 1 ? "factura" : "facturas"}.`),
-      onError: (error) => toast.error(messageOf(error)),
-    });
+    process.mutateAsync().then(
+      ({ batch }) => toast.success(`Custodio decidió ${batch.metrics.total} ${batch.metrics.total === 1 ? "factura" : "facturas"}.`),
+      (error: unknown) => toast.error(messageOf(error)),
+    );
   return (
     <section aria-label="Facturas por decidir" className="card-surface flex flex-wrap items-center gap-x-4 gap-y-3 p-5">
       <Inbox aria-hidden className="size-6 shrink-0 text-brand" />
@@ -25,7 +27,7 @@ export function ReceivedInvoices({ count }: { count: number }) {
         {one ? "espera" : "esperan"} que Custodio {one ? "la decida" : "las decida"} con tus reglas: pagar, retener o
         pedirte permiso.
       </p>
-      <Button onClick={decide} disabled={process.isPending}>
+      <Button onClick={() => void decide()} disabled={process.isPending}>
         <Scale aria-hidden /> {one ? "Decidir la factura" : `Decidir las ${count} facturas`}
       </Button>
     </section>
