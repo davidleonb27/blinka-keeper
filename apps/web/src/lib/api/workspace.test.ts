@@ -46,6 +46,12 @@ describe("ensureWorkspace", () => {
     expect(isFreshBlank("ws_blank")).toBe(true);
   });
 
+  it("remembers a fresh blank workspace across a reload of the page", () => {
+    window.sessionStorage.setItem("custodio_fresh_blank", "ws_reloaded");
+
+    expect(isFreshBlank("ws_reloaded")).toBe(true);
+  });
+
   it("reuses the existing workspace", async () => {
     const store = memoryStore("ws_old");
     const createWorkspace = vi.fn();

@@ -44,3 +44,13 @@ describe("withCurrency", () => {
     expect(cop).toMatchObject({ currency: "COP", balance: "200000000", reserve: "123", rulesText: exampleRules("COP") });
   });
 });
+
+describe("withCurrency and a proposed suggestion", () => {
+  it("replaces rules the profile suggested in the old currency, untouched, with an example in the new one", () => {
+    const suggested = "Nada sobre 500 dólares sin mi aprobación.";
+    const usd = { ...INITIAL_ANSWERS, currency: "USD", rulesText: suggested, profile: { company_name: "x", website: null, industry: null, country: null, base_currency: "USD", summary: null, likely_suppliers: [], suggested_rules_text: suggested, evidence_urls: [] } };
+
+    expect(withCurrency(usd, "COP").rulesText).toBe(exampleRules("COP"));
+    expect(withCurrency({ ...usd, rulesText: "Mis reglas" }, "COP").rulesText).toBe("Mis reglas");
+  });
+});
