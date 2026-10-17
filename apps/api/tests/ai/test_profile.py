@@ -121,3 +121,10 @@ def test_complete_suggested_rules_are_kept(fake_llm: FakeLLM) -> None:
     assert (
         profile_company("Taller Ruiz", None, {}).suggested_rules_text == "Nada sobre 3.000.000 de pesos sin aprobación."
     )
+
+
+@pytest.mark.parametrize("blank", ["{monto}", "<monto>", "____", "XXX"])
+def test_other_blanks_to_fill_are_dropped_too(fake_llm: FakeLLM, blank: str) -> None:
+    fake_llm.reply(profile_reply(suggested_rules_text=f"Nada sobre {blank} pesos sin aprobación."))
+
+    assert profile_company("Taller Ruiz", None, {}).suggested_rules_text is None

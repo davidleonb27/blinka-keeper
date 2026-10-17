@@ -92,7 +92,8 @@ export function normalizeWebsite(text: string): string | null {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
-const BLANK_TO_FILL = /\[[^\]]*\]/;
+// Blanks a model may leave for the person to fill: [monto], {monto}, <monto>, ___ or XXX.
+const BLANK_TO_FILL = /\[[^\]]*\]|\{[^}]*\}|<[^>]*>|_{3,}|\bX{3,}\b/;
 const WHOLE = new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 });
 
 /** A complete first rule set in the company's currency, for when the proposed one is missing or has blanks. */

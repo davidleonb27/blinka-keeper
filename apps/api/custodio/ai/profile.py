@@ -20,7 +20,7 @@ from custodio.contracts import CompanyProfile, Model
 
 _MAX_FETCHES = 5
 _MAX_PAGE_TOKENS = 12000
-_BLANK = re.compile(r"\[[^\]]*\]")
+_BLANK = re.compile(r"\[[^\]]*\]|\{[^}]*\}|<[^>]*>|_{3,}|\bX{3,}\b")  # [monto], {monto}, <monto>, ___, XXX
 _MAX_SUPPLIER_CATEGORIES = 8
 _COUNTRY = re.compile(r"[A-Z]{2}")
 _CURRENCY = re.compile(r"[A-Z]{3}")

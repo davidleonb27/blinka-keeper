@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { watch } from "./problems";
 
@@ -11,7 +12,7 @@ import { watch } from "./problems";
 const SHOTS = path.resolve(__dirname, "../../../docs/lanes/reports/L18b");
 const TEMPLATE = [
   "nombre;nit;banco;cuenta;moneda;monto mensual",
-  "Papelería Central SAS;900123456-1;Bancolombia;123-456789-01;;",
+  "Papelería Central SAS;900123456-1;Bancolombia;123-456789-01;;450000",
 ].join("\n");
 
 function invoice(lines: Record<string, string>): string {
@@ -83,11 +84,17 @@ test("a Colombian company sets up in COP from the template and its COP invoice i
     await expect(page.getByRole("main")).not.toContainText("Tu analista de cuentas por pagar");
   });
 
-  await test.step("perfil, COP y reglas con un ejemplo completo", async () => {
-    await page.getByLabel("Nombre de la empresa").fill("Papelería El Trigal");
-    await page.getByRole("button", { name: "Continuar" }).click();
-    await page.getByRole("button", { name: "Se ve bien" }).click();
-    await expect(page.getByRole("heading", { level: 1, name: "País, moneda y saldo" })).toBeVisible();
+  await test.step("perfil, COP y reglas con un ejemplo completo, aunque la página se recargue a mitad", async () => {
+    const startProfile = async () => {
+      await page.getByLabel("Nombre de la empresa").fill("Papelería El Trigal");
+      await page.getByRole("button", { name: "Continuar" }).click();
+      await page.getByRole("button", { name: "Se ve bien" }).click();
+      await expect(page.getByRole("heading", { level: 1, name: "País, moneda y saldo" })).toBeVisible();
+    };
+    await startProfile();
+    // A reload (a deploy, a closed laptop) must not leave a second workspace behind when the set-up ends.
+    await page.reload();
+    await startProfile();
     await page.getByLabel("País").selectOption("CO");
     await page.getByLabel("Moneda base").selectOption("COP");
     await page.getByRole("button", { name: "Continuar" }).click();
@@ -125,7 +132,13 @@ test("a Colombian company sets up in COP from the template and its COP invoice i
     const summary = await (await page.request.get("/api/v1/workspaces/current", { headers })).json();
     expect(summary).toMatchObject({ company_name: "Papelería El Trigal", base_currency: "COP", mode: "blank" });
     const policy = await (await page.request.get("/api/v1/policy", { headers })).json();
-    expect(policy.beneficiaries).toEqual([expect.objectContaining({ name: "Papelería Central SAS", currency: "COP" })]);
+    expect(policy.beneficiaries).toEqual([
+      expect.objectContaining({
+        name: "Papelería Central SAS",
+        currency: "COP",
+        agreement: expect.objectContaining({ currency: "COP", amount: 450000 }),
+      }),
+    ]);
     const ledger: { kind: string; payload: { company?: { country: string } } }[] = await (
       await page.request.get("/api/v1/ledger", { headers })
     ).json();
@@ -141,6 +154,9 @@ test("a Colombian company sets up in COP from the template and its COP invoice i
     expect(["paid_auto", "pending_approval"]).toContain(item.decision.status);
     const r8 = item.decision.rules.find((rule: { rule_id: string }) => rule.rule_id === "R8");
     expect(r8.outcome).not.toBe("hold");
+    // The agreement is in COP like the invoice: R6 compares them instead of escalating over the currency.
+    const r6 = item.decision.rules.find((rule: { rule_id: string }) => rule.rule_id === "R6");
+    expect(r6.outcome).toBe("pass");
     await page.waitForLoadState("networkidle");
     await shot("panel");
   });
@@ -163,6 +179,21 @@ test("a Colombian company sets up in COP from the template and its COP invoice i
     // R3 (allowed beneficiary) is what stops it: the supplier is not on the list.
     expect(unknown?.rules.find((rule) => rule.rule_id === "R3")?.outcome).toBe("escalate");
     await page.keyboard.press("Escape");
+  });
+
+  await test.step("el CSV nunca deja vacío el id de transferencia", async () => {
+    const download = page.waitForEvent("download");
+    await page
+      .getByRole("region", { name: "Facturas", exact: true })
+      .getByRole("button", { name: "Exportar CSV" })
+      .click();
+    const csv = await readFile((await (await download).path()) ?? "", "utf8");
+    const [, ...rows] = csv
+      .replace(/^\uFEFF/, "")
+      .trimEnd()
+      .split("\r\n");
+    expect(rows).toHaveLength(2);
+    for (const row of rows) expect(row.split(",").at(-1)).not.toBe("");
   });
 
   expect(problems.list, problems.list.join("\n")).toEqual([]);

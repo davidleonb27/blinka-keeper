@@ -5,6 +5,7 @@ import { useApi } from "@/components/providers/api-provider";
 import { useHydrated } from "@/lib/hydration";
 import type {
   ApprovalInput,
+  CustodioApi,
   ChallengeInput,
   InvoiceInput,
   OnboardingRequest,
@@ -209,6 +210,16 @@ export function useImportSuppliers() {
   });
 }
 
+/** A blank workspace no company was set up in yet and nothing arrived to: the onboarding can use it as is. */
+async function isUnusedBlank(api: CustodioApi): Promise<boolean> {
+  try {
+    const summary = await api.getWorkspace();
+    return summary.mode === "blank" && summary.policy_version === 1 && summary.metrics.total === 0 && summary.pending_invoices === 0;
+  } catch {
+    return false; // no workspace yet, or it is gone: make one
+  }
+}
+
 /**
  * The new company gets a blank workspace of its own (the visitor's demo keeps its invoices out of it); the browser
  * switches to it before the API sets it up, and back to the one it had if the API refuses the company. A blank
@@ -220,7 +231,8 @@ export function useCompleteOnboarding(store: WorkspaceStore = browserWorkspaceSt
   return useMutation({
     mutationFn: async (request: OnboardingRequest) => {
       const previous = { workspace_id: store.read(), api_key: store.readApiKey() };
-      const fresh = previous.workspace_id !== null && isFreshBlank(previous.workspace_id);
+      const fresh =
+        (previous.workspace_id !== null && isFreshBlank(previous.workspace_id)) || (await isUnusedBlank(api));
       if (!fresh) store.write(await api.createWorkspace("blank"));
       try {
         const result = await api.completeOnboarding(request);
