@@ -75,7 +75,7 @@ class SimulatedMonth(Protocol):
 
 
 class ImportSuppliers(Protocol):
-    def __call__(self, data: bytes, *, filename: str, media_type: str) -> SupplierImport: ...
+    def __call__(self, data: bytes, *, filename: str, media_type: str, default_currency: str) -> SupplierImport: ...
 
 
 class ReadStatement(Protocol):

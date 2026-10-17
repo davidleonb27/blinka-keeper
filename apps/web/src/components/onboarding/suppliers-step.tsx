@@ -19,13 +19,16 @@ const SAMPLE_SUPPLIERS: [string, string, string, string, number][] = [
   ["Empaques Verdes SAS", "901.882.004-7", "BBVA", "•••• 0458", 0.6],
 ];
 
+/** The columns of the template; «moneda» may be left out, and then it is the company's. */
+export const SUPPLIER_TEMPLATE_HEADER = "nombre;nit;banco;cuenta;moneda;monto mensual";
+
 /** A CSV in the same format a person would upload, scaled to the company's approval threshold. */
 function sampleSupplierFile(currency: string): File {
   const threshold = starterMoney(currency).threshold;
   const rows = SAMPLE_SUPPLIERS.map(([name, taxId, bank, account, share]) =>
-    [name, taxId, bank, account, Math.round(threshold * share)].join(";"),
+    [name, taxId, bank, account, currency, Math.round(threshold * share)].join(";"),
   );
-  return new File([["nombre;nit;banco;cuenta;monto mensual", ...rows].join("\n")], "proveedores-ejemplo.csv", {
+  return new File([[SUPPLIER_TEMPLATE_HEADER, ...rows].join("\n")], "proveedores-ejemplo.csv", {
     type: "text/csv",
   });
 }
@@ -34,7 +37,7 @@ export function SuppliersStep({ answers, update, frame }: StepProps) {
   const inputId = useId();
   const upload = useImportSuppliers();
   const load = (file: File) =>
-    upload.mutate(file, {
+    upload.mutate({ file, currency: answers.currency }, {
       onSuccess: (result: SupplierImport) => {
         update({ suppliers: result.beneficiaries, supplierWarnings: result.warnings });
         focusStepHeading();
@@ -57,12 +60,15 @@ export function SuppliersStep({ answers, update, frame }: StepProps) {
           <FileUp aria-hidden className="size-6 shrink-0 text-brand" />
           <span>
             <b className="block font-semibold">Subir archivo</b>
-            <span className="text-[13px] text-ink-3">CSV, Excel exportado, PDF o foto · hasta 4 MB</span>
+            <span className="block text-[13px] text-ink-3">CSV, Excel (XLSX) o PDF · hasta 4 MB</span>
+            <span className="block text-[12.5px] text-ink-3">
+              Columnas: <code>{SUPPLIER_TEMPLATE_HEADER}</code>. Sin moneda, va en {answers.currency}.
+            </span>
           </span>
           <input
             id={inputId}
             type="file"
-            accept=".csv,.tsv,.txt,.pdf,image/*"
+            accept=".csv,.xlsx,.pdf"
             className="sr-only"
             onChange={(e) => {
               const file = e.target.files?.[0];

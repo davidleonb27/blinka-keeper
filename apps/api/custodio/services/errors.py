@@ -66,6 +66,16 @@ class UnsupportedMediaType(ServiceError):
     message = "Sólo leemos PDF, PNG, JPEG, WEBP o texto."
 
 
+class UnreadableSupplierFile(ServiceError):
+    code = "unreadable_supplier_file"
+    message = "No pudimos leer la lista de proveedores."
+
+
+class UnsupportedSupplierFile(ServiceError):
+    code = "unsupported_supplier_file"
+    message = "Sólo importamos proveedores desde CSV, XLSX o PDF."
+
+
 class PayloadTooLarge(ServiceError):
     code = "payload_too_large"
     message = "El archivo supera el máximo de 4 MB."

@@ -107,3 +107,17 @@ def test_a_website_that_is_not_a_public_http_url_is_refused(fake_llm: FakeLLM, w
     with pytest.raises(InvalidWebsite):
         profile_company("Rutas Claras", website, {})
     assert fake_llm.calls == []
+
+
+def test_suggested_rules_with_blanks_to_fill_are_dropped(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(profile_reply(suggested_rules_text="Nada sobre [monto] sin aprobación de [nombre]."))
+
+    assert profile_company("Taller Ruiz", None, {}).suggested_rules_text is None
+
+
+def test_complete_suggested_rules_are_kept(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(profile_reply(suggested_rules_text="Nada sobre 3.000.000 de pesos sin aprobación."))
+
+    assert (
+        profile_company("Taller Ruiz", None, {}).suggested_rules_text == "Nada sobre 3.000.000 de pesos sin aprobación."
+    )

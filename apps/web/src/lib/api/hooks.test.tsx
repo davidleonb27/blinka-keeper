@@ -8,6 +8,7 @@ import { makeQueryClient } from "@/components/providers/providers";
 import type { CustodioApi, WorkspaceCreated } from "./client";
 import { InvalidRequestError } from "./errors";
 import { useCompleteOnboarding } from "./hooks";
+import { ensureWorkspace } from "./workspace";
 import { createMockClient } from "./mock/mock-client";
 
 const VISITOR: WorkspaceCreated = { workspace_id: "ws_visitor", api_key: "cus_visitor" };
@@ -51,6 +52,18 @@ describe("useCompleteOnboarding", () => {
     await act(() => complete.current.mutateAsync(onboardingRequest(INITIAL_ANSWERS)));
 
     expect(api.createWorkspace).toHaveBeenCalledWith("blank");
+    expect(store.current()).toEqual(NEW_COMPANY);
+  });
+
+  it("sets the company up in the blank workspace this onboarding already made: one workspace, not two", async () => {
+    const api = apiCreating(NEW_COMPANY);
+    const store = memoryStore(VISITOR);
+    await ensureWorkspace(api, { ...store, read: () => null }, "blank");
+    const complete = completeWith(api, store);
+
+    await act(() => complete.current.mutateAsync(onboardingRequest(INITIAL_ANSWERS)));
+
+    expect(api.createWorkspace).toHaveBeenCalledTimes(1);
     expect(store.current()).toEqual(NEW_COMPANY);
   });
 

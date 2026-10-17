@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, Form, UploadFile
 from pydantic import BaseModel, ConfigDict, Field
 
 from custodio.api.deps import CurrentWorkspace, ModelCallLimit, Services
@@ -28,10 +28,20 @@ def propose_profile(body: ProfileRequest, ctx: Services, workspace: CurrentWorks
 
 
 @router.post("/suppliers", response_model=SupplierImport, dependencies=[ModelCallLimit])
-def import_suppliers(file: Annotated[UploadFile, File()], ctx: Services, workspace: CurrentWorkspace) -> SupplierImport:
+def import_suppliers(
+    file: Annotated[UploadFile, File()],
+    ctx: Services,
+    workspace: CurrentWorkspace,
+    currency: Annotated[str | None, Form(pattern=r"^[A-Za-z]{3}$")] = None,  # rows without one; else the base
+) -> SupplierImport:
     filename = file.filename or "proveedores"
     return onboarding_service.import_suppliers(
-        ctx, file.file.read(), filename=filename, media_type=media_type_of(file.content_type, filename)
+        ctx,
+        workspace,
+        file.file.read(),
+        filename=filename,
+        media_type=media_type_of(file.content_type, filename),
+        currency=currency,
     )
 
 

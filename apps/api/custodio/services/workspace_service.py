@@ -47,6 +47,7 @@ class CreatedWorkspace:
 
 class WorkspaceSummary(BaseModel):
     workspace_id: str
+    mode: WorkspaceKind  # "demo" holds the example company; "blank" is a company of its own
     company_name: str
     today: date
     base_currency: str
@@ -108,6 +109,7 @@ def summary(ctx: ServiceContext, workspace: WorkspaceRow) -> WorkspaceSummary:
     policy = policy_service.current(ctx, workspace.id)
     return WorkspaceSummary(
         workspace_id=workspace.id,
+        mode=WorkspaceKind(workspace.kind),
         company_name=workspace.company_name,
         today=ctx.now().date(),
         base_currency=policy.base_currency,

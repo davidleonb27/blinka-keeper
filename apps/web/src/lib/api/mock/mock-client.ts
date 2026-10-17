@@ -51,6 +51,7 @@ export interface MockClientOptions {
 }
 
 interface MockWorkspace {
+  mode: "demo" | "blank";
   data: DemoDataset;
   /** False while the demo invoices are received but not decided, as in a fresh API demo workspace. */
   processed: boolean;
@@ -114,12 +115,17 @@ function policyFrom(input: PolicyInput): Policy {
 function demoWorkspace(): MockWorkspace {
   const data = freshDemo();
   // The prototype's decision entries are appended again when the invoices are processed.
-  return { data: { ...data, ledger: data.ledger.filter((entry) => entry.kind === "policy_changed") }, processed: false };
+  return {
+    mode: "demo",
+    data: { ...data, ledger: data.ledger.filter((entry) => entry.kind === "policy_changed") },
+    processed: false,
+  };
 }
 
 function blankWorkspace(): MockWorkspace {
   const { company, policy } = DEMO;
   return {
+    mode: "blank",
     data: {
       company: { ...company, name: BLANK_COMPANY_NAME, opening_balance: 0, balance_end: 0, spent_auto_base: 0 },
       policy: { ...policy, beneficiaries: [], approvers: [] },
@@ -164,6 +170,7 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
     const { processed } = workspace;
     return {
       workspace_id: MOCK_WORKSPACE_ID,
+      mode: workspace.mode,
       company_name: company.name,
       today: company.today,
       base_currency: policy.base_currency,
@@ -284,7 +291,7 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
   }
 
   async function completeOnboarding(request: OnboardingRequest): Promise<OnboardingResult> {
-    const base = request.profile.base_currency;
+    const base = request.policy.base_currency; // as the API: the policy the person chose, not the proposed profile
     const requested = policyFrom(request.policy);
     const suppliers = request.suppliers.map(beneficiaryFrom);
     const policy: Policy = {
@@ -295,6 +302,7 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
     };
     const opening = Number(request.opening_balance);
     workspace = {
+      mode: workspace.mode,
       data: {
         ...workspace.data,
         company: {
@@ -365,9 +373,9 @@ respond(() => decided().map(listItemOf)),
       }, 2);
     },
     proposeProfile: (input) => respond(() => proposeMockProfile(input), 3),
-    importSuppliers: async (file) => {
+    importSuppliers: async (file, currency) => {
       const text = await file.text();
-      return respond(() => importMockSuppliers(file.name, text, workspace.data.policy.base_currency), 2);
+      return respond(() => importMockSuppliers(file.name, text, currency ?? workspace.data.policy.base_currency), 2);
     },
     completeOnboarding: (request) => respond(() => completeOnboarding(request), 2),
     getTrust: () => respond(() => mockTrust(workspace.data.policy, decided(), summary().metrics.autonomy_rate)),

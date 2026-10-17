@@ -72,6 +72,15 @@ describe("live client", () => {
     expect((demo?.body as FormData).get("demo")).toBe("true");
   });
 
+  it("sends the company's currency with a supplier list, for rows that do not say theirs", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(200, { beneficiaries: [], warnings: [] }));
+    await clientWith(fetchMock).importSuppliers(new File(["nombre;nit"], "proveedores.csv"), "COP");
+
+    const [[url, init]] = fetchMock.mock.calls;
+    expect(url).toBe("/api/v1/onboarding/suppliers");
+    expect((init?.body as FormData).get("currency")).toBe("COP");
+  });
+
   it("resolves a movement and closes a month on their routes", async () => {
     const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(200, {}));
     const client = clientWith(fetchMock);

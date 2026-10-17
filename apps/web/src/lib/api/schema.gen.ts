@@ -878,6 +878,8 @@ export interface components {
         Body_import_suppliers_api_v1_onboarding_suppliers_post: {
             /** File */
             file: string;
+            /** Currency */
+            currency?: string | null;
         };
         /** Body_submit_attempt_api_v1_challenge_attempts_post */
         Body_submit_attempt_api_v1_challenge_attempts_post: {
@@ -2190,6 +2192,11 @@ export interface components {
             api_key: string;
         };
         /**
+         * WorkspaceKind
+         * @enum {string}
+         */
+        WorkspaceKind: "demo" | "blank" | "challenge" | "redteam";
+        /**
          * WorkspaceMode
          * @enum {string}
          */
@@ -2198,6 +2205,7 @@ export interface components {
         WorkspaceSummary: {
             /** Workspace Id */
             workspace_id: string;
+            mode: components["schemas"]["WorkspaceKind"];
             /** Company Name */
             company_name: string;
             /**

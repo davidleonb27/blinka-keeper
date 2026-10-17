@@ -159,9 +159,9 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
       }),
     proposeProfile: (input) => call("post", "/api/v1/onboarding/profile", { json: { ...input, answers: {} } }),
     completeOnboarding: (input) => call("post", "/api/v1/onboarding/complete", { json: input }),
-    importSuppliers: (file) =>
+    importSuppliers: (file, currency) =>
       call("post", "/api/v1/onboarding/suppliers", {
-        form: formOf<FormOf<"/api/v1/onboarding/suppliers", "post">>({ file }),
+        form: formOf<FormOf<"/api/v1/onboarding/suppliers", "post">>({ file, currency }),
       }),
     getTrust: () => call("get", "/api/v1/trust"),
     simulateMonth: () => call("post", "/api/v1/trust/simulate"),

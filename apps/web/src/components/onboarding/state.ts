@@ -92,6 +92,37 @@ export function normalizeWebsite(text: string): string | null {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
+const BLANK_TO_FILL = /\[[^\]]*\]/;
+const WHOLE = new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 });
+
+/** A complete first rule set in the company's currency, for when the proposed one is missing or has blanks. */
+export function exampleRules(currency: string): string {
+  const money = starterMoney(currency);
+  const amount = (value: number) => `${WHOLE.format(value)} ${currency}`;
+  return (
+    `Nada sobre ${amount(money.threshold)} sin aprobación. Ningún pago pasa de ${amount(money.limit)}. ` +
+    `Deja siempre ${amount(money.reserve)} de colchón.`
+  );
+}
+
+function usableRules(suggested: string | null | undefined, currency: string): string {
+  return suggested && !BLANK_TO_FILL.test(suggested) ? suggested : exampleRules(currency);
+}
+
+/** A new base currency; the suggested numbers and example rules follow it unless the person already changed them. */
+export function withCurrency(answers: Answers, currency: string): Answers {
+  const before = starterMoney(answers.currency);
+  const after = starterMoney(currency);
+  const untouched = (text: string, suggested: string) => text === "" || text === suggested;
+  return {
+    ...answers,
+    currency,
+    balance: untouched(answers.balance, String(before.balance)) ? String(after.balance) : answers.balance,
+    reserve: untouched(answers.reserve, String(before.reserve)) ? String(after.reserve) : answers.reserve,
+    rulesText: untouched(answers.rulesText, exampleRules(answers.currency)) ? exampleRules(currency) : answers.rulesText,
+  };
+}
+
 /** Applies a proposed profile, keeping anything the person already typed. */
 export function withProfile(answers: Answers, profile: CompanyProfile): Answers {
   const currency = profile.base_currency;
@@ -103,7 +134,7 @@ export function withProfile(answers: Answers, profile: CompanyProfile): Answers 
     currency,
     balance: answers.balance || String(money.balance),
     reserve: answers.reserve || String(money.reserve),
-    rulesText: answers.rulesText || (profile.suggested_rules_text ?? ""),
+    rulesText: answers.rulesText || usableRules(profile.suggested_rules_text, currency),
   };
 }
 
@@ -185,7 +216,8 @@ export function compileKey(answers: Answers): string {
 export function onboardingRequest(answers: Answers): OnboardingRequest {
   const rules = answers.proposal?.proposed ?? draftPolicy(answers);
   return {
-    profile: answers.profile ?? fallbackProfile(answers),
+    // What the person chose wins over what the profile proposed from the website.
+    profile: { ...(answers.profile ?? fallbackProfile(answers)), country: answers.country, base_currency: answers.currency },
     opening_balance: parseWholeAmount(answers.balance) ?? 0,
     policy: { ...rules, approvers: approversOf(answers), beneficiaries: answers.suppliers },
     suppliers: answers.suppliers,
