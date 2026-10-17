@@ -1,0 +1,35 @@
+{
+  "note": "FICTICIO: proveedor de prueba cuyo nombre coincide con tests/fixtures/sanctions/fictitious_sdn.json. No es una persona ni una entidad real y no forma parte de la demo pública.",
+  "beneficiary": {
+    "id": "b90",
+    "name": "Quimera Ficticia Trading LLC",
+    "tax_id": "98-7654321",
+    "aliases": [],
+    "country": "US",
+    "bank_name": "Mercury",
+    "account_number": "2214-9090",
+    "currency": "USD",
+    "agreement": {"kind": "fixed", "amount": 1500, "currency": "USD", "source": "Acuerdo ficticio de prueba"},
+    "allowed": true
+  },
+  "case": {
+    "id": "T-SDN-1",
+    "received_at": "2026-10-15T15:00:00Z",
+    "expected": "escalate",
+    "trap": "Proveedor en una lista de sanciones (ficticia)",
+    "spec": {
+      "supplier_name": "Quimera Ficticia Trading LLC",
+      "supplier_tax_id": "98-7654321",
+      "tax_label": "EIN",
+      "invoice_number": "QFT-001",
+      "issue_date": "2026-10-14",
+      "due_date": "2026-10-29",
+      "amount": 1500,
+      "currency": "USD",
+      "bank_name": "Mercury",
+      "account_number": "2214-9090",
+      "description": "Servicios de prueba, octubre 2026",
+      "channel": "email"
+    }
+  }
+}
