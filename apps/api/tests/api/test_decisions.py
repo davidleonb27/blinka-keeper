@@ -1,9 +1,18 @@
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any
+
 from fastapi.testclient import TestClient
+
+from custodio.contracts import BatchResult
+from custodio.services.lanes import Lanes
 
 from .doubles import invoice_text
 from .helpers import assert_ledger_valid, new_workspace, process, upload_text
 
 APPROVER = {"approver": "Ana Gómez", "note": "Revisado con el contrato"}
+WAIT_SECONDS = 5
 
 
 def test_the_list_returns_every_decision_in_arrival_order(client: TestClient) -> None:
@@ -83,6 +92,36 @@ def test_a_decision_is_approved_only_once(client: TestClient) -> None:
 
     assert again.status_code == 409
     assert again.json()["code"] == "decision_not_pending"
+
+
+def test_two_simultaneous_approvals_pay_only_once(client: TestClient, lanes: Lanes) -> None:
+    workspace = new_workspace(client)
+    process(client, workspace)
+    honest, inside, release = lanes.decide_all, threading.Event(), threading.Event()
+
+    def held_open(*args: Any, **kwargs: Any) -> BatchResult:
+        if not inside.is_set():  # the first approval stays open in its transaction until released
+            inside.set()
+            release.wait(WAIT_SECONDS)
+        return honest(*args, **kwargs)
+
+    object.__setattr__(lanes, "decide_all", held_open)
+
+    def approve() -> int:
+        return client.post("/api/v1/decisions/F02/approve", headers=workspace.headers, json=APPROVER).status_code
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first = pool.submit(approve)
+        inside.wait(WAIT_SECONDS)
+        second = pool.submit(approve)
+        time.sleep(0.3)  # the second approval reaches the decision while the first still holds it
+        release.set()
+        codes = sorted([first.result(), second.result()])
+
+    ledger = client.get("/api/v1/ledger", headers=workspace.headers).json()
+    assert codes == [200, 409]
+    assert [e["subject_id"] for e in ledger if e["kind"] == "payment"].count("F02") == 1
+    assert_ledger_valid(client, workspace)
 
 
 def test_a_hold_cannot_be_approved_into_a_payment(client: TestClient) -> None:
