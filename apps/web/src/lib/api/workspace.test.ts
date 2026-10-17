@@ -1,13 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
+import type { WorkspaceCreated } from "./client";
 import { ensureWorkspace, readWorkspaceCookie, WORKSPACE_COOKIE } from "./workspace";
 
 function memoryStore(initial: string | null) {
   let value = initial;
   return {
     read: () => value,
-    write: vi.fn((next: string) => {
-      value = next;
+    write: vi.fn((next: WorkspaceCreated) => {
+      value = next.workspace_id;
     }),
+    readApiKey: () => null,
   };
 }
 
@@ -31,7 +33,7 @@ describe("ensureWorkspace", () => {
 
     expect(id).toBe("ws_new");
     expect(createWorkspace).toHaveBeenCalledWith("demo");
-    expect(store.write).toHaveBeenCalledWith("ws_new");
+    expect(store.write).toHaveBeenCalledWith({ workspace_id: "ws_new", api_key: "ck_1" });
   });
 
   it("reuses the existing workspace", async () => {
