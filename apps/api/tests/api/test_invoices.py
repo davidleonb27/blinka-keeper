@@ -1,5 +1,6 @@
-from custodio.services.lanes import Lanes
 from fastapi.testclient import TestClient
+
+from custodio.services.lanes import Lanes
 
 from .doubles import FakeAuditor, failing, invoice_text
 from .helpers import assert_ledger_valid, new_workspace, process, statuses, upload_text

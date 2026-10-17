@@ -15,10 +15,6 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any
 
-from custodio.services.lanes import Lanes
-from custodio.services.notifier import ApprovalRequest
-from custodio.services.triage import AttackTriage
-
 from custodio.contracts import (
     RULES,
     AgentVerdict,
@@ -57,6 +53,9 @@ from custodio.contracts import (
     SupplierImport,
 )
 from custodio.llm import LLMError
+from custodio.services.lanes import Lanes
+from custodio.services.notifier import ApprovalRequest
+from custodio.services.triage import AttackTriage
 
 GENESIS = "0" * 64
 TODAY = date(2026, 10, 17)
@@ -256,7 +255,7 @@ def _failures(case: InvoiceCase, facts: _Facts, policy: Policy, balance: Decimal
         failures["R4"] = "La cuenta leída no es la registrada."
     if facts.number and facts.number in seen:
         failures["R5"] = f"La factura {facts.number} ya se había recibido."
-    if facts.currency not in policy.allowed_currencies:
+    if facts.currency is not None and facts.currency not in policy.allowed_currencies:
         failures["R8"] = f"La moneda {facts.currency} no está permitida."
     if facts.amount_base is not None and facts.amount_base > policy.approval_threshold:
         failures["R9"] = f"USD {facts.amount_base} supera el tope de {policy.approval_threshold}."
