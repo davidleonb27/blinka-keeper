@@ -13,7 +13,7 @@ from custodio.dataset import demo_specs
 SCRIPT = Path(__file__).parents[2] / "scripts" / "measure_reading.py"
 API_KEY = "never-print-this-key"
 WORKSPACE = "ws-test"
-METRICS = {"total": 36, "paid_auto": 17, "hold": 5, "pending": 14, "improper_payments": 0}
+SEEDED = 36
 
 
 def load_script() -> ModuleType:
@@ -68,7 +68,7 @@ class FakeProduction:
             return httpx.Response(201, json={"workspace_id": WORKSPACE, "api_key": API_KEY})
         assert request.headers["X-Custodio-Workspace"] == WORKSPACE
         if request.url.path == "/api/v1/workspaces/current":
-            return httpx.Response(200, json={"metrics": METRICS})
+            return httpx.Response(200, json={"pending_invoices": SEEDED, "metrics": {"total": 0}})
         assert request.url.path == "/api/v1/invoices"
         return self.upload()
 
@@ -137,9 +137,10 @@ def test_refuses_a_cap_above_forty_uploads() -> None:
         load_script().main(["--max-uploads", "41"])
 
 
-def test_the_report_keeps_the_golden_metrics_and_never_the_credentials() -> None:
+def test_the_report_counts_the_seeded_golden_invoices_and_never_the_credentials() -> None:
     report = measure(FakeProduction())
 
-    assert report["golden_metrics"] == METRICS
+    assert report["seeded_invoices"] == SEEDED
+    assert "golden_metrics" not in report
     assert API_KEY not in json.dumps(report)
     assert WORKSPACE not in json.dumps(report)
