@@ -21,6 +21,7 @@ from custodio.contracts import (
     Policy,
     RuleOutcome,
     RuleResult,
+    TrustCap,
 )
 from custodio.engine.audit import audit
 from custodio.engine.beneficiaries import BeneficiaryMatch, match_beneficiary
@@ -33,12 +34,14 @@ from custodio.engine.metrics import compute_metrics
 from custodio.engine.rules import EVALUATORS, RuleContext
 from custodio.engine.sanctions import SanctionsList, bundled_sanctions
 from custodio.engine.text import normalize_name
+from custodio.engine.trust import risk_signal, terms_for
 from custodio.engine.units import as_utc
 
 AUDITOR_VETO = "El auditor independiente no confirma este pago: {finding}"
 HOLD_RULE_APPROVED = "Una aprobación no levanta una regla de retención: {labels}."
 NO_BASE_AMOUNT = "No hay un monto confiable en {base}; no se puede pagar."
 NEUTRAL_WHEN_SKIPPED = frozenset(spec.id for spec in RULES if spec.neutral_when_skipped)
+SUPERVISED_IN_BATCH = "En supervisión desde {invoice_id}, en este mismo lote: {reason} Su tope es {floor}."
 RESERVE_BREACH = "Pagarlo dejaría el saldo en {after}, debajo de la reserva de {reserve}."
 
 
@@ -163,6 +166,7 @@ def _decide_agent(
     matches = {f.case_id: match_beneficiary(policy, name=f.supplier_name, tax_id=f.supplier_tax_id) for f in ordered}
     suppliers = _suppliers(ordered, matches, state)
     running = _Running(state.opening_balance, _agent_spending_in_history(state), set())
+    trust = dict(state.trust)
     drafts = []
     for facts in ordered:
         supplier = suppliers[_supplier_key(facts, matches)]
@@ -177,8 +181,11 @@ def _decide_agent(
             spent_auto=running.spent_by_month[_month(facts.received_on)],
             balance=running.balance,
             sanctions=sanctions,
+            trust=_trust_of(trust, matches[facts.case_id]),
         )
-        drafts.append(_decide_one(context, vetoes.get(facts.case_id), running))
+        draft = _decide_one(context, vetoes.get(facts.case_id), running)
+        _supervise_on_risk(trust, draft, policy)
+        drafts.append(draft)
     return drafts, running
 
 
@@ -201,7 +208,26 @@ def _decide_one(context: RuleContext, veto: str | None, running: _Running) -> Dr
         balance_after=running.balance,
         spent_after=running.spent_by_month[_month(context.invoice.received_on)],
         blocked_reason=AUDITOR_VETO.format(finding=veto) if vetoed else None,
+        trust=context.trust,
     )
+
+
+def _trust_of(trust: Mapping[str, TrustCap], match: BeneficiaryMatch) -> TrustCap | None:
+    return trust.get(match.beneficiary.id) if match.beneficiary else None
+
+
+def _supervise_on_risk(trust: dict[str, TrustCap], draft: Draft, policy: Policy) -> None:
+    """A supplier with a trust history goes back to supervised at its first risk signal, for the rest of the batch."""
+    known = draft.beneficiary
+    if known is None or known.id not in trust:
+        return
+    signal = risk_signal(check.result for check in draft.checks)
+    if signal is None:
+        return
+    floor = terms_for(policy).floor
+    shown = money(floor, policy.base_currency)
+    reason = SUPERVISED_IN_BATCH.format(invoice_id=draft.facts.case_id, reason=signal.reason, floor=shown)
+    trust[known.id] = TrustCap(beneficiary_id=known.id, cap=floor, clean_streak=0, supervised=True, reason=reason)
 
 
 def _ensure_unique_ids(cases: Sequence[InvoiceCase]) -> None:
@@ -357,4 +383,5 @@ def _finish(draft: Draft) -> Decision:
         balance_after=draft.balance_after,
         approval=draft.approval,
         blocked_reason=draft.blocked_reason,
+        trust=draft.trust,
     )

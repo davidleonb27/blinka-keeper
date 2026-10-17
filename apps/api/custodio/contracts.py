@@ -91,12 +91,22 @@ class AgreementKind(StrEnum):
     MONTHLY_CAP = "monthly_cap"  # the sum of the month's invoices must not exceed `amount`
 
 
+class EarlyPaymentDiscount(Model):
+    """Early-payment terms such as "2/10 net 30": `percent` off when paid within `days` of the issue date."""
+
+    percent: Ratio
+    days: int = Field(ge=0)
+
+
 class Agreement(Model):
     kind: AgreementKind
     amount: Amount
     currency: str
     tolerance_pct: Ratio | None = None  # overrides Policy.agreement_tolerance_pct when set
     source: str | None = None  # where it came from, e.g. "Contrato marco 2026, cláusula 4"
+    early_payment_discount: EarlyPaymentDiscount | None = None  # the scheduler pays early only to earn it
+    late_fee_pct: Ratio | None = None  # agreed late fee per month overdue; ranks payments when cash is short
+    critical: bool = False  # e.g. payroll or rent: paid first when cash is short, after late fees
 
 
 class Beneficiary(Model):
@@ -120,6 +130,13 @@ class Approver(Model):
     email: str | None = None
 
 
+class TrustPolicy(Model):
+    """How a supplier earns a higher auto-approval cap (R9). See custodio.engine.trust for the formula."""
+
+    floor: Amount = Decimal(0)  # the cap of a supervised supplier, after any risk signal
+    hard_ceiling: bool = False  # True: an earned cap never exceeds approval_threshold; else per_payment_limit
+
+
 class Policy(Model):
     """Everything a company decides. Amount thresholds are expressed in `base_currency`."""
 
@@ -136,6 +153,7 @@ class Policy(Model):
     allowed_currencies: list[str] = ["USD", "COP", "MXN", "BRL", "CLP"]  # R8
     beneficiaries: list[Beneficiary] = []  # R3, R4, R6
     approvers: list[Approver] = []
+    trust: TrustPolicy = TrustPolicy()  # R9 per supplier, earned in the ledger
 
 
 class PaymentRecord(Model):
@@ -151,6 +169,16 @@ class PaymentRecord(Model):
     by: Literal["agent", "person"]
 
 
+class TrustCap(Model):
+    """The auto-approval cap (R9) one supplier has earned, folded from its trust entries in the ledger."""
+
+    beneficiary_id: str
+    cap: Amount  # in base currency
+    clean_streak: int  # payments a person approved without an incident since the last one
+    supervised: bool  # True after a risk signal, until the supplier earns its cap back
+    reason: str  # Spanish, why the cap is what it is
+
+
 class CompanyState(Model):
     workspace_id: str
     company_name: str
@@ -158,6 +186,7 @@ class CompanyState(Model):
     opening_balance: Amount  # in base currency, before the batch
     fx_units_per_base: dict[str, Ratio]  # units of each currency per 1 unit of base currency
     history: list[PaymentRecord] = []
+    trust: dict[str, TrustCap] = {}  # by beneficiary id; a supplier without one uses Policy.approval_threshold
 
 
 # ---------------------------------------------------------------------------
@@ -352,6 +381,7 @@ class Decision(Model):
     approval: Approval | None = None
     blocked_reason: str | None = None  # e.g. approved by a person but paying would break the reserve
     execution: PaymentExecution | None = None  # set only where money is meant to move: the panel, never a sandbox
+    trust: TrustCap | None = None  # the supplier's earned R9 cap, when one replaced the policy's threshold
 
 
 class Metrics(Model):
@@ -395,6 +425,9 @@ class LedgerKind(StrEnum):
     REDTEAM_ATTACK = "redteam_attack"
     CHALLENGE_ATTEMPT = "challenge_attempt"
     INTENT = "intent"
+    TRUST_RAISED = "trust_raised"  # a payment a person approved without an incident: the supplier earns trust
+    TRUST_REVOKED = "trust_revoked"  # a risk signal of the supplier: back to supervised
+    SIMULATION = "simulation"  # the demo's simulated month, with the cash it adds
 
 
 class LedgerEntry(Model):

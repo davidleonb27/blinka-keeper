@@ -43,6 +43,13 @@ export type OnboardingRequest = JsonBodyOf<"/api/v1/onboarding/complete", "post"
 export type OnboardingResult = ResponseOf<"/api/v1/onboarding/complete", "post">;
 export type RedTeamRequest = JsonBodyOf<"/api/v1/redteam/runs", "post">;
 export type ChallengeForm = FormOf<"/api/v1/challenge/attempts", "post">;
+export type TrustOverview = ResponseOf<"/api/v1/trust", "get">;
+export type SupplierTrust = TrustOverview["suppliers"][number];
+export type TrustStep = SupplierTrust["timeline"][number];
+export type SimulationResult = ResponseOf<"/api/v1/trust/simulate", "post">;
+export type ScheduleView = ResponseOf<"/api/v1/schedule", "get">;
+export type ScheduledItem = ScheduleView["items"][number];
+export type RunDueResult = ResponseOf<"/api/v1/schedule/run-due", "post">;
 
 export interface ChallengeInput {
   text: string;
@@ -84,4 +91,11 @@ export interface CustodioApi {
   proposeProfile(request: ProfileRequest): Promise<CompanyProfile>;
   importSuppliers(file: File): Promise<SupplierImport>;
   completeOnboarding(request: OnboardingRequest): Promise<OnboardingResult>;
+  /** Each supplier's earned auto-approval cap, folded from its trust entries in the ledger. */
+  getTrust(): Promise<TrustOverview>;
+  /** Plays the demo's seeded month once, on the simulated rail; calling it again changes nothing. */
+  simulateMonth(): Promise<SimulationResult>;
+  getSchedule(): Promise<ScheduleView>;
+  /** Pays what is due today or earlier through the configured rail. */
+  runDuePayments(): Promise<RunDueResult>;
 }

@@ -59,6 +59,9 @@ function beneficiary(b) {
       currency: b.agreement.currency,
       tolerance_pct: null,
       source: `Acuerdo: ${b.agreement.label}`,
+      early_payment_discount: null,
+      late_fee_pct: null,
+      critical: false,
     },
     allowed: b.allowed,
     approver_contact: null,
@@ -82,6 +85,7 @@ const policy = {
     { name: "Ana Gómez", role: "CFO", email: "ana@cobalto.example" },
     { name: "Tomás Rivera", role: "Controller", email: "tomas@cobalto.example" },
   ],
+  trust: { floor: 0, hard_ceiling: false },
 };
 
 function field(inv, value, spanKey, confidenceKey) {

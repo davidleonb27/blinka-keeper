@@ -6,6 +6,7 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
@@ -40,6 +41,7 @@ class Runtime:
     limits: RateLimits
     public_base_url: str
     payment_rail: RailChoice = field(default_factory=simulated_choice)
+    treasury_yield_apy: Decimal = Decimal("4.0")  # percent a year; the payment calendar's stated assumption
 
     def context(self, session: Session) -> ServiceContext:
         return ServiceContext(session=session, runtime=self)
@@ -69,4 +71,5 @@ def production_runtime(settings: Settings) -> Runtime:
         limits=RateLimits(),
         public_base_url=settings.public_base_url,
         payment_rail=choose_rail(settings.payment_rail, os.environ.get("STRIPE_SECRET_KEY")),
+        treasury_yield_apy=Decimal(str(settings.treasury_yield_apy)),
     )

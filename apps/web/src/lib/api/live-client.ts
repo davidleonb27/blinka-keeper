@@ -156,6 +156,10 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
       call("post", "/api/v1/onboarding/suppliers", {
         form: formOf<FormOf<"/api/v1/onboarding/suppliers", "post">>({ file }),
       }),
+    getTrust: () => call("get", "/api/v1/trust"),
+    simulateMonth: () => call("post", "/api/v1/trust/simulate"),
+    getSchedule: () => call("get", "/api/v1/schedule"),
+    runDuePayments: () => call("post", "/api/v1/schedule/run-due"),
     runRedTeam: async (input, onEvent, signal) => {
       const response = await send("post", "/api/v1/redteam/runs", { json: input, signal });
       if (!response.body) throw new UnexpectedResponseError(response.status);

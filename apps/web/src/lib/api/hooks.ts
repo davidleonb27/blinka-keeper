@@ -16,6 +16,8 @@ const queryKeys = {
   policy: ["policy"] as const,
   ledger: ["ledger"] as const,
   challenge: ["challenge-stats"] as const,
+  trust: ["trust"] as const,
+  schedule: ["schedule"] as const,
 };
 
 const HYDRATING = "hydrating";
@@ -72,6 +74,28 @@ export function useLedger() {
   return useClientQuery({ queryKey: queryKeys.ledger, queryFn: () => api.getLedger() });
 }
 
+export function useTrust() {
+  const api = useApi();
+  return useQuery({ queryKey: queryKeys.trust, queryFn: () => api.getTrust() });
+}
+
+export function useSchedule() {
+  const api = useApi();
+  return useQuery({ queryKey: queryKeys.schedule, queryFn: () => api.getSchedule() });
+}
+
+export function useSimulateMonth() {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({ mutationFn: () => api.simulateMonth(), onSuccess: invalidate });
+}
+
+export function useRunDuePayments() {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({ mutationFn: () => api.runDuePayments(), onSuccess: invalidate });
+}
+
 export function useChallengeStats(pollMs = CHALLENGE_POLL_MS) {
   const api = useApi();
   return useClientQuery({
@@ -85,7 +109,14 @@ function useInvalidateWorkspace() {
   const client = useQueryClient();
   return () =>
     Promise.all(
-      [queryKeys.workspace, queryKeys.decisions, queryKeys.ledger, queryKeys.policy].map((queryKey) =>
+      [
+        queryKeys.workspace,
+        queryKeys.decisions,
+        queryKeys.ledger,
+        queryKeys.policy,
+        queryKeys.trust,
+        queryKeys.schedule,
+      ].map((queryKey) =>
         client.invalidateQueries({ queryKey }),
       ),
     );

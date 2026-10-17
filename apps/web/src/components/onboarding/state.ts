@@ -30,6 +30,7 @@ const POLICY_DEFAULTS = {
   duplicate_window_days: 20,
   split_window_days: 2,
   min_confidence: 0.9,
+  trust: { floor: 0, hard_ceiling: false },
 } satisfies Partial<Policy>;
 
 export function starterMoney(currency: string): StarterMoney {

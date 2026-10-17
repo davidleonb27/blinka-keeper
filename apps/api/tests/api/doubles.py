@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable, Iterator, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any
@@ -52,8 +52,9 @@ from custodio.contracts import (
     SimulationReport,
     SupplierImport,
 )
+from custodio.dataset import simulated_month
 from custodio.llm import LLMError
-from custodio.services.lanes import Lanes
+from custodio.services.lanes import Lanes, production_lanes
 from custodio.services.triage import AttackTriage
 
 GENESIS = "0" * 64
@@ -573,6 +574,22 @@ def fake_lanes(auditor: FakeAuditor | None = None) -> Lanes:
         simulate=simulate,
         next_ledger_entry=next_entry,
         verify_ledger=verify,
+        compile_policy=compile_policy,
+        narrate=narrate,
+        profile_company=profile_company,
+        import_suppliers=import_suppliers,
+        red_team=red_team,
+        triage_attack=triage_attack,
+        simulated_month=simulated_month,
+    )
+
+
+def model_free_lanes() -> Lanes:
+    """Production wiring (the real engine, auditor, dataset and ledger) with the lanes that call Claude doubled."""
+    return replace(
+        production_lanes(),
+        extract_document=extract_document,
+        extract_text=extract_text,
         compile_policy=compile_policy,
         narrate=narrate,
         profile_company=profile_company,

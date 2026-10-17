@@ -185,15 +185,15 @@ def _autonomous_problems(
     problems += _split_problems(invoice, invoices, state, policy)
     problems += _currency_problems(invoice, state, policy)
     problems += [*_details_problems(invoice), *_sanctions_problems(invoice, sanctions), *_sender_problems(invoice)]
-    return [*problems, *_money_problems(invoice, policy, totals)]
+    return [*problems, *_money_problems(invoice, state, policy, totals)]
 
 
-def _money_problems(invoice: _Invoice, policy: Policy, totals: _Totals) -> list[str]:
+def _money_problems(invoice: _Invoice, state: CompanyState, policy: Policy, totals: _Totals) -> list[str]:
     """Limits, budget and reserve against the auditor's own running totals, which then record this payment."""
     if invoice.base is None:
         return ["sin monto en moneda base"]
     month, problems = _month(invoice.day), []
-    if invoice.base > policy.approval_threshold:
+    if invoice.base > _approval_cap(invoice, state, policy):
         problems.append("sobre el tope de aprobación")
     if invoice.base > policy.per_payment_limit:
         problems.append("sobre el límite por pago")
@@ -205,6 +205,12 @@ def _money_problems(invoice: _Invoice, policy: Policy, totals: _Totals) -> list[
     totals.agent_by_month[month] += invoice.base
     totals.agent_paid.append(invoice)
     return problems
+
+
+def _approval_cap(invoice: _Invoice, state: CompanyState, policy: Policy) -> Decimal:
+    """The cap the supplier earned (looked up by the auditor's own identification), else the policy's."""
+    earned = state.trust.get(invoice.payee.id) if invoice.payee else None
+    return policy.approval_threshold if earned is None else earned.cap
 
 
 def _reading_problems(read: ExtractedInvoice, policy: Policy) -> list[str]:

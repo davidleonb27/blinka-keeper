@@ -331,6 +331,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/trust": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Trust
+         * @description Each supplier's earned auto-approval cap (R9), folded from its trust entries in the ledger.
+         */
+        get: operations["read_trust_api_v1_trust_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trust/simulate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simulate Month
+         * @description Plays the demo's seeded month once, on the simulated rail. Calling it again changes nothing.
+         */
+        post: operations["simulate_month_api_v1_trust_simulate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Schedule
+         * @description The next 45 days of approved payments: when each goes out, through which rail and why then.
+         */
+        get: operations["read_schedule_api_v1_schedule_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schedule/run-due": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Due
+         * @description Pays what is due today or earlier through the configured rail. Running it twice pays nothing twice.
+         */
+        post: operations["run_due_api_v1_schedule_run_due_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/redteam/runs": {
         parameters: {
             query?: never;
@@ -426,6 +506,14 @@ export interface components {
             tolerance_pct?: number | string | null;
             /** Source */
             source?: string | null;
+            early_payment_discount?: components["schemas"]["EarlyPaymentDiscount-Input"] | null;
+            /** Late Fee Pct */
+            late_fee_pct?: number | string | null;
+            /**
+             * Critical
+             * @default false
+             */
+            critical: boolean;
         };
         /** Agreement */
         "Agreement-Output": {
@@ -438,6 +526,14 @@ export interface components {
             tolerance_pct?: number | null;
             /** Source */
             source?: string | null;
+            early_payment_discount?: components["schemas"]["EarlyPaymentDiscount-Output"] | null;
+            /** Late Fee Pct */
+            late_fee_pct?: number | null;
+            /**
+             * Critical
+             * @default false
+             */
+            critical: boolean;
         };
         /**
          * AgreementKind
@@ -529,6 +625,30 @@ export interface components {
              * @default []
              */
             findings: components["schemas"]["AuditFinding"][];
+        };
+        /** AutonomyDay */
+        AutonomyDay: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Decisions */
+            decisions: number;
+            /** Decided Alone */
+            decided_alone: number;
+            /** Rate */
+            rate: number;
+        };
+        /** BalanceDay */
+        BalanceDay: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Balance */
+            balance: number;
         };
         /** BatchResult */
         BatchResult: {
@@ -626,6 +746,23 @@ export interface components {
             file?: string | null;
             /** Text */
             text?: string | null;
+        };
+        /** CapturedThisMonth */
+        CapturedThisMonth: {
+            /** Year */
+            year: number;
+            /** Month */
+            month: number;
+            /** Discounts */
+            discounts: number;
+            /** Late Fees Avoided */
+            late_fees_avoided: number;
+            /** Treasury Yield */
+            treasury_yield: number;
+            /** Total */
+            total: number;
+            /** Payments */
+            payments: number;
         };
         /** ChallengeAttempt */
         ChallengeAttempt: {
@@ -738,6 +875,7 @@ export interface components {
             /** Blocked Reason */
             blocked_reason?: string | null;
             execution?: components["schemas"]["PaymentExecution"] | null;
+            trust?: components["schemas"]["TrustCap"] | null;
         };
         /**
          * DecisionItem
@@ -757,6 +895,26 @@ export interface components {
          * @enum {string}
          */
         DecisionStatus: "paid_auto" | "paid_human" | "hold" | "pending_approval" | "rejected";
+        /**
+         * EarlyPaymentDiscount
+         * @description Early-payment terms such as "2/10 net 30": `percent` off when paid within `days` of the issue date.
+         */
+        "EarlyPaymentDiscount-Input": {
+            /** Percent */
+            percent: number | string;
+            /** Days */
+            days: number;
+        };
+        /**
+         * EarlyPaymentDiscount
+         * @description Early-payment terms such as "2/10 net 30": `percent` off when paid within `days` of the issue date.
+         */
+        "EarlyPaymentDiscount-Output": {
+            /** Percent */
+            percent: number;
+            /** Days */
+            days: number;
+        };
         /** Evidence */
         Evidence: {
             /** Quote */
@@ -904,7 +1062,7 @@ export interface components {
          * LedgerKind
          * @enum {string}
          */
-        LedgerKind: "policy_changed" | "invoice_received" | "decision" | "approval" | "payment" | "redteam_attack" | "challenge_attempt" | "intent";
+        LedgerKind: "policy_changed" | "invoice_received" | "decision" | "approval" | "payment" | "redteam_attack" | "challenge_attempt" | "intent" | "trust_raised" | "trust_revoked" | "simulation";
         /** LedgerVerification */
         LedgerVerification: {
             /** Valid */
@@ -1133,6 +1291,13 @@ export interface components {
              * @default []
              */
             approvers: components["schemas"]["Approver"][];
+            /**
+             * @default {
+             *       "floor": 0,
+             *       "hard_ceiling": false
+             *     }
+             */
+            trust: components["schemas"]["TrustPolicy-Input"];
         };
         /**
          * Policy
@@ -1210,6 +1375,13 @@ export interface components {
              * @default []
              */
             approvers: components["schemas"]["Approver"][];
+            /**
+             * @default {
+             *       "floor": 0,
+             *       "hard_ceiling": false
+             *     }
+             */
+            trust: components["schemas"]["TrustPolicy-Output"];
         };
         /** PolicyChange */
         PolicyChange: {
@@ -1294,6 +1466,12 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** RunDue */
+        RunDue: {
+            /** Executed */
+            executed: components["schemas"]["Decision"][];
+            schedule: components["schemas"]["ScheduleView"];
+        };
         /** RunRequest */
         RunRequest: {
             /**
@@ -1301,6 +1479,67 @@ export interface components {
              * @default 6
              */
             rounds: number;
+        };
+        /** ScheduleView */
+        ScheduleView: {
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            /** Horizon Days */
+            horizon_days: number;
+            /** Base Currency */
+            base_currency: string;
+            /** Rail */
+            rail: string;
+            /** Cash */
+            cash: number;
+            /** Committed Balance */
+            committed_balance: number;
+            /** Reserve */
+            reserve: number;
+            /** Apy */
+            apy: number;
+            /** Apy Note */
+            apy_note: string;
+            /** Items */
+            items: components["schemas"]["ScheduledItem"][];
+            /** Waiting */
+            waiting: components["schemas"]["ScheduledItem"][];
+            /** Balance */
+            balance: components["schemas"]["BalanceDay"][];
+            captured: components["schemas"]["CapturedThisMonth"];
+        };
+        /** ScheduledItem */
+        ScheduledItem: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Beneficiary Id */
+            beneficiary_id: string | null;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Amount */
+            amount: number | null;
+            /** Currency */
+            currency: string | null;
+            /** Amount Base */
+            amount_base: number;
+            /** Due Date */
+            due_date: string | null;
+            /** Pay On */
+            pay_on: string | null;
+            timing: components["schemas"]["Timing"];
+            /** Reason */
+            reason: string;
+            /** Rail */
+            rail: string;
+            /** Discount Base */
+            discount_base: number;
+            /** Late Fee Avoided Base */
+            late_fee_avoided_base: number;
+            /** Yield Base */
+            yield_base: number;
         };
         /** SimulatedChange */
         SimulatedChange: {
@@ -1320,6 +1559,25 @@ export interface components {
             /** Changed */
             changed: components["schemas"]["SimulatedChange"][];
         };
+        /** SimulationResult */
+        SimulationResult: {
+            /** Created */
+            created: boolean;
+            /** Seed */
+            seed: number;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /** Days */
+            days: number;
+            /** Invoices */
+            invoices: number;
+            /** Inflow Base */
+            inflow_base: number;
+            trust: components["schemas"]["TrustOverview"];
+        };
         /** SupplierImport */
         SupplierImport: {
             /** Beneficiaries */
@@ -1329,6 +1587,30 @@ export interface components {
              * @default []
              */
             warnings: string[];
+        };
+        /** SupplierTrust */
+        SupplierTrust: {
+            /** Beneficiary Id */
+            beneficiary_id: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Has History */
+            has_history: boolean;
+            /** Cap */
+            cap: number;
+            /** Clean Streak */
+            clean_streak: number;
+            /** Supervised */
+            supervised: boolean;
+            /** Reason */
+            reason: string;
+            /** Clean Needed */
+            clean_needed: number;
+            /** Next Cap */
+            next_cap: number | null;
+            last_incident: components["schemas"]["TrustStep"] | null;
+            /** Timeline */
+            timeline: components["schemas"]["TrustStep"][];
         };
         /** TamperDemo */
         TamperDemo: {
@@ -1343,6 +1625,114 @@ export interface components {
         TamperRequest: {
             /** Seq */
             seq?: number | null;
+        };
+        /**
+         * Timing
+         * @enum {string}
+         */
+        Timing: "discount" | "on_due" | "overdue" | "no_due_date" | "short_of_cash";
+        /**
+         * TrustCap
+         * @description The auto-approval cap (R9) one supplier has earned, folded from its trust entries in the ledger.
+         */
+        TrustCap: {
+            /** Beneficiary Id */
+            beneficiary_id: string;
+            /** Cap */
+            cap: number;
+            /** Clean Streak */
+            clean_streak: number;
+            /** Supervised */
+            supervised: boolean;
+            /** Reason */
+            reason: string;
+        };
+        /** TrustOverview */
+        TrustOverview: {
+            /** Base Currency */
+            base_currency: string;
+            /** Autonomy Rate */
+            autonomy_rate: number;
+            /** Floor */
+            floor: number;
+            /** Ceiling */
+            ceiling: number;
+            /** Policy Threshold */
+            policy_threshold: number;
+            /** Hard Ceiling */
+            hard_ceiling: boolean;
+            /** Clean Payments To Earn */
+            clean_payments_to_earn: number;
+            /** Suppliers */
+            suppliers: components["schemas"]["SupplierTrust"][];
+            /** Autonomy */
+            autonomy: components["schemas"]["AutonomyDay"][];
+        };
+        /**
+         * TrustPolicy
+         * @description How a supplier earns a higher auto-approval cap (R9). See custodio.engine.trust for the formula.
+         */
+        "TrustPolicy-Input": {
+            /**
+             * Floor
+             * @default 0
+             */
+            floor: number | string;
+            /**
+             * Hard Ceiling
+             * @default false
+             */
+            hard_ceiling: boolean;
+        };
+        /**
+         * TrustPolicy
+         * @description How a supplier earns a higher auto-approval cap (R9). See custodio.engine.trust for the formula.
+         */
+        "TrustPolicy-Output": {
+            /**
+             * Floor
+             * @default 0
+             */
+            floor: number;
+            /**
+             * Hard Ceiling
+             * @default false
+             */
+            hard_ceiling: boolean;
+        };
+        /**
+         * TrustStep
+         * @description One entry of a supplier's trust history, as the ledger holds it.
+         */
+        TrustStep: {
+            /** Seq */
+            seq: number;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "trust_raised" | "trust_revoked";
+            /** Invoice Id */
+            invoice_id: string;
+            /** Rule Id */
+            rule_id: string | null;
+            /** Reason */
+            reason: string;
+            /** Summary */
+            summary: string;
+            /** Cap Before */
+            cap_before: number | null;
+            /** Cap After */
+            cap_after: number | null;
+            /** Clean Streak */
+            clean_streak: number | null;
+            /** Hash */
+            hash: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -2054,6 +2444,130 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TamperDemo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_trust_api_v1_trust_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrustOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simulate_month_api_v1_trust_simulate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_schedule_api_v1_schedule_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_due_api_v1_schedule_run_due_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunDue"];
                 };
             };
             /** @description Validation Error */

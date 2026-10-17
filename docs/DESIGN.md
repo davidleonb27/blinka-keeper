@@ -176,6 +176,8 @@ espacio.
 | `POST /redteam/runs` (SSE) | rondas del atacante en vivo; cada mensaje es un `RedTeamEvent` (documentado en el OpenAPI) |
 | `POST /challenge/attempts` · `GET /challenge/stats` | reto público |
 | `POST /firewall/intents` | intención de pago de otro agente → `IntentVerdict` |
+| `GET /trust` · `POST /trust/simulate` | tope ganado por proveedor (desde el ledger) · mes simulado de la demo (una vez, riel simulado) |
+| `GET /schedule` · `POST /schedule/run-due` | calendario de pagos aprobados (45 días) · paga lo que vence hoy por el riel configurado |
 | `/mcp` | servidor MCP (streamable HTTP): `submit_payment_intent`, `get_decision`, `get_policy` |
 
 Límites: por IP y por espacio en rutas que llaman modelos; tope diario de gasto en `llm.py`; archivos ≤ 4 MB
@@ -224,7 +226,8 @@ shadcn/ui, tema claro y oscuro, móvil primero.
 
 `ANTHROPIC_API_KEY`, `DATABASE_URL` (Neon; normalizar `postgresql://` a `postgresql+psycopg://`),
 `CUSTODIO_PUBLIC_BASE_URL`, `CUSTODIO_LLM_DAILY_BUDGET_USD`, `CUSTODIO_MODEL_FAST`,
-`CUSTODIO_MODEL_SMART`, `CUSTODIO_MODEL_CHEAP`, `CUSTODIO_LIVE_TESTS`, `CUSTODIO_PAYMENT_RAIL` (`simulated` por
+`CUSTODIO_MODEL_SMART`, `CUSTODIO_MODEL_CHEAP`, `CUSTODIO_LIVE_TESTS`, `CUSTODIO_TREASURY_YIELD_APY` (rendimiento anual
+supuesto del saldo, 4.0 por defecto; un supuesto, no un dato de Blinka), `CUSTODIO_PAYMENT_RAIL` (`simulated` por
 defecto, `stripe_test` o `blinka_simulated`) y `STRIPE_SECRET_KEY` (sólo `sk_test_…`; una clave `live` se rechaza). `Decision.execution`
 (`PaymentExecution`) dice cómo salió cada pago: ver `docs/PAYMENTS.md`.
 
@@ -241,3 +244,18 @@ defecto, `stripe_test` o `blinka_simulated`) y `STRIPE_SECRET_KEY` (sólo `sk_te
   ya no tiene `telegram_chat_id`, el canal de `Approval` es `web` o `api` y la migración `0002` quita ese campo de las
   políticas guardadas.
 - **Neon**: `DATABASE_URL` llega como `postgresql://`; la capa `db` la normaliza a `postgresql+psycopg://`.
+
+## 14. Autonomía ganada y planificador de pagos (L13)
+
+- **Tope por proveedor (R9).** `engine/trust.py` pliega los asientos `trust_raised` y `trust_revoked` del ledger de cada
+  proveedor en su tope; no hay contador aparte. Sin historial, el tope es `approval_threshold` (el banco de casos no
+  cambia). Una señal de riesgo (R2, R4, R5, R6, R13, una coincidencia OFAC en R14, R15 o un rechazo) lo deja en `Policy.trust.floor` (0 por defecto). Tras 3
+  pagos limpios aprobados por una persona el tope es la mediana aprobada; cada pago limpio más suma 25 %, hasta el
+  doble; nunca baja por un pago limpio ni pasa del techo (`per_payment_limit`, o `approval_threshold` si
+  `Policy.trust.hard_ceiling`). El auditor aplica el mismo tope por su propia identificación del proveedor.
+  `CompanyState.trust` lleva los topes al motor y `Decision.trust` dice cuál se aplicó y por qué.
+- **Planificador.** `engine/schedule.py`: lo aprobado sale el día que vence, no antes; antes sólo para ganar un
+  descuento por pronto pago (`Agreement.early_payment_discount`) que valga más que el rendimiento de esperar; nunca
+  toca la reserva y, si no alcanza, prioriza la mora pactada (`Agreement.late_fee_pct`) y los proveedores críticos
+  (`Agreement.critical`). Un pago aprobado cuyo día no ha llegado queda con `execution = null` y su asiento `payment`
+  dice `scheduled_for`; `POST /schedule/run-due` lo envía con el servicio de pago de siempre.
