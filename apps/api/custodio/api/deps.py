@@ -32,9 +32,7 @@ def get_services(runtime: RuntimeDep) -> Iterator[ServiceContext]:
 Services = Annotated[ServiceContext, Depends(get_services)]
 
 
-def current_workspace(
-    ctx: Services, x_custodio_workspace: Annotated[str | None, Header(include_in_schema=False)] = None
-) -> WorkspaceRow:
+def current_workspace(ctx: Services, x_custodio_workspace: Annotated[str | None, Header()] = None) -> WorkspaceRow:
     if not x_custodio_workspace:
         raise WorkspaceHeaderMissing()
     return workspace_service.get(ctx, x_custodio_workspace.strip())
