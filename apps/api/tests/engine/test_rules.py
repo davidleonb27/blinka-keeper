@@ -591,3 +591,13 @@ def test_r15_skips_with_a_note_a_sender_domain_that_is_not_alike() -> None:
 def test_r15_skips_an_unknown_supplier() -> None:
     result = rule(one(invoice(supplier="Orbit Growth Partners LLC", tax_id="61-5590147")), "R15")
     assert result.outcome is SKIPPED
+
+
+def test_r15_names_the_registered_contact_once_and_its_fix_reads_as_one_sentence() -> None:
+    company = policy(
+        beneficiary("b3", "Pixel Norte S.A. de C.V.", "PNO190312KD4", contact="+52 55 5555 0187", deal=agreement())
+    )
+    decision = one(invoice(supplier="Pixel Norte S.A. de C.V.", tax_id="PNO190312KD4", account="7788-9902"), company)
+    reason = rule(decision, "R15").reason
+    assert "comuníquese con el contacto registrado de Pixel Norte S.A. de C.V. (+52 55 5555 0187)" in reason
+    assert decision.counterfactual is not None and not decision.counterfactual.endswith("..")

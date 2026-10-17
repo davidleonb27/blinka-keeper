@@ -277,3 +277,15 @@ def test_an_engine_bug_that_would_pay_without_an_amount_stops_instead(monkeypatc
     monkeypatch.setattr(decide, "EVALUATORS", always_pass)
     with pytest.raises(EngineInvariantError):
         decide_all([invoice(amount=None)], state(), policy())
+
+
+def test_a_payment_with_a_control_that_had_nothing_to_check_says_how_many_rules_applied() -> None:
+    company = policy(
+        beneficiary(tax_id="901.482.337-2", country="CO", currency="COP", deal=agreement("9200000", "COP"))
+    )
+    case = invoice(tax_id="901.482.337-2", amount="9200000.00", currency="COP")
+    [decision] = decide_all([case], state(), company).decisions
+    assert decision.agent_verdict is AgentVerdict.PAY
+    assert decision.explanation.startswith(
+        "Se paga sola: se cumplen las 14 reglas que aplican (R13 no tenía nada que comprobar)."
+    )
