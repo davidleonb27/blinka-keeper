@@ -1,6 +1,6 @@
 """Invoices as images: a phone photo of a paper invoice, or a WhatsApp chat screenshot.
 
-Hidden text in an image is drawn in a color one shade off its background: a person does not see it, an OCR model
+Hidden text in an image is drawn in a color one shade off its background: a person does not see it, a vision model
 may still read it. Code cannot tell it apart from pixels, so on images only the instruction patterns (R2) catch it.
 """
 

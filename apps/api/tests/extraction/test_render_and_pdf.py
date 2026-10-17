@@ -103,7 +103,7 @@ def test_text_in_the_color_of_the_shape_behind_it_is_invisible() -> None:
     assert reading.pages == ("Encabezado legible\nCuerpo legible",)
 
 
-def test_a_pdf_with_only_an_image_has_no_visible_text_and_rasterizes_for_ocr() -> None:
+def test_a_pdf_with_only_an_image_has_no_visible_text_and_rasterizes_for_vision() -> None:
     photo = render_invoice(make_spec(channel=InvoiceSource.IMAGE))
     buffer = io.BytesIO()
     Image.open(io.BytesIO(photo.data)).convert("RGB").save(buffer, format="PDF")

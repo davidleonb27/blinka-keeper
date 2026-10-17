@@ -88,7 +88,7 @@ def read_pdf(data: bytes) -> PdfReading:
 
 
 def rasterize(data: bytes) -> list[bytes]:
-    """Each page as a PNG, for OCR of PDFs that carry no text (scans)."""
+    """Each page as a PNG, for the vision transcription of PDFs that carry no text (scans)."""
     try:
         with pdfplumber.open(io.BytesIO(data)) as pdf:
             if len(pdf.pages) > MAX_RASTER_PAGES:

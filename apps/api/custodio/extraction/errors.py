@@ -15,14 +15,6 @@ class UnreadableDocument(ExtractionError):
     """The file claims a supported type but its bytes cannot be parsed or rendered."""
 
 
-class OcrUnavailable(ExtractionError):
-    """An image needs OCR and no Gemini key is configured."""
-
-
-class OcrFailed(ExtractionError):
-    """Gemini answered without a usable transcription."""
-
-
 class MalformedReading(ExtractionError):
     """The model returned an object that parses but breaks the reading contract."""
 
