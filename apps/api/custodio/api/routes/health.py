@@ -13,7 +13,6 @@ class Health(BaseModel):
     status: str
     version: str
     anthropic: bool
-    gemini: bool
 
 
 @router.get("/health", response_model=Health)
@@ -23,5 +22,4 @@ def health() -> Health:
         status="ok",
         version=__version__,
         anthropic=settings.anthropic_configured,
-        gemini=settings.gemini_configured,
     )
