@@ -137,6 +137,13 @@ def test_the_number_of_rounds_is_bounded(fake_llm: FakeLLM, rounds: int) -> None
         run(fake_llm, Judge(), rounds=rounds)
 
 
+def test_a_bad_number_of_rounds_fails_on_the_call_not_mid_stream(fake_llm: FakeLLM) -> None:
+    # The API must be able to answer 422 before it opens the SSE stream.
+    with pytest.raises(ValueError, match="rondas"):
+        red_team(make_policy(), make_state(), rounds=MAX_ROUNDS + 1, judge=Judge())
+    assert fake_llm.calls == []
+
+
 def test_registered_accounts_in_verdict_reasons_never_reach_the_attacker(fake_llm: FakeLLM) -> None:
     leaky = make_decision(
         failing={"R4": (RuleOutcome.HOLD, "La cuenta 000999 no es la registrada 123-456-789 01 de Nube S.A.S.")}
