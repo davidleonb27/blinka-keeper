@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { WorkspaceCreated } from "./client";
-import { ensureWorkspace, readWorkspaceCookie, renewWorkspace, WORKSPACE_COOKIE } from "./workspace";
+import { ensureWorkspace, isFreshBlank, readWorkspaceCookie, renewWorkspace, WORKSPACE_COOKIE } from "./workspace";
 
 function memoryStore(initial: string | null) {
   let value = initial;
@@ -34,6 +34,16 @@ describe("ensureWorkspace", () => {
     expect(id).toBe("ws_new");
     expect(createWorkspace).toHaveBeenCalledWith("demo");
     expect(store.write).toHaveBeenCalledWith({ workspace_id: "ws_new", api_key: "ck_1" });
+  });
+
+  it("creates a blank workspace for a visitor who starts by setting up a company", async () => {
+    const store = memoryStore(null);
+    const createWorkspace = vi.fn(async () => ({ workspace_id: "ws_blank", api_key: "ck_2" }));
+
+    await ensureWorkspace({ createWorkspace }, store, "blank");
+
+    expect(createWorkspace).toHaveBeenCalledWith("blank");
+    expect(isFreshBlank("ws_blank")).toBe(true);
   });
 
   it("reuses the existing workspace", async () => {

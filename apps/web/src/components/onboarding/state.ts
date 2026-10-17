@@ -92,6 +92,23 @@ export function normalizeWebsite(text: string): string | null {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
+const BLANK_TO_FILL = /\[[^\]]*\]/;
+const WHOLE = new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 });
+
+/** A complete first rule set in the company's currency, for when the proposed one is missing or has blanks. */
+export function exampleRules(currency: string): string {
+  const money = starterMoney(currency);
+  const amount = (value: number) => `${WHOLE.format(value)} ${currency}`;
+  return (
+    `Nada sobre ${amount(money.threshold)} sin aprobación. Ningún pago pasa de ${amount(money.limit)}. ` +
+    `Deja siempre ${amount(money.reserve)} de colchón.`
+  );
+}
+
+function usableRules(suggested: string | null | undefined, currency: string): string {
+  return suggested && !BLANK_TO_FILL.test(suggested) ? suggested : exampleRules(currency);
+}
+
 /** Applies a proposed profile, keeping anything the person already typed. */
 export function withProfile(answers: Answers, profile: CompanyProfile): Answers {
   const currency = profile.base_currency;
@@ -103,7 +120,7 @@ export function withProfile(answers: Answers, profile: CompanyProfile): Answers 
     currency,
     balance: answers.balance || String(money.balance),
     reserve: answers.reserve || String(money.reserve),
-    rulesText: answers.rulesText || (profile.suggested_rules_text ?? ""),
+    rulesText: answers.rulesText || usableRules(profile.suggested_rules_text, currency),
   };
 }
 

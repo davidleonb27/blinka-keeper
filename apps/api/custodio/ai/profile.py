@@ -20,6 +20,7 @@ from custodio.contracts import CompanyProfile, Model
 
 _MAX_FETCHES = 5
 _MAX_PAGE_TOKENS = 12000
+_BLANK = re.compile(r"\[[^\]]*\]")
 _MAX_SUPPLIER_CATEGORIES = 8
 _COUNTRY = re.compile(r"[A-Z]{2}")
 _CURRENCY = re.compile(r"[A-Z]{3}")
@@ -58,7 +59,7 @@ tercerizada", "transporte", "materias primas").
 (amounts in its base currency written as people write them, e.g. "Nada sobre 3.000 dólares sin aprobación. Deja \
 siempre 20 mil de colchón. No pagues en monedas distintas a pesos y dólares."). Only rules about approval \
 thresholds, per-payment limits, the monthly autonomous budget, the reserve, currencies and fixed or capped \
-agreements with known suppliers.
+agreements with known suppliers. Write real numbers, never blanks to fill such as "[monto]".
 - evidence_urls: the exact URLs you actually fetched and used. Never list a page you did not fetch.
 
 Use the onboarding answers as facts from the user; they win over the site. Without a website, work only from the \
@@ -131,7 +132,7 @@ def _profile(company_name: str, url: str | None, draft: DraftProfile, fetched: t
         base_currency=currency or CompanyProfile.model_fields["base_currency"].default,
         summary=_text(draft.summary),
         likely_suppliers=_categories(draft.likely_suppliers),
-        suggested_rules_text=_text(draft.suggested_rules_text),
+        suggested_rules_text=_complete(_text(draft.suggested_rules_text)),
         evidence_urls=_evidence(draft.evidence_urls, url, fetched),
     )
 
@@ -143,6 +144,11 @@ def _code(value: str | None, pattern: re.Pattern[str]) -> str | None:
 
 def _text(value: str | None) -> str | None:
     return value.strip() or None if value else None
+
+
+def _complete(text: str | None) -> str | None:
+    """A suggestion with blanks to fill ("[monto]") is not a rule anyone can apply; the web writes its own."""
+    return None if text and _BLANK.search(text) else text
 
 
 def _categories(values: list[str]) -> list[str]:
