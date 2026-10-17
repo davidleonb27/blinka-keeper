@@ -97,7 +97,7 @@ describe("Acta", () => {
   it("shows the Stripe test transfer that paid it, linked to its dashboard", () => {
     render(paidWith(SENT));
 
-    const payment = screen.getByRole("region", { name: "Pago ejecutado" });
+    const payment = screen.getByRole("region", { name: "Ejecución del pago" });
     expect(payment).toHaveTextContent("Stripe · modo prueba");
     expect(payment).toHaveTextContent(/USD/);
     expect(within(payment).getByRole("link", { name: /tr_1Qx7Custodio/ })).toHaveAttribute("href", SENT.dashboard_url);
@@ -108,8 +108,9 @@ describe("Acta", () => {
     const onRetryPayment = vi.fn();
     render(paidWith(FAILED), vi.fn(), onRetryPayment);
 
-    const payment = screen.getByRole("region", { name: "Pago ejecutado" });
+    const payment = screen.getByRole("region", { name: "Ejecución del pago" });
     expect(payment).toHaveTextContent(/transfers_not_allowed/);
+    expect(payment).not.toHaveTextContent(/enviado/);
     await userEvent.click(within(payment).getByRole("button", { name: /Reintentar pago/ }));
     expect(onRetryPayment).toHaveBeenCalledOnce();
   });
@@ -117,15 +118,16 @@ describe("Acta", () => {
   it("says a simulated payment moved no money", () => {
     render(paidWith({ rail: "simulated", status: "simulated", executed_at: "2026-10-17T15:00:00Z" }));
 
-    const payment = screen.getByRole("region", { name: "Pago ejecutado" });
+    const payment = screen.getByRole("region", { name: "Ejecución del pago" });
     expect(payment).toHaveTextContent("Simulado");
     expect(payment).toHaveTextContent(/no se movió dinero/);
+    expect(payment).not.toHaveTextContent(/enviado/);
   });
 
   it("shows no payment block for an invoice that was not paid", () => {
     render(demoItem("F-020"));
 
-    expect(screen.queryByRole("region", { name: "Pago ejecutado" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Ejecución del pago" })).not.toBeInTheDocument();
   });
 });
 
