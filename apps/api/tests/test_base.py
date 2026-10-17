@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from fastapi.testclient import TestClient
 
+from custodio.config import Settings
 from custodio.contracts import RULES, Policy, RuleEffect
 from main import app
 
@@ -34,3 +35,16 @@ def test_health_answers_under_the_public_prefix() -> None:
     response = TestClient(app).get("/api/v1/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+def test_health_reports_only_the_providers_in_use() -> None:
+    body = TestClient(app).get("/api/v1/health").json()
+
+    assert set(body) == {"status", "version", "anthropic"}
+
+
+def test_settings_carry_no_retired_integrations() -> None:
+    retired = {"gemini_model", "telegram_bot_token_present"}
+
+    assert retired.isdisjoint(Settings.model_fields)
+    assert not hasattr(Settings, "gemini_configured")

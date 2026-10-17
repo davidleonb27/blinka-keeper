@@ -38,3 +38,8 @@ def test_neon_urls_use_the_psycopg_driver() -> None:
     assert Database.normalize_url("postgres://u:p@host/db") == "postgresql+psycopg://u:p@host/db"
     assert Database.normalize_url("postgresql://u:p@host/db") == "postgresql+psycopg://u:p@host/db"
     assert Database.normalize_url("sqlite:///x.db") == "sqlite:///x.db"
+
+
+def test_the_engine_talks_to_neon_through_psycopg() -> None:
+    for url in ("postgres://u:p@host/db", "postgresql://u:p@host/db"):
+        assert Database(url).engine.dialect.driver == "psycopg"
