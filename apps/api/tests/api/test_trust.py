@@ -1,17 +1,18 @@
 """Earned autonomy through the API: risk signals and approvals write trust entries, and the caps come back from them."""
 
+from collections.abc import Iterator
+from dataclasses import replace
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 
-from custodio.db import Database
+from custodio.api.app import create_app
 from custodio.payments import STRIPE_TEST, RailChoice
 from custodio.payments.port import Clock
-from custodio.services.context import RateLimits, Runtime
+from custodio.services.context import Runtime
 from custodio.services.lanes import Lanes
 
-from .conftest import MutableClock
 from .doubles import model_free_lanes
 from .helpers import Workspace, assert_ledger_valid, new_workspace, process
 
@@ -29,15 +30,11 @@ def lanes() -> Lanes:
 
 
 @pytest.fixture
-def runtime(database: Database, lanes: Lanes, clock: MutableClock, limits: RateLimits) -> Runtime:
-    return Runtime(
-        database=database,
-        lanes=lanes,
-        clock=clock,
-        limits=limits,
-        public_base_url="https://custodio.test",
-        payment_rail=RailChoice(name=STRIPE_TEST, build=refuse_stripe),
-    )
+def stripe_client(runtime: Runtime) -> Iterator[TestClient]:
+    """A deployment that pays through Stripe, where Stripe must never be reached by the simulated month."""
+    refusing = replace(runtime, payment_rail=RailChoice(name=STRIPE_TEST, build=refuse_stripe))
+    with TestClient(create_app(refusing)) as test_client:
+        yield test_client
 
 
 @pytest.fixture
@@ -64,6 +61,7 @@ def ledger(client: TestClient, workspace: Workspace) -> list[dict[str, Any]]:
 
 
 def simulate(client: TestClient, workspace: Workspace) -> dict[str, Any]:
+    """Through a Stripe deployment: the month must still pay on the simulated rail."""
     response = client.post("/api/v1/trust/simulate", headers=workspace.headers)
     assert response.status_code == 200, response.text
     body: dict[str, Any] = response.json()
@@ -120,14 +118,14 @@ def test_a_payment_a_person_approves_without_a_risk_signal_earns_trust_once(
     client: TestClient, workspace: Workspace
 ) -> None:
     process(client, workspace)
-    approved = client.post("/api/v1/decisions/F-013/approve", headers=workspace.headers, json=APPROVER)
-    assert approved.json()["status"] == "paid_human"
-    ruta = suppliers(trust(client, workspace))["b9"]
-    [raised] = ruta["timeline"]
+    approved = client.post("/api/v1/decisions/F-029/approve", headers=workspace.headers, json=APPROVER)
+    assert approved.json()["status"] == "paid_human"  # Estudio Lumbre: the person confirmed the currency (R1)
+    lumbre = suppliers(trust(client, workspace))["b25"]
+    [raised] = lumbre["timeline"]
     assert raised["kind"] == "trust_raised"
-    assert raised["invoice_id"] == "F-013"
-    assert ruta["clean_streak"] == 1
-    assert ruta["cap"] == 5000  # one clean payment never lowers the policy's cap
+    assert raised["invoice_id"] == "F-029"
+    assert lumbre["clean_streak"] == 1
+    assert lumbre["cap"] == 5000  # one clean payment never lowers the policy's cap
     assert "Ana Gómez aprobó" in raised["reason"]
 
 
@@ -141,9 +139,9 @@ def test_approving_a_decision_with_a_risk_signal_does_not_write_the_incident_twi
     assert pixel["supervised"] is True
 
 
-def test_the_simulated_month_raises_autonomy_and_a_fraud_attempt_knocks_it_down(
-    client: TestClient, workspace: Workspace
-) -> None:
+def test_the_simulated_month_raises_autonomy_and_a_fraud_attempt_knocks_it_down(stripe_client: TestClient) -> None:
+    client = stripe_client
+    workspace = new_workspace(client)
     result = simulate(client, workspace)
     assert result["created"] is True
     assert (result["seed"], result["days"]) == (1330, 30)
@@ -158,15 +156,15 @@ def test_the_simulated_month_raises_autonomy_and_a_fraud_attempt_knocks_it_down(
     assert len(simulated_days) >= 10
     entries = ledger(client, workspace)
     [marker] = [e for e in entries if e["kind"] == "simulation"]
-    assert marker["payload"]["inflow_base"] == str(result["inflow_base"]).rstrip("0").rstrip(".")
+    assert float(marker["payload"]["inflow_base"]) == result["inflow_base"]
     payments = [e for e in entries if e["kind"] == "payment" and e["payload"]["rail"] is not None]
     assert payments and {e["payload"]["rail"] for e in payments} == {"simulated"}
     assert_ledger_valid(client, workspace)
 
 
-def test_a_supervised_supplier_shows_why_its_invoices_wait_for_a_person(
-    client: TestClient, workspace: Workspace
-) -> None:
+def test_a_supervised_supplier_shows_why_its_invoices_wait_for_a_person(stripe_client: TestClient) -> None:
+    client = stripe_client
+    workspace = new_workspace(client)
     simulate(client, workspace)
     decisions = client.get("/api/v1/decisions", headers=workspace.headers).json()
     after_fraud = [
@@ -180,7 +178,9 @@ def test_a_supervised_supplier_shows_why_its_invoices_wait_for_a_person(
     assert "se ha ganado" in r9["reason"]
 
 
-def test_simulating_twice_changes_nothing(client: TestClient, workspace: Workspace) -> None:
+def test_simulating_twice_changes_nothing(stripe_client: TestClient) -> None:
+    client = stripe_client
+    workspace = new_workspace(client)
     first = simulate(client, workspace)
     length = len(ledger(client, workspace))
     again = simulate(client, workspace)

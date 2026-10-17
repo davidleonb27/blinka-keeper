@@ -97,3 +97,8 @@ class ReadingUnavailable(ServiceError):
 class WorkspaceHeaderMissing(ServiceError):
     code = "workspace_header_missing"
     message = "Falta la cabecera X-Custodio-Workspace."
+
+
+class SimulationNotAvailable(ServiceError):
+    code = "simulation_not_available"
+    message = "La simulación de 30 días sólo corre en el espacio demo, nunca con los datos de una empresa real."

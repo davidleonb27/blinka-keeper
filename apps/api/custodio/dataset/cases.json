@@ -524,7 +524,8 @@
           "kind": "monthly_cap",
           "amount": 60000000,
           "currency": "COP",
-          "source": "Acuerdo 2026: Nómina tercerizada"
+          "source": "Acuerdo 2026: Nómina tercerizada",
+          "critical": true
         },
         "allowed": true
       },
@@ -541,7 +542,13 @@
           "kind": "fixed",
           "amount": 9500000,
           "currency": "COP",
-          "source": "Acuerdo 2026: Arriendo de oficina"
+          "source": "Acuerdo 2026: Arriendo de oficina",
+          "early_payment_discount": {
+            "percent": 1,
+            "days": 10
+          },
+          "late_fee_pct": 2,
+          "critical": true
         },
         "allowed": true
       },
@@ -643,7 +650,11 @@
           "kind": "fixed",
           "amount": 450000,
           "currency": "COP",
-          "source": "Acuerdo 2026: Café para la oficina"
+          "source": "Acuerdo 2026: Café para la oficina",
+          "early_payment_discount": {
+            "percent": 2,
+            "days": 10
+          }
         },
         "allowed": true
       }

@@ -52,6 +52,7 @@ from custodio.contracts import (
     SimulationReport,
     SupplierImport,
 )
+from custodio.dataset import simulated_month
 from custodio.llm import LLMError
 from custodio.services.lanes import Lanes, production_lanes
 from custodio.services.triage import AttackTriage
@@ -579,6 +580,7 @@ def fake_lanes(auditor: FakeAuditor | None = None) -> Lanes:
         import_suppliers=import_suppliers,
         red_team=red_team,
         triage_attack=triage_attack,
+        simulated_month=simulated_month,
     )
 
 

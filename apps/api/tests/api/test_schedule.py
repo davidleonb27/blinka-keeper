@@ -12,8 +12,6 @@ from .conftest import MutableClock
 from .doubles import model_free_lanes
 from .helpers import Workspace, assert_ledger_valid, new_workspace, process
 
-RESERVE_ABOVE_THE_CASH = 70000
-
 
 @pytest.fixture
 def lanes() -> Lanes:
@@ -50,7 +48,7 @@ def test_an_empty_workspace_has_an_empty_calendar_with_the_yield_assumption_labe
     assert calendar["items"] == []
     assert calendar["horizon_days"] == 45
     assert calendar["apy"] == 4.0
-    assert "supuesto configurable" in calendar["apy_note"]
+    assert calendar["apy_note"].startswith("Supuesto configurable")
     assert "CUSTODIO_TREASURY_YIELD_APY" in calendar["apy_note"]
     assert len(calendar["balance"]) == 46
     assert calendar["captured"]["total"] == 0
@@ -132,9 +130,8 @@ def test_when_the_reserve_rises_over_the_cash_the_payments_wait_and_say_why(
 ) -> None:
     process(client, workspace)
     policy = client.get("/api/v1/policy", headers=workspace.headers).json()
-    applied = client.put(
-        "/api/v1/policy", headers=workspace.headers, json={**policy, "reserve": RESERVE_ABOVE_THE_CASH}
-    )
+    above_the_cash = schedule(client, workspace)["cash"] + 1
+    applied = client.put("/api/v1/policy", headers=workspace.headers, json={**policy, "reserve": above_the_cash})
     assert applied.status_code == 200, applied.text
     calendar = schedule(client, workspace)
     assert calendar["items"] == []

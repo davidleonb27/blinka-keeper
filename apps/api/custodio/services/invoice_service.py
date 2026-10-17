@@ -30,10 +30,10 @@ from custodio.contracts import (
 )
 from custodio.db.models import DocumentRow, InvoiceRow, WorkspaceRow
 from custodio.llm import LLMError
-from custodio.services import ledger_service, payment_service, policy_service, records
+from custodio.services import ledger_service, payment_service, policy_service, records, schedule_service, trust_service
 from custodio.services.context import ServiceContext
 from custodio.services.errors import ModelUnavailable, PayloadTooLarge, UnsupportedMediaType
-from custodio.services.workspace_service import new_id, received_payload
+from custodio.services.workspace_service import VISITOR_KINDS, new_id, received_payload
 
 MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
 DOCUMENT_MEDIA_TYPES = frozenset({"application/pdf", "image/png", "image/jpeg", "image/webp"})
@@ -41,6 +41,7 @@ TEXT_MEDIA_TYPE = "text/plain"
 UNREAD_READER = "sin-lectura"
 AUDITOR_STOP = "El auditor independiente no confirmó este pago y no se hizo"
 HOLD_RULE_STOP = "Una regla de retención falló, así que este pago no se hizo"
+Payout = tuple[PaymentExecution | None, dict[str, Any]]  # what the rail did now, and what the payment entry adds
 FIELD_NAMES = tuple(name for name, info in ExtractedInvoice.model_fields.items() if info.annotation is ExtractedField)
 
 
@@ -105,15 +106,25 @@ def decide(
 ) -> Outcome:
     """`execute_payments` is for the panel only: the firewall, the challenge and the red team decide, never pay."""
     cases = [records.as_case(row) for row in invoices]
-    state = records.company_state(ctx, workspace)
     policy = policy_service.current(ctx, workspace.id)
+    learns = workspace.kind in VISITOR_KINDS  # sandboxes neither earn nor lose a supplier's trust
+    state = records.company_state(ctx, workspace)
+    if learns:
+        state = trust_service.with_trust(ctx, workspace.id, state, policy)
     batch = ctx.lanes.decide_all(cases, state, policy, approvals)
     report = ctx.lanes.audit(batch, cases, state, policy)
     stopped = _stopped_payments(batch, report)
     final = _attach_approvals(_apply_stops(batch, stopped), approvals or {})
 
-    def pay(decision: Decision) -> PaymentExecution:
-        return payment_service.execute(ctx, workspace.id, decision, policy)
+    rows = {row.id: row for row in invoices}
+
+    def pay(decision: Decision) -> Payout:
+        """Now if its day has come; otherwise the calendar sends it on the day it is scheduled for."""
+        planned = schedule_service.timing(ctx, decision, rows[decision.invoice_id], policy)
+        if planned.pay_on is not None and planned.pay_on > ctx.now().date():
+            return None, {schedule_service.SCHEDULED_FOR: planned.pay_on.isoformat()}
+        execution = payment_service.execute(ctx, workspace.id, schedule_service.for_rail(decision, planned), policy)
+        return execution, {"timing": planned.timing.value, "discount_base": str(planned.discount_base)}
 
     payer = pay if execute_payments and payment_service.may_execute(workspace) else None
     # An intent is paid by the agent that sent it, even after a person approves it here: paying it too pays it twice.
@@ -129,6 +140,8 @@ def decide(
         )
         for d in final.decisions
     ]
+    for recorded_decision in recorded if learns else []:
+        trust_service.learn(ctx, workspace.id, recorded_decision, policy)
     return Outcome(batch=final.model_copy(update={"decisions": recorded}), audit=report, vetoed=sorted(stopped))
 
 
@@ -269,10 +282,13 @@ def _record(
     decision: Decision,
     approval: Approval | None,
     audit_blocked: bool,
-    pay: Callable[[Decision], PaymentExecution] | None,
+    pay: Callable[[Decision], Payout] | None,
 ) -> Decision:
+    payout: dict[str, Any] = {}
     if pay is not None and decision.status in records.PAID and not audit_blocked:
-        decision = decision.model_copy(update={"execution": pay(decision)})
+        execution, payout = pay(decision)
+        if execution is not None:
+            decision = decision.model_copy(update={"execution": execution})
     records.save_decision(ctx, workspace_id, decision, audit_blocked=audit_blocked)
     kind = LedgerKind.APPROVAL if approval else LedgerKind.DECISION
     payload = _decision_payload(decision, audit_blocked)
@@ -280,7 +296,7 @@ def _record(
         payload["approval"] = approval.model_dump(mode="json")
     ledger_service.append(ctx, workspace_id, kind, decision.invoice_id, payload)
     if decision.status in records.PAID:
-        payment = payment_service.payment_payload(decision)
+        payment = {**payment_service.payment_payload(decision), **payout}
         ledger_service.append(ctx, workspace_id, LedgerKind.PAYMENT, decision.invoice_id, payment)
     return decision
 

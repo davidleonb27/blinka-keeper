@@ -135,6 +135,11 @@ def decisions(
     return [(Decision.model_validate(row.document), invoice_row) for row, invoice_row in ctx.session.execute(query)]
 
 
+def decided_rows(ctx: ServiceContext, workspace_id: str) -> list[tuple[DecisionRow, InvoiceRow]]:
+    """Each stored decision row with its invoice, in arrival order: for what needs when it was decided."""
+    return [(row, invoice_row) for row, invoice_row in ctx.session.execute(_decided(workspace_id))]
+
+
 def seeded_history(workspace: WorkspaceRow) -> list[PaymentRecord]:
     return [PaymentRecord.model_validate(record) for record in workspace.history_seed]
 
