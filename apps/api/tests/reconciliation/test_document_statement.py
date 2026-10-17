@@ -20,6 +20,7 @@ from custodio.reconciliation.document_statement import (
     verified_statement,
 )
 from custodio.reconciliation.errors import StatementFormatError, UnsupportedStatement
+from custodio.reconciliation.models import Statement
 
 SOURCE = "\n".join(
     [
@@ -55,7 +56,7 @@ TRAZO = row("16/10/2026 PAGO TZ-50017 TRAZO FIRMAS -290.00", "2026-10-16", "-290
 NORTHWIND = row("17/10/2026 ABONO CLIENTE NORTHWIND +18,500.00", "2026-10-17", "18500.00")
 
 
-def check(*rows: RowReading, source: str = SOURCE, account_currency: str | None = "USD"):  # noqa: ANN201
+def check(*rows: RowReading, source: str = SOURCE, account_currency: str | None = "USD") -> Statement:
     reading = StatementReading(account_currency=account_currency, rows=list(rows))
     return verified_statement(reading, source, default_currency="COP", reader="pdfplumber+claude-sonnet-5-5")
 
