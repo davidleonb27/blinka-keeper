@@ -99,7 +99,7 @@ curl http://127.0.0.1:8000/api/v1/health
 cd apps/web && npm install && npm run dev            # web en http://localhost:3000
 ```
 
-Variables de entorno (sólo por entorno, nunca en el repo): `ANTHROPIC_API_KEY` y `DATABASE_URL`. La lista completa está en `docs/DESIGN.md` §11. Sin claves, los tests con modelo se omiten.
+Variables de entorno (sólo por entorno, nunca en el repo): `ANTHROPIC_API_KEY` y `DATABASE_URL`. La lista completa está en `docs/DESIGN.md` §11. Los tests con modelo se omiten salvo que se corran con `CUSTODIO_LIVE_TESTS=1`.
 
 ## Firewall y MCP para otros agentes
 
@@ -112,7 +112,8 @@ curl -X POST "$CUSTODIO_URL/api/v1/firewall/intents" \
        "amount": 4200, "currency": "USD", "invoice_number": "F-1001"}'
 ```
 
-La respuesta trae la decisión (`pay`, `hold` o `escalate`), las 12 reglas, el hash en el registro y el enlace al acta.
+La respuesta trae `decision` (con `agent_verdict`: `pay`, `hold` o `escalate`, y las 12 reglas), `ledger_hash` y
+`acta_url`.
 
 Para Claude Desktop u otro cliente MCP, apunta al servidor `…/api/v1/mcp`. Herramientas: `submit_payment_intent`,
 `get_decision` y `get_policy`. Las dos entradas pasan por las mismas reglas que una factura subida a mano.
