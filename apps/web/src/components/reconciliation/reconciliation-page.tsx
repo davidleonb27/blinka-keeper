@@ -82,10 +82,10 @@ function StatementDrop({ onReconcile, pending }: { onReconcile: (input: Statemen
           <Landmark aria-hidden /> Usar extracto de demo
         </Button>
         <span className="text-[13px] text-ink-3">o descárgalo:</span>
-        <Button variant="ghost" size="sm" onClick={() => void download("csv")}>
+        <Button variant="ghost" size="sm" aria-label="Descargar el extracto de demo en CSV" onClick={() => void download("csv")}>
           CSV
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => void download("pdf")}>
+        <Button variant="ghost" size="sm" aria-label="Descargar el extracto de demo en PDF" onClick={() => void download("pdf")}>
           PDF
         </Button>
       </div>

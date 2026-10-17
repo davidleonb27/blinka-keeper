@@ -13,7 +13,7 @@ from custodio.reconciliation.demo import demo_statement_csv
 from tests.api.conftest import MutableClock
 from tests.api.helpers import Workspace, assert_ledger_valid, new_workspace, process
 
-from .conftest import FakeStatementReader
+from .doubles import FakeStatementReader
 
 API = "/api/v1"
 REVIEWER = "Ana Gómez"
