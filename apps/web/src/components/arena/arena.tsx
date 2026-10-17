@@ -125,7 +125,11 @@ export function Arena() {
       <PageHeader
         title="Arena: ataque contra defensa"
         subtitle="Un atacante genera facturas fraudulentas contra tus reglas, lee por qué lo bloquearon y cambia de técnica. El defensor no cambia: las reglas son código."
-      />
+      >
+        <Button asChild variant="outline">
+          <Link href="/reto">Intenta engañarlo tú</Link>
+        </Button>
+      </PageHeader>
       <section className="card-surface mb-4 flex flex-col gap-4 p-5" aria-label="Marcador">
         <div className="flex flex-wrap items-center gap-3">
           <div role="group" aria-label="Rondas" className="flex gap-1.5">

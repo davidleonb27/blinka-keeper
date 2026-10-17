@@ -139,12 +139,12 @@ describe("Challenge after a refused attempt", () => {
 });
 
 describe("ChallengeStage", () => {
-  it("shows a QR to this site's /reto", async () => {
+  it("shows a QR that opens the product demo on this site", async () => {
     renderWithApi(<ChallengeStage />);
 
     const qr = await screen.findByRole("img", { name: /Código QR/ });
-    expect(qr).toHaveAccessibleName(`Código QR a ${window.location.origin}/reto`);
-    expect(screen.getByText(`${window.location.host}/reto`)).toBeInTheDocument();
+    expect(qr).toHaveAccessibleName(`Código QR a ${window.location.origin}/panel`);
+    expect(screen.getByText(`${window.location.host}/panel`)).toBeInTheDocument();
   });
 
   it("puts the improper payments count front and center", async () => {

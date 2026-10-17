@@ -8,7 +8,7 @@ const NAV = [
   { href: "/#funciones", label: "Funciones" },
   { href: "/docs", label: "Documentación" },
   { href: "/docs/inicio-rapido#autoalojado", label: "Autoalojar" },
-  { href: "/reto", label: "Róbale a Custodio" },
+  { href: "/reto", label: "Seguridad" },
 ];
 
 export function SiteHeader() {

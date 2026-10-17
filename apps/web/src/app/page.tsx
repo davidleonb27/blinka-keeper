@@ -14,7 +14,6 @@ import {
   ScanText,
   Server,
   ShieldAlert,
-  Siren,
   ShieldCheck,
   UserCheck,
   type LucideIcon,
@@ -165,13 +164,13 @@ function Hero() {
                 Probar la demo <ArrowRight aria-hidden />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/reto">
-                <Siren aria-hidden /> Róbale a Custodio
-              </Link>
-            </Button>
           </div>
-          <p className="mt-4 text-[13px] text-ink-3">La demo no pide registro ni mueve dinero real.</p>
+          <p className="mt-4 text-[13px] text-ink-3">
+            La demo no pide registro ni mueve dinero real.{" "}
+            <Link href="/reto" className="font-medium text-brand hover:underline">
+              ¿Dudas? Intenta engañarlo →
+            </Link>
+          </p>
         </div>
         <ol aria-label="Lo que hace por tu equipo de finanzas" className="flex min-w-0 flex-col gap-2.5">
           {FINANCE_WEEK.map(({ title, text, icon: Icon }) => (

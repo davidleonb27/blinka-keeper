@@ -196,7 +196,11 @@ export function Challenge() {
       <PageHeader
         title="Róbale a Custodio"
         subtitle="Intenta que pague algo indebido. Cada intento pasa por las mismas quince reglas que una factura real, y cada ataque atrapado se vuelve caso de prueba."
-      />
+      >
+        <Button asChild variant="outline">
+          <Link href="/arena">Ver la arena: ataque contra defensa</Link>
+        </Button>
+      </PageHeader>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-4">
           <AttemptForm onResult={setLast} />

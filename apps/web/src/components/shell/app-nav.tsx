@@ -7,9 +7,8 @@ import {
   Gauge,
   LayoutGrid,
   Link2,
+  ShieldCheck,
   SlidersHorizontal,
-  Swords,
-  Target,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -32,10 +31,9 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/calendario", label: "Calendario", icon: CalendarClock },
   { href: "/conciliacion", label: "Conciliación", icon: Landmark },
   { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
-  { href: "/arena", label: "Arena", icon: Swords },
-  { href: "/reto", label: "Róbale a Custodio", icon: Target },
   { href: "/registro", label: "Registro", icon: Link2 },
   { href: "/desarrolladores", label: "Desarrolladores", icon: Code2 },
+  { href: "/reto", label: "Seguridad", icon: ShieldCheck },
 ];
 
 function PendingBadge() {
@@ -54,7 +52,7 @@ function NavLinks({ layout }: { layout: "rail" | "strip" }) {
   return (
     <ul className={cn("flex gap-0.5", layout === "rail" ? "flex-col" : "flex-row")}>
       {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-        const current = pathname === href;
+        const current = pathname === href || (href === "/reto" && pathname === "/arena");
         return (
           <li key={href}>
             <Link

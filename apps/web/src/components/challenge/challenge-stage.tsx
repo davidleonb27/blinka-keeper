@@ -11,7 +11,7 @@ import { QrCode } from "./qr-code";
 
 /** On stage the room watches the numbers move, so they refresh faster than on the attacker's page. */
 const STAGE_POLL_MS = 3_000;
-const CHALLENGE_PATH = "/reto";
+const DEMO_PATH = "/panel";
 
 const noSubscription = () => () => {};
 
@@ -28,7 +28,7 @@ function StageQr() {
   const origin = useSiteOrigin();
   const box = "w-full max-w-[min(100%,62vh,560px)]";
   if (!origin) return <div aria-hidden className={cn(box, "aspect-square rounded-xl bg-surface-3")} />;
-  const url = `${origin}${CHALLENGE_PATH}`;
+  const url = `${origin}${DEMO_PATH}`;
   return (
     <>
       <QrCode value={url} className={box} />
@@ -103,7 +103,7 @@ export function ChallengeStage() {
     <div className="grid grid-cols-1 items-start gap-6 pt-2 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
       <section aria-label="Entra al reto" className="flex flex-col items-center gap-3 text-center">
         <h1 className="font-serif text-[30px] leading-[1.1] font-semibold tracking-[-0.02em] sm:text-[44px]">Róbale a Custodio</h1>
-        <p className="max-w-[40ch] text-[16px] text-ink-2 sm:text-[18px]">Escanea, escribe una factura trampa e intenta que pague algo indebido.</p>
+        <p className="max-w-[40ch] text-[16px] text-ink-2 sm:text-[18px]">Escanea y pruébalo con una empresa demo.</p>
         <StageQr />
       </section>
       <div className="flex flex-col gap-4">

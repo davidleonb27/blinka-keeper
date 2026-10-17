@@ -14,14 +14,15 @@ describe("HomePage", () => {
     expect(screen.getByText(RAIL_PITCH)).toBeInTheDocument();
   });
 
-  it("opens on what Custodio does for a finance team, with the demo and the challenge", () => {
+  it("opens on what Custodio does for a finance team, with the demo first and the challenge as a quiet link", () => {
     renderWithApi(<HomePage />);
 
     expect(screen.getByRole("heading", { level: 1, name: "Tu analista de cuentas por pagar" })).toBeInTheDocument();
     expect(screen.getByText(/Lee, decide, paga, concilia y cierra el mes;/)).toHaveTextContent("tú solo apruebas lo que importa");
     const hero = screen.getByRole("region", { name: "Tu analista de cuentas por pagar" });
     expect(within(hero).getByRole("link", { name: /Probar la demo/ })).toHaveAttribute("href", "/panel");
-    expect(within(hero).getByRole("link", { name: /Róbale a Custodio/ })).toHaveAttribute("href", "/reto");
+    expect(within(hero).getByRole("link", { name: /Intenta engañarlo/ })).toHaveAttribute("href", "/reto");
+    expect(within(hero).queryByRole("link", { name: /Róbale a Custodio/ })).not.toBeInTheDocument();
     expect(within(hero).queryByRole("figure")).not.toBeInTheDocument();
   });
 
