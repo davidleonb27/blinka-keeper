@@ -127,8 +127,11 @@ class PaymentRail(Protocol):
 - **Instrucción.** Red, monto y moneda originales de la factura, nombre, NIT o tax id, país, banco y cuenta del
   beneficiario **registrado** (nunca los de la factura), referencia = enlace al acta y la llave de idempotencia de la
   orden. Queda en el recibo (`instruction`), en la tabla `payment_executions` y en el acta.
-- **Estado.** `simulated`: no se movió dinero. Como no mueve dinero, no tiene los topes del riel de Stripe ni exige que
-  la moneda base sea USD.
+- **Estado.** `simulated`: no se movió dinero. Como no mueve dinero, no tiene los topes de transferencias del riel de
+  Stripe ni exige que la moneda base sea USD. Sí tiene el tope de 5 intentos por factura: un pago que Blinka no toma
+  (otra moneda) falla igual en cada clic de «Reintentar pago».
+- **En el acta.** El bloque «Ejecución del pago» muestra «Blinka · simulado», el monto y la moneda de la instrucción, la
+  red y el banco con los últimos 4 dígitos de la cuenta.
 - **La llamada real.** El comentario en `BlinkaRail.execute`, justo antes de devolver el recibo, marca dónde va el
   `POST` a la API de Blinka con la llave de idempotencia como cabecera y cómo se traduce su respuesta. Conectarlo no
   cambia el motor, ni el auditor, ni el registro, ni quién decide.
