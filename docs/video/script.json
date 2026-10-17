@@ -289,23 +289,6 @@
       ]
     },
     {
-      "id": "stage",
-      "label": "Producto real · reto en vivo",
-      "lines": [
-        "Y el reto sigue abierto. Jurado: escaneen el código e intenten robarnos ahora.",
-        "Pagos indebidos: cero."
-      ],
-      "segments": [
-        {
-          "take": "stage",
-          "from": "start",
-          "fromOffset": -0.2,
-          "to": "end",
-          "toOffset": 0
-        }
-      ]
-    },
-    {
       "id": "proof",
       "title": "proof",
       "lines": [
@@ -321,6 +304,23 @@
         {
           "text": "Código abierto, con licencia MIT y autoalojable con Docker.",
           "say": "Código abierto, con licencia eme i te y autoalojable con dóquer."
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "label": "Producto real · reto en vivo",
+      "lines": [
+        "Y el reto sigue abierto. Jurado: escaneen el código e intenten robarnos ahora.",
+        "Pagos indebidos: cero."
+      ],
+      "segments": [
+        {
+          "take": "stage",
+          "from": "start",
+          "fromOffset": -0.2,
+          "to": "end",
+          "toOffset": 0
         }
       ]
     },
@@ -405,21 +405,28 @@
       ]
     },
     {
-      "id": "v-ledger",
-      "headline": "Alteras el registro: se nota.",
+      "id": "v-reconcile",
+      "headline": "Conciliado con el banco.",
       "crop": {
-        "x": 300,
+        "x": 360,
         "y": 0,
         "w": 1200
       },
       "lines": [
-        "Alteras una copia del registro y la cadena se rompe justo ahí."
+        "Cruza el extracto del banco con lo pagado y marca cada salida sin factura."
       ],
       "segments": [
         {
-          "take": "ledger",
-          "from": "tampered",
-          "fromOffset": -1.2,
+          "take": "reconcile",
+          "from": "reconciled",
+          "fromOffset": 0.2,
+          "to": "zoom_summary",
+          "toOffset": -1.2
+        },
+        {
+          "take": "reconcile",
+          "from": "zoom_unbilled",
+          "fromOffset": -0.1,
           "to": "end",
           "toOffset": 0
         }
@@ -489,6 +496,27 @@
           "take": "docs",
           "from": "start",
           "fromOffset": -0.3,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
+      "id": "v-ledger",
+      "headline": "Alteras el registro: se nota.",
+      "crop": {
+        "x": 300,
+        "y": 0,
+        "w": 1200
+      },
+      "lines": [
+        "Alteras una copia del registro y la cadena se rompe justo ahí."
+      ],
+      "segments": [
+        {
+          "take": "ledger",
+          "from": "tampered",
+          "fromOffset": -1.2,
           "to": "end",
           "toOffset": 0
         }
