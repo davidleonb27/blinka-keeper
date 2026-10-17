@@ -105,9 +105,18 @@ def red_team(
     rounds: int,
     judge: Callable[[AttackSpec], Decision],
 ) -> Iterator[RedTeamEvent]:
-    """Adaptive attacker: each round reads earlier verdicts and tries a new fraud; `judge` runs the real pipeline."""
+    """Adaptive attacker: each round reads earlier verdicts and tries a new fraud; `judge` runs the real pipeline.
+
+    The round count is checked here, before the first event, so a caller can refuse the request before streaming.
+    """
     if not 1 <= rounds <= MAX_ROUNDS:
         raise ValueError(f"El red team corre de 1 a {MAX_ROUNDS} rondas; se pidieron {rounds}.")
+    return _rounds(policy, state, rounds, judge)
+
+
+def _rounds(
+    policy: Policy, state: CompanyState, rounds: int, judge: Callable[[AttackSpec], Decision]
+) -> Iterator[RedTeamEvent]:
     attempts: list[Attempt] = []
     for number in range(1, rounds + 1):
         yield RedTeamEvent(type="round_started", round=number)
