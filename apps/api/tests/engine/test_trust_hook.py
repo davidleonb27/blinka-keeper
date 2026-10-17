@@ -1,9 +1,11 @@
 """R9 reads the cap a supplier earned when it has one; without trust history nothing changes."""
 
+from datetime import timedelta
 from decimal import Decimal
 
 from custodio.contracts import AgentVerdict, CompanyState, DecisionStatus, RuleOutcome, TrustCap
 from custodio.dataset import demo_cases, demo_company
+from custodio.dataset.demo import load_demo, to_case
 from custodio.engine import audit, decide_all
 
 ANDES = "b1"  # F-004, USD 4.800, paid alone under the policy's USD 5.000
@@ -59,3 +61,26 @@ def test_the_auditor_rejects_a_payment_over_the_cap_the_supplier_earned() -> Non
     report = audit(paid_alone, demo_cases(), with_trust(state, **{ANDES: Decimal(1000)}), policy)
     assert not report.agrees
     assert any(f.invoice_id == "F-004" and "tope de aprobación" in f.message for f in report.findings)
+
+
+def test_a_risk_signal_supervises_the_supplier_for_the_rest_of_the_same_batch() -> None:
+    demo = load_demo()
+    state, policy = demo.state, demo.policy
+    paredes = next(b for b in policy.beneficiaries if b.id == "b16")
+    changed = next(case for case in demo.cases if case.id == "F-023")  # asks to pay another account (R4)
+    legit = changed.model_copy(
+        update={
+            "id": "F-023b",
+            "received_at": changed.received_at + timedelta(hours=2),
+            "spec": changed.spec.model_copy(
+                update={"account_number": paredes.account_number, "invoice_number": "AP-2026-11"}
+            ),
+        }
+    )
+    cases = [to_case(case, customer=state.company_name) for case in (changed, legit)]
+    batch = decide_all(cases, with_trust(state, b16=Decimal(5000)), policy)
+    first, second = batch.decisions
+    assert first.status is DecisionStatus.HOLD
+    assert second.status is DecisionStatus.PENDING_APPROVAL
+    assert second.trust is not None and second.trust.cap == Decimal(0) and second.trust.supervised
+    assert "F-023" in second.trust.reason
