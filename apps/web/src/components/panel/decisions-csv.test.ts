@@ -31,4 +31,14 @@ describe("decisionsCsv", () => {
     const tricky = { ...item, decision: { ...item.decision, supplier_name: 'Acme, "la buena"\nSAS' } };
     expect(decisionsCsv([tricky])).toContain('"Acme, ""la buena""\nSAS"');
   });
+
+  it("escapes text that a spreadsheet would run as a formula, and leaves numbers alone", () => {
+    const [item] = ITEMS;
+    for (const name of ['=HYPERLINK("http://x")', "+1", "-1+1", "@SUM(A1)", "\tcmd"]) {
+      const evil = { ...item, invoice_number: name, decision: { ...item.decision, supplier_name: name, amount: -5 } };
+      const [, line] = decisionsCsv([evil]).trimEnd().split("\r\n");
+      const quoted = name.includes('"') ? `"'${name.replaceAll('"', '""')}"` : `'${name}`;
+      expect(line.startsWith(`${quoted},${quoted},-5,`)).toBe(true);
+    }
+  });
 });
