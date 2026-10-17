@@ -12,7 +12,6 @@ dependencies = [
     "psycopg[binary]>=3.2",
     "alembic>=1.14",
     "anthropic>=0.75",
-    "google-genai>=1.0",
     "pdfplumber>=0.11",
     "pypdf>=5.1",
     "reportlab>=4.2",
@@ -57,5 +56,5 @@ plugins = ["pydantic.mypy"]
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
-module = ["pdfplumber.*", "reportlab.*", "google.*"]
+module = ["pdfplumber.*", "reportlab.*"]
 ignore_missing_imports = true
