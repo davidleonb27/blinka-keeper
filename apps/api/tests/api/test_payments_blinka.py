@@ -1,10 +1,12 @@
 """The panel's payments become the exact instruction Blinka would receive; nothing leaves Custodio."""
 
+from dataclasses import replace
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 
+from custodio.api.app import create_app
 from custodio.contracts import Policy
 from custodio.db import Database
 from custodio.payments import BLINKA_SIMULATED, choose_rail
@@ -81,6 +83,24 @@ def test_the_ledger_records_the_blinka_rail_and_stays_valid(client: TestClient) 
     assert payment["payload"]["execution_status"] == "simulated"
     assert payment["payload"]["livemode"] is False
     assert_ledger_valid(client, workspace)
+
+
+def test_a_payment_blinka_cannot_take_stops_after_its_last_allowed_attempt(runtime: Runtime) -> None:
+    # Blinka refuses a currency it does not pay every time, so without the cap each click writes another attempt.
+    capped = replace(runtime, limits=replace(runtime.limits, payment_attempts_per_invoice=2))
+    with TestClient(create_app(capped)) as capped_client:
+        workspace = new_workspace(capped_client)
+        [first, *_] = paid(process(capped_client, workspace))
+        with capped.database.session() as session:
+            ctx = capped.context(session)
+            decision = records.decision(ctx, workspace.id, first["invoice_id"])
+            in_euros = decision.model_copy(update={"invoice_id": "F99", "currency": "EUR", "execution": None})
+            policy = policy_service.current(ctx, workspace.id)
+            attempts = [payment_service.execute(ctx, workspace.id, in_euros, policy) for _ in range(3)]
+
+    assert [a.status for a in attempts] == ["failed", "failed", "failed"]
+    assert "EUR" in (attempts[1].error or "")
+    assert "máximo de 2 intentos" in (attempts[2].error or "")
 
 
 def test_health_reports_the_blinka_rail(client: TestClient) -> None:
