@@ -56,7 +56,7 @@ lanzamiento del reto público «Róbale a Custodio».
 >
 > El modelo lee y debe citar el texto de donde sacó cada valor; el código verifica la cita. Doce reglas puras deciden. Y un auditor independiente, sin importar el código del motor, recalcula cada pago. Si no coinciden, el pago no se hace.
 >
-> Cada decisión queda con un acta que explica las doce reglas. #30X #Blinka
+> Cada decisión queda con un acta que explica las quince reglas. #30X #Blinka
 
 ### 2026-10-17 08:00 · A mediodía abrimos el reto
 **Imagen:** `arena.png`
@@ -82,7 +82,7 @@ lanzamiento del reto público «Róbale a Custodio».
 >
 > Qué hacer: abre https://custodio-blinka-green.vercel.app, ve a «Róbale a Custodio», sube o escribe una factura trampa y mira qué decide. Puedes cambiar la cuenta, repetir un cobro, esconder una instrucción en el PDF o partir un pago en dos.
 >
-> Qué verás: el resultado al instante con el acta de las doce reglas, y un contador global de intentos y de pagos indebidos. Si logras que pague algo indebido, queda en el muro y lo corregimos a la vista. Cada ataque atrapado se vuelve un caso de prueba. #30X #Blinka
+> Qué verás: el resultado al instante con el acta de las quince reglas, y un contador global de intentos y de pagos indebidos. Si logras que pague algo indebido, queda en el muro y lo corregimos a la vista. Cada ataque atrapado se vuelve un caso de prueba. #30X #Blinka
 
 ### 2026-10-17 16:00 · Primer parcial del reto
 **Imagen:** captura del contador del reto

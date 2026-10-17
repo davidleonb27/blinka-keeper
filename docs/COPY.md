@@ -36,7 +36,7 @@ que pone la aplicación.
 **Tres razones** (tarjetas):
 
 1. **El modelo no decide.** Lee la factura y cita el texto de cada dato. Doce reglas escritas en código deciden.
-2. **Cada decisión se explica.** Ves las doce reglas con sus cifras y qué habría que cambiar para pagarla.
+2. **Cada decisión se explica.** Ves las quince reglas con sus cifras y qué habría que cambiar para pagarla.
 3. **El registro no se altera en silencio.** Cada decisión se encadena con la anterior; si alguien cambia algo, se ve dónde.
 
 **Pie:** Hecho por DreamMakers para el hackathon 30X, reto Blinka. Código abierto, licencia MIT.
@@ -76,13 +76,13 @@ Una pregunta por pantalla. Enter avanza; Escape vuelve. Barra de progreso con «
 - **Fila:** `{proveedor}` · `{monto y moneda}` · estado · razón en una línea
 - **Botón:** Subir factura
 - **Botón con varias facturas:** Procesar lo pendiente
-- **Mientras procesa:** Leyendo {archivo}…, Revisando las doce reglas…, Escribiendo el acta…
+- **Mientras procesa:** Leyendo {archivo}…, Revisando las quince reglas…, Escribiendo el acta…
 
 ## Acta
 
 - **Encabezado:** Acta de {proveedor} · {número de factura}
 - **Resumen:** una oración de la explicación de la decisión.
-- **Secciones:** Qué decidió Custodio · Las doce reglas · Qué habría que cambiar · El documento · Registro
+- **Secciones:** Qué decidió Custodio · Las quince reglas · Qué habría que cambiar · El documento · Registro
 - **Regla que pasó:** Cumple
 - **Regla que falló:** Retiene / Pregunta a una persona (según el efecto de la regla)
 - **Contrafactual:** Se habría pagado si {cambio}.
