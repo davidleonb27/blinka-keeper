@@ -106,3 +106,88 @@ def test_a_model_failure_while_compiling_is_an_honest_503(client: TestClient, la
 
     assert response.status_code == 503
     assert response.json()["code"] == "model_unavailable"
+
+
+def _new_supplier(**overrides: object) -> dict[str, object]:
+    return {
+        "id": "B-NUEVO",
+        "name": "Proveedor Nuevo SAS",
+        "tax_id": "900.555.111-2",
+        "bank_name": "Banco Nuevo",
+        "account_number": "111222333",
+        "currency": "COP",
+        **overrides,
+    }
+
+
+def test_adding_suppliers_appends_them_and_leaves_the_registered_ones_as_they_were(client: TestClient) -> None:
+    workspace = new_workspace(client)
+    before = client.get("/api/v1/policy", headers=workspace.headers).json()
+
+    response = client.post(
+        "/api/v1/policy/beneficiaries", headers=workspace.headers, json={"beneficiaries": [_new_supplier()]}
+    )
+
+    assert response.status_code == 200, response.text
+    after = client.get("/api/v1/policy", headers=workspace.headers).json()
+    assert after["version"] == before["version"] + 1
+    assert after["beneficiaries"][: len(before["beneficiaries"])] == before["beneficiaries"]
+    assert after["beneficiaries"][-1]["id"] == "B-NUEVO"
+    assert {k: v for k, v in after.items() if k not in ("version", "beneficiaries")} == {
+        k: v for k, v in before.items() if k not in ("version", "beneficiaries")
+    }
+    last = client.get("/api/v1/ledger", headers=workspace.headers).json()[-1]
+    assert last["kind"] == "policy_changed"
+    assert last["payload"]["changed_fields"] == ["beneficiaries"]
+    assert_ledger_valid(client, workspace)
+
+
+def test_adding_a_supplier_that_is_already_registered_never_changes_its_bank_details(client: TestClient) -> None:
+    workspace = new_workspace(client)
+    before = client.get("/api/v1/policy", headers=workspace.headers).json()
+    registered = before["beneficiaries"][0]
+    impostors = [
+        _new_supplier(tax_id=registered["tax_id"].replace("-", " ")),  # same tax id, other formatting
+        _new_supplier(name=registered["name"].upper()),  # same name
+        _new_supplier(aliases=[registered["name"]]),  # an alias that is a registered name
+        _new_supplier(id=registered["id"]),  # same id
+    ]
+
+    for impostor in impostors:
+        response = client.post(
+            "/api/v1/policy/beneficiaries", headers=workspace.headers, json={"beneficiaries": [impostor]}
+        )
+        assert response.status_code == 422, impostor
+        assert response.json()["code"] == "policy_invalid"
+    assert client.get("/api/v1/policy", headers=workspace.headers).json() == before
+
+
+def test_adding_the_same_supplier_twice_in_one_request_is_refused(client: TestClient) -> None:
+    workspace = new_workspace(client)
+
+    response = client.post(
+        "/api/v1/policy/beneficiaries",
+        headers=workspace.headers,
+        json={"beneficiaries": [_new_supplier(), _new_supplier(id="B-OTRO")]},
+    )
+
+    assert response.status_code == 422
+
+
+def test_adding_suppliers_keeps_a_policy_change_made_meanwhile(client: TestClient) -> None:
+    workspace = new_workspace(client)
+    policy = client.get("/api/v1/policy", headers=workspace.headers).json()
+    client.put("/api/v1/policy", headers=workspace.headers, json={**policy, "approval_threshold": 10})
+
+    client.post("/api/v1/policy/beneficiaries", headers=workspace.headers, json={"beneficiaries": [_new_supplier()]})
+
+    assert client.get("/api/v1/policy", headers=workspace.headers).json()["approval_threshold"] == 10.0
+
+
+def test_adding_suppliers_in_one_workspace_does_not_touch_another(client: TestClient) -> None:
+    first, second = new_workspace(client), new_workspace(client)
+    before = client.get("/api/v1/policy", headers=second.headers).json()
+
+    client.post("/api/v1/policy/beneficiaries", headers=first.headers, json={"beneficiaries": [_new_supplier()]})
+
+    assert client.get("/api/v1/policy", headers=second.headers).json() == before
