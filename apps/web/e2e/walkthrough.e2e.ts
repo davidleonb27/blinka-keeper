@@ -73,7 +73,21 @@ test("every page and the whole demo work against the real API without a single e
     const overview = page.getByRole("region", { name: "Resumen" });
     await expect(overview.getByText("Pagos indebidos")).toBeVisible();
     await expect(overview.getByText("El auditor está de acuerdo")).toBeVisible();
+    await expect(page.getByText("Riel: Simulado")).toBeVisible();
     await expectNoErrorScreen(page);
+  });
+
+  await test.step("pago: el acta de una factura pagada dice cómo la ejecutó el riel", async () => {
+    await page.getByRole("button", { name: /^Pagadas/ }).click();
+    const paid = page.getByRole("region", { name: "Facturas" }).getByRole("link").first();
+    const paidId = new URLSearchParams(((await paid.getAttribute("href")) ?? "").split("?")[1]).get("acta") ?? "";
+    await paid.click();
+    const acta = await openActa(page, paidId);
+    const payment = acta.getByRole("region", { name: "Ejecución del pago" });
+    await expect(payment).toContainText("Simulado");
+    await expect(payment).toContainText(/no se movió dinero/);
+    await page.keyboard.press("Escape");
+    await page.getByRole("button", { name: /^Todas/ }).click();
   });
 
   let pendingId = "";
