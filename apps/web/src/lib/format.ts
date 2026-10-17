@@ -5,7 +5,7 @@ const CENTS_BELOW = 1000;
 const HASH_PREVIEW_LENGTH = 10;
 const NBSP = " ";
 
-export const MISSING = "—";
+const MISSING = "—";
 export const NOT_MEASURED = "NO MEDIDO";
 
 const numberFormats = new Map<number, Intl.NumberFormat>();

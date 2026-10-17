@@ -137,7 +137,7 @@ export function validateStep(step: StepId, answers: Answers): string | null {
   return VALIDATORS[step]?.(answers) ?? null;
 }
 
-export function approversOf(answers: Answers): Approver[] {
+function approversOf(answers: Answers): Approver[] {
   return answers.approvers
     .filter((p) => p.name.trim())
     .map((p) => ({

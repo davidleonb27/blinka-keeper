@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { ActaDrawer } from "@/components/acta/acta-drawer";
 import { Chip, PageHeader } from "@/components/shell/page-header";
@@ -7,9 +8,13 @@ import { ErrorState, LoadingBlock } from "@/components/states";
 import { useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
 import { formatDate, formatMoney } from "@/lib/format";
 import { DecisionList } from "./decision-list";
-import { DecisionsChart } from "./decisions-chart";
 import { Overview } from "./overview";
 import { decisionsByDay, statusTotals, type StatusFilter, type Total } from "./summarize";
+
+// Recharts is the heaviest dependency; it loads after the numbers that matter are on screen.
+const DecisionsChart = dynamic(() => import("./decisions-chart").then((m) => m.DecisionsChart), {
+  loading: () => <LoadingBlock className="h-72" label="Cargando la gráfica…" />,
+});
 
 function TotalTile({ label, total, tone, base }: { label: string; total: Total; tone: string; base: string }) {
   return (

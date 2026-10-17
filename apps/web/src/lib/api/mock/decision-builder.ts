@@ -10,7 +10,7 @@ const STATUS_OF: Record<AgentVerdict, DecisionStatus> = {
 
 export type FailingRules = Partial<Record<string, string>>;
 
-export function ruleResults(failing: FailingRules, passing: FailingRules = {}): RuleResult[] {
+function ruleResults(failing: FailingRules, passing: FailingRules = {}): RuleResult[] {
   return RULES.map((rule) => {
     const reason = failing[rule.key];
     return {

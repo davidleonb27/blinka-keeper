@@ -91,7 +91,7 @@ export function DecisionList({ items, baseCurrency, filter, query, onFilterChang
             )}
           >
             {f.label}
-            <b className="font-semibold tabular opacity-70">{counts[f.id]}</b>
+            <b className={cn("font-semibold tabular", filter === f.id ? "text-background" : "text-ink-3")}>{counts[f.id]}</b>
           </button>
         ))}
       </div>

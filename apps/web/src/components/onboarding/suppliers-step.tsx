@@ -20,7 +20,7 @@ const SAMPLE_SUPPLIERS: [string, string, string, string, number][] = [
 ];
 
 /** A CSV in the same format a person would upload, scaled to the company's approval threshold. */
-export function sampleSupplierFile(currency: string): File {
+function sampleSupplierFile(currency: string): File {
   const threshold = starterMoney(currency).threshold;
   const rows = SAMPLE_SUPPLIERS.map(([name, taxId, bank, account, share]) =>
     [name, taxId, bank, account, Math.round(threshold * share)].join(";"),

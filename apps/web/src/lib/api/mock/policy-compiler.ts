@@ -44,7 +44,7 @@ const APPROVER = /(?:apruebe|autorice)\s+([a-zñ]+)/;
 const CLAUSE_SPLIT = /\.(?=\s|$)|[;\n]+|\s+y\s+(?=(?:la|el|bloquea|pide|nada|el cupo|la reserva)\b)/i;
 const MULTIPLIERS: Record<string, number> = { k: 1e3, mil: 1e3, millon: 1e6, millones: 1e6 };
 
-export function parseAmountPhrase(normalized: string): number | null {
+function parseAmountPhrase(normalized: string): number | null {
   const match = AMOUNT.exec(normalized);
   if (!match) return null;
   const digits = match[1].replace(/[.,](?=\d{3}\b)/g, "").replace(",", ".");

@@ -11,7 +11,7 @@ const ICONS: Record<DecisionStatus, LucideIcon> = {
   rejected: X,
 };
 
-export const TONE_CLASSES: Record<Tone, string> = {
+const TONE_CLASSES: Record<Tone, string> = {
   pay: "bg-pay-weak text-pay",
   hold: "bg-hold-weak text-hold",
   esc: "bg-esc-weak text-esc",

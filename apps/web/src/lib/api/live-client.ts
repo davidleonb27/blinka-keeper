@@ -4,7 +4,7 @@ import { errorFromStatus, NetworkError, UnexpectedResponseError } from "./errors
 import { readSse } from "./sse";
 
 export const API_BASE = "/api/v1";
-export const WORKSPACE_HEADER = "X-Custodio-Workspace";
+const WORKSPACE_HEADER = "X-Custodio-Workspace";
 
 export interface LiveClientOptions {
   fetch: typeof fetch;

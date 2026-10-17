@@ -7,7 +7,7 @@ import type { Policy } from "./contracts";
 
 const CHALLENGE_POLL_MS = 5_000;
 
-export const queryKeys = {
+const queryKeys = {
   workspace: ["workspace"] as const,
   decisions: ["decisions"] as const,
   decision: (id: string) => ["decisions", id] as const,

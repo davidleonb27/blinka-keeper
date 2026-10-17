@@ -5,7 +5,7 @@ import { browserWorkspaceStore, ensureWorkspace } from "./workspace";
 
 export type ApiMode = "mock" | "live";
 
-export function apiModeFrom(value: string | undefined): ApiMode {
+function apiModeFrom(value: string | undefined): ApiMode {
   return value === "mock" ? "mock" : "live";
 }
 

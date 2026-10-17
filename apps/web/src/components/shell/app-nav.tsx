@@ -15,7 +15,7 @@ interface NavItem {
   icon: LucideIcon;
 }
 
-export const NAV_ITEMS: NavItem[] = [
+const NAV_ITEMS: NavItem[] = [
   { href: "/panel", label: "Panel", icon: LayoutGrid },
   { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
   { href: "/arena", label: "Arena", icon: Swords },

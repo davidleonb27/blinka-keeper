@@ -9,7 +9,7 @@ import { useDecision, useHumanDecision, usePolicy } from "@/lib/api/hooks";
 import { STATUS_META } from "@/lib/presentation";
 import { Acta } from "./acta";
 
-export const ACTA_PARAM = "acta";
+const ACTA_PARAM = "acta";
 
 function ActaContent({ invoiceId }: { invoiceId: string }) {
   const detail = useDecision(invoiceId);
