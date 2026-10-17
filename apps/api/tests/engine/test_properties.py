@@ -147,7 +147,7 @@ def test_document_text_never_makes_a_decision_more_permissive(rng: random.Random
 @PROPERTY
 @given(
     rng=st.randoms(use_true_random=False),
-    field=st.sampled_from(["supplier_name", "amount", "currency", "account_number"]),
+    field=st.sampled_from(["supplier_name", "supplier_tax_id", "amount", "currency", "account_number"]),
 )
 def test_a_value_without_a_verified_quote_is_never_paid_alone(rng: random.Random, field: str) -> None:
     cases, state, policy, _ = scenario(rng)
