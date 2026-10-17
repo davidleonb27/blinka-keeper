@@ -8,6 +8,7 @@ every bank confirmation, every review and every close is written to the ledger, 
 from __future__ import annotations
 
 import hashlib
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
@@ -205,7 +206,7 @@ def resolve(
     if result is None or result.status not in NEEDS_REVIEW or any(r.movement_id == movement_id for r in reviews):
         raise MovementNotReviewable()
     movement = next(item for item in statement.movements if item.id == movement_id)
-    entry = ledger_service.append(
+    entry = _append(
         ctx,
         workspace.id,
         LedgerKind.RECONCILIATION_REVIEW,
@@ -241,7 +242,7 @@ def close_period(ctx: ServiceContext, workspace: WorkspaceRow, period: str, *, c
         raise ReconciliationConflict(f"Quedan {waiting}: revisa cada salida sin factura antes de cerrar el mes.")
     if not ledger_service.verify(ctx, workspace.id).valid:
         raise ReconciliationConflict("El registro no verifica: no se cierra un mes sobre una cadena rota.")
-    entry = ledger_service.append(
+    entry = _append(
         ctx,
         workspace.id,
         LedgerKind.PERIOD_CLOSED,
@@ -308,7 +309,7 @@ def _record(
     unpaid = [invoice for item in decided if (invoice := _unpaid(item, policy)) is not None]
     outcome = reconciliation.reconcile(statement.movements, paid, unpaid, settings)
     reconciliation_id = new_id()
-    entry = ledger_service.append(
+    entry = _append(
         ctx,
         workspace.id,
         LedgerKind.RECONCILIATION,
@@ -318,7 +319,7 @@ def _record(
     for confirmed in outcome.payments:
         if confirmed.status is PaymentStatus.CONFIRMED:
             payload = _confirmation(reconciliation_id, confirmed, statement)
-            ledger_service.append(ctx, workspace.id, LedgerKind.RECONCILIATION, confirmed.invoice_id, payload)
+            _append(ctx, workspace.id, LedgerKind.RECONCILIATION, confirmed.invoice_id, payload)
     row = ReconciliationRow(
         id=reconciliation_id,
         workspace_id=workspace.id,
@@ -620,6 +621,13 @@ def _stored(row: ReconciliationRow) -> tuple[Statement, ReconciliationOutcome, l
         ReconciliationOutcome.model_validate(row.outcome),
         [Review.model_validate(review) for review in row.reviews],
     )
+
+
+def _append(
+    ctx: ServiceContext, workspace_id: str, kind: LedgerKind, subject_id: str, payload: dict[str, Any]
+) -> LedgerEntry:
+    """Written as plain JSON (amounts as text), whatever the ledger implementation does with the rest."""
+    return ledger_service.append(ctx, workspace_id, kind, subject_id, json.loads(canonical_json(payload)))
 
 
 def _store_document(ctx: ServiceContext, workspace_id: str, upload: Upload) -> DocumentRow:
