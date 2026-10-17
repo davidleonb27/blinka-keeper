@@ -17,3 +17,7 @@ class DuplicateCaseIdError(EngineError):
     def __init__(self, case_id: str) -> None:
         super().__init__(f"duplicate case id in batch: {case_id}")
         self.case_id = case_id
+
+
+class EngineInvariantError(EngineError):
+    """The engine reached a state its rules make impossible (a bug); it stops instead of paying."""

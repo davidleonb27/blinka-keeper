@@ -25,7 +25,7 @@ from custodio.contracts import (
 from custodio.engine.audit import audit
 from custodio.engine.beneficiaries import BeneficiaryMatch, match_beneficiary
 from custodio.engine.draft import Draft
-from custodio.engine.errors import DuplicateCaseIdError
+from custodio.engine.errors import DuplicateCaseIdError, EngineInvariantError
 from custodio.engine.explain import counterfactual, explanation
 from custodio.engine.facts import Charge, InvoiceFacts, charge_from_history, charge_from_invoice, read_facts
 from custodio.engine.formatting import money
@@ -99,12 +99,12 @@ def _decide_and_audit(
     approvals: Mapping[str, Approval],
     vetoes: Mapping[str, str],
 ) -> tuple[BatchResult, AuditReport]:
-    drafts, spent_by_month = _decide_agent(cases, state, policy, vetoes)
-    drafts, balance_end = _apply_approvals(drafts, approvals, policy, vetoes, _balance_after_agent(drafts, state))
+    drafts, running = _decide_agent(cases, state, policy, vetoes)
+    drafts, balance_end = _apply_approvals(drafts, approvals, policy, vetoes, running.balance)
     decisions = [_finish(draft) for draft in drafts]
     batch = BatchResult(
         decisions=decisions,
-        spent_auto_base=spent_by_month[(state.today.year, state.today.month)],
+        spent_auto_base=running.spent_by_month[(state.today.year, state.today.month)],
         balance_end=balance_end,
         metrics=compute_metrics(decisions, cases, improper_payments=0),
     )
@@ -116,54 +116,72 @@ def _decide_and_audit(
 # The agent's pass ------------------------------------------------------------------------------------------------
 
 
+@dataclass
+class _Running:
+    """What the agent has paid so far in this pass."""
+
+    balance: Decimal
+    spent_by_month: defaultdict[tuple[int, int], Decimal]
+    paid_ids: set[str]
+
+    def pay(self, facts: InvoiceFacts) -> None:
+        if facts.amount_base is None:
+            raise EngineInvariantError(f"{facts.case_id} would be paid without an amount in base currency")
+        self.balance -= facts.amount_base
+        self.spent_by_month[_month(facts.received_on)] += facts.amount_base
+        self.paid_ids.add(facts.case_id)
+
+
 def _decide_agent(
     cases: Sequence[InvoiceCase], state: CompanyState, policy: Policy, vetoes: Mapping[str, str]
-) -> tuple[list[Draft], defaultdict[tuple[int, int], Decimal]]:
+) -> tuple[list[Draft], _Running]:
     _ensure_unique_ids(cases)
-    by_id = {case.id: case for case in cases}
+    extractions = {case.id: case.extraction for case in cases}
     ordered = sorted(
         (read_facts(case, position, state.fx_units_per_base) for position, case in enumerate(cases)),
         key=lambda facts: facts.arrival,
     )
     matches = {f.case_id: match_beneficiary(policy, name=f.supplier_name, tax_id=f.supplier_tax_id) for f in ordered}
     suppliers = _suppliers(ordered, matches, state)
-    spent_by_month = _agent_spending_in_history(state)
-    balance, paid_ids, drafts = state.opening_balance, set[str](), list[Draft]()
+    running = _Running(state.opening_balance, _agent_spending_in_history(state), set())
+    drafts = []
     for facts in ordered:
-        month = (facts.received_on.year, facts.received_on.month)
+        supplier = suppliers[_supplier_key(facts, matches)]
         context = RuleContext(
             invoice=facts,
-            extraction=by_id[facts.case_id].extraction,
+            extraction=extractions[facts.case_id],
             policy=policy,
             fx=state.fx_units_per_base,
             match=matches[facts.case_id],
-            earlier=_earlier(suppliers[_supplier_key(facts, matches)], facts, paid_ids),
-            nearby=_nearby(suppliers[_supplier_key(facts, matches)], facts, policy, paid_ids),
-            spent_auto=spent_by_month[month],
-            balance=balance,
+            earlier=_earlier(supplier, facts, running.paid_ids),
+            nearby=_nearby(supplier, facts, policy, running.paid_ids),
+            spent_auto=running.spent_by_month[_month(facts.received_on)],
+            balance=running.balance,
         )
-        checks = tuple(EVALUATORS[spec.id](context) for spec in RULES)
-        verdict = verdict_of(check.result for check in checks)
-        veto = vetoes.get(facts.case_id) if verdict is AgentVerdict.PAY else None
-        before = balance
-        if veto is None and verdict is AgentVerdict.PAY and facts.amount_base is not None:
-            balance -= facts.amount_base
-            spent_by_month[month] += facts.amount_base
-            paid_ids.add(facts.case_id)
-        drafts.append(
-            Draft(
-                facts=facts,
-                beneficiary=context.match.beneficiary,
-                checks=checks,
-                verdict=AgentVerdict.HOLD if veto else verdict,
-                status=_agent_status(AgentVerdict.HOLD if veto else verdict),
-                balance_before=before,
-                balance_after=balance,
-                spent_after=spent_by_month[month],
-                blocked_reason=AUDITOR_VETO.format(finding=veto) if veto else None,
-            )
-        )
-    return drafts, spent_by_month
+        drafts.append(_decide_one(context, vetoes.get(facts.case_id), running))
+    return drafts, running
+
+
+def _decide_one(context: RuleContext, veto: str | None, running: _Running) -> Draft:
+    checks = tuple(EVALUATORS[spec.id](context) for spec in RULES)
+    verdict = verdict_of(check.result for check in checks)
+    vetoed = veto is not None and verdict is AgentVerdict.PAY
+    if vetoed:
+        verdict = AgentVerdict.HOLD
+    before = running.balance
+    if verdict is AgentVerdict.PAY:
+        running.pay(context.invoice)
+    return Draft(
+        facts=context.invoice,
+        beneficiary=context.match.beneficiary,
+        checks=checks,
+        verdict=verdict,
+        status=_agent_status(verdict),
+        balance_before=before,
+        balance_after=running.balance,
+        spent_after=running.spent_by_month[_month(context.invoice.received_on)],
+        blocked_reason=AUDITOR_VETO.format(finding=veto) if vetoed else None,
+    )
 
 
 def _ensure_unique_ids(cases: Sequence[InvoiceCase]) -> None:
@@ -220,8 +238,12 @@ def _agent_spending_in_history(state: CompanyState) -> defaultdict[tuple[int, in
     spent: defaultdict[tuple[int, int], Decimal] = defaultdict(Decimal)
     for record in state.history:
         if record.by == "agent":
-            spent[(record.paid_on.year, record.paid_on.month)] += record.amount_base
+            spent[_month(record.paid_on)] += record.amount_base
     return spent
+
+
+def _month(day: date) -> tuple[int, int]:
+    return (day.year, day.month)
 
 
 def _agent_status(verdict: AgentVerdict) -> DecisionStatus:
@@ -230,10 +252,6 @@ def _agent_status(verdict: AgentVerdict) -> DecisionStatus:
         AgentVerdict.HOLD: DecisionStatus.HOLD,
         AgentVerdict.ESCALATE: DecisionStatus.PENDING_APPROVAL,
     }[verdict]
-
-
-def _balance_after_agent(drafts: Sequence[Draft], state: CompanyState) -> Decimal:
-    return drafts[-1].balance_after if drafts else state.opening_balance
 
 
 # The people's approvals, applied after the batch at the moment they are given ---------------------------------

@@ -11,9 +11,10 @@ from custodio.contracts import (
     RuleOutcome,
     RuleResult,
 )
-from custodio.engine import decide_all
+from custodio.engine import decide, decide_all
 from custodio.engine.decide import verdict_of
-from custodio.engine.errors import DuplicateCaseIdError
+from custodio.engine.errors import DuplicateCaseIdError, EngineInvariantError
+from custodio.engine.rules import EVALUATORS, check
 from tests.engine.builders import (
     ANDES,
     agreement,
@@ -251,3 +252,10 @@ def test_history_for_another_beneficiary_does_not_touch_this_one() -> None:
     history = paid("4800", on=date(2026, 10, 1), beneficiary_id="b2", number="AC-2026-10")
     [decision] = decide_all([invoice()], state(history), policy(ANDES)).decisions
     assert rule(decision, "R5").outcome is P
+
+
+def test_an_engine_bug_that_would_pay_without_an_amount_stops_instead(monkeypatch: pytest.MonkeyPatch) -> None:
+    always_pass = {rule_id: (lambda context, r=rule_id: check(r, P, "Saboteada.")) for rule_id in EVALUATORS}
+    monkeypatch.setattr(decide, "EVALUATORS", always_pass)
+    with pytest.raises(EngineInvariantError):
+        decide_all([invoice(amount=None)], state(), policy())

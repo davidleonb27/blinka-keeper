@@ -166,9 +166,14 @@ def _autonomous_problems(
     problems += _duplicate_problems(invoice, invoices, state, policy)
     problems += _split_problems(invoice, invoices, state, policy)
     problems += _currency_problems(invoice, state, policy)
+    return [*problems, *_money_problems(invoice, policy, totals)]
+
+
+def _money_problems(invoice: _Invoice, policy: Policy, totals: _Totals) -> list[str]:
+    """Limits, budget and reserve against the auditor's own running totals, which then record this payment."""
     if invoice.base is None:
-        return [*problems, "sin monto en moneda base"]
-    month = _month(invoice.day)
+        return ["sin monto en moneda base"]
+    month, problems = _month(invoice.day), []
     if invoice.base > policy.approval_threshold:
         problems.append("sobre el tope de aprobación")
     if invoice.base > policy.per_payment_limit:
