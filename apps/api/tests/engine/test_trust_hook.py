@@ -84,3 +84,20 @@ def test_a_risk_signal_supervises_the_supplier_for_the_rest_of_the_same_batch() 
     assert second.status is DecisionStatus.PENDING_APPROVAL
     assert second.trust is not None and second.trust.cap == Decimal(0) and second.trust.supervised
     assert "F-023" in second.trust.reason
+
+
+def test_an_absurd_earned_cap_changes_only_r9_and_never_lifts_a_hold_or_the_per_payment_limit() -> None:
+    state, policy = demo_company()
+    plain = decide_all(demo_cases(), state, policy)
+    trusted = with_trust(state, **{b.id: Decimal("1e12") for b in policy.beneficiaries})
+    batch = decide_all(demo_cases(), trusted, policy)
+    assert audit(batch, demo_cases(), trusted, policy).improper_payments == 0
+    # Paying more alone spends the balance sooner, so a later invoice may be held by R12: stricter, never looser.
+    for before, after in zip(plain.decisions, batch.decisions, strict=True):
+        failing = {r.rule_id for r in after.rules if r.outcome in (RuleOutcome.HOLD, RuleOutcome.ESCALATE)}
+        if after.status is DecisionStatus.PAID_AUTO:
+            assert not failing, after.invoice_id
+        if before.status is not after.status and after.status is DecisionStatus.PAID_AUTO:
+            assert {r.rule_id for r in before.rules if r.outcome is RuleOutcome.ESCALATE} == {"R9"}, after.invoice_id
+        if "R10" in {r.rule_id for r in before.rules if r.outcome is RuleOutcome.ESCALATE}:
+            assert after.status is not DecisionStatus.PAID_AUTO

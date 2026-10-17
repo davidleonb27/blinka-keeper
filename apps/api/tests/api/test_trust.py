@@ -202,3 +202,16 @@ def test_the_simulated_month_leaves_the_real_scheduled_payments_on_their_day(str
     simulate(client, workspace)
     calendar = client.get("/api/v1/schedule", headers=workspace.headers).json()
     assert "F-024" in {item["invoice_id"] for item in calendar["items"]}  # due on 23 October, in real time
+
+
+def test_the_simulated_month_is_the_same_in_every_demo_workspace(stripe_client: TestClient) -> None:
+    def replay() -> dict[str, Any]:
+        workspace = new_workspace(stripe_client)
+        result = simulate(stripe_client, workspace)
+        for supplier in result["trust"]["suppliers"]:
+            steps = [*supplier["timeline"], *([supplier["last_incident"]] if supplier["last_incident"] else [])]
+            for step in steps:
+                del step["hash"]
+        return result
+
+    assert replay() == replay()
