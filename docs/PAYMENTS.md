@@ -1,7 +1,7 @@
 # Cómo paga Custodio
 
 > **Custodio decide; el riel paga.** Hoy: Stripe en modo prueba. En producción: el riel de la empresa, por ejemplo
-> Blinka (ACH, wire, Bre-B, SPEI, Pix).
+> Blinka (ACH, wire, Bre-B, SPEI, Pix), cuyo adaptador ya arma la instrucción exacta (ver [`BLINKA.md`](BLINKA.md)).
 
 El motor y el auditor deciden qué se paga. El riel sólo ejecuta lo que ya quedó decidido: no lee facturas, no evalúa
 reglas y no puede pagar algo que el motor retuvo o que el auditor vetó. Cambiar de riel no cambia ninguna regla ni quién
@@ -14,7 +14,8 @@ decide.
    `PaymentOrder` (llave de idempotencia, espacio, factura, beneficiario, nombre registrado del proveedor, monto en USD,
    moneda y monto originales, enlace al acta) y se la pasa al riel.
 3. El riel devuelve un recibo (`PaymentExecution`): riel, estado (`executed`, `simulated` o `failed`), id externo,
-   enlace al dashboard, hora y, si falló, un error en español sin secretos.
+   enlace al dashboard, hora, si falló un error en español sin secretos y, en el riel de Blinka, la instrucción que se
+   le enviaría (`instruction`).
 4. El recibo queda en la tabla `payment_executions` (única por espacio y factura), en el acta (`Decision.execution`) y
    en el asiento `payment` del registro encadenado, que agrega `rail`, `execution_status`, `external_id` y
    `livemode: false`.
@@ -37,11 +38,12 @@ Hay tres guardias: `decide` sólo ejecuta cuando quien llama lo pide (`execute_p
 un espacio que no sea de un visitante y nunca una intención del firewall (origen `intent`), aunque se apruebe en el panel. Un test lo prueba para el firewall, el reto y el red team con facturas
 legítimas que sí quedan pagadas en papel.
 
-## Los dos rieles
+## Los rieles
 
 | `CUSTODIO_PAYMENT_RAIL` | `STRIPE_SECRET_KEY` | Riel activo |
 |---|---|---|
 | sin definir o `simulated` | cualquiera | `simulated`: no mueve dinero ni usa la red; el recibo lo dice |
+| `blinka_simulated` | no se usa | `blinka_simulated`: arma la instrucción exacta para Blinka y no la envía |
 | `stripe_test` | empieza por `sk_test_` | `stripe_test` |
 | `stripe_test` | empieza por `sk_live_` o `rk_live_` | `simulated`, con un aviso en el log (sin la clave) |
 | `stripe_test` | vacía u otra cosa | `simulated`, con un aviso en el log |
@@ -60,8 +62,11 @@ legítimas que sí quedan pagadas en papel.
   `{workspace_id, invoice_id, acta_url}`, `transfer_group = workspace:factura` e `Idempotency-Key = workspace:factura`.
   El recibo enlaza a `https://dashboard.stripe.com/test/connect/transfers/<tr_id>`.
 - **Saldo de prueba.** Si Stripe responde `balance_insufficient`, se recarga el saldo de prueba de la plataforma con un
-  PaymentIntent confirmado con `pm_card_bypassPending` por lo que falta más 1.000 USD y se reintenta una vez. Sólo
-  ocurre con una clave `sk_test_`.
+  PaymentIntent confirmado con `pm_card_bypassPending` por lo que falta más 1.000 USD. Stripe confirma la recarga antes
+  de dejar los fondos disponibles: en la primera corrida en producción, reintentar al instante hizo fallar 7 de 17
+  transferencias. Por eso el riel consulta el saldo disponible con esperas crecientes (0,5 s, 1 s, 2 s, 4 s…) hasta que
+  alcanza, como mucho 15 s, y recién ahí reintenta una vez. Si no alcanza, el recibo es `failed` y reintentar desde el
+  acta es seguro. Sólo ocurre con una clave `sk_test_`.
 - **Errores.** Cualquier error de Stripe se vuelve un recibo `failed` con un mensaje en español armado sólo con el tipo y
   el código del error (el mensaje original de Stripe puede citar parte de la clave). Nunca sale una excepción hacia la API.
 - **Topes.** Como mucho 40 transferencias por espacio y 400 por día UTC en todo el despliegue. Al pasarlos, el recibo es
@@ -103,10 +108,11 @@ mismas cuentas conectadas, las mismas transferencias, visibles en el dashboard) 
 decisión de Custodio llega hasta un pago verificable sin que nadie pueda perder plata, y la guardia de claves `live` hace
 que un error de configuración no pueda convertirse en un pago real.
 
-## Cómo se conectaría Blinka
+## Blinka, simulado
 
 Blinka es el riel de la empresa: ya tiene a los beneficiarios verificados y mueve el dinero por ACH, wire, Bre-B, SPEI o
-Pix. Conectarlo es escribir un `BlinkaRail` con el mismo protocolo (`custodio/payments/port.py`):
+Pix. No tiene API pública, así que `BlinkaRail` (`custodio/payments/blinka.py`) es honesto: hace todo menos enviar.
+Implementa el mismo protocolo que los otros rieles (`custodio/payments/port.py`):
 
 ```python
 class PaymentRail(Protocol):
@@ -115,6 +121,16 @@ class PaymentRail(Protocol):
     def execute(self, order: PaymentOrder) -> PaymentReceipt: ...
 ```
 
-`execute` llamaría a la API de pagos de Blinka con la `idempotency_key` de la orden, el beneficiario y el monto, y
-devolvería el id del pago y su enlace. No cambia el motor, ni el auditor, ni el registro, ni quién decide: la elección del
-riel es una línea en `choose_rail`.
+- **Red.** USD va por ACH si el beneficiario está en EE. UU. y el monto no supera 10.000 USD; si lo supera, o el
+  beneficiario está fuera de EE. UU. o sin país, va por wire. COP va por Bre-B, MXN por SPEI y BRL por Pix. Cualquier
+  otra moneda da un recibo `failed` que nombra la moneda y las que Blinka paga.
+- **Instrucción.** Red, monto y moneda originales de la factura, nombre, NIT o tax id, país, banco y cuenta del
+  beneficiario **registrado** (nunca los de la factura), referencia = enlace al acta y la llave de idempotencia de la
+  orden. Queda en el recibo (`instruction`), en la tabla `payment_executions` y en el acta.
+- **Estado.** `simulated`: no se movió dinero. Como no mueve dinero, no tiene los topes del riel de Stripe ni exige que
+  la moneda base sea USD.
+- **La llamada real.** El comentario en `BlinkaRail.execute`, justo antes de devolver el recibo, marca dónde va el
+  `POST` a la API de Blinka con la llave de idempotencia como cabecera y cómo se traduce su respuesta. Conectarlo no
+  cambia el motor, ni el auditor, ni el registro, ni quién decide.
+
+Qué le ofrece Custodio a Blinka y el plan de integración: [`BLINKA.md`](BLINKA.md).

@@ -17,7 +17,7 @@ que se note.
 2. En el panel verás una semana de facturas ya decidida: pagado, retenido y pendiente, cada una con su razón.
 3. Abre cualquier fila para ver el acta con las 12 reglas. Prueba «Róbale a Custodio» e intenta que pague algo indebido.
 
-Es dinero de mentira: no hay pasarelas ni cuentas reales. Aquí se prueba la decisión, no el movimiento de fondos.
+Es dinero de prueba: lo que Custodio paga sale como una transferencia de Stripe en modo prueba, sin cuentas reales.
 
 ## Por qué existe
 
@@ -130,8 +130,13 @@ Custodio decide; el riel paga. Hoy: Stripe en modo prueba. En producción: el ri
 (ACH, wire, Bre-B, SPEI, Pix). Cuando una factura queda pagada desde el panel y el auditor no la vetó, el pago sale por
 el riel activo y su recibo queda en el acta y en el registro. Por defecto el riel es simulado; con
 `CUSTODIO_PAYMENT_RAIL=stripe_test` y una `STRIPE_SECRET_KEY` de prueba (`sk_test_…`) sale como una transferencia real
-de Stripe en modo prueba. Una clave `live` se rechaza. El firewall, el reto y el red team nunca pagan. Detalle, guardias
-e idempotencia en [`docs/PAYMENTS.md`](docs/PAYMENTS.md).
+de Stripe en modo prueba. Una clave `live` se rechaza. Con `CUSTODIO_PAYMENT_RAIL=blinka_simulated`, Custodio elige la
+red de Blinka (ACH, wire, Bre-B, SPEI o Pix) y arma la instrucción exacta que le enviaría, sin enviarla: Blinka aún no
+tiene API pública. El firewall, el reto y el red team nunca pagan. Los rieles, sus guardias y la idempotencia están en
+[`docs/PAYMENTS.md`](docs/PAYMENTS.md#los-rieles).
+
+**Para el equipo de Blinka:** qué resuelve Custodio en sus clientes, cómo se integra en 2 semanas, el precio propuesto
+y lo que falta para producción, en [`docs/BLINKA.md`](docs/BLINKA.md).
 
 ## Dataset
 
