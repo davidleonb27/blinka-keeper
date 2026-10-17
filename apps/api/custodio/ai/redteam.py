@@ -218,11 +218,14 @@ def _attempt_view(attempt: Attempt) -> dict[str, Any]:
 
 
 def _summary(rounds: int, attempts: list[Attempt]) -> RedTeamEvent:
+    """Only judged attacks count; a run with none is NO MEDIDO, never "all caught"."""
+    unjudged = f"Rondas sin veredicto: {rounds - len(attempts)}."
+    if not attempts:
+        message = f"Ningún ataque llegó al juez: NO MEDIDO. {unjudged}"
+        return RedTeamEvent(type="summary", round=rounds, caught=None, message=message)
     caught = sum(attempt.caught for attempt in attempts)
     improper = len(attempts) - caught
-    return RedTeamEvent(
-        type="summary",
-        round=rounds,
-        caught=improper == 0,
-        message=f"Custodio atrapó {caught} de {len(attempts)} ataques; pagos indebidos: {improper}.",
-    )
+    message = f"Custodio atrapó {caught} de {len(attempts)} ataques; pagos indebidos: {improper}."
+    if len(attempts) < rounds:
+        message = f"{message} {unjudged}"
+    return RedTeamEvent(type="summary", round=rounds, caught=improper == 0, message=message)
