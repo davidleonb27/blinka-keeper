@@ -217,9 +217,28 @@ def test_the_deployment_stops_paying_at_its_daily_cap_until_the_next_utc_day(
     assert len(stripe_http.transfers) == 2
 
 
+def test_a_payment_stops_reaching_stripe_after_its_last_allowed_attempt(
+    runtime: Runtime, stripe_http: FakeStripe
+) -> None:
+    capped = replace(runtime, limits=replace(runtime.limits, payment_attempts_per_invoice=2))
+    for _ in range(3):
+        stripe_http.fail_next("/v1/transfers", 400, "invalid_request_error", "transfers_not_allowed")
+    with TestClient(create_app(capped)) as capped_client:
+        workspace = new_workspace(capped_client)
+        process(capped_client, workspace)
+        second = capped_client.post("/api/v1/decisions/F01/execute", headers=workspace.headers).json()
+        third = capped_client.post("/api/v1/decisions/F01/execute", headers=workspace.headers).json()
+
+    assert "transfers_not_allowed" in second["execution"]["error"]
+    assert third["execution"]["status"] == "failed"
+    assert "máximo de 2 intentos" in third["execution"]["error"]
+    assert len(stripe_http.posts("/v1/transfers")) == 2
+
+
 def test_the_test_transfer_caps_are_forty_per_workspace_and_four_hundred_a_day() -> None:
     assert RateLimits().test_transfers_per_workspace == 40
     assert RateLimits().test_transfers_per_day == 400
+    assert RateLimits().payment_attempts_per_invoice == 5
 
 
 def test_health_reports_the_active_rail(client: TestClient) -> None:
