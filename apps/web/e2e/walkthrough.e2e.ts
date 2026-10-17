@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { DOCS_PAGES } from "../src/lib/docs";
 
 /**
  * Every page and the whole demo against the real API, in a production build. The bar: zero console errors (React
@@ -58,8 +59,8 @@ test("every page and the whole demo work against the real API without a single e
   const problems = watch(page);
 
   await test.step("inicio: entra a la empresa demo", async () => {
-    await visit(page, "/", /El agente de pagos que no se deja engañar/);
-    await page.getByRole("link", { name: /Probar con una empresa demo/ }).first().click();
+    await visit(page, "/", "El agente de cuentas por pagar de código abierto");
+    await page.getByRole("link", { name: /Probar la demo/ }).first().click();
     await expect(page).toHaveURL(/\/panel$/);
   });
 
@@ -158,6 +159,14 @@ test("every page and the whole demo work against the real API without a single e
 
   await test.step("desarrolladores", async () => {
     await visit(page, "/desarrolladores", "Desarrolladores");
+  });
+
+  await test.step("documentación: cada página con su barra lateral", async () => {
+    for (const { href, title } of DOCS_PAGES) {
+      await visit(page, href, title);
+      const sidebar = page.getByRole("navigation", { name: "Documentación" });
+      await expect(sidebar.getByRole("link", { name: title, exact: true })).toHaveAttribute("aria-current", "page");
+    }
   });
 
   await test.step("onboarding: de cero a una empresa lista", async () => {
