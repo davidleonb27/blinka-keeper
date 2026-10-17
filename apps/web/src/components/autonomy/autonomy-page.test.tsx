@@ -112,4 +112,22 @@ describe("AutonomyPage", () => {
     expect(await screen.findByText(/15 facturas/)).toBeInTheDocument();
     expect(screen.getByText(/semilla 1330/)).toBeInTheDocument();
   });
+
+  it("leads with the simulation when no supplier has earned a cap yet", async () => {
+    const client = createMockClient({ latencyMs: 0 });
+    const untouched = { ...OVERVIEW, suppliers: OVERVIEW.suppliers.map((one) => ({ ...one, timeline: one.timeline.filter((step) => step.kind !== "trust_raised") })) };
+    vi.spyOn(client, "getTrust").mockResolvedValue(untouched);
+    renderWithApi(<AutonomyPage />, client);
+
+    const prompt = await screen.findByRole("region", { name: "Simular un mes" });
+    expect(within(prompt).getByRole("button", { name: /Simular 30 días/ })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Simular 30 días/ })).toHaveLength(1);
+  });
+
+  it("lists suppliers that earn or can earn a cap before those in supervision", async () => {
+    renderWithApi(<AutonomyPage />, api());
+
+    const cards = await screen.findAllByRole("article", { name: /SAS|LLC/ });
+    expect(cards.map((card) => card.getAttribute("aria-labelledby"))).toEqual(["confianza-b1", "confianza-b10"]);
+  });
 });
