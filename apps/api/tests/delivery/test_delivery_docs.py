@@ -30,6 +30,7 @@ INFLATED_WORDS = (
     "game-changer",
     "cutting-edge",
 )
+OUT_OF_SCOPE_SERVICES = ("telegram", "gemini", "celular")
 FORBIDDEN_TRAILERS = ("Co-Authored-By", "Generated with")
 WRITTEN_SEGMENT = re.compile(r"^### (\d+):(\d\d)–(\d+):(\d\d) · .+$", re.MULTILINE)
 
@@ -233,3 +234,9 @@ def test_readme_names_the_team_the_license_and_ends_in_english() -> None:
     assert "MIT" in text
     assert re.findall(r"^## (.+)$", text, re.MULTILINE)[-1] == "English summary"
     assert (REPO / "LICENSE").read_text(encoding="utf-8").startswith("MIT License")
+
+
+@pytest.mark.parametrize("path", owned_markdown())
+def test_documents_do_not_present_out_of_scope_services_as_existing(path: str) -> None:
+    text = read(path).lower()
+    assert [name for name in OUT_OF_SCOPE_SERVICES if name in text] == []
