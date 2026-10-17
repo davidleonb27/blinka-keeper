@@ -201,7 +201,8 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
     approveDecision: (id, input) => respond(() => decide(id, input, true)),
     rejectDecision: (id, input) => respond(() => decide(id, input, false)),
     getPolicy: () => respond(() => demo.policy),
-    compilePolicy: (text) => respond(() => compilePolicyText(text, demo.policy, demo.items), 2),
+    compilePolicy: (text, base) =>
+      respond(() => (base ? compilePolicyText(text, base, []) : compilePolicyText(text, demo.policy, demo.items)), 2),
     applyPolicy: (policy) => respond(() => applyPolicy(policy)),
     getLedger: () => respond(() => demo.ledger),
     verifyLedger: () => respond(() => verifyChain(demo.ledger)),

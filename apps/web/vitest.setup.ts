@@ -1,12 +1,13 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
+import { MotionGlobalConfig } from "motion/react";
 import { afterEach } from "vitest";
 
 afterEach(() => {
   cleanup();
 });
 
-// jsdom lacks these browser APIs; Radix and motion probe for them.
+// jsdom lacks these browser APIs; Radix, motion and file uploads use them.
 class ResizeObserverStub {
   observe() {}
   unobserve() {}
@@ -25,3 +26,14 @@ window.matchMedia ??= (query: string) =>
     dispatchEvent: () => false,
   }) as MediaQueryList;
 Element.prototype.scrollIntoView ??= () => {};
+Blob.prototype.text ??= function readAsText(this: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(this);
+  });
+};
+
+// Steps swap instantly in tests; the motion itself is a visual concern.
+MotionGlobalConfig.skipAnimations = true;

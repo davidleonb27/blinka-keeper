@@ -76,7 +76,9 @@ export function useHumanDecision(invoiceId: string) {
 
 export function useCompilePolicy() {
   const api = useApi();
-  return useMutation({ mutationFn: (text: string) => api.compilePolicy(text) });
+  return useMutation({
+    mutationFn: ({ text, base }: { text: string; base?: Policy }) => api.compilePolicy(text, base),
+  });
 }
 
 export function useApplyPolicy() {

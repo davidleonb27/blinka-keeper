@@ -109,7 +109,8 @@ export interface CustodioApi {
   approveDecision(invoiceId: string, input: ApprovalInput): Promise<Decision>;
   rejectDecision(invoiceId: string, input: ApprovalInput): Promise<Decision>;
   getPolicy(): Promise<Policy>;
-  compilePolicy(text: string): Promise<PolicyProposal>;
+  /** Compiles against `base` when given (onboarding draft), otherwise the workspace policy. */
+  compilePolicy(text: string, base?: Policy): Promise<PolicyProposal>;
   applyPolicy(policy: Policy): Promise<Policy>;
   getLedger(): Promise<LedgerEntry[]>;
   verifyLedger(): Promise<LedgerVerification>;

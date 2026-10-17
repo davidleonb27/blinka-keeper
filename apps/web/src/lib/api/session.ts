@@ -16,6 +16,8 @@ function createBrowserLiveClient(): CustodioApi {
   const client: CustodioApi = createLiveClient({
     fetch: (...args) => fetch(...args),
     workspaceId: () => {
+      const stored = browserWorkspaceStore.read();
+      if (stored) return stored;
       pending ??= ensureWorkspace(client, browserWorkspaceStore).catch((error: unknown) => {
         pending = null;
         throw error;

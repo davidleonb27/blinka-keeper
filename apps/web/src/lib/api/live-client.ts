@@ -79,7 +79,7 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId }: LiveClientOp
     approveDecision: (id, input) => post(`/decisions/${encodeURIComponent(id)}/approve`, input),
     rejectDecision: (id, input) => post(`/decisions/${encodeURIComponent(id)}/reject`, input),
     getPolicy: () => get("/policy"),
-    compilePolicy: (text) => post("/policy/compile", { text }),
+    compilePolicy: (text, base) => post("/policy/compile", { text, base: base ?? null }),
     applyPolicy: (policy) => request("PUT", "/policy", { body: { json: policy } }),
     getLedger: () => get("/ledger"),
     verifyLedger: () => get("/ledger/verify"),

@@ -159,7 +159,9 @@ export function compilePolicyText(text: string, policy: Policy, items: DemoItem[
     const normalized = normalize(clause);
     const result = blockClause(clause, normalized, policy) ?? numericClause(clause, normalized, policy);
     if (!result) unsupported.push(clause);
-    if (result?.change && !changes.some((c) => c.field === result.change?.field)) changes.push(result.change);
+    const change = result?.change;
+    const isNew = change && change.before !== change.after && !changes.some((c) => c.field === change.field);
+    if (change && isNew) changes.push(change);
     if (result?.question) questions.push(result.question);
   }
   const proposed = changes.reduce(applyChange, policy);
