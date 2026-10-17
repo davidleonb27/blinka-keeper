@@ -5,6 +5,8 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import Any
 
+import anthropic
+
 from custodio import llm
 from custodio.ai.numbers import amounts_in
 from custodio.ai.views import as_json
@@ -46,7 +48,7 @@ def narrate(decision: Decision) -> str:
             effort="low",
             max_tokens=2000,
         ).value
-    except llm.LLMError:
+    except (llm.LLMError, anthropic.APIError):  # a narration is optional; the acta never breaks for it
         return decision.explanation
     text = narration.text.strip()
     if not text or len(text) > _MAX_CHARS or not numbers_match(text, decision):

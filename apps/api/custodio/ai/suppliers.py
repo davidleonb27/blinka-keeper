@@ -196,9 +196,9 @@ def _xlsx_table(data: bytes) -> list[list[str]]:
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
             shared = _shared_strings(archive)
             sheet = _xml(archive, _first_sheet_path(archive))
-    except (zipfile.BadZipFile, KeyError, ElementTree.ParseError) as error:
+        return [_sheet_row(row, shared) for row in sheet.iter(f"{_SHEET_NS}row")]
+    except (zipfile.BadZipFile, KeyError, IndexError, ElementTree.ParseError) as error:
         raise UnreadableSupplierFile("El archivo no es una hoja de cálculo XLSX legible.") from error
-    return [_sheet_row(row, shared) for row in sheet.iter(f"{_SHEET_NS}row")]
 
 
 def _xml(archive: zipfile.ZipFile, path: str) -> ElementTree.Element:
@@ -219,7 +219,8 @@ def _first_sheet_path(archive: zipfile.ZipFile) -> str:
         raise KeyError("sheet")
     rel_id = sheet.attrib[f"{_REL_NS}id"]
     rels = _xml(archive, "xl/_rels/workbook.xml.rels")
-    target = next(r.attrib["Target"] for r in rels.iter(f"{_PACKAGE_REL_NS}Relationship") if r.attrib["Id"] == rel_id)
+    targets = {r.get("Id"): r.attrib["Target"] for r in rels.iter(f"{_PACKAGE_REL_NS}Relationship")}
+    target = targets[rel_id]  # a KeyError here means the sheet points nowhere: unreadable
     return target.lstrip("/") if target.startswith("/") else f"xl/{target}"
 
 

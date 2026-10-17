@@ -1,7 +1,7 @@
 """Spanish rules in, policy proposal out. Claude proposes edits to known fields; code checks and applies them.
 
 Code keeps the last word: an edit survives only if it targets a known field, its value is in range, its quote is
-literally in the user's text and, for amounts, the quote states that amount. Everything else becomes an
+literally in the user's text and, for amounts and day windows, the quote states that value. Everything else becomes an
 `unsupported` note or a `question`, never a silent change.
 """
 
@@ -79,6 +79,7 @@ APPROVERS_LABEL = "Aprobadores"
 _MAX_PERCENT = Decimal(100)
 _MIN_CONFIDENCE_PERCENT = Decimal(50)  # below this a reading is a guess, whatever the text says
 _MAX_WINDOW_DAYS = 365
+_PERIOD_DAYS = {"semana": 7, "semanas": 7, "quincena": 15, "quincenas": 15, "mes": 30, "meses": 30}
 _ISO_CURRENCY = re.compile(r"[A-Z]{3}")
 _FIELD_LABELS = (
     MONEY_LABELS
@@ -120,7 +121,7 @@ Leave every slot the field does not use as null (currencies as []); operation is
 text does not mention. A sentence that keeps a rule ("no cambies el límite por pago") is not a change.
 2. source_quote: copy verbatim the contiguous words of the user's text that justify the change (same spelling, \
 accents and digits; a fragment of a sentence is fine). Code discards a change whose quote is not literally in the \
-text, or whose quote does not state its amount.
+text, or whose quote does not state its amount or its days ("30 días", "una semana").
 3. amount: plain digits with a dot for decimals, no thousands separators. Read Spanish as a Latin American \
 accountant would: "3.000" = 3000 (the dot groups thousands), "2.500,50" = 2500.50, "2,5 millones" = 2500000, \
 "80 mil" = 80000, "tres mil" = 3000, "un millón" = "un palo" = 1000000, "medio millón" = 500000, \
@@ -278,7 +279,19 @@ def _set_days(change: DraftChange, policy: Policy) -> tuple[Policy, PolicyChange
         raise NeedsClarification(
             f"«{change.source_quote}»: «{label}» debe ser de 1 a {_MAX_WINDOW_DAYS} días. ¿Cuántos días quiso decir?"
         )
+    if change.days not in _days_in(change.source_quote):
+        raise NotSupported(
+            f"Se descartó un cambio a «{label}» ({change.days} días): la frase «{change.source_quote}» "
+            "no dice ese plazo."
+        )
     return _set_field(policy, change, change.field, change.days, label)
+
+
+def _days_in(quote: str) -> set[int]:
+    """Day counts a quote states: "30 días" -> 30, "una semana" -> 7, "dos semanas" -> 14, "15 días" -> 15."""
+    counts = {int(n) for n in amounts_in(quote) if n == n.to_integral_value() and 0 < n <= _MAX_WINDOW_DAYS}
+    periods = {_PERIOD_DAYS[word] for word in re.findall(r"[a-z]+", fold(quote)) if word in _PERIOD_DAYS}
+    return counts | {count * period for count in counts | {1} for period in periods}
 
 
 def _edit_currencies(change: DraftChange, policy: Policy) -> tuple[Policy, PolicyChange]:
