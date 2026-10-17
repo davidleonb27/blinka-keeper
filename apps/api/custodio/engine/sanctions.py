@@ -75,7 +75,7 @@ class _Variant:
     entry: SanctionsEntry
 
 
-@dataclass
+@dataclass(eq=False)  # one list is one copy: compared by identity, it carries its own index and cache
 class SanctionsList:
     entries: tuple[SanctionsEntry, ...]
     source: str

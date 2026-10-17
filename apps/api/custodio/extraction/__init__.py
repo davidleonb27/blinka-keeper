@@ -26,6 +26,7 @@ from typing import Literal
 from PIL import Image, UnidentifiedImageError
 
 from custodio.contracts import ExtractedField, ExtractedInvoice, HiddenTextFinding, InvoiceSource
+from custodio.engine.domains import first_email
 from custodio.extraction import pdf, structure, vision
 from custodio.extraction.errors import UnreadableDocument, UnsupportedDocument
 from custodio.extraction.instructions import find_instructions
@@ -113,6 +114,7 @@ def _read(
             "source": origin,
             **reading.fields,
             "visible_text": source.text,
+            "sender_email": first_email(source.text),
             "hidden_findings": [*hidden, *find_instructions(source)],
             "reader": "+".join((*readers, reading.model)),
             "overall_confidence": _overall_confidence(reading.fields),
