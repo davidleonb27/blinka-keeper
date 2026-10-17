@@ -1,0 +1,56 @@
+{
+  "suppliers": [
+    {
+      "name": "Nube S.A.S.",
+      "tax_id": "900.123.456-7",
+      "aliases": ["Nube Hosting"],
+      "country": "CO",
+      "bank_name": "Bancolombia",
+      "account_number": "123-456789-01",
+      "currency": "usd",
+      "agreement_kind": "monthly_cap",
+      "agreement_amount": "9.000",
+      "agreement_currency": null,
+      "source_quote": "Cláusula 4: el valor mensual no superará USD 9.000"
+    },
+    {
+      "name": "Proveedor sin cuenta",
+      "tax_id": "901000111-2",
+      "aliases": [],
+      "country": "CO",
+      "bank_name": "BBVA",
+      "account_number": null,
+      "currency": "COP",
+      "agreement_kind": null,
+      "agreement_amount": null,
+      "agreement_currency": null,
+      "source_quote": null
+    },
+    {
+      "name": "Nube SAS",
+      "tax_id": "9001234567",
+      "aliases": [],
+      "country": "CO",
+      "bank_name": "Bancolombia",
+      "account_number": "999",
+      "currency": "USD",
+      "agreement_kind": null,
+      "agreement_amount": null,
+      "agreement_currency": null,
+      "source_quote": null
+    },
+    {
+      "name": "Moneda inventada Ltda.",
+      "tax_id": "901999888-1",
+      "aliases": [],
+      "country": "CO",
+      "bank_name": "Itaú",
+      "account_number": "445566",
+      "currency": "pesos",
+      "agreement_kind": null,
+      "agreement_amount": null,
+      "agreement_currency": null,
+      "source_quote": null
+    }
+  ]
+}

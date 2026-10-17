@@ -1,0 +1,20 @@
+{
+  "changes": [
+    {
+      "field": "reserve",
+      "source_quote": "La reserva es menos 500",
+      "amount": "-500",
+      "currency": "USD",
+      "percent": null,
+      "days": null,
+      "currencies": [],
+      "operation": "set",
+      "beneficiary_id": null,
+      "agreement_kind": null,
+      "allowed": null,
+      "approver_name": null
+    }
+  ],
+  "unsupported": [],
+  "questions": []
+}

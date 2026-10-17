@@ -1,0 +1,36 @@
+{
+  "changes": [
+    {
+      "field": "allowed_currencies",
+      "source_quote": "No pagues en reales",
+      "amount": null,
+      "currency": null,
+      "percent": null,
+      "days": null,
+      "currencies": [
+        "BRL"
+      ],
+      "operation": "remove",
+      "beneficiary_id": null,
+      "agreement_kind": null,
+      "allowed": null,
+      "approver_name": null
+    },
+    {
+      "field": "period_budget",
+      "source_quote": "sé más flexible",
+      "amount": "50000",
+      "currency": "USD",
+      "percent": null,
+      "days": null,
+      "currencies": [],
+      "operation": "set",
+      "beneficiary_id": null,
+      "agreement_kind": null,
+      "allowed": null,
+      "approver_name": null
+    }
+  ],
+  "unsupported": [],
+  "questions": []
+}
