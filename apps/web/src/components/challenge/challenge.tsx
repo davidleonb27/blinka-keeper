@@ -92,15 +92,18 @@ function AttemptResult({ attempt }: { attempt: ChallengeAttempt }) {
   );
 }
 
-function AttemptForm({ onResult }: { onResult: (attempt: ChallengeAttempt) => void }) {
+function AttemptForm({ onResult }: { onResult: (attempt: ChallengeAttempt | null) => void }) {
   const textId = useId();
   const fileId = useId();
   const [text, setText] = useState(PRESETS[0][1]);
   const [alias, setAlias] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const submit = useSubmitChallenge();
-  const send = () =>
+  // A refused attempt must not leave the previous verdict on screen as if it were this one's.
+  const send = () => {
+    onResult(null);
     submit.mutate({ text, alias: alias.trim() || null, file }, { onSuccess: onResult });
+  };
 
   return (
     <form

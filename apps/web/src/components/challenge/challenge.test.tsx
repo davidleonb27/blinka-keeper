@@ -93,6 +93,27 @@ describe("Challenge", () => {
   });
 });
 
+describe("Challenge after a refused attempt", () => {
+  it("drops the previous verdict so it is not read as the new one", async () => {
+    let calls = 0;
+    const result = await attack(
+      apiWith({
+        submitChallengeAttempt: async () => {
+          calls += 1;
+          if (calls > 1) throw new NetworkError();
+          return attemptWith({ account: "Otra cuenta." });
+        },
+      }),
+    );
+    expect(result).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /Intentar que pague/ }));
+
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Resultado de tu intento" })).not.toBeInTheDocument();
+  });
+});
+
 describe("ChallengeStage", () => {
   it("shows a QR to this site's /reto", async () => {
     renderWithApi(<ChallengeStage />);
