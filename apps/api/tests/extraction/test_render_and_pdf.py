@@ -7,8 +7,8 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
 from custodio.contracts import HiddenTextKind, InvoiceSource
-from custodio.extraction.errors import UnreadableDocument, UnsupportedHiddenText
-from custodio.extraction.pdf import rasterize, read_pdf
+from custodio.extraction.errors import UnreadableDocument, UnsupportedDocument, UnsupportedHiddenText
+from custodio.extraction.pdf import MAX_PDF_PAGES, rasterize, read_pdf
 from custodio.extraction.render import PDF_TECHNIQUES, HiddenTechnique, render_invoice, technique_for
 from custodio.extraction.text import squash
 from tests.extraction.factories import make_spec
@@ -188,6 +188,18 @@ def test_a_pdf_with_only_an_image_has_no_visible_text_and_rasterizes_for_vision(
     assert not reading.has_visible_text
     assert len(pages) == 1
     assert Image.open(io.BytesIO(pages[0])).format == "PNG"
+
+
+def test_a_pdf_longer_than_any_invoice_is_rejected_before_it_is_read() -> None:
+    buffer = io.BytesIO()
+    page = canvas.Canvas(buffer, invariant=1)
+    for number in range(MAX_PDF_PAGES + 1):
+        page.drawString(50, 700, f"Página {number}")
+        page.showPage()
+    page.save()
+
+    with pytest.raises(UnsupportedDocument):
+        read_pdf(buffer.getvalue())
 
 
 def test_bytes_that_are_not_a_pdf_are_unreadable() -> None:
