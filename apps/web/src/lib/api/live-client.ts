@@ -9,7 +9,7 @@ import type {
   ResponseOf,
 } from "./client";
 import type { RedTeamEvent } from "./contracts";
-import { errorFromStatus, NetworkError, UnexpectedResponseError } from "./errors";
+import { errorFromStatus, NetworkError, UnexpectedResponseError, WorkspaceGoneError } from "./errors";
 import { readSse } from "./sse";
 
 export const API_BASE = "/api/v1";
@@ -20,6 +20,8 @@ export interface LiveClientOptions {
   fetch: typeof fetch;
   /** Resolves the visitor's workspace; may create it on first use. Never called for /workspaces. */
   workspaceId: () => Promise<string | null> | string | null;
+  /** Gives the visitor a new workspace in place of one the API no longer has, and resolves its id. */
+  replaceWorkspace?: (stale: string) => Promise<string>;
 }
 
 interface CallOptions<P extends ApiPath, M extends Method> {
@@ -32,16 +34,24 @@ interface CallOptions<P extends ApiPath, M extends Method> {
 
 type FormFields<F> = { [K in keyof F]?: string | File | null };
 
-async function readDetail(response: Response): Promise<string | null> {
+interface ErrorBody {
+  detail: string | null;
+  code: string | null;
+}
+
+function stringField(body: object, name: string): string | null {
+  const value: unknown = (body as Record<string, unknown>)[name];
+  return typeof value === "string" ? value : null;
+}
+
+async function readError(response: Response): Promise<ErrorBody> {
   try {
     const body: unknown = await response.json();
-    if (body && typeof body === "object" && "detail" in body && typeof body.detail === "string") {
-      return body.detail;
-    }
+    if (body && typeof body === "object") return { detail: stringField(body, "detail"), code: stringField(body, "code") };
   } catch {
     // An empty or non-JSON error body still maps to a typed error below.
   }
-  return null;
+  return { detail: null, code: null };
 }
 
 function urlFor(path: string, params: unknown): string {
@@ -58,21 +68,36 @@ function formOf<F>(fields: FormFields<F>): FormData {
   return form;
 }
 
-export function createLiveClient({ fetch: fetchImpl, workspaceId }: LiveClientOptions): CustodioApi {
-  async function headersFor(json: boolean, scoped: boolean): Promise<Headers> {
+export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspace }: LiveClientOptions): CustodioApi {
+  function headersFor(json: boolean, workspace: string | null): Headers {
     const headers = new Headers({ Accept: "application/json" });
-    const id = scoped ? await workspaceId() : null;
-    if (id) headers.set(WORKSPACE_HEADER, id);
+    if (workspace) headers.set(WORKSPACE_HEADER, workspace);
     if (json) headers.set("Content-Type", "application/json");
     return headers;
   }
 
+  /** A call in a workspace the API no longer has is repeated once, in the new workspace that replaces it. */
   async function send<P extends ApiPath, M extends Method>(
     method: M,
     path: P,
-    { params, json, form, scoped = true, signal }: CallOptions<P, M> = {},
+    options: CallOptions<P, M> = {},
   ): Promise<Response> {
-    const headers = await headersFor(json !== undefined, scoped);
+    const workspace = options.scoped === false ? null : await workspaceId();
+    try {
+      return await sendIn(workspace, method, path, options);
+    } catch (error) {
+      if (!(error instanceof WorkspaceGoneError && workspace && replaceWorkspace)) throw error;
+      return sendIn(await replaceWorkspace(workspace), method, path, options);
+    }
+  }
+
+  async function sendIn<P extends ApiPath, M extends Method>(
+    workspace: string | null,
+    method: M,
+    path: P,
+    { params, json, form, signal }: CallOptions<P, M>,
+  ): Promise<Response> {
+    const headers = headersFor(json !== undefined, workspace);
     let response: Response;
     try {
       response = await fetchImpl(urlFor(path, params), {
@@ -85,7 +110,10 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId }: LiveClientOp
     } catch {
       throw new NetworkError();
     }
-    if (!response.ok) throw errorFromStatus(response.status, await readDetail(response));
+    if (!response.ok) {
+      const { detail, code } = await readError(response);
+      throw errorFromStatus(response.status, detail, code);
+    }
     return response;
   }
 
