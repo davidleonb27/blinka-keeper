@@ -94,6 +94,16 @@ describe("Acta", () => {
     expect(screen.getByText("Pagada sola")).toBeInTheDocument();
   });
 
+  it("says an approved payment waits for its day in the calendar", () => {
+    const item = structuredClone(demoItem("F-001"));
+    item.decision.execution = null;
+    render(item);
+
+    const payment = screen.getByRole("region", { name: "Ejecución del pago" });
+    expect(payment).toHaveTextContent(/Programado/);
+    expect(within(payment).getByRole("link", { name: /calendario/i })).toHaveAttribute("href", "/calendario");
+  });
+
   it("shows the Stripe test transfer that paid it, linked to its dashboard", () => {
     render(paidWith(SENT));
 
