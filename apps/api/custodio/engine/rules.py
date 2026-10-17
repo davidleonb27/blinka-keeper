@@ -42,6 +42,7 @@ from custodio.engine.units import same_month
 DUPLICATE_AMOUNT_TOLERANCE = Decimal("0.005")  # R5: "the same amount" means within ±0.5 %
 HUNDRED = Decimal(100)
 KEY_FIELDS = (("supplier_name", "proveedor"), ("amount", "monto"), ("currency", "moneda"), ("account_number", "cuenta"))
+IDENTITY_FIELDS = (("supplier_tax_id", "identificación fiscal"),)  # optional, but trusted only when verified
 TEXT_FIELDS = (
     "supplier_name",
     "supplier_tax_id",
@@ -54,8 +55,9 @@ TEXT_FIELDS = (
     "account_number",
     "description",
 )
-# A dollar sign names a currency only next to an ISO code or a national prefix (US$, R$, MX$, COL$, CLP$).
-NAMED_DOLLAR = re.compile(r"\b[A-Z]{3}\b|\b(?:US|R|MX|COL|CLP)\$")
+# A dollar sign names a currency only next to the ISO code that was read or that code's national prefix.
+DOLLAR_PREFIXES = {"US": "USD", "R": "BRL", "MX": "MXN", "COL": "COP", "CLP": "CLP"}
+DOLLAR_PREFIX = re.compile(r"(?<![A-Z])(US|R|MX|COL|CLP)\$")
 
 _SPECS = {spec.id: spec for spec in RULES}
 
@@ -103,6 +105,12 @@ def reading(ctx: RuleContext) -> RuleCheck:
         if not (name == "currency" and currency_quote)
         if (problem := _field_problem(ctx, name, label))
     ]
+    problems += [
+        problem
+        for name, label in IDENTITY_FIELDS
+        if getattr(ctx.extraction, name).value is not None
+        if (problem := _field_problem(ctx, name, label))
+    ]
     if currency_quote is not None:
         confidence = percent(_confidence(ctx.extraction.currency))
         reason = (
@@ -147,9 +155,16 @@ def _confidence(field: ExtractedField) -> Decimal:
 
 def _ambiguous_currency_quote(field: ExtractedField) -> str | None:
     quote = field.evidence.quote if field.evidence else None
-    if quote is None or "$" not in quote or NAMED_DOLLAR.search(quote):
+    if field.value is None or quote is None or "$" not in quote or _names_currency(quote.upper(), field.value):
         return None
     return clip(quote)
+
+
+def _names_currency(quote: str, code: str) -> bool:
+    wanted = code.strip().upper()
+    if re.search(rf"(?<![A-Z]){re.escape(wanted)}(?![A-Z])", quote):
+        return True
+    return any(DOLLAR_PREFIXES[prefix] == wanted for prefix in DOLLAR_PREFIX.findall(quote))
 
 
 # R2 · Sin instrucciones escondidas ------------------------------------------------------------------------------

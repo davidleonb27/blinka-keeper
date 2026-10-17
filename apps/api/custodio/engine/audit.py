@@ -36,7 +36,7 @@ from custodio.engine.units import as_utc, parse_amount, to_base
 SAME_AMOUNT = Decimal("0.005")
 HUNDRED = Decimal(100)
 TRUSTED_FIELDS = {"supplier_name": "proveedor", "amount": "monto", "currency": "moneda", "account_number": "cuenta"}
-CURRENCY_NAMED = re.compile(r"[A-Z]{3}|[A-Z]{1,3}\$")
+DOLLAR_PREFIXES = {"US": "USD", "R": "BRL", "MX": "MXN", "COL": "COP", "CLP": "CLP"}
 NEVER = datetime.min.replace(tzinfo=UTC)  # sorts a forged human payment without approval first
 
 
@@ -196,10 +196,22 @@ def _reading_problems(read: ExtractedInvoice, policy: Policy) -> list[str]:
     ]
     if parse_amount(read.amount.value) is None and "lectura no confiable (monto)" not in problems:
         problems.append("lectura no confiable (monto)")
-    quote = read.currency.evidence.quote if read.currency.evidence else ""
-    if "$" in quote and not CURRENCY_NAMED.search(quote):
+    if read.supplier_tax_id.value is not None and not _trusted(read.supplier_tax_id, policy.min_confidence):
+        problems.append("lectura no confiable (identificación fiscal)")
+    if _currency_unclear(read.currency):
         problems.append("moneda ambigua")
     return problems
+
+
+def _currency_unclear(field: ExtractedField) -> bool:
+    """«$» names a currency only next to the code that was read or that code's own prefix (US$, R$, MX$, COL$)."""
+    quote = field.evidence.quote.upper() if field.evidence else ""
+    if "$" not in quote:
+        return False
+    code = (field.value or "").strip().upper()
+    words = set(re.findall(r"[A-Z]+", quote))
+    prefixes = {DOLLAR_PREFIXES.get(word) for word in re.findall(r"([A-Z]+)\$", quote)}
+    return code not in words and code not in prefixes
 
 
 def _trusted(field: ExtractedField, minimum: Decimal) -> bool:
