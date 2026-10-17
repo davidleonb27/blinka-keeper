@@ -25,7 +25,7 @@ const RESPONSE = `{
     "invoice_id": "INV-A152B2C4C65D",
     "agent_verdict": "pay",
     "status": "paid_auto",
-    "explanation": "Se paga: cumple las 12 reglas…",
+    "explanation": "Se paga: cumple las 15 reglas…",
     "counterfactual": null,
     "rules": [ /* las quince reglas, en orden, con su razón */ ]
   },

@@ -119,6 +119,35 @@ function AutonomyChart({ overview }: { overview: TrustOverview }) {
   );
 }
 
+/** Earned or about-to-earn caps first; suppliers in supervision last. */
+function supplierRank(supplier: SupplierTrust): number {
+  if (supplier.supervised) return 2;
+  return supplier.has_history ? 0 : 1;
+}
+
+function bySupplierPromise(a: SupplierTrust, b: SupplierTrust): number {
+  return supplierRank(a) - supplierRank(b) || b.cap - a.cap || a.clean_needed - b.clean_needed;
+}
+
+/** Until some supplier has earned a cap there is nothing to see but defaults and revocations. */
+function anyTrustEarned(overview: TrustOverview): boolean {
+  return overview.suppliers.some((supplier) => supplier.timeline.some((step) => step.kind === "trust_raised"));
+}
+
+function SimulatePrompt({ onSimulate, pending }: { onSimulate: () => void; pending: boolean }) {
+  return (
+    <section aria-label="Simular un mes" className="card-surface mb-4 flex flex-col gap-3 p-5 sm:flex-row sm:items-center">
+      <p className="min-w-0 flex-1 text-ink-2">
+        <b className="font-semibold text-ink">Aún ningún proveedor se ganó un tope.</b> Simula un mes de facturas y mira cómo los
+        pagos limpios lo suben y una señal de riesgo lo revoca.
+      </p>
+      <Button onClick={onSimulate} disabled={pending} className="h-12 self-start px-6 text-base sm:self-center">
+        <PlayCircle aria-hidden /> {pending ? "Simulando…" : "Simular 30 días"}
+      </Button>
+    </section>
+  );
+}
+
 function SimulationNote({ result }: { result: SimulationResult }) {
   const currency = result.trust.base_currency;
   return (
@@ -134,6 +163,7 @@ export function AutonomyPage() {
   const trust = useTrust();
   const simulate = useSimulateMonth();
   const overview = trust.data;
+  const prompt = overview !== undefined && !anyTrustEarned(overview) && !simulate.data;
 
   return (
     <>
@@ -141,10 +171,13 @@ export function AutonomyPage() {
         title="Autonomía"
         subtitle="Cada proveedor se gana su tope de pago automático: pagos aprobados por una persona sin incidentes lo suben; una sola señal de riesgo lo devuelve a supervisión."
       >
-        <Button onClick={() => simulate.mutate()} disabled={simulate.isPending}>
-          <PlayCircle aria-hidden /> Simular 30 días
-        </Button>
+        {prompt ? null : (
+          <Button onClick={() => simulate.mutate()} disabled={simulate.isPending}>
+            <PlayCircle aria-hidden /> Simular 30 días
+          </Button>
+        )}
       </PageHeader>
+      {prompt ? <SimulatePrompt onSimulate={() => simulate.mutate()} pending={simulate.isPending} /> : null}
       <div aria-live="polite" className="mb-4 flex flex-col gap-2">
         {simulate.data ? <SimulationNote result={simulate.data} /> : null}
         {simulate.error ? <p className="rounded-xl bg-crit-weak px-3.5 py-3 text-[14px]">{messageOf(simulate.error)}</p> : null}
@@ -173,7 +206,7 @@ export function AutonomyPage() {
             <AutonomyChart overview={overview} />
           </section>
           <section aria-label="Proveedores" className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {overview.suppliers.map((supplier) => (
+            {overview.suppliers.toSorted(bySupplierPromise).map((supplier) => (
               <SupplierCard key={supplier.beneficiary_id} supplier={supplier} overview={overview} />
             ))}
           </section>

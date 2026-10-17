@@ -13,6 +13,7 @@ import type {
   StatementInput,
 } from "./client";
 import type { Policy } from "./contracts";
+import { markTourStep } from "@/lib/tour";
 import { browserWorkspaceStore, type WorkspaceStore } from "./workspace";
 
 const CHALLENGE_POLL_MS = 5_000;
@@ -158,17 +159,23 @@ export function useCompilePolicy() {
 export function useApplyPolicy() {
   const api = useApi();
   const invalidate = useInvalidateWorkspace();
-  return useMutation({ mutationFn: (policy: Policy) => api.applyPolicy(policy), onSuccess: invalidate });
+  return useMutation({
+    mutationFn: (policy: Policy) => api.applyPolicy(policy),
+    onSuccess: () => {
+      markTourStep("rule");
+      return invalidate();
+    },
+  });
 }
 
 export function useVerifyLedger() {
   const api = useApi();
-  return useMutation({ mutationFn: () => api.verifyLedger() });
+  return useMutation({ mutationFn: () => api.verifyLedger(), onSuccess: () => markTourStep("verify") });
 }
 
 export function useTamperDemo() {
   const api = useApi();
-  return useMutation({ mutationFn: () => api.tamperDemo() });
+  return useMutation({ mutationFn: () => api.tamperDemo(), onSuccess: () => markTourStep("verify") });
 }
 
 export function useSubmitChallenge() {
@@ -176,7 +183,10 @@ export function useSubmitChallenge() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (input: ChallengeInput) => api.submitChallengeAttempt(input),
-    onSuccess: () => client.invalidateQueries({ queryKey: queryKeys.challenge }),
+    onSuccess: () => {
+      markTourStep("steal");
+      return client.invalidateQueries({ queryKey: queryKeys.challenge });
+    },
   });
 }
 
@@ -216,7 +226,13 @@ export function useCompleteOnboarding(store: WorkspaceStore = browserWorkspaceSt
 export function useProcessInvoices() {
   const api = useApi();
   const invalidate = useInvalidateWorkspace();
-  return useMutation({ mutationFn: () => api.processInvoices(), onSuccess: invalidate });
+  return useMutation({
+    mutationFn: () => api.processInvoices(),
+    onSuccess: () => {
+      markTourStep("decide");
+      return invalidate();
+    },
+  });
 }
 
 export function useReconciliations() {
@@ -247,7 +263,13 @@ function useStoreReconciliation() {
 export function useReconcileStatement() {
   const api = useApi();
   const store = useStoreReconciliation();
-  return useMutation({ mutationFn: (input: StatementInput) => api.reconcileStatement(input), onSuccess: store });
+  return useMutation({
+    mutationFn: (input: StatementInput) => api.reconcileStatement(input),
+    onSuccess: (view: ReconciliationView) => {
+      markTourStep("reconcile");
+      return store(view);
+    },
+  });
 }
 
 export function useResolveMovement(id: string) {

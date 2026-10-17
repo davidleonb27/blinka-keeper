@@ -9,6 +9,7 @@ import { ErrorState, LoadingBlock } from "@/components/states";
 import { useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
 import { formatDate, formatMoney } from "@/lib/format";
 import { DecisionList } from "./decision-list";
+import { GuidedTour } from "./guided-tour";
 import { Overview } from "./overview";
 import { ReceivedInvoices } from "./received-invoices";
 import { decisionsByDay, statusTotals, type StatusFilter, type Total } from "./summarize";
@@ -74,11 +75,30 @@ export function Dashboard() {
 
   const base = summary.data.base_currency;
   const totals = statusTotals(decisions.data);
+  const pending = summary.data.pending_invoices;
+  const firstActa = decisions.data[0]?.decision.invoice_id ?? null;
+  const tour = <GuidedTour decided={decisions.data.length > 0} firstActa={firstActa} />;
+  if (decisions.data.length === 0 && pending > 0) {
+    // Before the first decision every metric reads zero; the one thing worth doing is deciding.
+    return (
+      <>
+        {header}
+        <div className="flex flex-col gap-4">
+          <ReceivedInvoices count={pending} first />
+          {tour}
+          <p className="text-[13px] text-ink-3">
+            Las métricas aparecen aquí en cuanto Custodio decida: pagos indebidos, autonomía y lo que espera tu aprobación.
+          </p>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       {header}
       <div className="flex flex-col gap-4">
-        {summary.data.pending_invoices > 0 ? <ReceivedInvoices count={summary.data.pending_invoices} /> : null}
+        {pending > 0 ? <ReceivedInvoices count={pending} /> : null}
+        {tour}
         <Overview summary={summary.data} pendingTotal={totals.pending.total} onShowPending={() => setFilter("pending")} />
         <section aria-label="Pagado, retenido y pendiente" className="grid grid-cols-3 gap-2 sm:gap-4">
           <TotalTile label="Pagado" total={totals.paid} tone="bg-pay" base={base} />

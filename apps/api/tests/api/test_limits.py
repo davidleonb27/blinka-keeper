@@ -106,3 +106,7 @@ def test_bodies_over_the_limit_are_refused_before_any_route(client: TestClient) 
 
     assert response.status_code == 413
     assert response.json()["code"] == "payload_too_large"
+
+
+def test_the_public_challenge_allows_thirty_attempts_a_minute_per_ip() -> None:
+    assert RateLimits().challenge_attempts_per_minute_per_ip == 30

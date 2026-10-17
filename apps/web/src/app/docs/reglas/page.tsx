@@ -37,7 +37,7 @@ export default function RulesPage() {
       </p>
       <DocTable>
         <table>
-          <caption>Las 12 reglas, en el orden en que se evalúan</caption>
+          <caption>Las 15 reglas, en el orden en que se evalúan</caption>
           <thead>
             <tr>
               <th scope="col">Regla</th>

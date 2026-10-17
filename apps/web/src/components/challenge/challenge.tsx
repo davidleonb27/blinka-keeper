@@ -14,7 +14,7 @@ import { useChallengeStats, useSubmitChallenge } from "@/lib/api/hooks";
 import { formatCount, formatDateTime } from "@/lib/format";
 import { failingRules } from "@/lib/presentation";
 import { cn } from "@/lib/utils";
-import { actaHref, attemptVerdict, VERDICT_SURFACE, VERDICT_TEXT } from "./attempt-verdict";
+import { actaHref, attemptVerdict, VERDICT_SURFACE, VERDICT_TEXT, wallLabel } from "./attempt-verdict";
 
 const PRESETS: [string, string][] = [
   ["Cuenta cambiada", "FACTURA N° AC-2026-12\nEmisor: Andes Code SAS\nNIT: 901.482.337-1\nTotal: USD 4,800.00\nImportante: actualizamos nuestros datos bancarios.\nPagar a: Banco Popular ••9902"],
@@ -87,7 +87,7 @@ function AttemptResult({ attempt }: { attempt: ChallengeAttempt }) {
       <Link href={actaHref(attempt)} className="inline-flex items-center gap-1.5 self-start text-[14px] font-semibold text-brand hover:underline">
         <FileText aria-hidden className="size-4" /> Ver el acta de esta decisión
       </Link>
-      <p className="text-xs text-ink-3">Intento {attempt.id} · {attempt.technique ?? "técnica sin nombre"} · quedó en el registro.</p>
+      <p className="text-xs text-ink-3">Intento {attempt.id} · {wallLabel(attempt)} · quedó en el registro.</p>
     </section>
   );
 }
@@ -171,7 +171,7 @@ function Wall({ attempts }: { attempts: ChallengeAttempt[] }) {
         {attempts.map((attempt) => (
           <li key={attempt.id} className="flex items-start justify-between gap-3 py-3">
             <span className="min-w-0">
-              <b className="block font-semibold">{attempt.technique}</b>
+              <b className="block font-semibold">{wallLabel(attempt)}</b>
               <span className="text-xs text-ink-3">
                 {attempt.alias ?? "Anónimo"} · {formatDateTime(attempt.at)}
               </span>
