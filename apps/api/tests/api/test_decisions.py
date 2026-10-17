@@ -31,9 +31,18 @@ def test_each_listed_decision_says_when_and_through_which_channel_its_invoice_ar
 
     first = client.get("/api/v1/decisions", headers=workspace.headers).json()[0]
 
-    assert set(first) == {"decision", "received_at", "source"}
+    assert set(first) == {"decision", "received_at", "source", "invoice_number"}
     assert first["received_at"].startswith("2026-10-10T09:00:00")
     assert first["source"] == "text"
+
+
+def test_each_listed_decision_carries_the_invoice_number_it_read(client: TestClient) -> None:
+    workspace = new_workspace(client)
+    process(client, workspace)
+
+    items = client.get("/api/v1/decisions", headers=workspace.headers).json()
+
+    assert all(item["invoice_number"] for item in items)
 
 
 def test_the_list_filters_by_status(client: TestClient) -> None:
