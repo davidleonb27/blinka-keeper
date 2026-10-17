@@ -273,11 +273,18 @@ def test_readme_names_the_team_the_license_and_ends_in_english() -> None:
     text = read("README.md")
     for name in ("Adriano Joao Souza Reyna", "Juan David Leon", "Leober Ramos"):
         assert name in text
-    assert "Apache 2.0" in text
+    assert "MIT" in text
     assert re.findall(r"^## (.+)$", text, re.MULTILINE)[-1] == "English summary"
     license_text = (REPO / "LICENSE").read_text(encoding="utf-8")
-    assert "Apache License" in license_text.splitlines()[1]
-    assert "Copyright 2026 Juan David Leon y colaboradores de Custodio" in license_text
+    assert license_text.startswith("MIT License")
+    assert "Copyright (c) 2026 DreamMakers (Adriano Joao Souza Reyna, Juan David Leon, Leober Ramos)" in license_text
+
+
+def test_every_license_field_and_the_contributing_guide_say_mit() -> None:
+    assert re.search(r'^license = "MIT"$', read("apps/api/pyproject.toml"), re.MULTILINE)
+    assert '"license": "MIT"' in read("apps/web/package.json")
+    assert "bajo la licencia MIT" in read("CONTRIBUTING.md")
+    assert "Apache" not in read("README.md") + read("CONTRIBUTING.md") + read("docs/SELF_HOSTING.md")
 
 
 @pytest.mark.parametrize(
@@ -359,6 +366,6 @@ def test_readme_opens_in_spanish_and_english_with_the_demo_self_hosting_and_lice
         "docker compose up --build",
         "vercel.com/new/clone",
         "actions/workflows/ci.yml/badge.svg",
-        "Apache 2.0",
+        "license-MIT",
     ):
         assert phrase in first_screen, phrase
