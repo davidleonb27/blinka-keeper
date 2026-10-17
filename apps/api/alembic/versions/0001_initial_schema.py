@@ -39,25 +39,6 @@ def upgrade() -> None:
         sa.UniqueConstraint("api_key_hash", name=op.f("uq_workspaces_api_key_hash")),
     )
     op.create_table(
-        "approval_tokens",
-        sa.Column("token_hash", sa.String(length=64), nullable=False),
-        sa.Column("workspace_id", sa.String(length=64), nullable=False),
-        sa.Column("invoice_id", sa.String(length=64), nullable=False),
-        sa.Column("action", sa.String(length=16), nullable=False),
-        sa.Column("approver", sa.String(length=120), nullable=False),
-        sa.Column("chat_id", sa.String(length=64), nullable=False),
-        sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("used_at", sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["workspace_id"],
-            ["workspaces.id"],
-            name=op.f("fk_approval_tokens_workspace_id_workspaces"),
-            ondelete="CASCADE",
-        ),
-        sa.PrimaryKeyConstraint("token_hash", name=op.f("pk_approval_tokens")),
-    )
-    op.create_index(op.f("ix_approval_tokens_workspace_id"), "approval_tokens", ["workspace_id"])
-    op.create_table(
         "approvals",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("workspace_id", sa.String(length=64), nullable=False),
@@ -223,7 +204,5 @@ def downgrade() -> None:
     op.drop_table("challenge_attempts")
     op.drop_index(op.f("ix_approvals_workspace_id"), table_name="approvals")
     op.drop_table("approvals")
-    op.drop_index(op.f("ix_approval_tokens_workspace_id"), table_name="approval_tokens")
-    op.drop_table("approval_tokens")
     op.drop_table("workspaces")
     op.drop_table("rate_counters")

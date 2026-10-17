@@ -11,7 +11,6 @@ TABLES = {
     "invoices",
     "decisions",
     "approvals",
-    "approval_tokens",
     "ledger_entries",
     "challenge_attempts",
     "redteam_runs",

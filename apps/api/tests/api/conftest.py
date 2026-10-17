@@ -16,9 +16,8 @@ from custodio.db import Database
 from custodio.services.context import RateLimits, Runtime
 from custodio.services.lanes import Lanes
 
-from .doubles import FakeAuditor, RecordingNotifier, fake_lanes
+from .doubles import FakeAuditor, fake_lanes
 
-WEBHOOK_SECRET = "webhook-secret-for-tests"
 GENEROUS = RateLimits(
     model_calls_per_minute_per_ip=1000,
     model_calls_per_minute_per_workspace=1000,
@@ -54,11 +53,6 @@ def lanes(auditor: FakeAuditor) -> Lanes:
 
 
 @pytest.fixture
-def notifier() -> RecordingNotifier:
-    return RecordingNotifier()
-
-
-@pytest.fixture
 def limits() -> RateLimits:
     return GENEROUS
 
@@ -83,17 +77,13 @@ def database(tmp_path: Path) -> Iterator[Database]:
 
 
 @pytest.fixture
-def runtime(
-    database: Database, lanes: Lanes, notifier: RecordingNotifier, clock: MutableClock, limits: RateLimits
-) -> Runtime:
+def runtime(database: Database, lanes: Lanes, clock: MutableClock, limits: RateLimits) -> Runtime:
     return Runtime(
         database=database,
         lanes=lanes,
-        notifier=notifier,
         clock=clock,
         limits=limits,
         public_base_url="https://custodio.test",
-        telegram_webhook_secret=WEBHOOK_SECRET,
     )
 
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -22,18 +21,17 @@ from custodio.api.routes import (
     onboarding,
     policy,
     redteam,
-    telegram,
     workspaces,
 )
 from custodio.config import get_settings
 from custodio.services.context import Runtime, production_runtime
 
 API_PREFIX = "/api/v1"
-ROUTERS = (health, workspaces, onboarding, policy, invoices, decisions, ledger, redteam, challenge, firewall, telegram)
+ROUTERS = (health, workspaces, onboarding, policy, invoices, decisions, ledger, redteam, challenge, firewall)
 
 
 def create_app(runtime: Runtime | None = None) -> FastAPI:
-    runtime = runtime or production_runtime(get_settings(), os.environ.get("TELEGRAM_BOT_TOKEN"))
+    runtime = runtime or production_runtime(get_settings())
     mcp = mcp_server.build(runtime)
     mcp_app = mcp.streamable_http_app(
         streamable_http_path=mcp_server.PATH,

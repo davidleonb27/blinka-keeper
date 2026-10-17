@@ -1,6 +1,6 @@
 """The single write path for invoices: receive → read → decide → audit → ledger.
 
-The screen, Telegram, the firewall, MCP, the public challenge and the red team all end in `decide`, so every surface
+The panel, the firewall, MCP, the public challenge and the red team all end in `decide`, so every surface
 gets the same rules, the same independent audit and the same ledger.
 """
 
@@ -29,7 +29,7 @@ from custodio.contracts import (
 )
 from custodio.db.models import DocumentRow, InvoiceRow, WorkspaceRow
 from custodio.llm import LLMError
-from custodio.services import approval_tokens, ledger_service, policy_service, records
+from custodio.services import ledger_service, policy_service, records
 from custodio.services.context import ServiceContext
 from custodio.services.errors import ModelUnavailable, PayloadTooLarge, UnsupportedMediaType
 from custodio.services.workspace_service import new_id, received_payload
@@ -109,8 +109,6 @@ def decide(
     final = _attach_approvals(_apply_stops(batch, stopped), approvals or {})
     for decision in final.decisions:
         _record(ctx, workspace.id, decision, (approvals or {}).get(decision.invoice_id), decision.invoice_id in stopped)
-    pending = [d for d in final.decisions if d.status is DecisionStatus.PENDING_APPROVAL]
-    approval_tokens.request_approvals(ctx, workspace, policy, pending)
     return Outcome(batch=final, audit=report, vetoed=sorted(stopped))
 
 

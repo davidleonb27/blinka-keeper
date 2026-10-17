@@ -135,19 +135,6 @@ class ApprovalRow(Base):
     at: Mapped[datetime]
 
 
-class ApprovalTokenRow(Base):
-    __tablename__ = "approval_tokens"
-
-    token_hash: Mapped[str] = mapped_column(HASH, primary_key=True)
-    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
-    invoice_id: Mapped[str] = mapped_column(ID)
-    action: Mapped[str] = mapped_column(String(16))
-    approver: Mapped[str] = mapped_column(String(120))
-    chat_id: Mapped[str] = mapped_column(String(64))
-    expires_at: Mapped[datetime]
-    used_at: Mapped[datetime | None]
-
-
 class LedgerEntryRow(Base):
     __tablename__ = "ledger_entries"
     __table_args__ = (UniqueConstraint("workspace_id", "seq"),)

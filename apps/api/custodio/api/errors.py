@@ -16,10 +16,8 @@ logger = logging.getLogger(__name__)
 STATUS_BY_ERROR: dict[type[errors.ServiceError], int] = {
     errors.WorkspaceHeaderMissing: 400,
     errors.InvalidApiKey: 401,
-    errors.WebhookForbidden: 403,
     errors.NotFound: 404,
     errors.DecisionNotPending: 409,
-    errors.InvalidApprovalToken: 409,
     errors.PayloadTooLarge: 413,
     errors.UnsupportedMediaType: 415,
     errors.PolicyInvalid: 422,

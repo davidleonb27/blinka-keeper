@@ -54,7 +54,6 @@ from custodio.contracts import (
 )
 from custodio.llm import LLMError
 from custodio.services.lanes import Lanes
-from custodio.services.notifier import ApprovalRequest
 from custodio.services.triage import AttackTriage
 
 GENESIS = "0" * 64
@@ -571,17 +570,3 @@ def fake_lanes(auditor: FakeAuditor | None = None) -> Lanes:
         red_team=red_team,
         triage_attack=triage_attack,
     )
-
-
-@dataclass
-class RecordingNotifier:
-    """Keeps every Telegram message instead of sending it."""
-
-    requests: list[ApprovalRequest] = field(default_factory=list)
-    answers: list[str] = field(default_factory=list)
-
-    def send_approval_request(self, request: ApprovalRequest) -> None:
-        self.requests.append(request)
-
-    def answer_callback(self, callback_id: str, text: str) -> None:
-        self.answers.append(text)

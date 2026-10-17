@@ -45,11 +45,6 @@ class DecisionNotPending(ServiceError):
     message = "Esta decisión ya no está esperando aprobación."
 
 
-class InvalidApprovalToken(ServiceError):
-    code = "invalid_approval_token"
-    message = "Este botón ya se usó o expiró. Revisa el acta en el panel."
-
-
 class PolicyInvalid(ServiceError):
     code = "policy_invalid"
 
@@ -97,8 +92,3 @@ class ReadingUnavailable(ServiceError):
 class WorkspaceHeaderMissing(ServiceError):
     code = "workspace_header_missing"
     message = "Falta la cabecera X-Custodio-Workspace."
-
-
-class WebhookForbidden(ServiceError):
-    code = "webhook_forbidden"
-    message = "Esta llamada no viene de Telegram."

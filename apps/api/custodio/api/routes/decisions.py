@@ -48,16 +48,12 @@ def read_acta(invoice_id: str, ctx: Services, workspace: CurrentWorkspace) -> Ac
 
 @router.post("/{invoice_id}/approve", response_model=Decision)
 def approve(invoice_id: str, body: ApprovalBody, ctx: Services, workspace: CurrentWorkspace) -> Decision:
-    return approval_service.decide(
-        ctx, workspace, invoice_id, "approved", approver=body.approver, channel="web", note=body.note
-    )
+    return approval_service.decide(ctx, workspace, invoice_id, "approved", approver=body.approver, note=body.note)
 
 
 @router.post("/{invoice_id}/reject", response_model=Decision)
 def reject(invoice_id: str, body: ApprovalBody, ctx: Services, workspace: CurrentWorkspace) -> Decision:
-    return approval_service.decide(
-        ctx, workspace, invoice_id, "rejected", approver=body.approver, channel="web", note=body.note
-    )
+    return approval_service.decide(ctx, workspace, invoice_id, "rejected", approver=body.approver, note=body.note)
 
 
 class Narrative(BaseModel):
