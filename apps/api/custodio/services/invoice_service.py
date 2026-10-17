@@ -182,12 +182,16 @@ def _unread(document_id: str, source: InvoiceSource, visible_text: str) -> Extra
 def _stopped_payments(batch: BatchResult, report: AuditReport) -> dict[str, str]:
     """Payments that do not go out, with the reason the acta shows.
 
-    The auditor's rejections win; if it cannot say which payment it rejects, none of the batch's payments go out. As a
-    last guard of the invariant, a payment whose own acta shows a failing hold rule never goes out either.
+    The auditor's rejections win; if it cannot say which payment it rejects, or objects to the batch as a whole (a
+    critical finding on no payment of the batch, e.g. the reserve), none of the batch's payments go out. As a last guard
+    of the invariant, a payment whose own acta shows a failing hold rule never goes out either.
     """
     paid = [d for d in batch.decisions if d.status in records.PAID]
-    findings = {f.invoice_id: f.message for f in report.findings if f.severity == "critical"}
-    unattributed = report.improper_payments > sum(d.invoice_id in findings for d in paid)
+    paid_ids = {d.invoice_id for d in paid}
+    critical = [f for f in report.findings if f.severity == "critical"]
+    findings = {f.invoice_id: f.message for f in critical if f.invoice_id in paid_ids}
+    on_the_batch = any(f.invoice_id not in paid_ids for f in critical)
+    unattributed = on_the_batch or report.improper_payments > len(findings)
     stopped: dict[str, str] = {}
     for decision in paid:
         failing_holds = [r.label for r in decision.rules if r.outcome is RuleOutcome.HOLD]
