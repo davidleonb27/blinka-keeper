@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { messageOf } from "@/lib/api/errors";
 import { useHealth } from "@/lib/api/hooks";
 import { API_BASE } from "@/lib/api/live-client";
+import { RAIL_LABEL, RAIL_PITCH } from "@/lib/presentation";
 import { browserWorkspaceStore } from "@/lib/api/workspace";
 import { CodeBlock } from "./code-block";
 
@@ -77,7 +78,7 @@ function ApiStatus() {
   const health = useHealth();
   if (health.error) return <p className="text-[13px] text-crit">API sin respuesta: {messageOf(health.error)}</p>;
   if (!health.data) return <p className="text-[13px] text-ink-3">Consultando la API…</p>;
-  const { status, version, anthropic } = health.data;
+  const { status, version, anthropic, payment_rail } = health.data;
   return (
     <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-2">
       <span className="inline-flex items-center gap-1.5 font-semibold text-pay">
@@ -85,6 +86,7 @@ function ApiStatus() {
       </span>
       <span>versión {version}</span>
       <span>{anthropic ? "Lectura con modelo configurada" : "Lectura con modelo sin configurar"}</span>
+      <span>Riel de pago: {RAIL_LABEL[payment_rail]}</span>
     </p>
   );
 }
@@ -104,6 +106,7 @@ export function DevelopersPage() {
         title="Desarrolladores"
         subtitle="Custodio es un firewall de pagos: cualquier agente, de tu ERP o de Claude, envía una intención de pago y recibe la misma decisión que una factura subida, con su acta."
       />
+      <p className="-mt-2 mb-4 max-w-[70ch] text-[13.5px] text-ink-2">{RAIL_PITCH}</p>
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <section className="card-surface flex flex-col gap-3 p-5 xl:col-span-2" aria-labelledby="key-title">
           <h2 id="key-title" className="flex items-center gap-2 font-semibold">
@@ -130,6 +133,7 @@ export function DevelopersPage() {
           </h2>
           <p className="text-[13.5px] text-ink-2">
             Mismas doce reglas, mismo auditor y mismo registro que una factura subida. El texto del documento nunca autoriza nada.
+            El firewall responde; el pago lo hace el agente que pregunta, con su propio riel.
           </p>
           <CodeBlock label="Petición" code={firewallExample(base, shownKey)} copyText={firewallExample(base, key)} />
           <CodeBlock label="Respuesta" code={RESPONSE_EXAMPLE} />

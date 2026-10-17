@@ -79,6 +79,12 @@ export function useHumanDecision(invoiceId: string) {
   });
 }
 
+export function useRetryPayment(invoiceId: string) {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({ mutationFn: () => api.executePayment(invoiceId), onSuccess: invalidate });
+}
+
 export function useCompilePolicy() {
   const api = useApi();
   return useMutation({

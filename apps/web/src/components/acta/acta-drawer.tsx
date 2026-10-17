@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ErrorState, LoadingBlock } from "@/components/states";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { messageOf } from "@/lib/api/errors";
-import { useDecision, useHumanDecision, usePolicy } from "@/lib/api/hooks";
+import { useDecision, useHumanDecision, usePolicy, useRetryPayment } from "@/lib/api/hooks";
 import { STATUS_META } from "@/lib/presentation";
 import { Acta } from "./acta";
 
@@ -15,6 +15,7 @@ function ActaContent({ invoiceId }: { invoiceId: string }) {
   const detail = useDecision(invoiceId);
   const policy = usePolicy();
   const decide = useHumanDecision(invoiceId);
+  const retry = useRetryPayment(invoiceId);
 
   if (detail.error || policy.error) {
     return <ErrorState error={detail.error ?? policy.error} onRetry={() => void detail.refetch()} />;
@@ -30,7 +31,25 @@ function ActaContent({ invoiceId }: { invoiceId: string }) {
       },
     );
 
-  return <Acta detail={detail.data} policy={policy.data} onDecide={onDecide} deciding={decide.isPending} />;
+  const onRetryPayment = () =>
+    retry.mutate(undefined, {
+      onSuccess: (decision) =>
+        decision.execution?.status === "failed"
+          ? toast.error(decision.execution.error ?? `${invoiceId}: el pago no salió.`)
+          : toast.success(`${invoiceId}: pago ejecutado.`),
+      onError: (error) => toast.error(messageOf(error)),
+    });
+
+  return (
+    <Acta
+      detail={detail.data}
+      policy={policy.data}
+      onDecide={onDecide}
+      deciding={decide.isPending}
+      onRetryPayment={onRetryPayment}
+      retryingPayment={retry.isPending}
+    />
+  );
 }
 
 /** The acta opens from ?acta=<invoice id>, so a shared link lands on it directly. */

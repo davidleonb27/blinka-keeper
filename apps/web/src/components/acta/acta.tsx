@@ -10,6 +10,7 @@ import { formatDate, formatDateTime, shortHash } from "@/lib/format";
 import { amountText, baseAmountText, supplierText } from "@/lib/presentation";
 import { ExtractedFields } from "./extracted-fields";
 import { OriginalDocument } from "./original-document";
+import { PaymentExecutionBlock } from "./payment-execution";
 import { RuleList } from "./rule-list";
 
 export interface ActaProps {
@@ -17,6 +18,8 @@ export interface ActaProps {
   policy: Pick<Policy, "approvers" | "min_confidence" | "base_currency">;
   onDecide: (approve: boolean, approver: string) => void;
   deciding: boolean;
+  onRetryPayment: () => void;
+  retryingPayment: boolean;
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -50,7 +53,7 @@ function ActaHeader({ detail, baseCurrency }: { detail: DecisionDetail; baseCurr
   );
 }
 
-function ApprovalActions({ policy, onDecide, deciding }: Omit<ActaProps, "detail">) {
+function ApprovalActions({ policy, onDecide, deciding }: Pick<ActaProps, "policy" | "onDecide" | "deciding">) {
   const selectId = useId();
   const names = policy.approvers.map((a) => a.name);
   const [approver, setApprover] = useState(names[0] ?? "");
@@ -79,7 +82,7 @@ function ApprovalActions({ policy, onDecide, deciding }: Omit<ActaProps, "detail
   );
 }
 
-export function Acta({ detail, policy, onDecide, deciding }: ActaProps) {
+export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retryingPayment }: ActaProps) {
   const [activeField, setActiveField] = useState<ExtractedFieldName | null>(null);
   const { decision, extraction, ledger } = detail;
   const paid = decision.agent_verdict === "pay";
@@ -102,6 +105,8 @@ export function Acta({ detail, policy, onDecide, deciding }: ActaProps) {
           </p>
         ) : null}
       </Section>
+
+      <PaymentExecutionBlock decision={decision} onRetry={onRetryPayment} retrying={retryingPayment} />
 
       {decision.counterfactual ? (
         <Section title={paid ? "Qué habría cambiado la decisión" : "Qué tendría que cambiar"}>
