@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Beneficiary, Policy } from "@/lib/api/contracts";
 import { messageOf } from "@/lib/api/errors";
-import { useApplyPolicy, useImportSuppliers, usePolicy } from "@/lib/api/hooks";
-import { planAdditions, supplierFromForm, withAdditions, type SupplierFields } from "./additions";
+import { useAddSuppliers, useImportSuppliers, usePolicy } from "@/lib/api/hooks";
+import { planAdditions, supplierFromForm, type SupplierFields } from "./additions";
 
 const EMPTY_FORM: SupplierFields = { name: "", tax_id: "", bank_name: "", account_number: "" };
 const FORM_FIELDS: { field: keyof SupplierFields; label: string; placeholder: string }[] = [
@@ -89,12 +89,12 @@ function CsvImport({ onAdd }: { onAdd: (suppliers: Beneficiary[], warnings: stri
 }
 
 function Preview({ policy, candidates, onClear }: { policy: Policy; candidates: Beneficiary[]; onClear: () => void }) {
-  const apply = useApplyPolicy();
+  const apply = useAddSuppliers();
   const plan = planAdditions(policy, candidates);
   if (!candidates.length) return null;
   const count = plan.added.length;
   const save = () =>
-    apply.mutateAsync(withAdditions(policy, plan.added)).then(
+    apply.mutateAsync(plan.added).then(
       (applied) => {
         toast.success(`${count === 1 ? "Se agregó 1 proveedor" : `Se agregaron ${count} proveedores`}. La política v${applied.version} quedó en el registro.`);
         onClear();

@@ -70,8 +70,3 @@ export function planAdditions(policy: Policy, candidates: Beneficiary[]): Additi
   }
   return plan;
 }
-
-/** The policy with the new suppliers appended; everything else, existing suppliers included, stays as it was. */
-export function withAdditions(policy: Policy, added: Beneficiary[]): Policy {
-  return { ...policy, beneficiaries: [...policy.beneficiaries, ...added] };
-}

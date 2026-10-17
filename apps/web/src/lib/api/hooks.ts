@@ -13,7 +13,7 @@ import type {
   ResolveInput,
   StatementInput,
 } from "./client";
-import type { Policy } from "./contracts";
+import type { Beneficiary, Policy } from "./contracts";
 import { browserWorkspaceStore, type WorkspaceStore } from "./workspace";
 
 const CHALLENGE_POLL_MS = 5_000;
@@ -160,6 +160,12 @@ export function useApplyPolicy() {
   const api = useApi();
   const invalidate = useInvalidateWorkspace();
   return useMutation({ mutationFn: (policy: Policy) => api.applyPolicy(policy), onSuccess: invalidate });
+}
+
+export function useAddSuppliers() {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({ mutationFn: (beneficiaries: Beneficiary[]) => api.addSuppliers(beneficiaries), onSuccess: invalidate });
 }
 
 export function useVerifyLedger() {

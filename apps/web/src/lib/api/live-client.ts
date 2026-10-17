@@ -147,6 +147,7 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
     getPolicy: () => call("get", "/api/v1/policy"),
     compilePolicy: (text, base) => call("post", "/api/v1/policy/compile", { json: { text, base: base ?? null } }),
     applyPolicy: (policy) => call("put", "/api/v1/policy", { json: policy }),
+    addSuppliers: (beneficiaries) => call("post", "/api/v1/policy/beneficiaries", { json: { beneficiaries } }),
     getLedger: () => call("get", "/api/v1/ledger"),
     verifyLedger: () => call("get", "/api/v1/ledger/verify"),
     tamperDemo: () => call("post", "/api/v1/ledger/tamper-demo", { json: {} }),

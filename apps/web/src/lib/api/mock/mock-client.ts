@@ -350,6 +350,8 @@ respond(() => decided().map(listItemOf)),
         2,
       ),
     applyPolicy: (policy) => respond(() => applyPolicy(policy)),
+    addSuppliers: (beneficiaries) =>
+      respond(() => applyPolicy({ ...workspace.data.policy, beneficiaries: [...workspace.data.policy.beneficiaries, ...beneficiaries] })),
     getLedger: () => respond(() => workspace.data.ledger),
     verifyLedger: () => respond(() => verifyChain(workspace.data.ledger)),
     tamperDemo: () => respond(tamperDemo),

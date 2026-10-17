@@ -124,6 +124,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/policy/beneficiaries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Beneficiaries
+         * @description Only appends suppliers: one that matches a registered supplier is refused, so its bank details never change.
+         */
+        post: operations["add_beneficiaries_api_v1_policy_beneficiaries_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/policy/compile": {
         parameters: {
             query?: never;
@@ -1304,6 +1324,11 @@ export interface components {
             /** Narrative */
             narrative: string;
         };
+        /** NewBeneficiaries */
+        NewBeneficiaries: {
+            /** Beneficiaries */
+            beneficiaries: components["schemas"]["Beneficiary-Input"][];
+        };
         /** OnboardingRequest */
         OnboardingRequest: {
             profile: components["schemas"]["CompanyProfile"];
@@ -2440,6 +2465,41 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["Policy-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Policy-Output"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_beneficiaries_api_v1_policy_beneficiaries_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewBeneficiaries"];
             };
         };
         responses: {

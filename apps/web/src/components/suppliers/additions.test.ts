@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEMO } from "@/lib/api/mock/dataset";
-import { planAdditions, supplierFromForm, withAdditions } from "./additions";
+import { planAdditions, supplierFromForm } from "./additions";
 
 const POLICY = DEMO.policy;
 const [KNOWN] = POLICY.beneficiaries;
@@ -47,14 +47,5 @@ describe("planAdditions", () => {
   it("gives a new supplier an id no existing one has", () => {
     const clash = { ...NEW, id: KNOWN.id };
     expect(planAdditions(POLICY, [clash]).added[0].id).not.toBe(KNOWN.id);
-  });
-});
-
-describe("withAdditions", () => {
-  it("appends the new suppliers and keeps every existing one exactly as it was", () => {
-    const next = withAdditions(POLICY, [NEW]);
-    expect(next.beneficiaries.slice(0, POLICY.beneficiaries.length)).toEqual(POLICY.beneficiaries);
-    expect(next.beneficiaries.at(-1)).toEqual(NEW);
-    expect({ ...next, beneficiaries: [] }).toEqual({ ...POLICY, beneficiaries: [] });
   });
 });

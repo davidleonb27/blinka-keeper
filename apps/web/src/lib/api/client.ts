@@ -3,7 +3,7 @@
  * client (prototype dataset, in memory). Every request and response type comes from the OpenAPI document of the
  * API (schema.gen.ts), keyed by route and method, so a drift on either side fails tsc instead of production.
  */
-import type { CompanyProfile, Decision, LedgerEntry, Policy, PolicyProposal, RedTeamEvent, SupplierImport } from "./contracts";
+import type { Beneficiary, CompanyProfile, Decision, LedgerEntry, Policy, PolicyProposal, RedTeamEvent, SupplierImport } from "./contracts";
 import type { components, paths } from "./schema.gen";
 
 type Schemas = components["schemas"];
@@ -100,6 +100,8 @@ export interface CustodioApi {
   /** Compiles against `base` when given (onboarding draft), otherwise the workspace policy. */
   compilePolicy(text: string, base?: Policy): Promise<PolicyProposal>;
   applyPolicy(policy: Policy): Promise<Policy>;
+  /** Appends new suppliers; the server refuses one that matches a registered supplier. */
+  addSuppliers(beneficiaries: Beneficiary[]): Promise<Policy>;
   getLedger(): Promise<LedgerEntry[]>;
   verifyLedger(): Promise<ResponseOf<"/api/v1/ledger/verify", "get">>;
   tamperDemo(): Promise<TamperDemoResult>;
