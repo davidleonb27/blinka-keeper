@@ -1,3 +1,4 @@
+import type { Acta } from "../client";
 import type {
   AuditReport,
   Decision,
@@ -55,4 +56,14 @@ export function freshDemo(): DemoDataset {
     if (PAID.has(item.decision.status)) item.decision.execution ??= simulatedExecution(item.received_at);
   }
   return demo;
+}
+
+/** The acta the API serves for a decided invoice: the decision, the invoice as read and its ledger entries. */
+export function actaOf({ decision, received_at, extraction }: DemoItem, ledger: readonly LedgerEntry[]): Acta {
+  const id = decision.invoice_id;
+  return {
+    decision,
+    invoice: { id, received_at, document_id: null, status: "decided", read_ok: true, extraction },
+    ledger: ledger.filter((entry) => entry.subject_id === id),
+  };
 }

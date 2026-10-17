@@ -2,7 +2,7 @@ import { render as renderComponent, screen, within } from "@testing-library/reac
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { PaymentExecution } from "@/lib/api/contracts";
-import { DEMO } from "@/lib/api/mock/dataset";
+import { actaOf, DEMO } from "@/lib/api/mock/dataset";
 import { Acta } from "./acta";
 
 const SENT: PaymentExecution = {
@@ -25,7 +25,7 @@ const FAILED: PaymentExecution = {
 function demoItem(id: string) {
   const item = DEMO.items.find((i) => i.decision.invoice_id === id);
   if (!item) throw new Error(`missing ${id}`);
-  return item;
+  return actaOf(item, DEMO.ledger);
 }
 
 function paidWith(execution: PaymentExecution) {
@@ -73,7 +73,7 @@ describe("Acta", () => {
     const item = demoItem("F-020");
     render(item);
 
-    expect(screen.getByText(`Asiento #${item.ledger?.seq}`)).toBeInTheDocument();
+    expect(screen.getByText(`Asiento #${item.ledger.at(-1)?.seq}`)).toBeInTheDocument();
   });
 
   it("lets a person approve or reject a pending invoice", async () => {

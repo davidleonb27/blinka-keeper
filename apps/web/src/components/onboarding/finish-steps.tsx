@@ -9,8 +9,6 @@ import { StatusPill } from "@/components/status-pill";
 import { Button } from "@/components/ui/button";
 import { messageOf } from "@/lib/api/errors";
 import { useCompleteOnboarding } from "@/lib/api/hooks";
-import { browserWorkspaceStore } from "@/lib/api/workspace";
-import { formatDate } from "@/lib/format";
 import { amountText, mainReason, supplierText } from "@/lib/presentation";
 import type { StepProps } from "./basic-steps";
 import { StepFrame } from "./step-frame";
@@ -26,22 +24,17 @@ export function SimulationStep({ answers, update, frame }: StepProps) {
 
   useEffect(() => {
     if (result || status !== "idle") return;
-    mutate(onboardingRequest(answers), {
-      onSuccess: (done) => {
-        browserWorkspaceStore.write(done);
-        update({ result: done });
-      },
-    });
+    mutate(onboardingRequest(answers), { onSuccess: (done) => update({ result: done }) });
   }, [answers, mutate, result, status, update]);
 
-  const metrics = result?.metrics;
+  const metrics = result?.first_week.metrics;
   return (
     <StepFrame
       {...frame}
       busy={!result && !complete.error}
       busyLabel="Decidiendo tu primera semana…"
       title="Tu primera semana, decidida"
-      helper="Custodio pasó una semana de facturas de ejemplo por tus reglas, con trampas incluidas. Así se habría comportado."
+      helper="Custodio pasó por tus reglas una factura de cada proveedor con acuerdo, tal como se pactó. Así se habría comportado; nada de esto se pagó."
     >
       {complete.error ? <p className="text-[13.5px] text-crit">{messageOf(complete.error)}</p> : null}
       {result && metrics ? (
@@ -54,23 +47,21 @@ export function SimulationStep({ answers, update, frame }: StepProps) {
             </span>
           </p>
           <ul className="card-surface divide-y divide-line p-1.5">
-            {result.first_week.map((item, index) => (
+            {result.first_week.decisions.map((decision, index) => (
               <motion.li
-                key={item.decision.invoice_id}
+                key={decision.invoice_id}
                 initial={reduceMotion ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * STAGGER_S }}
                 className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-3 py-2.5"
               >
                 <span className="min-w-0">
-                  <b className="block truncate font-semibold">{supplierText(item.decision)}</b>
-                  <span className="block truncate text-[12.5px] text-ink-3">
-                    {mainReason(item.decision)} · {formatDate(item.received_at)}
-                  </span>
+                  <b className="block truncate font-semibold">{supplierText(decision)}</b>
+                  <span className="block truncate text-[12.5px] text-ink-3">{mainReason(decision)}</span>
                 </span>
                 <span className="flex flex-col items-end gap-1">
-                  <span className="text-[13px] font-semibold tabular">{amountText(item.decision)}</span>
-                  <StatusPill status={item.decision.status} />
+                  <span className="text-[13px] font-semibold tabular">{amountText(decision)}</span>
+                  <StatusPill status={decision.status} />
                 </span>
               </motion.li>
             ))}

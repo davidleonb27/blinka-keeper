@@ -27,10 +27,21 @@ function statusLabel(status: unknown): string | null {
   return isDecisionStatus(status) ? STATUS_META[status].label : null;
 }
 
+function textOf(value: unknown): string | null {
+  return typeof value === "string" && value ? value : null;
+}
+
+function approverOf(approval: unknown): string | null {
+  return approval && typeof approval === "object" && "approver" in approval ? textOf(approval.approver) : null;
+}
+
+/** Who and what, from the payload fields the API writes for each kind of entry. */
 function payloadSummary(entry: LedgerEntry): string {
-  const { actor, summary, status } = entry.payload;
-  const detail = typeof summary === "string" ? summary : statusLabel(status);
-  return [actor, detail].filter((part): part is string => typeof part === "string").join(" · ");
+  const { actor, summary, status, supplier, invoice_number: number, version, approval } = entry.payload;
+  const who = textOf(actor) ?? approverOf(approval) ?? textOf(supplier);
+  const what =
+    textOf(summary) ?? statusLabel(status) ?? textOf(number) ?? (typeof version === "number" ? `versión ${version}` : null);
+  return [who, what].filter((part): part is string => part !== null).join(" · ");
 }
 
 function VerificationBanner({ result, copy }: { result: LedgerVerification; copy: boolean }) {
@@ -108,7 +119,7 @@ export function LedgerPage() {
         </div>
         <div aria-live="polite" className="flex flex-col gap-2">
           {verify.data ? <VerificationBanner result={verify.data} copy={false} /> : null}
-          {tamper.data ? <VerificationBanner result={tamper.data.verification} copy /> : null}
+          {tamper.data ? <VerificationBanner result={tamper.data.tampered} copy /> : null}
           {verify.error || tamper.error ? <p role="alert" className="text-crit">{messageOf(verify.error ?? tamper.error)}</p> : null}
         </div>
         <p className="text-[12.5px] text-ink-3">
@@ -118,7 +129,7 @@ export function LedgerPage() {
       {ledger.error ? <ErrorState error={ledger.error} onRetry={() => void ledger.refetch()} /> : null}
       {ledger.data ? (
         <section className="card-surface p-2 sm:p-3" aria-label="Asientos del registro">
-          <LedgerTable entries={ledger.data} brokenSeq={tamper.data?.tampered_seq ?? null} />
+          <LedgerTable entries={ledger.data} brokenSeq={tamper.data?.altered_seq ?? null} />
         </section>
       ) : !ledger.error ? (
         <LoadingBlock className="h-72" />

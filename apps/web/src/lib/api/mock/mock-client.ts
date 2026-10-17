@@ -5,7 +5,6 @@
  * engine: the decisions were computed by the prototype ahead of time.
  */
 import type {
-  Acta,
   ApprovalInput,
   CustodioApi,
   OnboardingRequest,
@@ -29,7 +28,7 @@ import type {
 import { InvalidRequestError, NotFoundError } from "../errors";
 import { formatMoney } from "../../format";
 import { initialChallengeStats, judgeAttempt, recordAttempt } from "./challenge";
-import { DEMO, freshDemo, simulatedExecution, type DemoDataset, type DemoItem } from "./dataset";
+import { actaOf, DEMO, freshDemo, simulatedExecution, type DemoDataset, type DemoItem } from "./dataset";
 import { appendEntry, verifyChain } from "./ledger";
 import { importMockSuppliers, simulateFirstWeek } from "./onboarding";
 import { compilePolicyText } from "./policy-compiler";
@@ -195,15 +194,6 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
     };
   }
 
-  function acta(invoiceId: string): Acta {
-    const { decision, received_at, extraction } = findItem(invoiceId);
-    return {
-      decision,
-      invoice: { id: invoiceId, received_at, document_id: null, status: "decided", read_ok: true, extraction },
-      ledger: workspace.data.ledger.filter((entry) => entry.subject_id === invoiceId),
-    };
-  }
-
   function settle(item: DemoItem, input: ApprovalInput, approved: boolean): Decision {
     const { decision } = item;
     const { company, policy } = workspace.data;
@@ -333,7 +323,7 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
     processInvoices: () => respond(processInvoices, 2),
     listDecisions: () =>
       respond(() => decided().map(({ decision, received_at, source }) => ({ decision, received_at, source }))),
-    getDecision: (id) => respond(() => acta(id)),
+    getDecision: (id) => respond(() => actaOf(findItem(id), workspace.data.ledger)),
     approveDecision: (id, input) => respond(() => decide(id, input, true)),
     rejectDecision: (id, input) => respond(() => decide(id, input, false)),
     executePayment: (id) => respond(() => executePayment(id)),

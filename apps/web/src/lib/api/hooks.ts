@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "@/components/providers/api-provider";
 import type { ApprovalInput, ChallengeInput, OnboardingRequest, ProfileRequest } from "./client";
 import type { Policy } from "./contracts";
+import { browserWorkspaceStore, type WorkspaceStore } from "./workspace";
 
 const CHALLENGE_POLL_MS = 5_000;
 
@@ -127,11 +128,24 @@ export function useImportSuppliers() {
   return useMutation({ mutationFn: (file: File) => api.importSuppliers(file) });
 }
 
-export function useCompleteOnboarding() {
+/**
+ * The new company gets a blank workspace of its own (the visitor's demo keeps its invoices out of it); the browser
+ * switches to it before the API sets it up.
+ */
+export function useCompleteOnboarding(store: WorkspaceStore = browserWorkspaceStore) {
   const api = useApi();
   const invalidate = useInvalidateWorkspace();
   return useMutation({
-    mutationFn: (request: OnboardingRequest) => api.completeOnboarding(request),
+    mutationFn: async (request: OnboardingRequest) => {
+      store.write(await api.createWorkspace("blank"));
+      return api.completeOnboarding(request);
+    },
     onSuccess: invalidate,
   });
+}
+
+export function useProcessInvoices() {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({ mutationFn: () => api.processInvoices(), onSuccess: invalidate });
 }
