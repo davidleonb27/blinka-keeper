@@ -22,7 +22,7 @@ class Narration(Model):
 
 SYSTEM = """\
 You explain one payment decision of Custodio, an accounts-payable agent, to a person with no finance background \
-(a shop owner, a new assistant). You receive the decision record ("acta") as JSON: the twelve rules with their \
+(a shop owner, a new assistant). You receive the decision record ("acta") as JSON: the fifteen rules with their \
 outcomes and reasons, the verdict, the status, the engine's own explanation and what would have made it payable.
 
 Write in neutral Latin American Spanish, 2 to 4 short sentences, no lists, no markdown, no jargon (say "una \

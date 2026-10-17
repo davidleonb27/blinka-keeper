@@ -29,7 +29,7 @@ Custodio va **delante** de cada pago de Blinka. No mueve dinero: decide si un pa
 persona, y deja un acta que explica por qué. Blinka sigue siendo quien paga.
 
 ```
-factura, agente o ERP ──▶ Custodio: el modelo lee, 12 reglas en código deciden, un auditor recalcula
+factura, agente o ERP ──▶ Custodio: el modelo lee, 15 reglas en código deciden, un auditor recalcula
                                 │
                  pagar ─────────┼───────── retener / escalar
                    │                              │
@@ -42,7 +42,7 @@ Dos formas de conectarlo:
 
 1. **Firewall por API o MCP.** El agente de Blinka (o el del cliente) envía una intención de pago a
    `POST /api/v1/firewall/intents` o por el servidor MCP (`submit_payment_intent`) y recibe `pay`, `hold` o `escalate`
-   con las 12 reglas, el enlace al acta y el hash en el registro. Blinka sólo ejecuta lo que vuelve `pay`. No hay que
+   con las 15 reglas, el enlace al acta y el hash en el registro. Blinka sólo ejecuta lo que vuelve `pay`. No hay que
    tocar el flujo de pagos de Blinka.
 2. **Integrado, como riel.** Custodio decide y entrega el pago a Blinka por su API. Ya existe el adaptador
    (`apps/api/custodio/payments/blinka.py`, riel `blinka_simulated`): elige la red por moneda y país del beneficiario y

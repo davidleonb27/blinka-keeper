@@ -29,6 +29,7 @@ from custodio.contracts import (
     RuleOutcome,
 )
 from custodio.db.models import DocumentRow, InvoiceRow, WorkspaceRow
+from custodio.engine.domains import first_email
 from custodio.llm import LLMError
 from custodio.services import ledger_service, payment_service, policy_service, records
 from custodio.services.context import ServiceContext
@@ -193,6 +194,7 @@ def _unread(document_id: str, source: InvoiceSource, visible_text: str) -> Extra
         document_id=document_id,
         source=source,
         visible_text=visible_text,
+        sender_email=first_email(visible_text),
         reader=UNREAD_READER,
         overall_confidence=0.0,
         **dict.fromkeys(FIELD_NAMES, unread),

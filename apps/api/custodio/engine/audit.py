@@ -1,7 +1,8 @@
 """The independent auditor: every payment is recomputed from the raw cases by a code path of its own.
 
 It shares vocabulary with the engine (how to compare names and codes, how to read an amount, which phrases address
-an agent) and nothing else: it never imports the rules or decide_all, keeps its own running totals and identifies
+an agent, which check digits an account follows, how a name compares with the sanctions list, when two domains look
+alike) and nothing else: it never imports the rules or decide_all, keeps its own running totals and identifies
 suppliers on its own. A payment with any problem is improper; decide_all then vetoes it, so the auditor always wins.
 """
 
@@ -29,7 +30,10 @@ from custodio.contracts import (
     PaymentRecord,
     Policy,
 )
+from custodio.engine.bank_details import Check, account_checks, tax_id_check
+from custodio.engine.domains import DomainLikeness, compare_domains, email_domain
 from custodio.engine.injection import find_instruction
+from custodio.engine.sanctions import SanctionsList, bundled_sanctions
 from custodio.engine.text import normalize_code, normalize_name
 from custodio.engine.units import as_utc, parse_amount, to_base
 
@@ -38,6 +42,7 @@ HUNDRED = Decimal(100)
 TRUSTED_FIELDS = {"supplier_name": "proveedor", "amount": "monto", "currency": "moneda", "account_number": "cuenta"}
 DOLLAR_PREFIXES = {"US": "USD", "R": "BRL", "MX": "MXN", "COL": "COP", "CLP": "CLP"}
 NEVER = datetime.min.replace(tzinfo=UTC)  # sorts a forged human payment without approval first
+COUNTRY_OF_CURRENCY = {"COP": "CO", "MXN": "MX", "BRL": "BR"}
 
 
 @dataclass(frozen=True)
@@ -63,14 +68,22 @@ class _Totals:
     agent_paid: list[_Invoice]
 
 
-def audit(batch: BatchResult, cases: Sequence[InvoiceCase], state: CompanyState, policy: Policy) -> AuditReport:
+def audit(
+    batch: BatchResult,
+    cases: Sequence[InvoiceCase],
+    state: CompanyState,
+    policy: Policy,
+    *,
+    sanctions: SanctionsList | None = None,
+) -> AuditReport:
+    listed = sanctions or bundled_sanctions()
     invoices = _read(cases, state, policy)
     autonomous, by_person = _payments(batch.decisions, invoices)
     totals = _Totals(balance=state.opening_balance, agent_by_month=_agent_history(state), agent_paid=[])
     findings = [
         finding
         for invoice in autonomous
-        if (finding := _finding(invoice, _autonomous_problems(invoice, invoices, state, policy, totals)))
+        if (finding := _finding(invoice, _autonomous_problems(invoice, invoices, state, policy, totals, listed)))
     ]
     findings += [
         finding
@@ -150,11 +163,16 @@ def _agent_history(state: CompanyState) -> defaultdict[tuple[int, int], Decimal]
     return spent
 
 
-# Autonomous payments: all twelve conditions ---------------------------------------------------------------------
+# Autonomous payments: all fifteen conditions --------------------------------------------------------------------
 
 
 def _autonomous_problems(
-    invoice: _Invoice, invoices: dict[str, _Invoice], state: CompanyState, policy: Policy, totals: _Totals
+    invoice: _Invoice,
+    invoices: dict[str, _Invoice],
+    state: CompanyState,
+    policy: Policy,
+    totals: _Totals,
+    sanctions: SanctionsList,
 ) -> list[str]:
     problems = [*_reading_problems(invoice.case.extraction, policy), *_instruction_problems(invoice.case.extraction)]
     payee = invoice.payee
@@ -166,6 +184,7 @@ def _autonomous_problems(
     problems += _duplicate_problems(invoice, invoices, state, policy)
     problems += _split_problems(invoice, invoices, state, policy)
     problems += _currency_problems(invoice, state, policy)
+    problems += [*_details_problems(invoice), *_sanctions_problems(invoice, sanctions), *_sender_problems(invoice)]
     return [*problems, *_money_problems(invoice, policy, totals)]
 
 
@@ -308,6 +327,38 @@ def _currency_problems(invoice: _Invoice, state: CompanyState, policy: Policy) -
     rate = state.fx_units_per_base.get(invoice.currency or "")
     if invoice.currency not in policy.allowed_currencies or rate is None or rate <= 0:
         return ["moneda no permitida"]
+    return []
+
+
+def _details_problems(invoice: _Invoice) -> list[str]:
+    """Check digits of the account and tax id read, and of the registered ones."""
+    read, payee = invoice.case.extraction, invoice.payee
+    country = payee.country if payee else COUNTRY_OF_CURRENCY.get(invoice.currency or "")
+    checks: list[Check | None] = [tax_id_check(read.supplier_tax_id.value or "", country=country)]
+    checks += account_checks(read.account_number.value or "", currency=invoice.currency, country=country)
+    if payee is not None:
+        checks.append(tax_id_check(payee.tax_id, country=payee.country))
+        checks += account_checks(payee.account_number, currency=payee.currency, country=payee.country)
+    bad = sorted({check.scheme for check in checks if check is not None and not check.valid})
+    return [f"datos bancarios o identificación inválidos ({', '.join(bad)})"] if bad else []
+
+
+def _sanctions_problems(invoice: _Invoice, sanctions: SanctionsList) -> list[str]:
+    if sanctions.size == 0:
+        return ["no se revisó contra la lista OFAC (0 entradas)"]
+    payee = invoice.payee
+    names = [invoice.case.extraction.supplier_name.value, *((payee.name, *payee.aliases) if payee else ())]
+    if any(name and sanctions.screen(name) is not None for name in names):
+        return ["coincide con la lista OFAC"]
+    return []
+
+
+def _sender_problems(invoice: _Invoice) -> list[str]:
+    sender, payee = invoice.case.extraction.sender_email, invoice.payee
+    if sender is None or payee is None or payee.email_domain is None:
+        return []
+    if compare_domains(email_domain(sender), payee.email_domain).likeness is DomainLikeness.LOOKALIKE:
+        return ["correo de un dominio parecido al registrado"]
     return []
 
 

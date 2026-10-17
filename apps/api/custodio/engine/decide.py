@@ -31,12 +31,14 @@ from custodio.engine.facts import Charge, InvoiceFacts, charge_from_history, cha
 from custodio.engine.formatting import money
 from custodio.engine.metrics import compute_metrics
 from custodio.engine.rules import EVALUATORS, RuleContext
+from custodio.engine.sanctions import SanctionsList, bundled_sanctions
 from custodio.engine.text import normalize_name
 from custodio.engine.units import as_utc
 
 AUDITOR_VETO = "El auditor independiente no confirma este pago: {finding}"
 HOLD_RULE_APPROVED = "Una aprobación no levanta una regla de retención: {labels}."
 NO_BASE_AMOUNT = "No hay un monto confiable en {base}; no se puede pagar."
+NEUTRAL_WHEN_SKIPPED = frozenset(spec.id for spec in RULES if spec.neutral_when_skipped)
 RESERVE_BREACH = "Pagarlo dejaría el saldo en {after}, debajo de la reserva de {reserve}."
 
 
@@ -53,11 +55,17 @@ def decide_all(
     state: CompanyState,
     policy: Policy,
     approvals: Mapping[str, Approval] | None = None,
+    *,
+    sanctions: SanctionsList | None = None,
 ) -> BatchResult:
-    """Decide, audit, and repeat with the auditor's vetoes until it agrees: when they differ, the auditor wins."""
+    """Decide, audit, and repeat with the auditor's vetoes until it agrees: when they differ, the auditor wins.
+
+    `sanctions` is the list R14 screens against; by default, the dated OFAC copy that ships with the code.
+    """
+    listed = sanctions or bundled_sanctions()
     vetoes: dict[str, str] = {}
     while True:
-        batch, report = _decide_and_audit(cases, state, policy, approvals or {}, vetoes)
+        batch, report = _decide_and_audit(cases, state, policy, approvals or {}, vetoes, listed)
         fresh = {f.invoice_id: f.message for f in report.findings if f.invoice_id not in vetoes}
         if not fresh:
             return batch
@@ -71,14 +79,20 @@ def run_batch(
     *,
     approvals: Mapping[str, Approval],
     vetoes: Mapping[str, str],
+    sanctions: SanctionsList | None = None,
 ) -> BatchResult:
     """One pass of the engine with the given vetoes, reporting what the auditor thinks of it."""
-    return _decide_and_audit(cases, state, policy, approvals, vetoes)[0]
+    return _decide_and_audit(cases, state, policy, approvals, vetoes, sanctions or bundled_sanctions())[0]
 
 
 def verdict_of(results: Iterable[RuleResult]) -> AgentVerdict:
-    """Hold beats escalate beats pay. A rule that could not be evaluated never lets a payment through alone."""
-    outcomes = {result.outcome for result in results}
+    """Hold beats escalate beats pay. A rule that could not be evaluated never lets a payment through alone; a payment
+    control (R13-R15) with nothing to check leaves the verdict to the other rules."""
+    outcomes = {
+        result.outcome
+        for result in results
+        if not (result.outcome is RuleOutcome.SKIPPED and result.rule_id in NEUTRAL_WHEN_SKIPPED)
+    }
     if RuleOutcome.HOLD in outcomes:
         return AgentVerdict.HOLD
     if outcomes & {RuleOutcome.ESCALATE, RuleOutcome.SKIPPED}:
@@ -98,8 +112,9 @@ def _decide_and_audit(
     policy: Policy,
     approvals: Mapping[str, Approval],
     vetoes: Mapping[str, str],
+    sanctions: SanctionsList,
 ) -> tuple[BatchResult, AuditReport]:
-    drafts, running = _decide_agent(cases, state, policy, vetoes)
+    drafts, running = _decide_agent(cases, state, policy, vetoes, sanctions)
     drafts, balance_end = _apply_approvals(drafts, approvals, policy, vetoes, running.balance)
     decisions = [_finish(draft) for draft in drafts]
     batch = BatchResult(
@@ -108,7 +123,7 @@ def _decide_and_audit(
         balance_end=balance_end,
         metrics=compute_metrics(decisions, cases, improper_payments=0),
     )
-    report = audit(batch, cases, state, policy)
+    report = audit(batch, cases, state, policy, sanctions=sanctions)
     metrics = batch.metrics.model_copy(update={"improper_payments": report.improper_payments})
     return batch.model_copy(update={"metrics": metrics}), report
 
@@ -133,7 +148,11 @@ class _Running:
 
 
 def _decide_agent(
-    cases: Sequence[InvoiceCase], state: CompanyState, policy: Policy, vetoes: Mapping[str, str]
+    cases: Sequence[InvoiceCase],
+    state: CompanyState,
+    policy: Policy,
+    vetoes: Mapping[str, str],
+    sanctions: SanctionsList,
 ) -> tuple[list[Draft], _Running]:
     _ensure_unique_ids(cases)
     extractions = {case.id: case.extraction for case in cases}
@@ -157,6 +176,7 @@ def _decide_agent(
             nearby=_nearby(supplier, facts, policy, running.paid_ids),
             spent_auto=running.spent_by_month[_month(facts.received_on)],
             balance=running.balance,
+            sanctions=sanctions,
         )
         drafts.append(_decide_one(context, vetoes.get(facts.case_id), running))
     return drafts, running

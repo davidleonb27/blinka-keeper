@@ -1,0 +1,32 @@
+{
+  "source": "FICTICIA: lista de prueba de Custodio. Ninguna entrada es real ni viene de la lista OFAC.",
+  "published_on": "2026-10-01",
+  "downloaded_on": "2026-10-02",
+  "fictitious": true,
+  "entries": [
+    {
+      "uid": 990001,
+      "name": "QUIMERA FICTICIA TRADING LLC",
+      "aliases": ["QUIMERA TRADING FICTICIA", "QFT TEST"],
+      "countries": ["Utopia"],
+      "programs": ["PRUEBA-FICTICIA"],
+      "type": null
+    },
+    {
+      "uid": 990002,
+      "name": "PEREZ INVENTADO, Fulano De Tal",
+      "aliases": [],
+      "countries": [],
+      "programs": ["PRUEBA-FICTICIA", "OTRO-PROGRAMA-FICTICIO"],
+      "type": "individual"
+    },
+    {
+      "uid": 990003,
+      "name": "GLOBAL REDWING FICTICIO",
+      "aliases": [],
+      "countries": [],
+      "programs": ["PRUEBA-FICTICIA"],
+      "type": null
+    }
+  ]
+}

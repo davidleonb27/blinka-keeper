@@ -36,6 +36,9 @@ export const RULES: readonly RuleSpec[] = [
   { id: "R10", key: "limit", label: "Límite por pago", effect: "escalate" },
   { id: "R11", key: "budget", label: "Cupo de pago automático", effect: "escalate" },
   { id: "R12", key: "reserve", label: "Saldo y reserva", effect: "hold" },
+  { id: "R13", key: "bank_details", label: "Datos bancarios válidos para el riel", effect: "escalate" },
+  { id: "R14", key: "sanctions", label: "Sin coincidencia en la lista OFAC", effect: "escalate" },
+  { id: "R15", key: "out_of_band", label: "Verificación fuera de banda", effect: "escalate" },
 ];
 
 // --- Company configuration -------------------------------------------------

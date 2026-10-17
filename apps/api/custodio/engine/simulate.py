@@ -15,8 +15,9 @@ from custodio.contracts import (
     SimulationReport,
 )
 from custodio.engine.decide import decide_all
+from custodio.engine.explain import rules_met
 
-PAID_UNDER_NEW_POLICY = "Con la política nueva se paga sola: se cumplen las {count} reglas."
+PAID_UNDER_NEW_POLICY = "Con la política nueva se paga sola: {met}."
 
 
 def simulate(cases: Sequence[InvoiceCase], state: CompanyState, before: Policy, after: Policy) -> SimulationReport:
@@ -39,7 +40,7 @@ def simulate(cases: Sequence[InvoiceCase], state: CompanyState, before: Policy, 
 def _why(decision: Decision) -> str:
     """The first rule that now holds it, else the first that now escalates it; or that it is paid alone."""
     if decision.agent_verdict is AgentVerdict.PAY:
-        return PAID_UNDER_NEW_POLICY.format(count=len(decision.rules))
+        return PAID_UNDER_NEW_POLICY.format(met=rules_met(decision.rules))
     for outcome in (RuleOutcome.HOLD, RuleOutcome.ESCALATE):
         reason = next((rule.reason for rule in decision.rules if rule.outcome is outcome), None)
         if reason is not None:

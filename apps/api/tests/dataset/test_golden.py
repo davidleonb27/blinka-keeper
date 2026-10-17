@@ -38,6 +38,8 @@ TRAPS = {
     "Lectura de baja confianza": "R1",
     "Instrucción visible al agente": "R2",
     "Texto oculto dirigido al agente": "R2",
+    "CLABE con dígito de control errado": "R13",
+    "Dominio parecido y cambio de cuenta": "R15",
 }
 
 
@@ -142,11 +144,12 @@ def test_the_reserve_trap_leaves_room_for_a_smaller_payment_afterwards() -> None
     assert any(d.status is DecisionStatus.PAID_AUTO for d in later)
 
 
+# R13-R15 never stop a golden trap alone (R4 holds the changed accounts too); their sabotage is in test_audit.py.
 SABOTAGES = {
     "R1": ("R1",),
     "R2": ("R2",),
     "R3": ("R3", "R4", "R6"),
-    "R4": ("R4",),
+    "R4": ("R4", "R15"),  # a changed account also asks for out-of-band verification
     "R5": ("R5",),
     "R6": ("R6",),
     "R7": ("R7",),

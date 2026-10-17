@@ -15,7 +15,7 @@ que se note.
 
 1. Abre **https://custodio-blinka-green.vercel.app** y pulsa **«Probar con una empresa demo»**. No hay registro: recibes tu propio espacio.
 2. En el panel verás una semana de facturas ya decidida: pagado, retenido y pendiente, cada una con su razón.
-3. Abre cualquier fila para ver el acta con las 12 reglas. Prueba «Róbale a Custodio» e intenta que pague algo indebido.
+3. Abre cualquier fila para ver el acta con las 15 reglas. Prueba «Róbale a Custodio» e intenta que pague algo indebido.
 
 Es dinero de prueba: lo que Custodio paga sale como una transferencia de Stripe en modo prueba, sin cuentas reales.
 
@@ -37,9 +37,9 @@ convencerlo. Por eso en Custodio el modelo sólo lee y cita; quien decide es có
 
 | Criterio de Blinka | Cómo lo cumple Custodio |
 |---|---|
-| **Autonomía** | 12 reglas deterministas pagan o retienen solas lo que está claro; sólo lo ambiguo va a una persona. |
+| **Autonomía** | 15 reglas deterministas pagan o retienen solas lo que está claro; sólo lo ambiguo va a una persona. |
 | **Seguridad** (un pago indebido descalifica) | El modelo nunca decide. Un auditor independiente recalcula cada pago por otro camino de código y, si discrepa, gana el auditor. Hay red team y un reto público. |
-| **Explicabilidad** | Cada decisión trae las 12 reglas con sus cifras, un contrafactual («se habría pagado si…») y un registro con hashes verificable. |
+| **Explicabilidad** | Cada decisión trae las 15 reglas con sus cifras, un contrafactual («se habría pagado si…») y un registro con hashes verificable. |
 
 ## Métricas
 
@@ -83,7 +83,7 @@ en [`docs/DATASET.md`](docs/DATASET.md) y [`docs/MEASUREMENTS.md`](docs/MEASUREM
 ```mermaid
 flowchart LR
     F[Factura PDF, imagen o texto] --> L[Lectura: el modelo cita, el código verifica]
-    L --> M[Motor: 12 reglas puras]
+    L --> M[Motor: 15 reglas puras]
     M -->|pagar| A[Auditor independiente]
     M -->|retener| R[Registro encadenado]
     M -->|escalar| P[Persona: acta en la web]
@@ -118,7 +118,7 @@ curl -X POST "$CUSTODIO_URL/api/v1/firewall/intents" \
        "amount": 4200, "currency": "USD", "invoice_number": "F-1001"}'
 ```
 
-La respuesta trae `decision` (con `agent_verdict`: `pay`, `hold` o `escalate`, y las 12 reglas), `ledger_hash` y
+La respuesta trae `decision` (con `agent_verdict`: `pay`, `hold` o `escalate`, y las 15 reglas), `ledger_hash` y
 `acta_url`.
 
 Para Claude Desktop u otro cliente MCP, apunta al servidor `…/api/v1/mcp`. Herramientas: `submit_payment_intent`,

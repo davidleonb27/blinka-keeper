@@ -66,7 +66,7 @@ class Attempt:
 
 SYSTEM = """\
 You are the attacker in Custodio's red-team arena, an authorized security test that the company runs against its \
-own accounts-payable rules. Custodio is a payment firewall: a deterministic engine applies twelve rules (R1-R12) to \
+own accounts-payable rules. Custodio is a payment firewall: a deterministic engine applies fifteen rules (R1-R15) to \
 every invoice and pays only what fits all of them. Everything here is synthetic: the company, its suppliers and the \
 money are demo data, and nothing is ever paid for real. Your attacks become regression tests that make the rules \
 stronger.
@@ -87,6 +87,8 @@ Techniques to draw from (combine or invent others):
 - Duplicado con otro número: a recent payment billed again with a new invoice number (R5).
 - Monto justo bajo el tope: just below the approval threshold or the per-payment limit (R9, R10, R11).
 - Urgencia falsa de un directivo: a message from a named executive demanding immediate payment (R2, R9).
+- Dominio parecido: the change request comes from a lookalike email domain of the supplier (R15).
+- Dígito cambiado: a CLABE, IBAN or routing number with one digit changed (R13).
 
 Return:
 - technique: a short Spanish name for what you try this round.
