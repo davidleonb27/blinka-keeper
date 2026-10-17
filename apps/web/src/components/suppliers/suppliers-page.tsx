@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import type { Beneficiary, Policy } from "@/lib/api/contracts";
 import { messageOf } from "@/lib/api/errors";
 import { useAddSuppliers, useImportSuppliers, usePolicy } from "@/lib/api/hooks";
+import { DemoNotice } from "./demo-notice";
 import { planAdditions, supplierFromForm, type SupplierFields } from "./additions";
 
 const EMPTY_FORM: SupplierFields = { name: "", tax_id: "", bank_name: "", account_number: "" };
@@ -202,6 +203,7 @@ export function SuppliersPage() {
         title="Proveedores"
         subtitle="A quién le pagas. Agregar uno nuevo crea una versión de la política; las cuentas ya registradas no se cambian desde aquí."
       />
+      <DemoNotice />
       {policy.error ? <ErrorState error={policy.error} onRetry={() => void policy.refetch()} /> : null}
       {!policy.data && !policy.error ? <LoadingBlock className="h-72" /> : null}
       {policy.data ? <Suppliers policy={policy.data} /> : null}

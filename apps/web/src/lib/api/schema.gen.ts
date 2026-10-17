@@ -2192,6 +2192,11 @@ export interface components {
             api_key: string;
         };
         /**
+         * WorkspaceKind
+         * @enum {string}
+         */
+        WorkspaceKind: "demo" | "blank" | "challenge" | "redteam";
+        /**
          * WorkspaceMode
          * @enum {string}
          */
@@ -2200,6 +2205,7 @@ export interface components {
         WorkspaceSummary: {
             /** Workspace Id */
             workspace_id: string;
+            mode: components["schemas"]["WorkspaceKind"];
             /** Company Name */
             company_name: string;
             /**
