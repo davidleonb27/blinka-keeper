@@ -1,5 +1,5 @@
 /** How API values read to a person. Display only: nothing here decides anything. */
-import type { Decision, DecisionStatus, InvoiceSource, PaymentRailName, RuleResult } from "./api/contracts";
+import type { Decision, DecisionStatus, InvoiceSource, PaymentNetwork, PaymentRailName, RuleResult } from "./api/contracts";
 import { formatMoney } from "./format";
 
 export type Tone = "pay" | "hold" | "esc" | "muted";
@@ -29,6 +29,14 @@ export const RAIL_LABEL: Record<PaymentRailName, string> = {
   simulated: "Simulado",
   stripe_test: "Stripe · modo prueba",
   blinka_simulated: "Blinka · simulado",
+};
+
+export const NETWORK_LABEL: Record<PaymentNetwork, string> = {
+  ach: "ACH",
+  wire: "wire",
+  bre_b: "Bre-B",
+  spei: "SPEI",
+  pix: "Pix",
 };
 
 export const RAIL_PITCH =
