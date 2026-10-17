@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { watch } from "./problems";
 
 /**
  * Every page and the whole demo against the real API, in a production build. The bar: zero console errors (React
@@ -10,30 +11,6 @@ const SUPPLIERS_CSV = [
   "Distribuidora Andina SAS,900112334,Bancolombia,1204",
   "Nube Segura SAS,901554210,Davivienda,7781",
 ].join("\n");
-
-interface Problems {
-  list: string[];
-}
-
-function watch(page: Page): Problems {
-  const problems: Problems = { list: [] };
-  page.on("console", (message) => {
-    if (message.type() === "error") problems.list.push(`console en ${page.url()}: ${message.text()}`);
-  });
-  page.on("pageerror", (error) => problems.list.push(`excepción en ${page.url()}: ${error.message}`));
-  page.on("response", (response) => {
-    if (response.status() >= 400) {
-      problems.list.push(`HTTP ${response.status()} ${response.request().method()} ${response.url()}`);
-    }
-  });
-  page.on("requestfailed", (request) => {
-    // Navigating away aborts in-flight prefetches; that is the browser, not a failure of the app.
-    if (request.failure()?.errorText !== "net::ERR_ABORTED") {
-      problems.list.push(`falló ${request.method()} ${request.url()}: ${request.failure()?.errorText}`);
-    }
-  });
-  return problems;
-}
 
 async function expectNoErrorScreen(page: Page) {
   for (const screen of ERROR_SCREENS) await expect(page.getByText(screen)).toHaveCount(0);

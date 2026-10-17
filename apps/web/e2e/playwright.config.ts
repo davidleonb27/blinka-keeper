@@ -10,6 +10,8 @@ const WEB_PORT = 3100;
 const API_URL = `http://127.0.0.1:${API_PORT}`;
 const DATABASE = path.join(tmpdir(), `custodio-e2e-${process.pid}.db`);
 const WEB_URL = `http://127.0.0.1:${WEB_PORT}`;
+// Like Vercel: both servers run in UTC while the browsers below live in other zones.
+const SERVER_TIME_ZONE = "UTC";
 
 export default defineConfig({
   testDir: ".",
@@ -57,7 +59,7 @@ export default defineConfig({
       command: `rm -f ${DATABASE} && uv run --frozen --directory ../api uvicorn tests.e2e_app:app --host 127.0.0.1 --port ${API_PORT}`,
       cwd: WEB_ROOT,
       url: `${API_URL}/api/v1/health`,
-      env: { CUSTODIO_DATABASE_URL: `sqlite:///${DATABASE}` },
+      env: { CUSTODIO_DATABASE_URL: `sqlite:///${DATABASE}`, TZ: SERVER_TIME_ZONE },
       reuseExistingServer: false,
       timeout: 120_000,
     },
@@ -65,7 +67,7 @@ export default defineConfig({
       command: `npx next build && npx next start --hostname 127.0.0.1 --port ${WEB_PORT}`,
       cwd: WEB_ROOT,
       url: WEB_URL,
-      env: { API_INTERNAL_URL: API_URL },
+      env: { API_INTERNAL_URL: API_URL, TZ: SERVER_TIME_ZONE },
       reuseExistingServer: false,
       timeout: 600_000,
     },
