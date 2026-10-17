@@ -68,7 +68,7 @@ describe("mock client", () => {
   });
 
   it("pays on the simulated rail and says so in health", async () => {
-    const api = createMockClient(instant);
+    const api = await processedDemo();
 
     const approved = await api.approveDecision("F-015", { approver: "Ana Gómez" });
     const paid = (await api.getDecision("F-001")).decision;
@@ -79,7 +79,7 @@ describe("mock client", () => {
   });
 
   it("returns an executed payment unchanged and refuses to execute an unpaid one", async () => {
-    const api = createMockClient(instant);
+    const api = await processedDemo();
     const paid = (await api.getDecision("F-001")).decision;
 
     expect(await api.executePayment("F-001")).toEqual(paid);

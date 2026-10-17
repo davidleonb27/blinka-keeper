@@ -75,7 +75,7 @@ const STARTER_LIMITS: Record<string, StarterLimits> = {
   USD: { threshold: "2.000 USD", reserve: "40 mil", budget: "30 mil" },
 };
 
-export function proposeMockProfile({ company_name, website }: ProfileRequest): CompanyProfile {
+export function proposeMockProfile({ company_name, website = null }: ProfileRequest): CompanyProfile {
   const { country, currency } = countryFromWebsite(website);
   const name = normalize(company_name);
   const guess = INDUSTRIES.find((i) => i.keywords.test(name)) ?? DEFAULT_INDUSTRY;

@@ -2,14 +2,11 @@
  * Mock stand-ins for supplier import and the first-week simulation. In production both run in the API
  * (Claude reads the file; the engine decides). Here they only produce believable contract-shaped data.
  */
-import type { DecisionListItem, OnboardingRequest } from "../client";
-import type { Beneficiary, Policy, SupplierImport } from "../contracts";
+import type { BatchResult, Beneficiary, Decision, Metrics, Policy, SupplierImport } from "../contracts";
 import { formatMoney } from "../../format";
 import { decisionFrom, type FailingRules } from "./decision-builder";
 
 const MIN_COLUMNS = 4;
-const FIRST_WEEK_SUPPLIERS = 5;
-const MONDAY = "2026-10-19";
 
 const SAMPLE_SUPPLIERS: [string, string, string, string, number][] = [
   ["Distribuidora Andina SAS", "900.112.334-5", "Bancolombia", "•••• 1204", 3200000],
@@ -69,12 +66,7 @@ export function importMockSuppliers(fileName: string, text: string, currency: st
 interface WeekState {
   balance: number;
   spent: number;
-  items: DecisionListItem[];
-}
-
-function receivedAt(index: number): string {
-  const day = Number(MONDAY.slice(-2)) + Math.floor(index / 2);
-  return `${MONDAY.slice(0, -2)}${day}T${index % 2 ? "19" : "14"}:10:00Z`;
+  decisions: Decision[];
 }
 
 function moneyFailures(amount: number, state: WeekState, policy: Policy): FailingRules {
@@ -92,10 +84,11 @@ function moneyFailures(amount: number, state: WeekState, policy: Policy): Failin
   return failing;
 }
 
-function addInvoice(state: WeekState, policy: Policy, b: Beneficiary, amount: number, trap: FailingRules): WeekState {
-  const failing = { ...moneyFailures(amount, state, policy), ...trap };
+function addInvoice(state: WeekState, policy: Policy, b: Beneficiary, amount: number): WeekState {
+  const failing = moneyFailures(amount, state, policy);
+  const number = `SIM-${String(state.decisions.length + 1).padStart(3, "0")}`;
   const decision = decisionFrom({
-    invoice_id: `S-${String(state.items.length + 1).padStart(3, "0")}`,
+    invoice_id: number,
     beneficiary_id: b.id,
     supplier_name: b.name,
     amount,
@@ -110,30 +103,35 @@ function addInvoice(state: WeekState, policy: Policy, b: Beneficiary, amount: nu
   return {
     balance: paid ? state.balance - amount : state.balance,
     spent: paid ? state.spent + amount : state.spent,
-    items: [...state.items, { decision, received_at: receivedAt(state.items.length), source: "pdf" }],
+    decisions: [...state.decisions, decision],
   };
 }
 
-export function simulateFirstWeek({ policy, opening_balance }: OnboardingRequest): DecisionListItem[] {
-  const suppliers = policy.beneficiaries.slice(0, FIRST_WEEK_SUPPLIERS);
-  const amountOf = (b: Beneficiary) => b.agreement?.amount ?? policy.approval_threshold / 2;
-  let state: WeekState = { balance: opening_balance, spent: 0, items: [] };
-  for (const b of suppliers) state = addInvoice(state, policy, b, amountOf(b), {});
-  const [first, second, third] = suppliers;
-  if (first) {
-    state = addInvoice(state, policy, first, amountOf(first), {
-      account: `La factura pide pagar a otra cuenta; la registrada de ${first.name} es ${first.bank_name} ${first.account_number}.`,
-    });
-  }
-  if (second) {
-    state = addInvoice(state, policy, second, amountOf(second), {
-      duplicate: `Ya llegó un cobro de ${second.name} por el mismo monto esta semana.`,
-    });
-  }
-  if (third) {
-    state = addInvoice(state, policy, third, amountOf(third), {
-      injection: "El PDF trae texto invisible dirigido al agente. El agente no obedece texto de las facturas.",
-    });
-  }
-  return state.items;
+function metricsOf(decisions: Decision[]): Metrics {
+  const count = (status: Decision["status"]) => decisions.filter((d) => d.status === status).length;
+  const total = decisions.length;
+  return {
+    total,
+    paid_auto: count("paid_auto"),
+    paid_human: count("paid_human"),
+    hold: count("hold"),
+    pending: count("pending_approval"),
+    rejected: count("rejected"),
+    autonomy_rate: total ? (count("paid_auto") + count("hold")) / total : 0,
+    accuracy: null,
+    improper_payments: 0,
+  };
+}
+
+/** Like the API: one invoice per supplier with an agreement, exactly as agreed; decided, never stored. */
+export function simulateFirstWeek(policy: Policy, openingBalance: number): BatchResult {
+  const contracted = policy.beneficiaries.filter((b) => b.agreement);
+  let state: WeekState = { balance: openingBalance, spent: 0, decisions: [] };
+  for (const b of contracted) state = addInvoice(state, policy, b, b.agreement?.amount ?? 0);
+  return {
+    decisions: state.decisions,
+    spent_auto_base: state.spent,
+    balance_end: state.balance,
+    metrics: metricsOf(state.decisions),
+  };
 }
