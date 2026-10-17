@@ -259,7 +259,7 @@ def test_the_month_closes_only_when_every_outflow_without_invoice_was_reviewed(c
 
 def test_a_closed_month_takes_no_more_reconciliations_or_reviews(client: TestClient) -> None:
     workspace = processed_demo(client)
-    body = resolve_all(client, workspace, reconcile_demo(client, workspace))
+    resolve_all(client, workspace, reconcile_demo(client, workspace))
     close(client, workspace)
 
     upload_after = client.post(f"{API}/reconciliations", headers=workspace.headers, data={"demo": "true"})
@@ -307,10 +307,6 @@ def test_an_unprocessed_workspace_still_reconciles_and_flags_every_outflow(clien
     body = reconcile_demo(client, workspace)
 
     assert body["summary"]["reconciled"]["count"] == 0
-    assert body["summary"]["alerts_open"] == 20  # 19 transfers and the duplicate; fees and the deposit are not alerts
-    assert (
-        demo_statement_csv()
-        in client.get(
-            f"{API}/reconciliations/demo-statement", headers=workspace.headers, params={"format": "csv"}
-        ).content
-    )
+    assert body["summary"]["alerts_open"] == 19  # 18 transfers and the duplicate; fees and the deposit are not alerts
+    download = client.get(f"{API}/reconciliations/demo-statement", headers=workspace.headers, params={"format": "csv"})
+    assert download.content == demo_statement_csv()

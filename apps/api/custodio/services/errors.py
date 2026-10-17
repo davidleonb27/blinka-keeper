@@ -97,3 +97,44 @@ class ReadingUnavailable(ServiceError):
 class WorkspaceHeaderMissing(ServiceError):
     code = "workspace_header_missing"
     message = "Falta la cabecera X-Custodio-Workspace."
+
+
+class StatementInputMissing(ServiceError):
+    code = "statement_input_missing"
+    message = "Envía el extracto (CSV, PDF o imagen) o pide el extracto de demo."
+
+
+class StatementUnreadable(ServiceError):
+    code = "statement_unreadable"
+    message = "No pudimos leer el extracto."
+
+
+class UnsupportedStatement(ServiceError):
+    code = "unsupported_statement"
+    message = "Sólo leemos extractos en CSV, PDF, PNG, JPEG o WEBP."
+
+
+class ReconciliationNotFound(NotFound):
+    code = "reconciliation_not_found"
+    message = "No encontramos esa conciliación en este espacio."
+
+
+class ReconciliationConflict(ServiceError):
+    """The month's state does not allow the operation: already closed, open alerts, nothing to close."""
+
+    code = "reconciliation_conflict"
+
+
+class MovementNotReviewable(ReconciliationConflict):
+    code = "movement_not_reviewable"
+    message = "Ese movimiento no necesita revisión o ya fue revisado."
+
+
+class PeriodClosed(ReconciliationConflict):
+    code = "period_closed"
+    message = "Ese mes ya está cerrado: no admite más conciliaciones ni revisiones."
+
+
+class PeriodNotClosed(ReconciliationConflict):
+    code = "period_not_closed"
+    message = "Cierra el mes para descargar su paquete de evidencia."

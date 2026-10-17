@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Protocol
 
-from custodio import ai, dataset, engine, extraction
+from custodio import ai, dataset, engine, extraction, reconciliation
 from custodio.contracts import (
     Approval,
     AttackSpec,
@@ -35,6 +35,7 @@ from custodio.contracts import (
     SimulationReport,
     SupplierImport,
 )
+from custodio.reconciliation.models import Statement
 from custodio.services.triage import AttackTriage, triage_attack
 
 
@@ -72,6 +73,10 @@ class ImportSuppliers(Protocol):
     def __call__(self, data: bytes, *, filename: str, media_type: str) -> SupplierImport: ...
 
 
+class ReadStatement(Protocol):
+    def __call__(self, data: bytes, *, filename: str, media_type: str, default_currency: str) -> Statement: ...
+
+
 class RedTeam(Protocol):
     def __call__(
         self, policy: Policy, state: CompanyState, *, rounds: int, judge: Callable[[AttackSpec], Decision]
@@ -96,6 +101,8 @@ class Lanes:
     import_suppliers: ImportSuppliers
     red_team: RedTeam
     triage_attack: Callable[[str], AttackTriage]
+    # L14 reads statements in PDF or image with the model; a default keeps the lanes built before it valid.
+    read_statement: ReadStatement = reconciliation.read_statement_document
 
 
 def _engine_ledger(name: str) -> Any:

@@ -22,6 +22,7 @@ TABLES = {
     "rate_counters",
     "stripe_accounts",
     "payment_executions",
+    "reconciliations",
 }
 
 

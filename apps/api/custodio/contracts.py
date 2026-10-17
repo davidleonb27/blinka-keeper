@@ -369,6 +369,9 @@ class LedgerKind(StrEnum):
     REDTEAM_ATTACK = "redteam_attack"
     CHALLENGE_ATTEMPT = "challenge_attempt"
     INTENT = "intent"
+    RECONCILIATION = "reconciliation"  # a statement reconciled, and each payment the bank confirmed
+    RECONCILIATION_REVIEW = "reconciliation_review"  # a person reviewed a movement that needed it
+    PERIOD_CLOSED = "period_closed"
 
 
 class LedgerEntry(Model):

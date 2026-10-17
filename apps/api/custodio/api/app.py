@@ -19,7 +19,9 @@ from custodio.api.routes import (
     invoices,
     ledger,
     onboarding,
+    periods,
     policy,
+    reconciliations,
     redteam,
     workspaces,
 )
@@ -27,7 +29,20 @@ from custodio.config import get_settings
 from custodio.services.context import Runtime, production_runtime
 
 API_PREFIX = "/api/v1"
-ROUTERS = (health, workspaces, onboarding, policy, invoices, decisions, ledger, redteam, challenge, firewall)
+ROUTERS = (
+    health,
+    workspaces,
+    onboarding,
+    policy,
+    invoices,
+    decisions,
+    ledger,
+    reconciliations,
+    periods,
+    redteam,
+    challenge,
+    firewall,
+)
 
 
 def create_app(runtime: Runtime | None = None) -> FastAPI:
