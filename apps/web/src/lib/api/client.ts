@@ -113,7 +113,8 @@ export interface CustodioApi {
   getChallengeStats(): Promise<ResponseOf<"/api/v1/challenge/stats", "get">>;
   submitChallengeAttempt(input: ChallengeInput): Promise<ResponseOf<"/api/v1/challenge/attempts", "post">>;
   proposeProfile(request: ProfileRequest): Promise<CompanyProfile>;
-  importSuppliers(file: File): Promise<SupplierImport>;
+  /** `currency` is for rows that do not say theirs; without it, the workspace's base currency. */
+  importSuppliers(file: File, currency?: string): Promise<SupplierImport>;
   completeOnboarding(request: OnboardingRequest): Promise<OnboardingResult>;
   /** Each supplier's earned auto-approval cap, folded from its trust entries in the ledger. */
   getTrust(): Promise<TrustOverview>;

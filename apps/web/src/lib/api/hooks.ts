@@ -204,7 +204,9 @@ export function useProposeProfile() {
 
 export function useImportSuppliers() {
   const api = useApi();
-  return useMutation({ mutationFn: (file: File) => api.importSuppliers(file) });
+  return useMutation({
+    mutationFn: ({ file, currency }: { file: File; currency?: string }) => api.importSuppliers(file, currency),
+  });
 }
 
 /**

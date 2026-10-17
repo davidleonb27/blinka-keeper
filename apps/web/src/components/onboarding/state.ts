@@ -185,7 +185,8 @@ export function compileKey(answers: Answers): string {
 export function onboardingRequest(answers: Answers): OnboardingRequest {
   const rules = answers.proposal?.proposed ?? draftPolicy(answers);
   return {
-    profile: answers.profile ?? fallbackProfile(answers),
+    // What the person chose wins over what the profile proposed from the website.
+    profile: { ...(answers.profile ?? fallbackProfile(answers)), country: answers.country, base_currency: answers.currency },
     opening_balance: parseWholeAmount(answers.balance) ?? 0,
     policy: { ...rules, approvers: approversOf(answers), beneficiaries: answers.suppliers },
     suppliers: answers.suppliers,

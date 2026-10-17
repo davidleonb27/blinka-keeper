@@ -63,9 +63,11 @@ export function importMockSuppliers(fileName: string, text: string, currency: st
       ],
     };
   }
-  const beneficiaries = rows.map(([name, taxId, bank, account, amount], i) =>
-    supplier(i, [name, taxId, bank, account, Number(amount?.replace(/[^\d]/g, "")) || 0], currency),
-  );
+  // The template's «moneda» column sits before the monthly amount; older lists have no currency column.
+  const beneficiaries = rows.map(([name, taxId, bank, account, ...rest], i) => {
+    const [rowCurrency, amount] = rest.length > 1 ? rest : [currency, rest[0]];
+    return supplier(i, [name, taxId, bank, account, Number(amount?.replace(/[^\d]/g, "")) || 0], rowCurrency || currency);
+  });
   return {
     beneficiaries,
     warnings: skipped ? [`${skipped} filas sin cuenta o sin identificación fiscal quedaron por fuera.`] : [],

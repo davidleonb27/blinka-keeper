@@ -365,9 +365,9 @@ respond(() => decided().map(listItemOf)),
       }, 2);
     },
     proposeProfile: (input) => respond(() => proposeMockProfile(input), 3),
-    importSuppliers: async (file) => {
+    importSuppliers: async (file, currency) => {
       const text = await file.text();
-      return respond(() => importMockSuppliers(file.name, text, workspace.data.policy.base_currency), 2);
+      return respond(() => importMockSuppliers(file.name, text, currency ?? workspace.data.policy.base_currency), 2);
     },
     completeOnboarding: (request) => respond(() => completeOnboarding(request), 2),
     getTrust: () => respond(() => mockTrust(workspace.data.policy, decided(), summary().metrics.autonomy_rate)),

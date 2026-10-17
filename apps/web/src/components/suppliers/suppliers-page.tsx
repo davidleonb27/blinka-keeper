@@ -69,14 +69,14 @@ function CsvImport({ onAdd }: { onAdd: (suppliers: Beneficiary[], warnings: stri
         <input
           id={inputId}
           type="file"
-          accept=".csv,.tsv,.txt"
+          accept=".csv,.xlsx,.pdf"
           className="sr-only"
           disabled={importSuppliers.isPending}
           onChange={(event) => {
             const file = event.target.files?.[0];
             event.target.value = "";
             if (!file) return;
-            importSuppliers.mutate(file, {
+            importSuppliers.mutate({ file }, {
               onSuccess: (result) => onAdd(result.beneficiaries, result.warnings),
               onError: (error) => toast.error(messageOf(error)),
             });
