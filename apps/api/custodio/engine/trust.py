@@ -25,7 +25,16 @@ from decimal import ROUND_DOWN, Decimal
 from enum import StrEnum
 from statistics import median
 
-from custodio.contracts import Decision, DecisionStatus, LedgerEntry, LedgerKind, Policy, RuleOutcome, TrustCap
+from custodio.contracts import (
+    Decision,
+    DecisionStatus,
+    LedgerEntry,
+    LedgerKind,
+    Policy,
+    RuleOutcome,
+    RuleResult,
+    TrustCap,
+)
 from custodio.engine.formatting import CENT, counted, money
 
 CLEAN_PAYMENTS_TO_EARN = 3
@@ -135,8 +144,7 @@ def classify(decision: Decision) -> TrustEvent | None:
     supplier = decision.beneficiary_id
     if supplier is None:
         return None
-    failing = {r.rule_id: r for r in decision.rules if r.outcome in FAILED}
-    signal = next((failing[rule_id] for rule_id in INCIDENT_RULES if rule_id in failing), None)
+    signal = risk_signal(decision.rules)
     if signal is not None:
         return TrustEvent(
             TrustEventKind.INCIDENT, supplier, decision.invoice_id, None, signal.reason, rule_id=signal.rule_id
@@ -149,6 +157,12 @@ def classify(decision: Decision) -> TrustEvent | None:
         reason = CLEAN_REASON.format(approver=given.approver)
         return TrustEvent(TrustEventKind.CLEAN, supplier, decision.invoice_id, decision.amount_base, reason)
     return None
+
+
+def risk_signal(results: Iterable[RuleResult]) -> RuleResult | None:
+    """The first failing rule that says something is wrong with the supplier itself, in INCIDENT_RULES order."""
+    failing = {result.rule_id: result for result in results if result.outcome in FAILED}
+    return next((failing[rule_id] for rule_id in INCIDENT_RULES if rule_id in failing), None)
 
 
 def events_from_ledger(entries: Sequence[LedgerEntry]) -> dict[str, list[TrustEvent]]:

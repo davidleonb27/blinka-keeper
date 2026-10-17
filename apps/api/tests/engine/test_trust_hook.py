@@ -73,7 +73,7 @@ def test_a_risk_signal_supervises_the_supplier_for_the_rest_of_the_same_batch() 
             "id": "F-023b",
             "received_at": changed.received_at + timedelta(hours=2),
             "spec": changed.spec.model_copy(
-                update={"account_number": paredes.account_number, "invoice_number": "AP-2026-11"}
+                update={"account_number": paredes.account_number, "invoice_number": "AP-2026-11", "amount": 2430}
             ),
         }
     )
