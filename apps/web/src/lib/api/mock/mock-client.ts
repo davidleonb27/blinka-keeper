@@ -214,12 +214,14 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
         return { tampered_seq: target.seq, verification: await verifyChain(copy) };
       }),
     getChallengeStats: () => respond(() => stats),
-    submitChallengeAttempt: (input) =>
-      respond(() => {
-        const attempt = judgeAttempt(input, stats.attempts + 1, nowIso());
+    submitChallengeAttempt: async (input) => {
+      const text = input.file ? await input.file.text() : input.text;
+      return respond(() => {
+        const attempt = judgeAttempt({ ...input, text }, stats.attempts + 1, nowIso());
         stats = recordAttempt(stats, attempt);
         return attempt;
-      }, 2),
+      }, 2);
+    },
     proposeProfile: (input) => respond(() => proposeMockProfile(input), 3),
     importSuppliers: async (file) => {
       const text = await file.text();

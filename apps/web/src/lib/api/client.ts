@@ -94,6 +94,8 @@ export interface OnboardingResult {
 export interface ChallengeInput {
   text: string;
   alias: string | null;
+  /** A PDF or image instead of text; sent as multipart. */
+  file?: File | null;
 }
 
 export interface RedTeamRequest {

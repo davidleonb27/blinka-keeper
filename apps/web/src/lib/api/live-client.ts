@@ -85,7 +85,13 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId }: LiveClientOp
     verifyLedger: () => get("/ledger/verify"),
     tamperDemo: () => post("/ledger/tamper-demo"),
     getChallengeStats: () => get("/challenge/stats"),
-    submitChallengeAttempt: (input) => post("/challenge/attempts", input),
+    submitChallengeAttempt: ({ text, alias, file }) => {
+      if (!file) return post("/challenge/attempts", { text, alias });
+      const form = new FormData();
+      form.append("file", file);
+      if (alias) form.append("alias", alias);
+      return request("POST", "/challenge/attempts", { body: { form } });
+    },
     proposeProfile: (input) => post("/onboarding/profile", input),
     completeOnboarding: (input) => post("/onboarding/complete", input),
     importSuppliers: (file) => {
