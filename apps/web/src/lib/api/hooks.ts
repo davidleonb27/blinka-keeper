@@ -6,6 +6,7 @@ import { useHydrated } from "@/lib/hydration";
 import type {
   ApprovalInput,
   ChallengeInput,
+  InvoiceInput,
   OnboardingRequest,
   ProfileRequest,
   ReconciliationView,
@@ -210,6 +211,16 @@ export function useCompleteOnboarding(store: WorkspaceStore = browserWorkspaceSt
       }
     },
     onSuccess: invalidate,
+  });
+}
+
+/** Receives one invoice; the summary refreshes so the panel counts it among those waiting to be decided. */
+export function useUploadInvoice() {
+  const api = useApi();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: InvoiceInput) => api.uploadInvoice(input),
+    onSuccess: () => client.invalidateQueries({ queryKey: queryKeys.workspace }),
   });
 }
 

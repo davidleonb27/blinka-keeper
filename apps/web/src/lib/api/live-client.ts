@@ -1,6 +1,7 @@
 import type {
   ApiPath,
   ChallengeForm,
+  InvoiceForm,
   ReconciliationForm,
   CustodioApi,
   FormOf,
@@ -133,6 +134,8 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
     health: () => call("get", "/api/v1/health", { scoped: false }),
     createWorkspace: (mode) => call("post", "/api/v1/workspaces", { json: { mode }, scoped: false }),
     getWorkspace: () => call("get", "/api/v1/workspaces/current"),
+    uploadInvoice: ({ file, text }) =>
+      call("post", "/api/v1/invoices", { form: formOf<InvoiceForm>(file ? { file } : { text }) }),
     processInvoices: () => call("post", "/api/v1/invoices/process"),
     listDecisions: () => call("get", "/api/v1/decisions"),
     getDecision: (id) => call("get", "/api/v1/decisions/{invoice_id}", { params: { invoice_id: id } }),

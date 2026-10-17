@@ -36,6 +36,8 @@ export type DecisionListItem = ResponseOf<"/api/v1/decisions", "get">[number];
 export type Acta = ResponseOf<"/api/v1/decisions/{invoice_id}", "get">;
 export type ApprovalInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/approve", "post">;
 export type ProcessOutcome = ResponseOf<"/api/v1/invoices/process", "post">;
+export type InvoiceForm = FormOf<"/api/v1/invoices", "post">;
+export type ReceivedInvoice = ResponseOf<"/api/v1/invoices", "post">;
 export type TamperDemoResult = ResponseOf<"/api/v1/ledger/tamper-demo", "post">;
 /** `answers` has a server default; the web does not ask for extra answers yet. */
 export type ProfileRequest = Pick<JsonBodyOf<"/api/v1/onboarding/profile", "post">, "company_name" | "website">;
@@ -56,6 +58,12 @@ export type ReconciliationItem = ResponseOf<"/api/v1/reconciliations", "get">[nu
 export type ResolveInput = JsonBodyOf<"/api/v1/reconciliations/{reconciliation_id}/resolve", "post">;
 export type PeriodCloseView = ResponseOf<"/api/v1/periods/{period}/close", "post">;
 export type DemoStatementFormat = "csv" | "pdf";
+
+/** An invoice of the company's own: a PDF or image, or the text of an email. */
+export interface InvoiceInput {
+  file?: File | null;
+  text?: string | null;
+}
 
 export interface ChallengeInput {
   text: string;
@@ -79,6 +87,8 @@ export interface CustodioApi {
   health(): Promise<Health>;
   createWorkspace(mode: WorkspaceMode): Promise<WorkspaceCreated>;
   getWorkspace(): Promise<WorkspaceSummary>;
+  /** Receives one invoice; it waits undecided until `processInvoices`. */
+  uploadInvoice(input: InvoiceInput): Promise<ReceivedInvoice>;
   processInvoices(): Promise<ProcessOutcome>;
   listDecisions(): Promise<DecisionListItem[]>;
   getDecision(invoiceId: string): Promise<Acta>;
