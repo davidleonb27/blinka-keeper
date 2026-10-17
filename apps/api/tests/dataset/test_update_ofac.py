@@ -15,7 +15,9 @@ SDN = (
     "\x1a\n"
 )
 ALT = '990001,1,"aka","QUIMERA TRADING",-0- \n990001,2,"fka","QFT TEST",-0- \n'
-ADD = '990001,10,-0- ,"Ciudad Ficticia","Utopia",-0- \n990001,11,-0- ,-0- ,"Utopia",-0- \n990002,12,-0- ,-0- ,-0- ,-0- \n'
+ADD = (
+    '990001,10,-0- ,"Ciudad Ficticia","Utopia",-0- \n990001,11,-0- ,-0- ,"Utopia",-0- \n990002,12,-0- ,-0- ,-0- ,-0- \n'
+)
 
 
 def load_script() -> ModuleType:
