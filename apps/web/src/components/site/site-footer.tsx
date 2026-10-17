@@ -54,7 +54,7 @@ function FooterLinkItem({ label, href, external }: FooterLink) {
 export function SiteFooter() {
   return (
     <footer className="border-t border-line">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-12 text-[14px] md:grid-cols-[1.4fr_repeat(3,1fr)]">
+      <nav aria-label="Pie de página" className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-12 text-[14px] md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="col-span-2 flex flex-col gap-3 md:col-span-1">
           <Wordmark />
           <p className="max-w-[34ch] text-[13px] text-ink-3">
@@ -62,14 +62,14 @@ export function SiteFooter() {
           </p>
         </div>
         {COLUMNS.map((column) => (
-          <nav key={column.title} aria-label={column.title} className="flex flex-col gap-2.5">
+          <div key={column.title} className="flex flex-col gap-2.5">
             <h2 className="eyebrow">{column.title}</h2>
             {column.links.map((link) => (
               <FooterLinkItem key={link.label} {...link} />
             ))}
-          </nav>
+          </div>
         ))}
-      </div>
+      </nav>
       <div className="border-t border-line">
         <p className="mx-auto max-w-6xl px-4 py-5 text-[12.5px] text-ink-3">
           Hecho por el equipo DreamMakers en la Hackathon 30X, Reto Blinka. La demo no mueve dinero real; la empresa y
