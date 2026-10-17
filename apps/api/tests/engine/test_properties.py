@@ -10,7 +10,6 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
-from custodio.dataset.synthetic import random_approvals, random_batch, random_company
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
@@ -24,6 +23,7 @@ from custodio.contracts import (
     Policy,
     RuleOutcome,
 )
+from custodio.dataset.synthetic import random_approvals, random_batch, random_company
 from custodio.engine import audit, decide_all
 
 ENGINE = Path(__file__).parents[2] / "custodio" / "engine"
