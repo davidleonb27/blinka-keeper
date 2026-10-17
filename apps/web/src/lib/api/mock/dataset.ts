@@ -1,22 +1,38 @@
-import type { DecisionDetail } from "../client";
-import type { AuditReport, Decision, LedgerEntry, Metrics, PaymentExecution, Policy } from "../contracts";
+import type { Acta } from "../client";
+import type {
+  AuditReport,
+  Decision,
+  ExtractedInvoice,
+  InvoiceSource,
+  ISODate,
+  ISODateTime,
+  LedgerEntry,
+  Metrics,
+  PaymentExecution,
+  Policy,
+} from "../contracts";
 import raw from "./demo-dataset.json";
 
-export interface DemoItem extends DecisionDetail {
+/** One invoice of the prototype week, already decided by the prototype engine. */
+export interface DemoItem {
+  decision: Decision;
+  received_at: ISODateTime;
+  source: InvoiceSource;
+  extraction: ExtractedInvoice;
   expected: "pay" | "hold" | "escalate" | null;
 }
 
+export interface DemoCompany {
+  name: string;
+  today: ISODate;
+  base_currency: string;
+  opening_balance: number;
+  balance_end: number;
+  spent_auto_base: number;
+}
+
 export interface DemoDataset {
-  company: {
-    name: string;
-    place: string;
-    today: string;
-    base_currency: string;
-    opening_balance: number;
-    balance_end: number;
-    spent_auto_base: number;
-    fx_units_per_base: Record<string, number>;
-  };
+  company: DemoCompany;
   policy: Policy;
   metrics: Metrics;
   audit: AuditReport;
@@ -40,4 +56,14 @@ export function freshDemo(): DemoDataset {
     if (PAID.has(item.decision.status)) item.decision.execution ??= simulatedExecution(item.received_at);
   }
   return demo;
+}
+
+/** The acta the API serves for a decided invoice: the decision, the invoice as read and its ledger entries. */
+export function actaOf({ decision, received_at, extraction }: DemoItem, ledger: readonly LedgerEntry[]): Acta {
+  const id = decision.invoice_id;
+  return {
+    decision,
+    invoice: { id, received_at, document_id: null, status: "decided", read_ok: true, extraction },
+    ledger: ledger.filter((entry) => entry.subject_id === id),
+  };
 }

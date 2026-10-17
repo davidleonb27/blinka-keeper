@@ -22,7 +22,18 @@ def test_the_list_returns_every_decision_in_arrival_order(client: TestClient) ->
     response = client.get("/api/v1/decisions", headers=workspace.headers)
 
     assert response.status_code == 200
-    assert [d["invoice_id"] for d in response.json()] == ["F01", "F02", "F03"]
+    assert [item["decision"]["invoice_id"] for item in response.json()] == ["F01", "F02", "F03"]
+
+
+def test_each_listed_decision_says_when_and_through_which_channel_its_invoice_arrived(client: TestClient) -> None:
+    workspace = new_workspace(client)
+    process(client, workspace)
+
+    first = client.get("/api/v1/decisions", headers=workspace.headers).json()[0]
+
+    assert set(first) == {"decision", "received_at", "source"}
+    assert first["received_at"].startswith("2026-10-10T09:00:00")
+    assert first["source"] == "text"
 
 
 def test_the_list_filters_by_status(client: TestClient) -> None:
@@ -31,7 +42,7 @@ def test_the_list_filters_by_status(client: TestClient) -> None:
 
     response = client.get("/api/v1/decisions", headers=workspace.headers, params={"status": "hold"})
 
-    assert [d["invoice_id"] for d in response.json()] == ["F03"]
+    assert [item["decision"]["invoice_id"] for item in response.json()] == ["F03"]
 
 
 def test_the_acta_brings_the_decision_the_reading_and_its_ledger_entries(client: TestClient) -> None:

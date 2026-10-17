@@ -5,7 +5,8 @@ from sqlalchemy import text
 
 from custodio.db import Database
 
-from .helpers import assert_ledger_valid, new_workspace
+from .doubles import FakeAuditor
+from .helpers import assert_ledger_valid, new_workspace, process
 
 
 def test_a_demo_workspace_starts_with_the_demo_company_and_its_pending_invoices(client: TestClient) -> None:
@@ -77,3 +78,48 @@ def test_seeding_is_recorded_in_a_verifiable_ledger(client: TestClient) -> None:
     verification = assert_ledger_valid(client, workspace)
 
     assert verification["length"] == 4  # policy v1 + three received invoices
+
+
+def test_the_summary_reports_today_the_opening_balance_and_the_autonomous_spend_of_the_month(
+    client: TestClient,
+) -> None:
+    workspace = new_workspace(client)
+    before = client.get("/api/v1/workspaces/current", headers=workspace.headers).json()
+    process(client, workspace)
+
+    after = client.get("/api/v1/workspaces/current", headers=workspace.headers).json()
+
+    assert before["today"] == "2026-10-17"
+    assert before["opening_balance"] == 100000.0
+    assert before["spent_auto_base"] == 0.0
+    assert after["opening_balance"] == 100000.0
+    assert after["spent_auto_base"] == 1200.0  # F01, the only payment the agent made alone
+    assert after["balance"] == 98800.0
+
+
+def test_the_summary_carries_the_independent_auditor_report_on_the_workspace_payments(client: TestClient) -> None:
+    workspace = new_workspace(client)
+    before = client.get("/api/v1/workspaces/current", headers=workspace.headers).json()
+    process(client, workspace)
+
+    after = client.get("/api/v1/workspaces/current", headers=workspace.headers).json()
+
+    assert before["audit"] == {"agrees": True, "checked": 0, "improper_payments": 0, "findings": []}
+    assert after["audit"] == {"agrees": True, "checked": 1, "improper_payments": 0, "findings": []}
+
+
+def test_the_summary_audit_names_every_payment_the_auditor_stopped(client: TestClient, auditor: FakeAuditor) -> None:
+    workspace = new_workspace(client)
+    auditor.flagged.add("F01")
+    process(client, workspace)
+
+    summary = client.get("/api/v1/workspaces/current", headers=workspace.headers).json()
+
+    audit = summary["audit"]
+    assert audit["agrees"] is False
+    assert audit["checked"] == 1
+    assert audit["improper_payments"] == summary["metrics"]["improper_payments"] == 1
+    [finding] = audit["findings"]
+    assert finding["invoice_id"] == "F01"
+    assert finding["severity"] == "critical"
+    assert "auditor" in finding["message"]

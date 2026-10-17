@@ -13,6 +13,8 @@ from sqlalchemy import Select, select, update
 
 from custodio.contracts import (
     AgentVerdict,
+    AuditFinding,
+    AuditReport,
     CompanyState,
     Decision,
     DecisionStatus,
@@ -123,11 +125,14 @@ def decision(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> Decisio
     return Decision.model_validate(row.document)
 
 
-def decisions(ctx: ServiceContext, workspace_id: str, status: DecisionStatus | None = None) -> list[Decision]:
+def decisions(
+    ctx: ServiceContext, workspace_id: str, status: DecisionStatus | None = None
+) -> list[tuple[Decision, InvoiceRow]]:
+    """Each decision with the invoice it decided, in arrival order."""
     query = _decided(workspace_id)
     if status is not None:
         query = query.where(DecisionRow.status == status.value)
-    return [Decision.model_validate(row.document) for row, _ in ctx.session.execute(query)]
+    return [(Decision.model_validate(row.document), invoice_row) for row, invoice_row in ctx.session.execute(query)]
 
 
 def seeded_history(workspace: WorkspaceRow) -> list[PaymentRecord]:
@@ -165,6 +170,37 @@ def metrics(ctx: ServiceContext, workspace_id: str) -> Metrics:
         [decided for decided, _, _ in stored],
         improper_payments=sum(row.audit_blocked for _, row, _ in stored),
         accuracy=_accuracy([(verdict, expected) for verdict, expected in labelled if expected is not None]),
+    )
+
+
+def autonomous_spend(ctx: ServiceContext, workspace: WorkspaceRow) -> Decimal:
+    """What the agent paid alone this calendar month, history included: the amount R11 counts next."""
+    today = ctx.now().date()
+    return sum(
+        (
+            record.amount_base
+            for record in payment_history(ctx, workspace)
+            if record.by == "agent" and (record.paid_on.year, record.paid_on.month) == (today.year, today.month)
+        ),
+        Decimal(0),
+    )
+
+
+def audit_report(ctx: ServiceContext, workspace_id: str) -> AuditReport:
+    """The independent auditor's verdict on every payment this workspace made or tried to make.
+
+    Each batch was audited when it was decided; a payment it stopped stays stored with `audit_blocked` and the reason
+    in its acta, so the report adds up those verdicts instead of re-auditing under today's rules.
+    """
+    rows = [row for row, _ in ctx.session.execute(_decided(workspace_id))]
+    stopped = [Decision.model_validate(row.document) for row in rows if row.audit_blocked]
+    findings = [
+        AuditFinding(invoice_id=d.invoice_id, severity="critical", message=d.blocked_reason or d.explanation)
+        for d in stopped
+    ]
+    paid = sum(DecisionStatus(row.status) in PAID for row in rows)
+    return AuditReport(
+        agrees=not findings, checked=paid + len(stopped), improper_payments=len(findings), findings=findings
     )
 
 

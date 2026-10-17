@@ -187,5 +187,6 @@ export function onboardingRequest(answers: Answers): OnboardingRequest {
     profile: answers.profile ?? fallbackProfile(answers),
     opening_balance: parseWholeAmount(answers.balance) ?? 0,
     policy: { ...rules, approvers: approversOf(answers), beneficiaries: answers.suppliers },
+    suppliers: answers.suppliers,
   };
 }

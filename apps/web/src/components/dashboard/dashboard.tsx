@@ -10,6 +10,7 @@ import { useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
 import { formatDate, formatMoney } from "@/lib/format";
 import { DecisionList } from "./decision-list";
 import { Overview } from "./overview";
+import { ReceivedInvoices } from "./received-invoices";
 import { decisionsByDay, statusTotals, type StatusFilter, type Total } from "./summarize";
 
 // Recharts is the heaviest dependency; it loads after the numbers that matter are on screen.
@@ -77,6 +78,7 @@ export function Dashboard() {
     <>
       {header}
       <div className="flex flex-col gap-4">
+        {summary.data.pending_invoices > 0 ? <ReceivedInvoices count={summary.data.pending_invoices} /> : null}
         <Overview summary={summary.data} pendingTotal={totals.pending.total} onShowPending={() => setFilter("pending")} />
         <section aria-label="Pagado, retenido y pendiente" className="grid grid-cols-3 gap-2 sm:gap-4">
           <TotalTile label="Pagado" total={totals.paid} tone="bg-pay" base={base} />

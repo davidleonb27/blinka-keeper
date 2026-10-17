@@ -1,10 +1,20 @@
-import type { CustodioApi } from "./client";
+import type {
+  ApiPath,
+  ChallengeForm,
+  CustodioApi,
+  FormOf,
+  JsonBodyOf,
+  Method,
+  PathParamsOf,
+  ResponseOf,
+} from "./client";
 import type { RedTeamEvent } from "./contracts";
 import { errorFromStatus, NetworkError, UnexpectedResponseError } from "./errors";
 import { readSse } from "./sse";
 
 export const API_BASE = "/api/v1";
 const WORKSPACE_HEADER = "X-Custodio-Workspace";
+const PATH_PARAM = /\{(\w+)\}/g;
 
 export interface LiveClientOptions {
   fetch: typeof fetch;
@@ -12,13 +22,15 @@ export interface LiveClientOptions {
   workspaceId: () => Promise<string | null> | string | null;
 }
 
-interface RequestOptions {
-  body?: Body;
+interface CallOptions<P extends ApiPath, M extends Method> {
+  params?: PathParamsOf<P, M>;
+  json?: JsonBodyOf<P, M>;
+  form?: FormData;
   scoped?: boolean;
   signal?: AbortSignal;
 }
 
-type Body = { json: unknown } | { form: FormData } | undefined;
+type FormFields<F> = { [K in keyof F]?: string | File | null };
 
 async function readDetail(response: Response): Promise<string | null> {
   try {
@@ -32,26 +44,43 @@ async function readDetail(response: Response): Promise<string | null> {
   return null;
 }
 
+function urlFor(path: string, params: unknown): string {
+  const values = (params ?? {}) as Record<string, string>;
+  return path.replace(PATH_PARAM, (_, name: string) => encodeURIComponent(values[name] ?? ""));
+}
+
+/** Multipart fields named after the route's OpenAPI body, so a renamed field fails tsc. */
+function formOf<F>(fields: FormFields<F>): FormData {
+  const form = new FormData();
+  for (const [name, value] of Object.entries(fields)) {
+    if (value instanceof File || (typeof value === "string" && value)) form.append(name, value);
+  }
+  return form;
+}
+
 export function createLiveClient({ fetch: fetchImpl, workspaceId }: LiveClientOptions): CustodioApi {
-  async function headersFor({ body, scoped = true }: RequestOptions): Promise<Headers> {
+  async function headersFor(json: boolean, scoped: boolean): Promise<Headers> {
     const headers = new Headers({ Accept: "application/json" });
     const id = scoped ? await workspaceId() : null;
     if (id) headers.set(WORKSPACE_HEADER, id);
-    if (body && "json" in body) headers.set("Content-Type", "application/json");
+    if (json) headers.set("Content-Type", "application/json");
     return headers;
   }
 
-  async function send(method: string, path: string, options: RequestOptions = {}): Promise<Response> {
-    const { body } = options;
-    const headers = await headersFor(options);
+  async function send<P extends ApiPath, M extends Method>(
+    method: M,
+    path: P,
+    { params, json, form, scoped = true, signal }: CallOptions<P, M> = {},
+  ): Promise<Response> {
+    const headers = await headersFor(json !== undefined, scoped);
     let response: Response;
     try {
-      response = await fetchImpl(`${API_BASE}${path}`, {
-        method,
+      response = await fetchImpl(urlFor(path, params), {
+        method: method.toUpperCase(),
         headers,
-        body: body && ("json" in body ? JSON.stringify(body.json) : body.form),
+        body: json !== undefined ? JSON.stringify(json) : form,
         credentials: "same-origin",
-        signal: options.signal,
+        signal,
       });
     } catch {
       throw new NetworkError();
@@ -60,48 +89,47 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId }: LiveClientOp
     return response;
   }
 
-  async function request<T>(method: string, path: string, options?: RequestOptions): Promise<T> {
+  async function call<P extends ApiPath, M extends Method>(
+    method: M,
+    path: P,
+    options?: CallOptions<P, M>,
+  ): Promise<ResponseOf<P, M>> {
     const response = await send(method, path, options);
-    return (await response.json()) as T;
+    return (await response.json()) as ResponseOf<P, M>;
   }
 
-  const get = <T>(path: string) => request<T>("GET", path);
-  const post = <T>(path: string, json?: unknown) =>
-    request<T>("POST", path, json === undefined ? undefined : { body: { json } });
-
   return {
-    health: () => request("GET", "/health", { scoped: false }),
-    createWorkspace: (mode) =>
-      request("POST", "/workspaces", { body: { json: { mode } }, scoped: false }),
-    getWorkspace: () => get("/workspaces/current"),
-    listDecisions: () => get("/decisions"),
-    getDecision: (id) => get(`/decisions/${encodeURIComponent(id)}`),
-    approveDecision: (id, input) => post(`/decisions/${encodeURIComponent(id)}/approve`, input),
-    rejectDecision: (id, input) => post(`/decisions/${encodeURIComponent(id)}/reject`, input),
-    executePayment: (id) => post(`/decisions/${encodeURIComponent(id)}/execute`),
-    getPolicy: () => get("/policy"),
-    compilePolicy: (text, base) => post("/policy/compile", { text, base: base ?? null }),
-    applyPolicy: (policy) => request("PUT", "/policy", { body: { json: policy } }),
-    getLedger: () => get("/ledger"),
-    verifyLedger: () => get("/ledger/verify"),
-    tamperDemo: () => post("/ledger/tamper-demo"),
-    getChallengeStats: () => get("/challenge/stats"),
-    submitChallengeAttempt: ({ text, alias, file }) => {
-      if (!file) return post("/challenge/attempts", { text, alias });
-      const form = new FormData();
-      form.append("file", file);
-      if (alias) form.append("alias", alias);
-      return request("POST", "/challenge/attempts", { body: { form } });
-    },
-    proposeProfile: (input) => post("/onboarding/profile", input),
-    completeOnboarding: (input) => post("/onboarding/complete", input),
-    importSuppliers: (file) => {
-      const form = new FormData();
-      form.append("file", file);
-      return request("POST", "/onboarding/suppliers", { body: { form } });
-    },
+    health: () => call("get", "/api/v1/health", { scoped: false }),
+    createWorkspace: (mode) => call("post", "/api/v1/workspaces", { json: { mode }, scoped: false }),
+    getWorkspace: () => call("get", "/api/v1/workspaces/current"),
+    processInvoices: () => call("post", "/api/v1/invoices/process"),
+    listDecisions: () => call("get", "/api/v1/decisions"),
+    getDecision: (id) => call("get", "/api/v1/decisions/{invoice_id}", { params: { invoice_id: id } }),
+    approveDecision: (id, input) =>
+      call("post", "/api/v1/decisions/{invoice_id}/approve", { params: { invoice_id: id }, json: input }),
+    rejectDecision: (id, input) =>
+      call("post", "/api/v1/decisions/{invoice_id}/reject", { params: { invoice_id: id }, json: input }),
+    executePayment: (id) => call("post", "/api/v1/decisions/{invoice_id}/execute", { params: { invoice_id: id } }),
+    getPolicy: () => call("get", "/api/v1/policy"),
+    compilePolicy: (text, base) => call("post", "/api/v1/policy/compile", { json: { text, base: base ?? null } }),
+    applyPolicy: (policy) => call("put", "/api/v1/policy", { json: policy }),
+    getLedger: () => call("get", "/api/v1/ledger"),
+    verifyLedger: () => call("get", "/api/v1/ledger/verify"),
+    tamperDemo: () => call("post", "/api/v1/ledger/tamper-demo", { json: {} }),
+    getChallengeStats: () => call("get", "/api/v1/challenge/stats", { scoped: false }),
+    submitChallengeAttempt: ({ text, alias, file }) =>
+      call("post", "/api/v1/challenge/attempts", {
+        form: formOf<ChallengeForm>(file ? { file, alias } : { text, alias }),
+        scoped: false,
+      }),
+    proposeProfile: (input) => call("post", "/api/v1/onboarding/profile", { json: { ...input, answers: {} } }),
+    completeOnboarding: (input) => call("post", "/api/v1/onboarding/complete", { json: input }),
+    importSuppliers: (file) =>
+      call("post", "/api/v1/onboarding/suppliers", {
+        form: formOf<FormOf<"/api/v1/onboarding/suppliers", "post">>({ file }),
+      }),
     runRedTeam: async (input, onEvent, signal) => {
-      const response = await send("POST", "/redteam/runs", { body: { json: input }, signal });
+      const response = await send("post", "/api/v1/redteam/runs", { json: input, signal });
       if (!response.body) throw new UnexpectedResponseError(response.status);
       await readSse(response.body, (message) => onEvent(JSON.parse(message.data) as RedTeamEvent));
     },

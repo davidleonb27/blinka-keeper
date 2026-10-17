@@ -26,8 +26,8 @@ function ImproperPaymentsHero({ summary }: { summary: WorkspaceSummary }) {
           {improper}
         </p>
         <p className="max-w-[40ch] text-ink-2">
-          Un auditor independiente recalculó uno por uno los {summary.audit.checked} pagos que Custodio hizo solo. Un solo
-          pago indebido descalifica: este número tiene que ser cero siempre.
+          Un auditor independiente recalculó uno por uno los {summary.audit.checked} pagos de este espacio antes de que
+          salieran. Un solo pago indebido descalifica: este número tiene que ser cero siempre.
         </p>
       </div>
       <div className="relative mt-4 flex flex-wrap gap-2">

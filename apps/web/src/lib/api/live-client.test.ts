@@ -60,6 +60,45 @@ describe("live client", () => {
     expect(init?.method).toBe("POST");
   });
 
+  it("processes the pending invoices of the workspace", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(200, {}));
+    await clientWith(fetchMock).processInvoices();
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("/api/v1/invoices/process");
+    expect(init?.method).toBe("POST");
+  });
+
+  it("sends a challenge attempt as multipart, the only body the API accepts", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(201, {}));
+    await clientWith(fetchMock).submitChallengeAttempt({ text: "Factura trampa", alias: "lucia" });
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("/api/v1/challenge/attempts");
+    expect(init?.body).toBeInstanceOf(FormData);
+    const form = init?.body as FormData;
+    expect(form.get("text")).toBe("Factura trampa");
+    expect(form.get("alias")).toBe("lucia");
+    expect(new Headers(init?.headers).has("Content-Type")).toBe(false);
+  });
+
+  it("sends a JSON body to the tamper demo, which requires one", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(200, {}));
+    await clientWith(fetchMock).tamperDemo();
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("/api/v1/ledger/tamper-demo");
+    expect(init?.body).toBe("{}");
+  });
+
+  it("compiles against the workspace policy unless a draft is given", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(200, {}));
+    await clientWith(fetchMock).compilePolicy("Nada sobre 3.000 USD");
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(JSON.parse(String(init?.body))).toEqual({ text: "Nada sobre 3.000 USD", base: null });
+  });
+
   it("turns a 429 into a Spanish rate-limit error", async () => {
     const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(429, { detail: "rate" }));
     const error = await clientWith(fetchMock).getWorkspace().catch((e: unknown) => e);

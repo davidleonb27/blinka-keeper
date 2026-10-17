@@ -4,7 +4,7 @@ import { Check, Link2, ShieldAlert, X } from "lucide-react";
 import { useId, useState, type ReactNode } from "react";
 import { StatusPill } from "@/components/status-pill";
 import { Button } from "@/components/ui/button";
-import type { DecisionDetail } from "@/lib/api/client";
+import { sealOf, type Acta as ActaData } from "@/lib/api/client";
 import type { ExtractedFieldName, Policy } from "@/lib/api/contracts";
 import { formatDate, formatDateTime, shortHash } from "@/lib/format";
 import { amountText, baseAmountText, supplierText } from "@/lib/presentation";
@@ -14,7 +14,7 @@ import { PaymentExecutionBlock } from "./payment-execution";
 import { RuleList } from "./rule-list";
 
 export interface ActaProps {
-  detail: DecisionDetail;
+  detail: ActaData;
   policy: Pick<Policy, "approvers" | "min_confidence" | "base_currency">;
   onDecide: (approve: boolean, approver: string) => void;
   deciding: boolean;
@@ -31,20 +31,17 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function ActaHeader({ detail, baseCurrency }: { detail: DecisionDetail; baseCurrency: string }) {
-  const { decision } = detail;
+function ActaHeader({ detail, baseCurrency }: { detail: ActaData; baseCurrency: string }) {
+  const { decision, invoice } = detail;
   const base = baseAmountText(decision, baseCurrency);
-  const eyebrow = ["Acta de decisión", decision.invoice_id, detail.trap && `trampa: ${detail.trap.toLowerCase()}`]
-    .filter(Boolean)
-    .join(" · ");
   return (
     <header className="flex flex-col gap-2.5 pr-12">
-      <p className="eyebrow">{eyebrow}</p>
+      <p className="eyebrow">Acta de decisión · {decision.invoice_id}</p>
       <h2 className="font-display text-2xl leading-tight font-semibold tracking-[-0.01em]">{supplierText(decision)}</h2>
       <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1.5">
         <b className="text-[26px] leading-none font-semibold tracking-[-0.02em] tabular">{amountText(decision)}</b>
         {base ? <span className="text-ink-3 tabular">{base}</span> : null}
-        <span className="text-ink-3">llegó el {formatDate(detail.received_at)}</span>
+        <span className="text-ink-3">llegó el {formatDate(invoice.received_at)}</span>
       </p>
       <div>
         <StatusPill status={decision.status} size="lg" />
@@ -84,7 +81,9 @@ function ApprovalActions({ policy, onDecide, deciding }: Pick<ActaProps, "policy
 
 export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retryingPayment }: ActaProps) {
   const [activeField, setActiveField] = useState<ExtractedFieldName | null>(null);
-  const { decision, extraction, ledger } = detail;
+  const { decision, invoice } = detail;
+  const { extraction } = invoice;
+  const seal = sealOf(detail);
   const paid = decision.agent_verdict === "pay";
   return (
     <article className="flex flex-col gap-6">
@@ -118,16 +117,12 @@ export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retry
         <RuleList rules={decision.rules} />
       </Section>
 
-      {extraction ? (
-        <>
-          <Section title="Lo que leyó del documento">
-            <ExtractedFields extraction={extraction} minConfidence={policy.min_confidence} onFocusField={setActiveField} />
-          </Section>
-          <Section title="Documento original">
-            <OriginalDocument extraction={extraction} activeField={activeField} />
-          </Section>
-        </>
-      ) : null}
+      <Section title="Lo que leyó del documento">
+        <ExtractedFields extraction={extraction} minConfidence={policy.min_confidence} onFocusField={setActiveField} />
+      </Section>
+      <Section title="Documento original">
+        <OriginalDocument extraction={extraction} activeField={activeField} />
+      </Section>
 
       {decision.approval ? (
         <p className="text-[13px] text-ink-2">
@@ -136,12 +131,12 @@ export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retry
         </p>
       ) : null}
 
-      {ledger ? (
+      {seal ? (
         <p className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 border-t border-line pt-3.5 text-xs text-ink-3">
           <Link2 aria-hidden className="size-3.5" />
-          <span>Asiento #{ledger.seq}</span>
+          <span>Asiento #{seal.seq}</span>
           <span>
-            hash <code className="font-mono text-ink-2">{shortHash(ledger.hash)}</code>
+            hash <code className="font-mono text-ink-2">{shortHash(seal.hash)}</code>
           </span>
         </p>
       ) : null}

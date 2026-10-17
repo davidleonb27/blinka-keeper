@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from custodio.api.deps import CurrentWorkspace, ModelCallLimit, Services
-from custodio.contracts import Decision, DecisionStatus, LedgerEntry
+from custodio.contracts import Decision, DecisionStatus, InvoiceSource, LedgerEntry
 from custodio.services import approval_service, invoice_service, ledger_service, payment_service, records
 from custodio.services.invoice_service import InvoiceView
 
@@ -22,17 +23,28 @@ class ApprovalBody(BaseModel):
     note: str | None = Field(default=None, max_length=500)
 
 
+class DecisionItem(BaseModel):
+    """A row of the panel: the decision plus when and through which channel its invoice arrived."""
+
+    decision: Decision
+    received_at: datetime
+    source: InvoiceSource
+
+
 class Acta(BaseModel):
     decision: Decision
     invoice: InvoiceView
     ledger: list[LedgerEntry]
 
 
-@router.get("", response_model=list[Decision])
+@router.get("", response_model=list[DecisionItem])
 def list_decisions(
     ctx: Services, workspace: CurrentWorkspace, status: Annotated[DecisionStatus | None, Query()] = None
-) -> list[Decision]:
-    return records.decisions(ctx, workspace.id, status)
+) -> list[DecisionItem]:
+    return [
+        DecisionItem(decision=decision, received_at=row.received_at, source=row.extraction["source"])
+        for decision, row in records.decisions(ctx, workspace.id, status)
+    ]
 
 
 @router.get("/{invoice_id}", response_model=Acta)

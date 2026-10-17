@@ -1,0 +1,2155 @@
+/**
+ * Generated from the FastAPI OpenAPI document (apps/api main:app, /api/v1/openapi.json) by
+ * scripts/gen-api-schema.mjs. Do not edit: run `npm run gen:api`. ./scripts/check.sh fails when it is stale.
+ */
+
+export interface paths {
+    "/api/v1/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Health */
+        get: operations["health_api_v1_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Workspace */
+        post: operations["create_workspace_api_v1_workspaces_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Current Workspace */
+        get: operations["current_workspace_api_v1_workspaces_current_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Propose Profile */
+        post: operations["propose_profile_api_v1_onboarding_profile_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/suppliers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import Suppliers */
+        post: operations["import_suppliers_api_v1_onboarding_suppliers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Complete */
+        post: operations["complete_api_v1_onboarding_complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Policy */
+        get: operations["read_policy_api_v1_policy_get"];
+        /** Apply Policy */
+        put: operations["apply_policy_api_v1_policy_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/policy/compile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Compile Policy */
+        post: operations["compile_policy_api_v1_policy_compile_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload Invoice */
+        post: operations["upload_invoice_api_v1_invoices_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoices/process": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Process Invoices */
+        post: operations["process_invoices_api_v1_invoices_process_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Decisions */
+        get: operations["list_decisions_api_v1_decisions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Acta */
+        get: operations["read_acta_api_v1_decisions__invoice_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve */
+        post: operations["approve_api_v1_decisions__invoice_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject */
+        post: operations["reject_api_v1_decisions__invoice_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute Payment
+         * @description Retries a payment whose execution failed. A payment that already went out is returned unchanged.
+         */
+        post: operations["execute_payment_api_v1_decisions__invoice_id__execute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/narrative": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Narrative */
+        get: operations["read_narrative_api_v1_decisions__invoice_id__narrative_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Ledger */
+        get: operations["read_ledger_api_v1_ledger_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ledger/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Verify Ledger */
+        get: operations["verify_ledger_api_v1_ledger_verify_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ledger/tamper-demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tamper Demo */
+        post: operations["tamper_demo_api_v1_ledger_tamper_demo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/redteam/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start Run */
+        post: operations["start_run_api_v1_redteam_runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/challenge/attempts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Attempt */
+        post: operations["submit_attempt_api_v1_challenge_attempts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/challenge/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Stats */
+        get: operations["read_stats_api_v1_challenge_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/firewall/intents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Intent */
+        post: operations["submit_intent_api_v1_firewall_intents_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+}
+export type webhooks = Record<string, never>;
+export interface components {
+    schemas: {
+        /** Acta */
+        Acta: {
+            decision: components["schemas"]["Decision"];
+            invoice: components["schemas"]["InvoiceView"];
+            /** Ledger */
+            ledger: components["schemas"]["LedgerEntry"][];
+        };
+        /**
+         * AgentVerdict
+         * @enum {string}
+         */
+        AgentVerdict: "pay" | "hold" | "escalate";
+        /** Agreement */
+        "Agreement-Input": {
+            kind: components["schemas"]["AgreementKind"];
+            /** Amount */
+            amount: number | string;
+            /** Currency */
+            currency: string;
+            /** Tolerance Pct */
+            tolerance_pct?: number | string | null;
+            /** Source */
+            source?: string | null;
+        };
+        /** Agreement */
+        "Agreement-Output": {
+            kind: components["schemas"]["AgreementKind"];
+            /** Amount */
+            amount: number;
+            /** Currency */
+            currency: string;
+            /** Tolerance Pct */
+            tolerance_pct?: number | null;
+            /** Source */
+            source?: string | null;
+        };
+        /**
+         * AgreementKind
+         * @enum {string}
+         */
+        AgreementKind: "fixed" | "monthly_cap";
+        /** Approval */
+        Approval: {
+            /** Invoice Id */
+            invoice_id: string;
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approved" | "rejected";
+            /** Approver */
+            approver: string;
+            /**
+             * Channel
+             * @enum {string}
+             */
+            channel: "web" | "api";
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Note */
+            note?: string | null;
+        };
+        /** ApprovalBody */
+        ApprovalBody: {
+            /** Approver */
+            approver: string;
+            /** Note */
+            note?: string | null;
+        };
+        /** Approver */
+        Approver: {
+            /** Name */
+            name: string;
+            /** Role */
+            role?: string | null;
+            /** Email */
+            email?: string | null;
+        };
+        /** AttackSpec */
+        AttackSpec: {
+            /** Round */
+            round: number;
+            /** Technique */
+            technique: string;
+            /** Rationale */
+            rationale: string;
+            /** Target Rules */
+            target_rules: string[];
+            /**
+             * Render As
+             * @enum {string}
+             */
+            render_as: "pdf" | "text" | "image";
+            /** Invoice Text */
+            invoice_text: string;
+            /** Hidden Text */
+            hidden_text?: string | null;
+        };
+        /** AuditFinding */
+        AuditFinding: {
+            /** Invoice Id */
+            invoice_id: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "critical" | "warning";
+            /** Message */
+            message: string;
+        };
+        /** AuditReport */
+        AuditReport: {
+            /** Agrees */
+            agrees: boolean;
+            /** Checked */
+            checked: number;
+            /** Improper Payments */
+            improper_payments: number;
+            /**
+             * Findings
+             * @default []
+             */
+            findings: components["schemas"]["AuditFinding"][];
+        };
+        /** BatchResult */
+        BatchResult: {
+            /** Decisions */
+            decisions: components["schemas"]["Decision"][];
+            /** Spent Auto Base */
+            spent_auto_base: number;
+            /** Balance End */
+            balance_end: number;
+            metrics: components["schemas"]["Metrics"];
+        };
+        /** Beneficiary */
+        "Beneficiary-Input": {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Tax Id */
+            tax_id: string;
+            /**
+             * Aliases
+             * @default []
+             */
+            aliases: string[];
+            /** Country */
+            country?: string | null;
+            /** Bank Name */
+            bank_name: string;
+            /** Account Number */
+            account_number: string;
+            /** Currency */
+            currency: string;
+            agreement?: components["schemas"]["Agreement-Input"] | null;
+            /**
+             * Allowed
+             * @default true
+             */
+            allowed: boolean;
+            /** Approver Contact */
+            approver_contact?: string | null;
+        };
+        /** Beneficiary */
+        "Beneficiary-Output": {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Tax Id */
+            tax_id: string;
+            /**
+             * Aliases
+             * @default []
+             */
+            aliases: string[];
+            /** Country */
+            country?: string | null;
+            /** Bank Name */
+            bank_name: string;
+            /** Account Number */
+            account_number: string;
+            /** Currency */
+            currency: string;
+            agreement?: components["schemas"]["Agreement-Output"] | null;
+            /**
+             * Allowed
+             * @default true
+             */
+            allowed: boolean;
+            /** Approver Contact */
+            approver_contact?: string | null;
+        };
+        /** Body_import_suppliers_api_v1_onboarding_suppliers_post */
+        Body_import_suppliers_api_v1_onboarding_suppliers_post: {
+            /** File */
+            file: string;
+        };
+        /** Body_submit_attempt_api_v1_challenge_attempts_post */
+        Body_submit_attempt_api_v1_challenge_attempts_post: {
+            /** File */
+            file?: string | null;
+            /** Text */
+            text?: string | null;
+            /** Alias */
+            alias?: string | null;
+            /** Technique */
+            technique?: string | null;
+        };
+        /** Body_upload_invoice_api_v1_invoices_post */
+        Body_upload_invoice_api_v1_invoices_post: {
+            /** File */
+            file?: string | null;
+            /** Text */
+            text?: string | null;
+        };
+        /** ChallengeAttempt */
+        ChallengeAttempt: {
+            /** Id */
+            id: string;
+            /** Alias */
+            alias: string | null;
+            /** Technique */
+            technique: string | null;
+            decision: components["schemas"]["Decision"];
+            /** Broke Through */
+            broke_through: boolean;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+        };
+        /** ChallengeStats */
+        ChallengeStats: {
+            /** Attempts */
+            attempts: number;
+            /** Improper Payments */
+            improper_payments: number;
+            /** Held */
+            held: number;
+            /** Escalated */
+            escalated: number;
+            /** Paid Legitimately */
+            paid_legitimately: number;
+            /**
+             * Hall Of Fame
+             * @default []
+             */
+            hall_of_fame: components["schemas"]["ChallengeAttempt"][];
+        };
+        /**
+         * CompanyProfile
+         * @description What Custodio infers about a company from its website and first answers, before asking anything else.
+         */
+        CompanyProfile: {
+            /** Company Name */
+            company_name: string;
+            /** Website */
+            website?: string | null;
+            /** Industry */
+            industry?: string | null;
+            /** Country */
+            country?: string | null;
+            /**
+             * Base Currency
+             * @default USD
+             */
+            base_currency: string;
+            /** Summary */
+            summary?: string | null;
+            /**
+             * Likely Suppliers
+             * @default []
+             */
+            likely_suppliers: string[];
+            /** Suggested Rules Text */
+            suggested_rules_text?: string | null;
+            /**
+             * Evidence Urls
+             * @default []
+             */
+            evidence_urls: string[];
+        };
+        /** CompileRequest */
+        CompileRequest: {
+            /** Text */
+            text: string;
+            base?: components["schemas"]["Policy-Input"] | null;
+        };
+        /** CreateWorkspace */
+        CreateWorkspace: {
+            /** @default demo */
+            mode: components["schemas"]["WorkspaceMode"];
+        };
+        /** Decision */
+        Decision: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Beneficiary Id */
+            beneficiary_id: string | null;
+            /** Supplier Name */
+            supplier_name: string | null;
+            /** Amount */
+            amount: number | null;
+            /** Currency */
+            currency: string | null;
+            /** Amount Base */
+            amount_base: number | null;
+            agent_verdict: components["schemas"]["AgentVerdict"];
+            status: components["schemas"]["DecisionStatus"];
+            /** Rules */
+            rules: components["schemas"]["RuleResult"][];
+            /** Explanation */
+            explanation: string;
+            /** Counterfactual */
+            counterfactual: string | null;
+            /** Narrative */
+            narrative?: string | null;
+            /** Balance Before */
+            balance_before?: number | null;
+            /** Balance After */
+            balance_after?: number | null;
+            approval?: components["schemas"]["Approval"] | null;
+            /** Blocked Reason */
+            blocked_reason?: string | null;
+            execution?: components["schemas"]["PaymentExecution"] | null;
+        };
+        /**
+         * DecisionItem
+         * @description A row of the panel: the decision plus when and through which channel its invoice arrived.
+         */
+        DecisionItem: {
+            decision: components["schemas"]["Decision"];
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            source: components["schemas"]["InvoiceSource"];
+        };
+        /**
+         * DecisionStatus
+         * @enum {string}
+         */
+        DecisionStatus: "paid_auto" | "paid_human" | "hold" | "pending_approval" | "rejected";
+        /** Evidence */
+        Evidence: {
+            /** Quote */
+            quote: string;
+            /** Page */
+            page?: number | null;
+            /** Char Start */
+            char_start?: number | null;
+            /** Char End */
+            char_end?: number | null;
+        };
+        /** ExtractedField */
+        ExtractedField: {
+            /** Value */
+            value: string | null;
+            evidence?: components["schemas"]["Evidence"] | null;
+            /** Confidence */
+            confidence: number;
+            /**
+             * Verified
+             * @default false
+             */
+            verified: boolean;
+        };
+        /** ExtractedInvoice */
+        ExtractedInvoice: {
+            /** Document Id */
+            document_id: string;
+            source: components["schemas"]["InvoiceSource"];
+            supplier_name: components["schemas"]["ExtractedField"];
+            supplier_tax_id: components["schemas"]["ExtractedField"];
+            invoice_number: components["schemas"]["ExtractedField"];
+            issue_date: components["schemas"]["ExtractedField"];
+            due_date: components["schemas"]["ExtractedField"];
+            amount: components["schemas"]["ExtractedField"];
+            currency: components["schemas"]["ExtractedField"];
+            bank_name: components["schemas"]["ExtractedField"];
+            account_number: components["schemas"]["ExtractedField"];
+            description: components["schemas"]["ExtractedField"];
+            /** Visible Text */
+            visible_text: string;
+            /**
+             * Hidden Findings
+             * @default []
+             */
+            hidden_findings: components["schemas"]["HiddenTextFinding"][];
+            /** Reader */
+            reader: string;
+            /** Overall Confidence */
+            overall_confidence: number;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /** Health */
+        Health: {
+            /** Status */
+            status: string;
+            /** Version */
+            version: string;
+            /** Anthropic */
+            anthropic: boolean;
+            /**
+             * Payment Rail
+             * @enum {string}
+             */
+            payment_rail: "simulated" | "stripe_test";
+        };
+        /** HiddenTextFinding */
+        HiddenTextFinding: {
+            kind: components["schemas"]["HiddenTextKind"];
+            /** Text */
+            text: string;
+            /** Page */
+            page?: number | null;
+            /** Detail */
+            detail: string;
+        };
+        /**
+         * HiddenTextKind
+         * @enum {string}
+         */
+        HiddenTextKind: "invisible_color" | "tiny_font" | "off_page" | "covered" | "metadata" | "instruction";
+        /** IntentVerdict */
+        IntentVerdict: {
+            decision: components["schemas"]["Decision"];
+            /** Ledger Hash */
+            ledger_hash: string;
+            /** Acta Url */
+            acta_url: string;
+        };
+        /**
+         * InvoiceSource
+         * @enum {string}
+         */
+        InvoiceSource: "pdf" | "image" | "text" | "email" | "whatsapp" | "intent";
+        /** InvoiceView */
+        InvoiceView: {
+            /** Id */
+            id: string;
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            /** Document Id */
+            document_id: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "received" | "decided";
+            /** Read Ok */
+            read_ok: boolean;
+            extraction: components["schemas"]["ExtractedInvoice"];
+        };
+        /** LedgerEntry */
+        LedgerEntry: {
+            /** Seq */
+            seq: number;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            kind: components["schemas"]["LedgerKind"];
+            /** Subject Id */
+            subject_id: string | null;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Prev Hash */
+            prev_hash: string;
+            /** Hash */
+            hash: string;
+        };
+        /**
+         * LedgerKind
+         * @enum {string}
+         */
+        LedgerKind: "policy_changed" | "invoice_received" | "decision" | "approval" | "payment" | "redteam_attack" | "challenge_attempt" | "intent";
+        /** LedgerVerification */
+        LedgerVerification: {
+            /** Valid */
+            valid: boolean;
+            /** Length */
+            length: number;
+            /** First Broken Seq */
+            first_broken_seq: number | null;
+            /** Head Hash */
+            head_hash: string | null;
+        };
+        /** Metrics */
+        Metrics: {
+            /** Total */
+            total: number;
+            /** Paid Auto */
+            paid_auto: number;
+            /** Paid Human */
+            paid_human: number;
+            /** Hold */
+            hold: number;
+            /** Pending */
+            pending: number;
+            /** Rejected */
+            rejected: number;
+            /** Autonomy Rate */
+            autonomy_rate: number;
+            /** Accuracy */
+            accuracy?: number | null;
+            /** Improper Payments */
+            improper_payments: number;
+        };
+        /** Narrative */
+        Narrative: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Narrative */
+            narrative: string;
+        };
+        /** OnboardingRequest */
+        OnboardingRequest: {
+            profile: components["schemas"]["CompanyProfile"];
+            policy: components["schemas"]["Policy-Input"];
+            /**
+             * Suppliers
+             * @default []
+             */
+            suppliers: components["schemas"]["Beneficiary-Input"][];
+            /** Opening Balance */
+            opening_balance: number | string;
+            /** Fx Units Per Base */
+            fx_units_per_base?: {
+                [key: string]: number | string;
+            } | null;
+        };
+        /** OnboardingResult */
+        OnboardingResult: {
+            workspace: components["schemas"]["WorkspaceSummary"];
+            first_week: components["schemas"]["BatchResult"];
+        };
+        /** Outcome */
+        Outcome: {
+            batch: components["schemas"]["BatchResult"];
+            audit: components["schemas"]["AuditReport"];
+            /** Vetoed */
+            vetoed: string[];
+        };
+        /**
+         * PaymentExecution
+         * @description What the payment rail did with a payment the engine decided. The rail executes; it never decides.
+         */
+        PaymentExecution: {
+            /**
+             * Rail
+             * @enum {string}
+             */
+            rail: "simulated" | "stripe_test";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "executed" | "simulated" | "failed";
+            /** External Id */
+            external_id?: string | null;
+            /** Dashboard Url */
+            dashboard_url?: string | null;
+            /**
+             * Executed At
+             * Format: date-time
+             */
+            executed_at: string;
+            /** Error */
+            error?: string | null;
+        };
+        /** PaymentIntent */
+        PaymentIntent: {
+            /** Agent */
+            agent: string;
+            /** Beneficiary Name */
+            beneficiary_name: string;
+            /** Beneficiary Tax Id */
+            beneficiary_tax_id?: string | null;
+            /** Bank Name */
+            bank_name?: string | null;
+            /** Account Number */
+            account_number: string;
+            /** Amount */
+            amount: number | string;
+            /** Currency */
+            currency: string;
+            /** Invoice Number */
+            invoice_number: string;
+            /** Issue Date */
+            issue_date?: string | null;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Document Text */
+            document_text?: string | null;
+        };
+        /**
+         * Policy
+         * @description Everything a company decides. Amount thresholds are expressed in `base_currency`.
+         */
+        "Policy-Input": {
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
+            /**
+             * Base Currency
+             * @default USD
+             */
+            base_currency: string;
+            /**
+             * Approval Threshold
+             * @default 5000
+             */
+            approval_threshold: number | string;
+            /**
+             * Per Payment Limit
+             * @default 12000
+             */
+            per_payment_limit: number | string;
+            /**
+             * Period Budget
+             * @default 37000
+             */
+            period_budget: number | string;
+            /**
+             * Reserve
+             * @default 60000
+             */
+            reserve: number | string;
+            /**
+             * Agreement Tolerance Pct
+             * @default 2
+             */
+            agreement_tolerance_pct: number | string;
+            /**
+             * Duplicate Window Days
+             * @default 20
+             */
+            duplicate_window_days: number;
+            /**
+             * Split Window Days
+             * @default 2
+             */
+            split_window_days: number;
+            /**
+             * Min Confidence
+             * @default 0.9
+             */
+            min_confidence: number | string;
+            /**
+             * Allowed Currencies
+             * @default [
+             *       "USD",
+             *       "COP",
+             *       "MXN",
+             *       "BRL",
+             *       "CLP"
+             *     ]
+             */
+            allowed_currencies: string[];
+            /**
+             * Beneficiaries
+             * @default []
+             */
+            beneficiaries: components["schemas"]["Beneficiary-Input"][];
+            /**
+             * Approvers
+             * @default []
+             */
+            approvers: components["schemas"]["Approver"][];
+        };
+        /**
+         * Policy
+         * @description Everything a company decides. Amount thresholds are expressed in `base_currency`.
+         */
+        "Policy-Output": {
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
+            /**
+             * Base Currency
+             * @default USD
+             */
+            base_currency: string;
+            /**
+             * Approval Threshold
+             * @default 5000
+             */
+            approval_threshold: number;
+            /**
+             * Per Payment Limit
+             * @default 12000
+             */
+            per_payment_limit: number;
+            /**
+             * Period Budget
+             * @default 37000
+             */
+            period_budget: number;
+            /**
+             * Reserve
+             * @default 60000
+             */
+            reserve: number;
+            /**
+             * Agreement Tolerance Pct
+             * @default 2
+             */
+            agreement_tolerance_pct: number;
+            /**
+             * Duplicate Window Days
+             * @default 20
+             */
+            duplicate_window_days: number;
+            /**
+             * Split Window Days
+             * @default 2
+             */
+            split_window_days: number;
+            /**
+             * Min Confidence
+             * @default 0.9
+             */
+            min_confidence: number;
+            /**
+             * Allowed Currencies
+             * @default [
+             *       "USD",
+             *       "COP",
+             *       "MXN",
+             *       "BRL",
+             *       "CLP"
+             *     ]
+             */
+            allowed_currencies: string[];
+            /**
+             * Beneficiaries
+             * @default []
+             */
+            beneficiaries: components["schemas"]["Beneficiary-Output"][];
+            /**
+             * Approvers
+             * @default []
+             */
+            approvers: components["schemas"]["Approver"][];
+        };
+        /** PolicyChange */
+        PolicyChange: {
+            /** Field */
+            field: string;
+            /** Label */
+            label: string;
+            /** Before */
+            before: unknown;
+            /** After */
+            after: unknown;
+            /** Source Quote */
+            source_quote: string;
+        };
+        /** PolicyProposal */
+        PolicyProposal: {
+            /** Text */
+            text: string;
+            /** Changes */
+            changes: components["schemas"]["PolicyChange"][];
+            /** Unsupported */
+            unsupported: string[];
+            /**
+             * Questions
+             * @default []
+             */
+            questions: string[];
+            proposed: components["schemas"]["Policy-Output"];
+            simulation?: components["schemas"]["SimulationReport"] | null;
+        };
+        /** ProfileRequest */
+        ProfileRequest: {
+            /** Company Name */
+            company_name: string;
+            /** Website */
+            website?: string | null;
+            /**
+             * Answers
+             * @default {}
+             */
+            answers: {
+                [key: string]: string;
+            };
+        };
+        /** RedTeamEvent */
+        RedTeamEvent: {
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "round_started" | "attack_generated" | "verdict" | "round_finished" | "summary" | "error";
+            /** Round */
+            round: number;
+            attack?: components["schemas"]["AttackSpec"] | null;
+            decision?: components["schemas"]["Decision"] | null;
+            /** Caught */
+            caught?: boolean | null;
+            /** Message */
+            message?: string | null;
+        };
+        /**
+         * RuleOutcome
+         * @enum {string}
+         */
+        RuleOutcome: "pass" | "hold" | "escalate" | "skipped";
+        /** RuleResult */
+        RuleResult: {
+            /** Rule Id */
+            rule_id: string;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            outcome: components["schemas"]["RuleOutcome"];
+            /** Reason */
+            reason: string;
+            /**
+             * Facts
+             * @default {}
+             */
+            facts: {
+                [key: string]: unknown;
+            };
+        };
+        /** RunRequest */
+        RunRequest: {
+            /**
+             * Rounds
+             * @default 6
+             */
+            rounds: number;
+        };
+        /** SimulatedChange */
+        SimulatedChange: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Supplier Name */
+            supplier_name: string | null;
+            before: components["schemas"]["DecisionStatus"];
+            after: components["schemas"]["DecisionStatus"];
+            /** Reason */
+            reason: string;
+        };
+        /** SimulationReport */
+        SimulationReport: {
+            before: components["schemas"]["Metrics"];
+            after: components["schemas"]["Metrics"];
+            /** Changed */
+            changed: components["schemas"]["SimulatedChange"][];
+        };
+        /** SupplierImport */
+        SupplierImport: {
+            /** Beneficiaries */
+            beneficiaries: components["schemas"]["Beneficiary-Output"][];
+            /**
+             * Warnings
+             * @default []
+             */
+            warnings: string[];
+        };
+        /** TamperDemo */
+        TamperDemo: {
+            /** Altered Seq */
+            altered_seq: number;
+            /** Altered Field */
+            altered_field: string;
+            tampered: components["schemas"]["LedgerVerification"];
+            real: components["schemas"]["LedgerVerification"];
+        };
+        /** TamperRequest */
+        TamperRequest: {
+            /** Seq */
+            seq?: number | null;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
+        };
+        /** WorkspaceCreated */
+        WorkspaceCreated: {
+            /** Workspace Id */
+            workspace_id: string;
+            /** Api Key */
+            api_key: string;
+        };
+        /**
+         * WorkspaceMode
+         * @enum {string}
+         */
+        WorkspaceMode: "demo" | "blank";
+        /** WorkspaceSummary */
+        WorkspaceSummary: {
+            /** Workspace Id */
+            workspace_id: string;
+            /** Company Name */
+            company_name: string;
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            /** Base Currency */
+            base_currency: string;
+            /** Opening Balance */
+            opening_balance: number;
+            /** Balance */
+            balance: number;
+            /** Spent Auto Base */
+            spent_auto_base: number;
+            /** Reserve */
+            reserve: number;
+            /** Period Budget */
+            period_budget: number;
+            /** Policy Version */
+            policy_version: number;
+            /** Pending Invoices */
+            pending_invoices: number;
+            metrics: components["schemas"]["Metrics"];
+            audit: components["schemas"]["AuditReport"];
+        };
+    };
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
+}
+export type $defs = Record<string, never>;
+export interface operations {
+    health_api_v1_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    create_workspace_api_v1_workspaces_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkspace"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceCreated"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    current_workspace_api_v1_workspaces_current_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    propose_profile_api_v1_onboarding_profile_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyProfile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_suppliers_api_v1_onboarding_suppliers_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_suppliers_api_v1_onboarding_suppliers_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierImport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    complete_api_v1_onboarding_complete_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OnboardingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_policy_api_v1_policy_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Policy-Output"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apply_policy_api_v1_policy_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Policy-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Policy-Output"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compile_policy_api_v1_policy_compile_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompileRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyProposal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_invoice_api_v1_invoices_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_invoice_api_v1_invoices_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    process_invoices_api_v1_invoices_process_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Outcome"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_decisions_api_v1_decisions_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["DecisionStatus"] | null;
+            };
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_acta_api_v1_decisions__invoice_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Acta"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_api_v1_decisions__invoice_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApprovalBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Decision"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_api_v1_decisions__invoice_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApprovalBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Decision"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    execute_payment_api_v1_decisions__invoice_id__execute_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Decision"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_narrative_api_v1_decisions__invoice_id__narrative_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Narrative"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_ledger_api_v1_ledger_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LedgerEntry"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_ledger_api_v1_ledger_verify_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LedgerVerification"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tamper_demo_api_v1_ledger_tamper_demo_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TamperRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TamperDemo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_run_api_v1_redteam_runs_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunRequest"];
+            };
+        };
+        responses: {
+            /** @description Server-sent events; each `data:` line is a RedTeamEvent. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["RedTeamEvent"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_attempt_api_v1_challenge_attempts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_submit_attempt_api_v1_challenge_attempts_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChallengeAttempt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_stats_api_v1_challenge_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChallengeStats"];
+                };
+            };
+        };
+    };
+    submit_intent_api_v1_firewall_intents_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentIntent"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntentVerdict"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+}

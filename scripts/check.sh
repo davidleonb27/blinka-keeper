@@ -14,10 +14,11 @@ echo "== api: lint, format, types, tests"
 )
 
 if [ -f apps/web/package.json ]; then
-  echo "== web: lint, types, tests, build"
+  echo "== web: API schema, lint, types, tests, build"
   (
     cd apps/web
     npm ci --no-audit --no-fund --loglevel=error
+    npm run check:api  # regenerates the types from the API's OpenAPI and fails if the committed ones differ
     npm run lint
     npm run typecheck
     npm run test --if-present

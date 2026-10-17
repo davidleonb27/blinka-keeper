@@ -14,7 +14,7 @@ from typing import Any
 from pydantic import BaseModel
 from sqlalchemy import select
 
-from custodio.contracts import Amount, CompanyState, InvoiceCase, LedgerKind, Metrics, Policy
+from custodio.contracts import Amount, AuditReport, CompanyState, InvoiceCase, LedgerKind, Metrics, Policy
 from custodio.db.models import WorkspaceRow
 from custodio.services import ledger_service, policy_service, records
 from custodio.services.context import ServiceContext
@@ -48,13 +48,17 @@ class CreatedWorkspace:
 class WorkspaceSummary(BaseModel):
     workspace_id: str
     company_name: str
+    today: date
     base_currency: str
+    opening_balance: Amount
     balance: Amount
+    spent_auto_base: Amount  # what the agent paid alone this calendar month, against `period_budget`
     reserve: Amount
     period_budget: Amount
     policy_version: int
     pending_invoices: int
     metrics: Metrics
+    audit: AuditReport
 
 
 def new_id() -> str:
@@ -105,13 +109,17 @@ def summary(ctx: ServiceContext, workspace: WorkspaceRow) -> WorkspaceSummary:
     return WorkspaceSummary(
         workspace_id=workspace.id,
         company_name=workspace.company_name,
+        today=ctx.now().date(),
         base_currency=policy.base_currency,
+        opening_balance=workspace.opening_balance,
         balance=records.balance(ctx, workspace),
+        spent_auto_base=records.autonomous_spend(ctx, workspace),
         reserve=policy.reserve,
         period_budget=policy.period_budget,
         policy_version=policy.version,
         pending_invoices=len(records.pending_invoices(ctx, workspace.id)),
         metrics=records.metrics(ctx, workspace.id),
+        audit=records.audit_report(ctx, workspace.id),
     )
 
 
