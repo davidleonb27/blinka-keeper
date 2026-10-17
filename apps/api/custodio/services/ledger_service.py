@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 
 from custodio.contracts import LedgerEntry, LedgerKind, LedgerVerification
@@ -16,6 +16,7 @@ from custodio.services.errors import LedgerEntryNotFound
 
 TAMPER_MARK = "alterado"
 APPEND_ATTEMPTS = 5  # each retry re-reads the head another writer just committed; more than a few means a bug
+_LOCK_CHAIN = text("SELECT pg_advisory_xact_lock(hashtextextended(:key, 0))")
 
 
 class TamperDemo(BaseModel):
@@ -29,12 +30,22 @@ def append(
     ctx: ServiceContext, workspace_id: str, kind: LedgerKind, subject_id: str | None, payload: dict[str, Any]
 ) -> LedgerEntry:
     """Chains one entry. A concurrent writer may take the same seq first: retry on top of its committed head."""
+    _lock_chain(ctx, workspace_id)
     for _ in range(APPEND_ATTEMPTS - 1):
         try:
             return _append_once(ctx, workspace_id, kind, subject_id, payload)
         except IntegrityError:
             continue
     return _append_once(ctx, workspace_id, kind, subject_id, payload)
+
+
+def _lock_chain(ctx: ServiceContext, workspace_id: str) -> None:
+    """Postgres: writers of one workspace take turns until they commit, so retries cannot run out under load.
+
+    SQLite already serializes every writer, which leaves it only the retry.
+    """
+    if ctx.session.get_bind().dialect.name == "postgresql":
+        ctx.session.execute(_LOCK_CHAIN, {"key": f"ledger:{workspace_id}"})
 
 
 def _append_once(
