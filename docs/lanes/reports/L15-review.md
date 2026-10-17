@@ -45,6 +45,11 @@ No hay dependencia nueva: `package.json` y el lockfile no cambian. El QR es prop
 con un lector independiente (`jsqr@1.4.0`, instalado fuera del repo) desde la captura real en Chromium a 360 px
 (328 px de lado) y a 1440 px (558 px): las dos devolvieron exactamente `http://127.0.0.1:3101/reto`.
 
+La URL del QR es `window.location.origin` + `/reto` (`challenge-stage.tsx:19-25`): no hay ningún dominio fijo (ni de
+preview ni de producción) en `components/challenge/` ni en `lib/qr.ts`. Servido desde
+`custodio-blinka-green.vercel.app`, el QR apunta a `https://custodio-blinka-green.vercel.app/reto`; desde una preview,
+a esa misma preview.
+
 ### Hidratación y consola
 
 Pasada con Playwright y Chromium contra la API real y el build de producción, en dos perfiles: 360×780 móvil, oscuro,
