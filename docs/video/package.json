@@ -1,0 +1,12 @@
+{
+  "name": "custodio-pitch-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "record": "node record.mjs",
+    "titles": "node titles.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.56.1"
+  }
+}
