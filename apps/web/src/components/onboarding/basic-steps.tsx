@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
 import { COUNTRY_NAMES } from "@/lib/presentation";
 import { BigField, StepFrame } from "./step-frame";
-import { CURRENCIES, EMPTY_APPROVER, parseWholeAmount, type Answers, type ApproverDraft } from "./state";
+import { CURRENCIES, EMPTY_APPROVER, parseWholeAmount, withCurrency, type Answers, type ApproverDraft } from "./state";
 
 export interface FrameProps {
   number: number;
@@ -163,7 +163,7 @@ export function MoneyStep({ answers, update, frame }: StepProps) {
           label="Moneda base"
           value={answers.currency}
           options={CURRENCIES.map((c) => [c, c])}
-          onChange={(currency) => update({ currency })}
+          onChange={(currency) => update(withCurrency(answers, currency))}
         />
         <BigField
           label="Saldo disponible"

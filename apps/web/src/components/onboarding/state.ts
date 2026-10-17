@@ -109,6 +109,20 @@ function usableRules(suggested: string | null | undefined, currency: string): st
   return suggested && !BLANK_TO_FILL.test(suggested) ? suggested : exampleRules(currency);
 }
 
+/** A new base currency; the suggested numbers and example rules follow it unless the person already changed them. */
+export function withCurrency(answers: Answers, currency: string): Answers {
+  const before = starterMoney(answers.currency);
+  const after = starterMoney(currency);
+  const untouched = (text: string, suggested: string) => text === "" || text === suggested;
+  return {
+    ...answers,
+    currency,
+    balance: untouched(answers.balance, String(before.balance)) ? String(after.balance) : answers.balance,
+    reserve: untouched(answers.reserve, String(before.reserve)) ? String(after.reserve) : answers.reserve,
+    rulesText: untouched(answers.rulesText, exampleRules(answers.currency)) ? exampleRules(currency) : answers.rulesText,
+  };
+}
+
 /** Applies a proposed profile, keeping anything the person already typed. */
 export function withProfile(answers: Answers, profile: CompanyProfile): Answers {
   const currency = profile.base_currency;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { draftPolicy, INITIAL_ANSWERS, onboardingRequest, withProfile } from "./state";
+import { draftPolicy, INITIAL_ANSWERS, onboardingRequest, exampleRules, withCurrency, withProfile } from "./state";
 
 describe("draftPolicy", () => {
   it("sends approvers with only a name, a role and an email: approvals are web only", () => {
@@ -32,5 +32,15 @@ describe("suggested rules", () => {
     expect(answers.rulesText).not.toMatch(/\[|\]/);
     expect(answers.rulesText).toMatch(/\d/);
     expect(answers.rulesText).toMatch(/COP|pesos/);
+  });
+});
+
+describe("withCurrency", () => {
+  it("moves the suggested numbers and example rules to the new currency, and keeps what the person typed", () => {
+    const usd = { ...INITIAL_ANSWERS, currency: "USD", balance: "50000", reserve: "123", rulesText: exampleRules("USD") };
+
+    const cop = withCurrency(usd, "COP");
+
+    expect(cop).toMatchObject({ currency: "COP", balance: "200000000", reserve: "123", rulesText: exampleRules("COP") });
   });
 });
