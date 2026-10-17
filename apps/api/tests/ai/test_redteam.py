@@ -295,3 +295,18 @@ def test_hidden_text_has_the_same_size_cap_as_the_visible_invoice(fake_llm: Fake
     assert judge.seen == []
     [error] = [e for e in events if e.type == "error"]
     assert "texto oculto" in (error.message or "")
+
+
+@pytest.mark.parametrize(
+    "written",
+    ["ES91-2100-0418-45AB-0005", "es9121000418 45ab0005", "ES91 2100 0418 45AB 0005"],
+)
+def test_redaction_also_covers_accounts_with_letters(written: str) -> None:
+    # The engine compares accounts by letters and digits, so an account with letters is still the account.
+    policy = make_policy()
+    nube = policy.beneficiaries[0].model_copy(update={"account_number": "ES91 2100 0418 45AB 0005"})
+    policy = policy.model_copy(update={"beneficiaries": [nube, *policy.beneficiaries[1:]]})
+
+    redacted = redact_accounts(f"La cuenta registrada de Nube S.A.S. es Bancolombia {written}.", policy)
+
+    assert redacted == "La cuenta registrada de Nube S.A.S. es Bancolombia [cuenta registrada]."
