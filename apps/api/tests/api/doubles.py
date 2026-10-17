@@ -516,7 +516,7 @@ def import_suppliers(data: bytes, *, filename: str, media_type: str, default_cur
         return ai.import_suppliers(data, filename=filename, media_type=media_type, default_currency=default_currency)
     beneficiaries: list[Beneficiary] = []
     warnings: list[str] = []
-    for number, row in enumerate(data.decode().splitlines(), start=1):
+    for number, row in enumerate(data.decode(errors="replace").splitlines(), start=1):
         cells = [cell.strip() for cell in row.split(",")]
         if len(cells) != 4:
             warnings.append(f"Fila {number}: incompleta.")
