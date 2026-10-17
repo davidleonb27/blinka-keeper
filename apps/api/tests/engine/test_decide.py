@@ -42,13 +42,18 @@ P, H, X, S = RuleOutcome.PASS, RuleOutcome.HOLD, RuleOutcome.ESCALATE, RuleOutco
 
 
 def test_verdict_hold_beats_escalate_and_escalate_beats_pay() -> None:
-    assert verdict_of(results(*[P] * 12)) is AgentVerdict.PAY
-    assert verdict_of(results(X, *[P] * 11)) is AgentVerdict.ESCALATE
-    assert verdict_of(results(X, P, P, H, *[P] * 8)) is AgentVerdict.HOLD
+    assert verdict_of(results(*[P] * 15)) is AgentVerdict.PAY
+    assert verdict_of(results(X, *[P] * 14)) is AgentVerdict.ESCALATE
+    assert verdict_of(results(X, P, P, H, *[P] * 11)) is AgentVerdict.HOLD
 
 
 def test_a_rule_that_could_not_be_evaluated_never_lets_a_payment_through() -> None:
-    assert verdict_of(results(*[P] * 11, S)) is AgentVerdict.ESCALATE
+    assert verdict_of(results(*[P] * 11, S, P, P, P)) is AgentVerdict.ESCALATE
+
+
+def test_a_payment_control_with_nothing_to_check_does_not_stop_a_payment() -> None:
+    assert verdict_of(results(*[P] * 12, S, S, S)) is AgentVerdict.PAY
+    assert verdict_of(results(*[P] * 12, X, S, S)) is AgentVerdict.ESCALATE
 
 
 def test_hold_beats_escalate_in_a_real_decision() -> None:
@@ -215,7 +220,7 @@ def test_an_empty_batch_has_zero_autonomy_and_no_accuracy() -> None:
 
 def test_a_payment_is_explained_with_its_numbers_and_has_no_counterfactual() -> None:
     [decision] = decide_all([invoice()], state(), policy()).decisions
-    assert decision.explanation.startswith("Se paga sola: se cumplen las 12 reglas.")
+    assert decision.explanation.startswith("Se paga sola: se cumplen las 15 reglas.")
     for text in ("Andes Code SAS", "USD 4.800", "USD 5.000", "USD 135.200", "USD 60.000", "USD 37.000"):
         assert text in decision.explanation
     assert decision.counterfactual is None

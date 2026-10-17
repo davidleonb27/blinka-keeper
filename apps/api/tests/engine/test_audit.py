@@ -6,6 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -22,6 +23,7 @@ from custodio.contracts import (
 )
 from custodio.engine import audit, decide, decide_all
 from custodio.engine.rules import EVALUATORS, RuleContext, check
+from custodio.engine.sanctions import SanctionsList
 from tests.engine.builders import (
     agreement,
     approval,
@@ -34,6 +36,8 @@ from tests.engine.builders import (
 )
 
 CAPPED = policy(beneficiary(deal=agreement("60000", kind=AgreementKind.MONTHLY_CAP)))
+FICTITIOUS_SDN = Path(__file__).parents[1] / "fixtures" / "sanctions" / "fictitious_sdn.json"
+FICTITIOUS = SanctionsList.from_json(FICTITIOUS_SDN.read_text(encoding="utf-8"))
 
 
 def forge(batch: BatchResult, invoice_id: str, status: DecisionStatus, **changes: object) -> BatchResult:
@@ -121,6 +125,7 @@ class Mutant:
     cases: tuple[InvoiceCase, ...]
     company: Policy = field(default_factory=lambda: CAPPED)
     money: CompanyState = field(default_factory=state)
+    sanctions: SanctionsList = FICTITIOUS
 
 
 EUR_COMPANY = policy(beneficiary(currency="EUR", deal=agreement("400", "EUR")))
@@ -138,6 +143,21 @@ MUTANTS = {
     "R10": Mutant(("R9", "R10"), (invoice(amount="12000.01"),)),
     "R11": Mutant(("R11",), (invoice(day=2),), money=state(paid("33000", on=date(2026, 10, 1), beneficiary_id="b9"))),
     "R12": Mutant(("R12",), (invoice(),), money=state(balance="64000")),
+    "R13": Mutant(
+        ("R13",),
+        (invoice(tax_id="901.482.337-1", amount="9200000.00", currency="COP"),),
+        policy(beneficiary(country="CO", currency="COP", deal=agreement("9200000", "COP"))),
+    ),
+    "R14": Mutant(
+        ("R14",),
+        (invoice(supplier="Quimera Ficticia Trading LLC"),),
+        policy(beneficiary(name="Quimera Ficticia Trading LLC", deal=agreement())),
+    ),
+    "R15": Mutant(
+        ("R15",),
+        (invoice(sender="pagos@andes-code.co"),),
+        policy(beneficiary(deal=agreement(), email_domain="andescode.co")),
+    ),
 }
 
 
@@ -155,19 +175,19 @@ def test_the_auditor_catches_an_engine_that_ignores_a_rule(name: str, monkeypatc
     sabotage(monkeypatch, mutant.ignores)
     cases = list(mutant.cases)
 
-    raw = decide.run_batch(cases, mutant.money, mutant.company, approvals={}, vetoes={})
+    raw = decide.run_batch(cases, mutant.money, mutant.company, approvals={}, vetoes={}, sanctions=mutant.sanctions)
     target = next(d for d in raw.decisions if d.invoice_id == "F-001")
     assert target.status is DecisionStatus.PAID_AUTO, "the sabotage must really let the payment through"
-    report = audit(raw, cases, mutant.money, mutant.company)
+    report = audit(raw, cases, mutant.money, mutant.company, sanctions=mutant.sanctions)
     assert report.improper_payments >= 1
     assert "F-001" in {finding.invoice_id for finding in report.findings}
 
-    final = decide_all(cases, mutant.money, mutant.company)
+    final = decide_all(cases, mutant.money, mutant.company, sanctions=mutant.sanctions)
     vetoed = next(d for d in final.decisions if d.invoice_id == "F-001")
     assert vetoed.status is DecisionStatus.HOLD
     assert vetoed.blocked_reason is not None and vetoed.blocked_reason.startswith("El auditor independiente")
     assert final.metrics.improper_payments == 0
-    assert audit(final, cases, mutant.money, mutant.company).agrees
+    assert audit(final, cases, mutant.money, mutant.company, sanctions=mutant.sanctions).agrees
 
 
 def test_the_auditor_catches_an_approval_path_that_ignores_the_reserve(monkeypatch: pytest.MonkeyPatch) -> None:

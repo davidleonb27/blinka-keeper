@@ -23,6 +23,7 @@ from custodio.contracts import (
     Policy,
     RuleResult,
 )
+from custodio.engine.domains import first_email
 
 TODAY = date(2026, 10, 16)
 FX = {"USD": Decimal(1), "COP": Decimal(4100), "MXN": Decimal("18.4"), "BRL": Decimal("5.4"), "EUR": Decimal("0.92")}
@@ -42,16 +43,24 @@ def beneficiary(
     currency: str = "USD",
     deal: Agreement | None = None,
     allowed: bool = True,
+    aliases: tuple[str, ...] = (),
+    country: str | None = None,
+    email_domain: str | None = None,
+    contact: str | None = None,
 ) -> Beneficiary:
     return Beneficiary(
         id=bid,
         name=name,
         tax_id=tax_id,
+        aliases=list(aliases),
+        country=country,
         bank_name="Bancolombia",
         account_number=account,
         currency=currency,
         agreement=deal,
         allowed=allowed,
+        approver_contact=contact,
+        email_domain=email_domain,
     )
 
 
@@ -121,6 +130,7 @@ def invoice(
     note: str | None = None,
     hidden: str | None = None,
     hour: int = 9,
+    sender: str | None = None,
 ) -> InvoiceCase:
     confidences = confidence or {}
 
@@ -130,6 +140,7 @@ def invoice(
     visible = "\n".join(
         line
         for line in (
+            f"De: {sender}" if sender else None,
             f"FACTURA N° {number}",
             f"Emisor: {supplier}",
             f"NIT: {tax_id}",
@@ -153,6 +164,7 @@ def invoice(
         account_number=read("account_number", account),
         description=read("description", "Equipo de desarrollo"),
         visible_text=visible,
+        sender_email=first_email(visible),
         hidden_findings=[hidden_finding(hidden)] if hidden else [],
         reader="test",
         overall_confidence=min([0.98, *confidences.values()]),
