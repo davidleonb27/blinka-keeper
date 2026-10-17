@@ -64,8 +64,7 @@ def test_a_model_failure_ends_the_stream_with_an_honest_error(client: TestClient
 def test_the_openapi_document_describes_each_streamed_message_as_a_red_team_event(client: TestClient) -> None:
     document = client.get("/api/v1/openapi.json").json()
 
-    responses = document["paths"]["/api/v1/redteam/runs"]["post"]["responses"]
-    assert responses["200"]["content"] == {
-        "text/event-stream": {"schema": {"$ref": "#/components/schemas/RedTeamEvent"}}
-    }
+    content = document["paths"]["/api/v1/redteam/runs"]["post"]["responses"]["200"]["content"]
+    assert list(content) == ["text/event-stream"]
+    assert content["text/event-stream"]["schema"]["$ref"] == "#/components/schemas/RedTeamEvent"
     assert "AttackSpec" in document["components"]["schemas"]

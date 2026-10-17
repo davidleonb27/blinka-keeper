@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import Any
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
@@ -13,6 +14,15 @@ from custodio.services import redteam_service
 router = APIRouter(prefix="/redteam", tags=["redteam"])
 
 SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+STREAM_DOC: dict[int | str, dict[str, Any]] = {
+    200: {"model": RedTeamEvent, "description": "Server-sent events; each `data:` line is a RedTeamEvent."}
+}
+
+
+class EventStreamResponse(StreamingResponse):
+    """Declares its media type so the OpenAPI document puts the event schema under text/event-stream."""
+
+    media_type = "text/event-stream"
 
 
 class RunRequest(BaseModel):
@@ -21,10 +31,10 @@ class RunRequest(BaseModel):
     rounds: int = Field(default=6, ge=1, le=redteam_service.MAX_ROUNDS)
 
 
-@router.post("/runs", dependencies=[ModelCallLimit], response_class=StreamingResponse)
-def start_run(body: RunRequest, runtime: RuntimeDep, workspace: CurrentWorkspace) -> StreamingResponse:
+@router.post("/runs", dependencies=[ModelCallLimit], response_class=EventStreamResponse, responses=STREAM_DOC)
+def start_run(body: RunRequest, runtime: RuntimeDep, workspace: CurrentWorkspace) -> EventStreamResponse:
     events = redteam_service.run(runtime, workspace.id, body.rounds)
-    return StreamingResponse(_server_sent(events), media_type="text/event-stream", headers=SSE_HEADERS)
+    return EventStreamResponse(_server_sent(events), headers=SSE_HEADERS)
 
 
 def _server_sent(events: Iterator[RedTeamEvent]) -> Iterator[str]:

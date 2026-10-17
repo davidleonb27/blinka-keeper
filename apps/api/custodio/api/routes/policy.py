@@ -16,6 +16,7 @@ class CompileRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     text: str = Field(min_length=1, max_length=MAX_RULES_TEXT)
+    base: Policy | None = None  # a draft to compile against (onboarding) instead of the workspace policy
 
 
 @router.get("", response_model=Policy)
@@ -30,4 +31,4 @@ def apply_policy(policy: Policy, ctx: Services, workspace: CurrentWorkspace) -> 
 
 @router.post("/compile", response_model=PolicyProposal, dependencies=[ModelCallLimit])
 def compile_policy(body: CompileRequest, ctx: Services, workspace: CurrentWorkspace) -> PolicyProposal:
-    return policy_service.compile_text(ctx, workspace, body.text)
+    return policy_service.compile_text(ctx, workspace, body.text, body.base)

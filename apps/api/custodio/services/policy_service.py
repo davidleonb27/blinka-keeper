@@ -52,13 +52,18 @@ def store(
     return policy
 
 
-def compile_text(ctx: ServiceContext, workspace: WorkspaceRow, text: str) -> PolicyProposal:
-    """The model proposes; the engine simulates the proposal against everything this workspace has received."""
-    policy = current(ctx, workspace.id)
+def compile_text(ctx: ServiceContext, workspace: WorkspaceRow, text: str, base: Policy | None = None) -> PolicyProposal:
+    """The model proposes; the engine simulates the proposal against everything this workspace has received.
+
+    With a `base` draft (a company still onboarding) there is no history of that policy to replay, so no simulation.
+    """
+    policy = base or current(ctx, workspace.id)
     try:
         proposal = ctx.lanes.compile_policy(text, policy)
     except LLMError as error:
         raise ModelUnavailable() from error
+    if base is not None:
+        return proposal
     cases = [records.as_case(row) for row in records.invoices(ctx, workspace.id)]
     simulation = ctx.lanes.simulate(cases, opening_state(ctx, workspace), policy, proposal.proposed)
     return proposal.model_copy(update={"simulation": simulation})
