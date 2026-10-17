@@ -1,0 +1,60 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { ErrorState, LoadingBlock } from "@/components/states";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import { messageOf } from "@/lib/api/errors";
+import { useDecision, useHumanDecision, usePolicy } from "@/lib/api/hooks";
+import { STATUS_META } from "@/lib/presentation";
+import { Acta } from "./acta";
+
+const ACTA_PARAM = "acta";
+
+function ActaContent({ invoiceId }: { invoiceId: string }) {
+  const detail = useDecision(invoiceId);
+  const policy = usePolicy();
+  const decide = useHumanDecision(invoiceId);
+
+  if (detail.error || policy.error) {
+    return <ErrorState error={detail.error ?? policy.error} onRetry={() => void detail.refetch()} />;
+  }
+  if (!detail.data || !policy.data) return <LoadingBlock label="Cargando el acta…" />;
+
+  const onDecide = (approve: boolean, approver: string) =>
+    decide.mutate(
+      { approve, input: { approver } },
+      {
+        onSuccess: (decision) => toast.success(`${invoiceId}: ${STATUS_META[decision.status].label.toLowerCase()}.`),
+        onError: (error) => toast.error(messageOf(error)),
+      },
+    );
+
+  return <Acta detail={detail.data} policy={policy.data} onDecide={onDecide} deciding={decide.isPending} />;
+}
+
+/** The acta opens from ?acta=<invoice id>, so a shared link lands on it directly. */
+export function ActaDrawer() {
+  const params = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const invoiceId = params.get(ACTA_PARAM);
+
+  const close = () => router.replace(pathname, { scroll: false });
+
+  return (
+    <Sheet open={invoiceId !== null} onOpenChange={(open) => (open ? undefined : close())}>
+      <SheetContent side="right" className="gap-0 overflow-y-auto data-[side=right]:w-full border-line-2 bg-surface px-5 pt-5 pb-0 data-[side=right]:sm:max-w-[640px] sm:px-6">
+        <SheetTitle className="sr-only">Acta de decisión {invoiceId}</SheetTitle>
+        <SheetDescription className="sr-only">
+          Las doce reglas, el documento leído y la decisión de Custodio para esta factura.
+        </SheetDescription>
+        {invoiceId ? (
+          <div className="pb-6">
+            <ActaContent invoiceId={invoiceId} />
+          </div>
+        ) : null}
+      </SheetContent>
+    </Sheet>
+  );
+}

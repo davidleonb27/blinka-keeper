@@ -1,0 +1,206 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Theme is a concrete data-theme on <html> (next-themes resolves "system"). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Custodio identity, ported from prototype/index.html: ledger teal on deep slate, security-print guilloche,
+ * Bricolage Grotesque for display, Geist for text, tabular figures everywhere money appears.
+ * Light values are darkened from the prototype so every text pairing clears WCAG AA (4.5:1).
+ */
+:root {
+  --bg: #edf2f2;
+  --surface: #ffffff;
+  --surface-2: #f3f7f7;
+  --surface-3: #e6eeef;
+  --line: rgb(12 48 54 / 0.1);
+  --line-2: rgb(12 48 54 / 0.18);
+  --grid: rgb(12 48 54 / 0.07);
+  --ink: #0b1618;
+  --ink-2: #3b4c4f;
+  --ink-3: #56696c;
+  --brand: #08707e;
+  --brand-weak: rgb(10 132 148 / 0.1);
+  --on-brand: #ffffff;
+  --pay: #0f7443;
+  --pay-weak: rgb(19 128 75 / 0.1);
+  --on-pay: #ffffff;
+  --esc: #8a5900;
+  --esc-weak: rgb(214 150 20 / 0.15);
+  --hold: #a8411f;
+  --hold-weak: rgb(189 75 37 / 0.1);
+  --crit: #c42b31;
+  --crit-weak: rgb(196 43 49 / 0.1);
+  --chart-paid: #15834f;
+  --chart-pending: #d39b1c;
+  --chart-held: #c0392b;
+  --scrim: rgb(10 30 34 / 0.35);
+  --shadow-card: 0 1px 2px rgb(10 40 45 / 0.05), 0 18px 40px -28px rgb(10 40 45 / 0.35);
+
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-foreground: var(--on-brand);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--ink-3);
+  --accent: var(--surface-3);
+  --accent-foreground: var(--ink);
+  --destructive: var(--crit);
+  --border: var(--line);
+  --input: var(--line-2);
+  --ring: var(--brand);
+  --radius: 0.75rem;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0a1012;
+  --surface: #0f171a;
+  --surface-2: #142024;
+  --surface-3: #1a282d;
+  --line: rgb(170 215 222 / 0.09);
+  --line-2: rgb(170 215 222 / 0.17);
+  --grid: rgb(170 215 222 / 0.07);
+  --ink: #e4eded;
+  --ink-2: #a3b3b5;
+  --ink-3: #8a9ca0;
+  --brand: #38c3d2;
+  --brand-weak: rgb(56 195 210 / 0.13);
+  --on-brand: #032529;
+  --pay: #34b977;
+  --pay-weak: rgb(52 185 119 / 0.14);
+  --on-pay: #03200f;
+  --esc: #eeb03c;
+  --esc-weak: rgb(238 176 60 / 0.14);
+  --hold: #ee7b56;
+  --hold-weak: rgb(238 123 86 / 0.14);
+  --crit: #f0676b;
+  --crit-weak: rgb(229 72 77 / 0.16);
+  --chart-paid: #2a9d63;
+  --chart-pending: #b8862a;
+  --chart-held: #e0607e;
+  --scrim: rgb(3 8 10 / 0.6);
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.035) inset, 0 18px 40px -24px rgb(0 0 0 / 0.75);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-brand: var(--brand);
+  --color-brand-weak: var(--brand-weak);
+  --color-on-brand: var(--on-brand);
+  --color-pay: var(--pay);
+  --color-pay-weak: var(--pay-weak);
+  --color-on-pay: var(--on-pay);
+  --color-esc: var(--esc);
+  --color-esc-weak: var(--esc-weak);
+  --color-hold: var(--hold);
+  --color-hold-weak: var(--hold-weak);
+  --color-crit: var(--crit);
+  --color-crit-weak: var(--crit-weak);
+  --color-scrim: var(--scrim);
+
+  --font-sans: var(--font-geist), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: var(--font-bricolage), var(--font-geist), system-ui, sans-serif;
+  --font-heading: var(--font-display);
+
+  --shadow-card: var(--shadow-card);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    overflow-x: clip;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+@utility card-surface {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
