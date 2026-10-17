@@ -254,21 +254,27 @@ const TAKES = {
     rec.mark("end");
   },
 
-  // The arena: an attacking model changes technique each round; the rules do not change.
+  // The arena: an attacking model changes technique each round; the rules do not change. The camera frames the battle
+  // below the page heading from the first cut frame to the last (the brief keeps model names out of the video).
   async arena(page, rec) {
     await open(page, "/arena");
     rec.mark("start");
     await clickLocator(page, page.getByRole("button", { name: /Empezar el ataque/ }));
     rec.mark("attack_click");
+    const heading = await page.getByRole("heading", { level: 1 }).locator("xpath=following-sibling::*[1]").boundingBox();
+    const top = heading.y + heading.height + 12;
+    await zoomTo(page, { x: 0, y: top, width: 1920, height: 1080 - top }, 1080 / (1080 - top), 900);
+    rec.mark("framed");
     await page.getByRole("button", { name: /Otra vez/ }).waitFor(LONG);
     rec.mark("done");
     await hold(page, 800);
     const stats = page.getByText("Pagos indebidos", { exact: true }).locator("xpath=ancestor::div[contains(@class,'grid-cols-3')][1]");
-    await zoomTo(page, await stats.boundingBox(), 1.25);
+    const box = await stats.boundingBox();
+    await zoomTo(page, { x: box.x, y: Math.max(box.y, top), width: box.width, height: box.height }, 1.25);
     rec.mark("zoom_stats");
     await hold(page, 3000);
-    await zoomOut(page);
     rec.mark("end");
+    await zoomOut(page);
   },
 
   // The open API documentation the deployment serves.

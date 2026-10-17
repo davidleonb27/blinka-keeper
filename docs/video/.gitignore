@@ -1,2 +1,4 @@
 node_modules/
 build/
+# The root .gitignore drops every out/ (Next.js builds); the final cuts live here on purpose.
+!/out/
