@@ -26,10 +26,10 @@ def utc_now() -> datetime:
 class RateLimits:
     model_calls_per_minute_per_ip: int = 20
     model_calls_per_minute_per_workspace: int = 30
-    challenge_attempts_per_minute_per_ip: int = 5
+    challenge_attempts_per_minute_per_ip: int = 30
     challenge_attempts_per_day: int = 2000  # the public challenge's own cap, on top of llm.py's daily spend cap
     test_transfers_per_workspace: int = 40  # Stripe test-mode transfers: keep the shared test account tidy
-    test_transfers_per_day: int = 400  # per UTC day, across the whole deployment
+    test_transfers_per_day: int = 2000  # per UTC day, across the whole deployment
     payment_attempts_per_invoice: int = 5  # each retry of a failed payment calls Stripe; a click loop must not
 
 
