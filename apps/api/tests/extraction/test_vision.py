@@ -1,11 +1,11 @@
 import base64
 
 import pytest
-from custodio.extraction.vision import Transcription, transcribe
 
 from custodio import llm
 from custodio.config import get_settings
 from custodio.extraction.errors import UnreadableDocument
+from custodio.extraction.vision import Transcription, transcribe
 from custodio.llm import LLMError
 from tests.extraction.doubles import FakeClaude
 

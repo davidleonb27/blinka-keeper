@@ -1,9 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from custodio.extraction.vision import Transcription
-
 from custodio.extraction.structure import InvoiceReading, QuotedValue
+from custodio.extraction.vision import Transcription
 from custodio.llm import LLMResult
 
 GOOD_QUOTES: dict[str, tuple[str | None, str | None]] = {
