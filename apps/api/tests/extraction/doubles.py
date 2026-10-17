@@ -3,7 +3,6 @@ from typing import Any
 
 from custodio.extraction.ocr import Transcript
 from custodio.extraction.structure import InvoiceReading, QuotedValue
-
 from custodio.llm import LLMResult
 
 GOOD_QUOTES: dict[str, tuple[str | None, str | None]] = {

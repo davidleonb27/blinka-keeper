@@ -1,10 +1,10 @@
 import pytest
-from custodio.extraction.structure import read_fields
 
 from custodio import llm
 from custodio.config import get_settings
 from custodio.extraction.errors import MalformedReading
 from custodio.extraction.source import SourceText
+from custodio.extraction.structure import read_fields
 from custodio.extraction.verify import AMBIGUOUS_CURRENCY_CONFIDENCE
 from custodio.llm import LLMError, LLMRefused
 from tests.extraction.doubles import FakeClaude, make_reading
