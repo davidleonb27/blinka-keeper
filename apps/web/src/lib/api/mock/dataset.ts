@@ -1,4 +1,4 @@
-import type { Acta } from "../client";
+import type { Acta, DecisionListItem } from "../client";
 import type {
   AuditReport,
   Decision,
@@ -59,6 +59,11 @@ export function freshDemo(): DemoDataset {
 }
 
 /** The acta the API serves for a decided invoice: the decision, the invoice as read and its ledger entries. */
+/** The row the API lists for a decided invoice. */
+export function listItemOf({ decision, received_at, source, extraction }: DemoItem): DecisionListItem {
+  return { decision, received_at, source, invoice_number: extraction.invoice_number.value };
+}
+
 export function actaOf({ decision, received_at, extraction }: DemoItem, ledger: readonly LedgerEntry[]): Acta {
   const id = decision.invoice_id;
   return {

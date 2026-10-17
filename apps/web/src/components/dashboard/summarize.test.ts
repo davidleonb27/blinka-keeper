@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { DEMO } from "@/lib/api/mock/dataset";
+import { DEMO, listItemOf } from "@/lib/api/mock/dataset";
+
+const ITEMS = DEMO.items.map(listItemOf);
 import { decisionsByDay, matchesFilter, statusTotals } from "./summarize";
 
 describe("statusTotals", () => {
   it("adds base amounts for paid, held and pending decisions", () => {
-    const totals = statusTotals(DEMO.items);
+    const totals = statusTotals(ITEMS);
 
     expect(totals.paid.count).toBe(DEMO.metrics.paid_auto);
     expect(totals.held.count).toBe(DEMO.metrics.hold);
@@ -15,7 +17,7 @@ describe("statusTotals", () => {
 
 describe("decisionsByDay", () => {
   it("counts each day's outcomes in Colombia time, in order", () => {
-    const days = decisionsByDay(DEMO.items);
+    const days = decisionsByDay(ITEMS);
 
     expect(days[0]).toEqual({ day: "2026-10-01", label: "1 oct", paid: 3, pending: 0, held: 0 });
     expect(days.reduce((sum, d) => sum + d.paid + d.pending + d.held, 0)).toBe(DEMO.items.length);
@@ -23,7 +25,7 @@ describe("decisionsByDay", () => {
 });
 
 describe("matchesFilter", () => {
-  const [first] = DEMO.items;
+  const [first] = ITEMS;
 
   it("finds by supplier or invoice id, ignoring accents and case", () => {
     expect(matchesFilter(first, "all", "andes")).toBe(true);

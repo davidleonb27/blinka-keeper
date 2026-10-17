@@ -1024,6 +1024,8 @@ export interface components {
              */
             received_at: string;
             source: components["schemas"]["InvoiceSource"];
+            /** Invoice Number */
+            invoice_number: string | null;
         };
         /**
          * DecisionStatus

@@ -28,7 +28,7 @@ import type {
 import { InvalidRequestError, NotFoundError } from "../errors";
 import { formatMoney } from "../../format";
 import { initialChallengeStats, judgeAttempt, recordAttempt } from "./challenge";
-import { actaOf, DEMO, freshDemo, simulatedExecution, type DemoDataset, type DemoItem } from "./dataset";
+import { actaOf, DEMO, listItemOf, freshDemo, simulatedExecution, type DemoDataset, type DemoItem } from "./dataset";
 import { mockSchedule, mockTrust } from "./autonomy";
 import { appendEntry, verifyChain } from "./ledger";
 import { importMockSuppliers, simulateFirstWeek } from "./onboarding";
@@ -329,9 +329,13 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
     health: () => respond(() => ({ status: "ok", version: "mock", anthropic: false, payment_rail: "simulated" as const })),
     createWorkspace: (mode) => respond(() => createWorkspace(mode)),
     getWorkspace: () => respond(summary),
+    uploadInvoice: () =>
+      respond(() => {
+        throw new InvalidRequestError("Las facturas propias se leen en la API real, no en el modo de prueba.", CONFLICT);
+      }),
     processInvoices: () => respond(processInvoices, 2),
     listDecisions: () =>
-      respond(() => decided().map(({ decision, received_at, source }) => ({ decision, received_at, source }))),
+respond(() => decided().map(listItemOf)),
     getDecision: (id) => respond(() => actaOf(findItem(id), workspace.data.ledger)),
     approveDecision: (id, input) => respond(() => decide(id, input, true)),
     rejectDecision: (id, input) => respond(() => decide(id, input, false)),
