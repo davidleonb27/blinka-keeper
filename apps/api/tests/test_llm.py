@@ -60,6 +60,8 @@ class ScriptedClient:
 
 @pytest.fixture
 def scripted(monkeypatch: pytest.MonkeyPatch) -> Any:
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-for-doubles")
+
     def install(*responses: SimpleNamespace) -> ScriptedClient:
         fake = ScriptedClient(*responses)
         monkeypatch.setattr(llm, "client", lambda: fake)
