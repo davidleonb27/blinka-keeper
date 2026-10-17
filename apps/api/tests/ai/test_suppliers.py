@@ -189,3 +189,33 @@ def test_a_pdf_is_read_by_the_model_and_validated_by_code(fake_llm: FakeLLM) -> 
 def test_other_file_types_are_refused(fake_llm: FakeLLM) -> None:
     with pytest.raises(UnsupportedSupplierFile):
         import_suppliers(b"\x89PNG", filename="foto.png", media_type="image/png")
+
+
+def with_part(workbook: bytes, name: str, content: str) -> bytes:
+    """The same workbook with one part replaced."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(io.BytesIO(workbook)) as source, zipfile.ZipFile(buffer, "w") as target:
+        for info in source.infolist():
+            target.writestr(info.filename, content if info.filename == name else source.read(info))
+    return buffer.getvalue()
+
+
+@pytest.mark.parametrize(
+    ("part", "content"),
+    [
+        (
+            "xl/_rels/workbook.xml.rels",
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>',
+        ),
+        (
+            "xl/sharedStrings.xml",
+            '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><si><t>nombre</t></si></sst>',
+        ),
+    ],
+    ids=["sheet-without-relationship", "shared-string-out-of-range"],
+)
+def test_a_broken_workbook_is_unreadable_not_a_crash(fake_llm: FakeLLM, part: str, content: str) -> None:
+    broken = with_part(as_xlsx(SPANISH_ROWS), part, content)
+
+    with pytest.raises(UnreadableSupplierFile):
+        import_suppliers(broken, filename="p.xlsx", media_type=XLSX_MEDIA)

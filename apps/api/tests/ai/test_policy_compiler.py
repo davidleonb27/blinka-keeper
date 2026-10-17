@@ -314,3 +314,24 @@ def test_a_model_failure_is_not_turned_into_a_guess(fake_llm: FakeLLM) -> None:
 
     with pytest.raises(llm.LLMRefused):
         compile_policy("Tope de 3.000.", make_policy())
+
+
+@pytest.mark.parametrize(
+    ("quote", "days", "applied"),
+    [
+        ("revisa duplicados de los últimos 30 días", 30, True),
+        ("duplicados de la última semana", 7, True),
+        ("duplicados de las últimas dos semanas", 14, True),
+        ("revisa duplicados de los últimos 30 días", 1, False),
+        ("revisa bien los duplicados", 1, False),
+    ],
+)
+def test_a_window_needs_its_days_in_the_quote(fake_llm: FakeLLM, quote: str, days: int, applied: bool) -> None:
+    current = make_policy()
+    fake_llm.reply(draft(change(field="duplicate_window_days", days=days, source_quote=quote)))
+
+    proposal = compile_policy(f"Por favor {quote}.", current)
+
+    expected = days if applied else current.duplicate_window_days
+    assert proposal.proposed.duplicate_window_days == expected
+    assert bool(proposal.unsupported) is not applied

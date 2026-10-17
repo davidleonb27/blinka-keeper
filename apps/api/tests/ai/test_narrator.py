@@ -1,3 +1,6 @@
+import anthropic
+import httpx2
+
 from custodio import llm
 from custodio.ai import narrate
 from custodio.contracts import RuleOutcome
@@ -59,3 +62,10 @@ def test_the_narrator_uses_the_fast_model_at_low_effort_and_sees_the_acta(fake_l
     assert call.model == "claude-sonnet-5-5"
     assert call.effort == "low"
     assert "supera el tope de aprobación automática" in call.text
+
+
+def test_an_api_error_falls_back_instead_of_breaking_the_acta(fake_llm: FakeLLM) -> None:
+    request = httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
+    fake_llm.reply(anthropic.APIConnectionError(request=request))
+
+    assert narrate(ESCALATED) == ESCALATED.explanation
