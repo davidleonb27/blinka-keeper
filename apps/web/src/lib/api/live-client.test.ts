@@ -182,4 +182,52 @@ describe("live client", () => {
     expect(error).toBeInstanceOf(NetworkError);
     expect((error as Error).message).toMatch(/No pudimos conectarnos/);
   });
+
+  describe("when the cookie names a workspace the API no longer has", () => {
+    const gone = () => jsonResponse(404, { detail: "No encontramos ese espacio de trabajo.", code: "workspace_not_found" });
+
+    it("replaces the workspace once and repeats the call with the new one", async () => {
+      const fetchMock = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(gone())
+        .mockResolvedValueOnce(jsonResponse(200, []));
+      const replaceWorkspace = vi.fn<(stale: string) => Promise<string>>(async () => "ws_new");
+      let current = "ws_old";
+      const client = createLiveClient({
+        fetch: fetchMock,
+        workspaceId: () => current,
+        replaceWorkspace: async (stale) => {
+          current = await replaceWorkspace(stale);
+          return current;
+        },
+      });
+
+      expect(await client.listDecisions()).toEqual([]);
+
+      expect(replaceWorkspace).toHaveBeenCalledWith("ws_old");
+      const workspaces = fetchMock.mock.calls.map(([, init]) => new Headers(init?.headers).get("X-Custodio-Workspace"));
+      expect(workspaces).toEqual(["ws_old", "ws_new"]);
+    });
+
+    it("gives up after one replacement instead of looping", async () => {
+      const fetchMock = vi.fn<typeof fetch>(async () => gone());
+      const replaceWorkspace = vi.fn<(stale: string) => Promise<string>>(async () => "ws_new");
+      const client = createLiveClient({ fetch: fetchMock, workspaceId: () => "ws_old", replaceWorkspace });
+
+      await expect(client.getWorkspace()).rejects.toBeInstanceOf(NotFoundError);
+      expect(replaceWorkspace).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it("keeps the workspace when what is missing is a decision inside it", async () => {
+      const fetchMock = vi.fn<typeof fetch>(async () =>
+        jsonResponse(404, { detail: "No encontramos esa decisión en este espacio.", code: "decision_not_found" }),
+      );
+      const replaceWorkspace = vi.fn<(stale: string) => Promise<string>>(async () => "ws_new");
+      const client = createLiveClient({ fetch: fetchMock, workspaceId: () => "ws_123", replaceWorkspace });
+
+      await expect(client.getDecision("F-999")).rejects.toBeInstanceOf(NotFoundError);
+      expect(replaceWorkspace).not.toHaveBeenCalled();
+    });
+  });
 });

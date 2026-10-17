@@ -13,7 +13,7 @@ flowchart TB
         RUTAS["Rutas: validan y delegan"]
         SERV["Servicios: leer, decidir, auditar, registrar"]
         LECT["Lectura de facturas"]
-        MOTOR["Motor: 12 reglas puras"]
+        MOTOR["Motor: 15 reglas puras"]
         AUD["Auditor independiente"]
         LED["Registro encadenado SHA-256"]
     end
@@ -41,7 +41,7 @@ reloj ni modelos.
 |---|---|---|
 | Contratos | modelos compartidos entre piezas (Pydantic) | `apps/api/custodio/contracts.py` |
 | Puerta al modelo | única vía a Claude: salida estructurada, caché, tope diario de gasto | `apps/api/custodio/llm.py` |
-| Motor | reglas R1–R12, decisión por lote, simulación, contrafactual, explicación | `apps/api/custodio/engine/` |
+| Motor | reglas R1–R15, decisión por lote, simulación, contrafactual, explicación | `apps/api/custodio/engine/` |
 | Auditor | recalcula cada pago por otro camino de código; si discrepa, gana él | `apps/api/custodio/engine/audit.py` |
 | Registro | cadena SHA-256; `verify()` dice en qué entrada se rompió | `apps/api/custodio/engine/ledger.py` |
 | Lectura | PDF, imágenes, texto oculto, estructuración y verificación de citas | `apps/api/custodio/extraction/` |
@@ -63,7 +63,7 @@ Una factura PDF con la cuenta cambiada, de punta a punta:
    cita exacta del documento.
 5. **El código verifica las citas.** La cita debe existir en el texto fuente y respaldar el valor (el monto citado da el
    mismo número). Si no, el campo queda `verified = false` y cuenta como no leído (R1).
-6. **El motor evalúa las 12 reglas.** En orden, con cifras concretas en cada razón. En el ejemplo, R4 falla: la cuenta
+6. **El motor evalúa las 15 reglas.** En orden, con cifras concretas en cada razón. En el ejemplo, R4 falla: la cuenta
    leída no es la registrada del proveedor. Es una regla de retener.
 7. **Se decide el veredicto.** Si falla alguna regla de retener, se retiene; si no, si falla alguna de escalar, queda
    pendiente de aprobación; si no, se paga y se descuenta del saldo y del cupo. Aquí: **retener**.

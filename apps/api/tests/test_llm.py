@@ -60,6 +60,8 @@ class ScriptedClient:
 
 @pytest.fixture
 def scripted(monkeypatch: pytest.MonkeyPatch) -> Any:
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-for-doubles")
+
     def install(*responses: SimpleNamespace) -> ScriptedClient:
         fake = ScriptedClient(*responses)
         monkeypatch.setattr(llm, "client", lambda: fake)
@@ -134,3 +136,16 @@ def test_a_refusal_after_a_pause_still_raises(scripted: Any) -> None:
 
     with pytest.raises(llm.LLMRefused):
         ask()
+
+
+def test_without_an_api_key_no_request_is_made_and_the_error_names_the_key(
+    scripted: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    fake = scripted()
+
+    with pytest.raises(llm.LLMNotConfigured, match="requiere ANTHROPIC_API_KEY"):
+        ask()
+
+    assert fake.requests == []

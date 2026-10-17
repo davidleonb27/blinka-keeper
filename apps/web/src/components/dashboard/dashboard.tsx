@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { ActaDrawer } from "@/components/acta/acta-drawer";
 import { Chip, PageHeader } from "@/components/shell/page-header";
 import { RailBadge } from "@/components/shell/rail-badge";
@@ -99,7 +99,10 @@ export function Dashboard() {
           </div>
         </div>
       </div>
-      <ActaDrawer />
+      {/* Only the drawer reads the URL, so only it waits for the browser: the panel itself is prerendered. */}
+      <Suspense>
+        <ActaDrawer />
+      </Suspense>
     </>
   );
 }

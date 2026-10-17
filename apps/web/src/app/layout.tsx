@@ -1,16 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
+import { Inter, Source_Serif_4 } from "next/font/google";
 import { Providers } from "@/components/providers/providers";
 import "./globals.css";
 
-const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"], weight: ["500", "600", "700"] });
+// The type pair: Inter for the interface and text, Source Serif 4 for large titles. Changing the pair means changing
+// these two calls and the font tokens in globals.css; nothing else names a font.
+const sans = Inter({ subsets: ["latin"], display: "swap", variable: "--font-sans" });
+const serif = Source_Serif_4({ subsets: ["latin"], display: "swap", variable: "--font-serif", preload: true });
 
 export const metadata: Metadata = {
-  title: { default: "Custodio · el agente de pagos que no se deja engañar", template: "%s · Custodio" },
+  title: { default: "Custodio · el agente de cuentas por pagar de código abierto", template: "%s · Custodio" },
   description:
-    "Custodio revisa las facturas de tu empresa: el modelo lee, el código decide y una persona autoriza. Cada decisión queda en un acta y en un registro encadenado.",
+    "Custodio revisa las facturas de tu empresa: el modelo lee, el código decide y una persona autoriza. Código abierto bajo licencia MIT: úsalo en la demo o autoalójalo con un comando.",
 };
 
 export const viewport: Viewport = {
@@ -25,7 +26,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" suppressHydrationWarning className={`${geist.variable} ${geistMono.variable} ${bricolage.variable}`}>
+    <html lang="es" suppressHydrationWarning className={`${sans.variable} ${serif.variable}`}>
       <body className="min-h-dvh">
         <Providers>{children}</Providers>
       </body>

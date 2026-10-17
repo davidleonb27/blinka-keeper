@@ -1,0 +1,50 @@
+name: Regla nueva
+description: Propón una regla de decisión (R13 en adelante) o un cambio a una de las 12 actuales.
+title: "regla: "
+labels: ["regla"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Las reglas son código determinista: no leen el modelo, no tienen reloj ni azar. Lee la sección
+        «Proponer una regla nueva» de `CONTRIBUTING.md` antes de abrir esto.
+  - type: textarea
+    id: risk
+    attributes:
+      label: Qué fraude o error detiene
+      description: El riesgo en una o dos frases.
+    validations:
+      required: true
+  - type: textarea
+    id: case
+    attributes:
+      label: Caso concreto que hoy se paga y no debería
+      description: Factura o intención de pago de ejemplo (datos inventados) y la decisión que da Custodio hoy.
+    validations:
+      required: true
+  - type: dropdown
+    id: effect
+    attributes:
+      label: Efecto cuando falla
+      options:
+        - retener (hold) — es claramente indebido
+        - escalar (escalate) — una persona debe mirarlo
+    validations:
+      required: true
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Qué datos necesita
+      description: Campos de la factura, de la política (nuevos parámetros y su valor por defecto) o del historial.
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Razón que vería una persona
+      description: La frase en español del acta, con las cifras, y el contrafactual («se habría pagado si…»).
+  - type: textarea
+    id: audit
+    attributes:
+      label: Cómo lo comprobaría el auditor independiente
+      description: El auditor recalcula cada pago por un camino de código distinto al del motor.

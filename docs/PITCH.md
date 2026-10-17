@@ -41,9 +41,9 @@ Entrega: video de 3:00 exactos, demo en vivo y repo público. Equipo DreamMakers
 
 ### 0:35–1:05 · Una semana decidida
 
-**Se oye:** Esta es Cobalto Labs. Una semana de facturas entra al panel. Las limpias se pagan solas. Las trampas se retienen. Lo dudoso espera a una persona. Cada fila tiene su razón en una línea. Abro un acta: doce reglas, cada una con sus cifras, y lo que habría que cambiar para pagarla. El modelo sólo leyó y citó. Decidió el código.
+**Se oye:** Esta es Cobalto Labs. Una semana de facturas entra al panel. Las limpias se pagan solas. Las trampas se retienen. Lo dudoso espera a una persona. Cada fila tiene su razón en una línea. Abro un acta: quince reglas, cada una con sus cifras, y lo que habría que cambiar para pagarla. El modelo sólo leyó y citó. Decidió el código.
 
-**Se ve:** Botón «Probar con una empresa demo», panel con pagado, retenido y pendiente. Apertura del acta de una factura retenida: las 12 reglas, el contrafactual, la cita resaltada en el documento, el hash.
+**Se ve:** Botón «Probar con una empresa demo», panel con pagado, retenido y pendiente. Apertura del acta de una factura retenida: las 15 reglas, el contrafactual, la cita resaltada en el documento, el hash.
 
 **Toma:** Grabación de pantalla continua, sin cortes, cursor visible; el acta se abre con zoom al 125 %.
 
@@ -117,7 +117,7 @@ Entrega: video de 3:00 exactos, demo en vivo y repo público. Equipo DreamMakers
 
 **Se oye:** En Custodio el modelo lee y cita. Doce reglas en código pagan, retienen o preguntan a una persona. Cada decisión trae su acta y queda en un registro que no se puede alterar.
 
-**Se ve:** El panel con pagado, retenido y pendiente; un acta abierta con las doce reglas.
+**Se ve:** El panel con pagado, retenido y pendiente; un acta abierta con las quince reglas.
 
 ### 0:36–0:50 · Claude contra Claude
 

@@ -37,7 +37,7 @@ function ActaHeader({ detail, baseCurrency }: { detail: ActaData; baseCurrency: 
   return (
     <header className="flex flex-col gap-2.5 pr-12">
       <p className="eyebrow">Acta de decisión · {decision.invoice_id}</p>
-      <h2 className="font-display text-2xl leading-tight font-semibold tracking-[-0.01em]">{supplierText(decision)}</h2>
+      <h2 className="font-serif text-2xl leading-tight font-semibold tracking-[-0.01em]">{supplierText(decision)}</h2>
       <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1.5">
         <b className="text-[26px] leading-none font-semibold tracking-[-0.02em] tabular">{amountText(decision)}</b>
         {base ? <span className="text-ink-3 tabular">{base}</span> : null}

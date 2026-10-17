@@ -1,7 +1,8 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { useApi } from "@/components/providers/api-provider";
+import { useHydrated } from "@/lib/hydration";
 import type {
   ApprovalInput,
   ChallengeInput,
@@ -27,24 +28,44 @@ const queryKeys = {
   reconciliation: (id: string) => ["reconciliations", id] as const,
 };
 
+const HYDRATING = "hydrating";
+
+interface ClientQuery<T> {
+  queryKey: QueryKey;
+  queryFn: () => Promise<T>;
+  enabled?: boolean;
+  refetchInterval?: number;
+}
+
+/**
+ * A query whose data exists only in the browser. The server prerenders every page without it, but a part of the page
+ * that hydrates late (a Suspense boundary whose code arrives after the shell's) can find it already cached, render it
+ * and break hydration (React #418). Until the component has hydrated it reads an empty, disabled key, so its first
+ * render is the server's; right after, it reads the real key and shows the cached data at once.
+ */
+function useClientQuery<T>({ queryKey, enabled = true, ...options }: ClientQuery<T>) {
+  const hydrated = useHydrated();
+  return useQuery<T>({ ...options, queryKey: hydrated ? queryKey : [HYDRATING, ...queryKey], enabled: hydrated && enabled });
+}
+
 export function useHealth() {
   const api = useApi();
-  return useQuery({ queryKey: ["health"], queryFn: () => api.health() });
+  return useClientQuery({ queryKey: ["health"], queryFn: () => api.health() });
 }
 
 export function useWorkspaceSummary() {
   const api = useApi();
-  return useQuery({ queryKey: queryKeys.workspace, queryFn: () => api.getWorkspace() });
+  return useClientQuery({ queryKey: queryKeys.workspace, queryFn: () => api.getWorkspace() });
 }
 
 export function useDecisions() {
   const api = useApi();
-  return useQuery({ queryKey: queryKeys.decisions, queryFn: () => api.listDecisions() });
+  return useClientQuery({ queryKey: queryKeys.decisions, queryFn: () => api.listDecisions() });
 }
 
 export function useDecision(invoiceId: string | null) {
   const api = useApi();
-  return useQuery({
+  return useClientQuery({
     queryKey: queryKeys.decision(invoiceId ?? ""),
     queryFn: () => api.getDecision(invoiceId ?? ""),
     enabled: invoiceId !== null,
@@ -53,20 +74,20 @@ export function useDecision(invoiceId: string | null) {
 
 export function usePolicy() {
   const api = useApi();
-  return useQuery({ queryKey: queryKeys.policy, queryFn: () => api.getPolicy() });
+  return useClientQuery({ queryKey: queryKeys.policy, queryFn: () => api.getPolicy() });
 }
 
 export function useLedger() {
   const api = useApi();
-  return useQuery({ queryKey: queryKeys.ledger, queryFn: () => api.getLedger() });
+  return useClientQuery({ queryKey: queryKeys.ledger, queryFn: () => api.getLedger() });
 }
 
-export function useChallengeStats() {
+export function useChallengeStats(pollMs = CHALLENGE_POLL_MS) {
   const api = useApi();
-  return useQuery({
+  return useClientQuery({
     queryKey: queryKeys.challenge,
     queryFn: () => api.getChallengeStats(),
-    refetchInterval: CHALLENGE_POLL_MS,
+    refetchInterval: pollMs,
   });
 }
 
@@ -169,12 +190,12 @@ export function useProcessInvoices() {
 
 export function useReconciliations() {
   const api = useApi();
-  return useQuery({ queryKey: queryKeys.reconciliations, queryFn: () => api.listReconciliations() });
+  return useClientQuery({ queryKey: queryKeys.reconciliations, queryFn: () => api.listReconciliations() });
 }
 
 export function useReconciliation(id: string | null) {
   const api = useApi();
-  return useQuery({
+  return useClientQuery({
     queryKey: queryKeys.reconciliation(id ?? ""),
     queryFn: () => api.getReconciliation(id ?? ""),
     enabled: id !== null,

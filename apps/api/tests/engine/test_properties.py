@@ -22,9 +22,11 @@ from custodio.contracts import (
     InvoiceCase,
     Policy,
     RuleOutcome,
+    RuleResult,
 )
 from custodio.dataset.synthetic import random_approvals, random_batch, random_company
 from custodio.engine import audit, decide_all
+from custodio.engine.decide import NEUTRAL_WHEN_SKIPPED
 
 ENGINE = Path(__file__).parents[2] / "custodio" / "engine"
 PAID = (DecisionStatus.PAID_AUTO, DecisionStatus.PAID_HUMAN)
@@ -37,6 +39,11 @@ def scenario(rng: random.Random) -> tuple[list[InvoiceCase], CompanyState, Polic
     cases = random_batch(rng, state, policy, size=rng.randint(1, 30))
     approvals = random_approvals(rng, decide_all(cases, state, policy).decisions)
     return cases, state, policy, approvals
+
+
+def neutral_skip(rule: RuleResult) -> bool:
+    """A payment control (R13-R15) that had nothing to check: the only non-pass an autonomous payment may carry."""
+    return rule.outcome is RuleOutcome.SKIPPED and rule.rule_id in NEUTRAL_WHEN_SKIPPED
 
 
 def paid_total(batch: BatchResult) -> Decimal:
@@ -58,7 +65,7 @@ def test_nothing_is_paid_while_a_hold_rule_fails_not_even_with_approval(rng: ran
         if decision.status in PAID:
             assert all(rule.outcome is not RuleOutcome.HOLD for rule in decision.rules)
         if decision.status is DecisionStatus.PAID_AUTO:
-            assert all(rule.outcome is RuleOutcome.PASS for rule in decision.rules)
+            assert all(rule.outcome is RuleOutcome.PASS or neutral_skip(rule) for rule in decision.rules)
 
 
 @PROPERTY

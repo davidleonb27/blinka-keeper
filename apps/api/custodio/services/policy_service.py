@@ -12,7 +12,7 @@ from custodio.db.models import PolicyRow, WorkspaceRow
 from custodio.llm import LLMError
 from custodio.services import ledger_service, records
 from custodio.services.context import ServiceContext
-from custodio.services.errors import ModelUnavailable, PolicyInvalid
+from custodio.services.errors import PolicyInvalid, model_failure
 
 AMOUNT_FIELDS = ("approval_threshold", "per_payment_limit", "period_budget", "reserve", "agreement_tolerance_pct")
 WINDOW_FIELDS = ("duplicate_window_days", "split_window_days")
@@ -61,7 +61,7 @@ def compile_text(ctx: ServiceContext, workspace: WorkspaceRow, text: str, base: 
     try:
         proposal = ctx.lanes.compile_policy(text, policy)
     except LLMError as error:
-        raise ModelUnavailable() from error
+        raise model_failure(error) from error
     if base is not None:
         return proposal
     cases = [records.as_case(row) for row in records.invoices(ctx, workspace.id)]

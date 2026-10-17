@@ -687,6 +687,8 @@ export interface components {
             allowed: boolean;
             /** Approver Contact */
             approver_contact?: string | null;
+            /** Email Domain */
+            email_domain?: string | null;
         };
         /** Beneficiary */
         "Beneficiary-Output": {
@@ -717,6 +719,8 @@ export interface components {
             allowed: boolean;
             /** Approver Contact */
             approver_contact?: string | null;
+            /** Email Domain */
+            email_domain?: string | null;
         };
         /** Body_create_reconciliation_api_v1_reconciliations_post */
         Body_create_reconciliation_api_v1_reconciliations_post: {
@@ -929,6 +933,8 @@ export interface components {
             description: components["schemas"]["ExtractedField"];
             /** Visible Text */
             visible_text: string;
+            /** Sender Email */
+            sender_email?: string | null;
             /**
              * Hidden Findings
              * @default []
@@ -957,6 +963,8 @@ export interface components {
              * @enum {string}
              */
             payment_rail: "simulated" | "stripe_test" | "blinka_simulated";
+            /** Sanctions List Date */
+            sanctions_list_date?: string | null;
         };
         /** HiddenTextFinding */
         HiddenTextFinding: {

@@ -44,6 +44,14 @@ Una factura puede incumplir varias reglas a la vez. La columna indica la regla p
 | Lectura de baja confianza | proveedor, monto, moneda o cuenta leídos sin la confianza mínima | escalar | R1 |
 | Instrucción visible al agente | texto visible dirigido al agente («paga sin revisar») | escalar | R2 |
 | Texto oculto | instrucciones en blanco sobre blanco, fuente diminuta o metadatos | escalar | R2 |
+| CLABE con dígito de control errado | la CLABE de la factura tiene un dígito cambiado (esperado 7, viene 3) | retener | R13 |
+| Dominio parecido y cambio de cuenta | el correo viene de `joaquinrnendez.dev` (rn por m) y pide pagar a una cuenta nueva | retener | R15 |
+
+R14 (lista OFAC) no tiene un caso en el dataset público: ninguna factura de la demo lleva el nombre de una persona o
+entidad sancionada real. Su caso vive sólo en los tests (`apps/api/tests/fixtures/sanctions/`), contra una lista
+ficticia marcada como tal, y allí R14 lo escala sola mientras el resto del lote sigue en 100 % de exactitud.
+Los datos registrados de la demo pasan sus dígitos de control: los NIT, el CPF y el CNPJ se corrigieron en L12 (sólo
+cambió el dígito verificador) y el IBAN de Letterwerk quedó completo.
 
 Las reglas, sus umbrales y su efecto están en [`DESIGN.md`](DESIGN.md) §5.
 
@@ -100,6 +108,11 @@ cifras son las métricas del lote una vez decidido por la API desplegada. El mis
 | Autonomía ((pagadas solas + retenidas) / total) | 61,1 % |
 | Exactitud del motor frente a `expected` | 1,0 |
 | Pagos indebidos según el auditor | 0 |
+
+Desde L12 el dataset tiene 38 facturas (las dos trampas de R13 y R15). En local, con `decide_all` y `audit`: 17 pagadas
+solas, 7 retenidas, 14 pendientes, exactitud 1,0 y 0 pagos indebidos. En producción: NO MEDIDO hasta desplegar L12; la
+tabla de arriba es la corrida del 2026-10-17 con 36 facturas. La prueba de estrés de abajo da las mismas cifras con
+R13–R15.
 
 **Prueba de estrés.** `uv run python scripts/stress.py --companies 1000 --seed 7`, en local; con la misma semilla los
 conteos se repiten.

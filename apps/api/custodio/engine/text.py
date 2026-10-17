@@ -37,8 +37,13 @@ def fold(text: str) -> str:
 
 
 def normalize_name(name: str) -> str:
-    tokens = re.sub(r"[^a-z0-9]+", " ", fold(name).replace(".", "")).split()
-    return "".join(_strip_suffixes(tokens))
+    return "".join(name_tokens(name))
+
+
+def name_tokens(name: str) -> list[str]:
+    """The words of a name, folded, in their order, without the company-type suffix: «Pixel Norte S.A. de C.V.» ->
+    [pixel, norte]."""
+    return _strip_suffixes(re.sub(r"[^a-z0-9]+", " ", fold(name).replace(".", "")).split())
 
 
 def normalize_code(code: str) -> str:

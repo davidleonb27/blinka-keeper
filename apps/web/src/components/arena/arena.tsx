@@ -39,7 +39,7 @@ function RoundCard({ round }: { round: ArenaRound }) {
         <p className="eyebrow text-crit">Atacante · ronda {round.round}</p>
         {attack ? (
           <>
-            <h3 className="font-display text-lg font-semibold">{attack.technique}</h3>
+            <h3 className="font-serif text-lg font-semibold">{attack.technique}</h3>
             <p className="text-[13.5px] text-ink-2">{attack.rationale}</p>
             <pre className="overflow-x-auto rounded-xl border border-line bg-surface-2 px-3 py-2.5 font-mono text-[12px] leading-relaxed whitespace-pre-wrap">
               {attack.invoice_text}
@@ -181,7 +181,7 @@ export function Arena() {
         <div className="card-surface flex flex-col items-center gap-3 px-6 py-14 text-center">
           <Swords aria-hidden className="size-9 text-brand" />
           <p className="max-w-[46ch] text-ink-2">
-            Cada ataque se lee, se decide con las mismas doce reglas y queda en el{" "}
+            Cada ataque se lee, se decide con las mismas quince reglas y queda en el{" "}
             <Link href="/registro" className="font-semibold text-brand underline-offset-4 hover:underline">registro</Link>.
           </p>
         </div>

@@ -45,6 +45,20 @@ def day_month(day: date) -> str:
     return f"{day.day} de {month_name(day)}"
 
 
+def long_date(day: date) -> str:
+    return f"{day_month(day)} de {day.year}"
+
+
+def two_decimals(value: float) -> str:
+    """`0,92`."""
+    return _es_number(Decimal(str(value)), 2)
+
+
+def thousands(count: int) -> str:
+    """`19.457`."""
+    return _es_number(Decimal(count), 0)
+
+
 def clip(text: str) -> str:
     """One line, at most QUOTE_LIMIT characters, for quoting a document inside a reason."""
     flat = " ".join(text.split())
