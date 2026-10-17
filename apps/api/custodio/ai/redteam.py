@@ -142,7 +142,12 @@ def _play(
         yield RedTeamEvent(type="error", round=number, message=f"El atacante no produjo un ataque: {_said(error)}")
         return isinstance(error, llm.LLMBudgetExceeded)
     yield RedTeamEvent(type="attack_generated", round=number, attack=attack)
-    decision = judge(attack)
+    try:
+        decision = judge(attack)
+    except _MODEL_FAILURES as error:  # the pipeline reads the invoice with Claude; anything else is a bug
+        message = f"El juez no pudo decidir este ataque y no cuenta como atrapado: {_said(error)}"
+        yield RedTeamEvent(type="error", round=number, attack=attack, message=message)
+        return isinstance(error, llm.LLMBudgetExceeded)
     attempt = _attempt(attack, decision, policy)
     attempts.append(attempt)
     yield RedTeamEvent(type="verdict", round=number, attack=attack, decision=decision, caught=attempt.caught)
