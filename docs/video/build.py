@@ -92,12 +92,21 @@ def narration_length(lines: list[Line]) -> float:
     return LEAD + sum(line.duration for line in lines) + GAP * (len(lines) - 1) + TAIL
 
 
+def take_file(take: str) -> str:
+    """paid_stripe is a paid take kept from a run before the deployment's daily cap of Stripe test transfers. Without
+    it, the paid take of the current run is the same shot."""
+    if take == "paid_stripe" and (BUILD / "raw" / "paid.mp4").exists() and not (BUILD / "raw" / "paid_stripe.mp4").exists():
+        return "paid"
+    return take
+
+
 def marks(take: str) -> dict[str, float]:
     data = json.loads((BUILD / "raw" / f"{take}.marks.json").read_text())
     return {m["name"]: m["t"] for m in data["marks"]} | {"__end": data["end"]}
 
 
 def resolve(segment: dict) -> dict:
+    segment = {**segment, "take": take_file(segment["take"])}
     m = marks(segment["take"])
     start = m[segment["from"]] + segment.get("fromOffset", 0)
     end = min(m[segment["to"]] + segment.get("toOffset", 0), m["__end"])

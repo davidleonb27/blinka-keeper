@@ -125,6 +125,7 @@ const TAKES = {
     const response = await page.request.get(`${BASE}/api/v1/decisions`, { headers: { "X-Custodio-Workspace": workspace } });
     const body = await response.json();
     const sent = (body.items ?? body).find((item) => /^tr_/.test(JSON.stringify(item).match(/"external_id":"([^"]*)"/)?.[1] ?? ""));
+    if (!sent) throw new Error("ningún pago de este espacio salió por Stripe (¿tope diario de transferencias de prueba?)");
     const supplier = sent.decision.supplier_name;
     console.log(`[paid] con transferencia: ${sent.decision.invoice_id} ${supplier}`);
     await open(page, "/panel");
@@ -392,9 +393,10 @@ const TAKES = {
   },
 };
 
-// approve and paid stay available (`node record.mjs build/raw paid`). Since the scheduler (L13) an approved payment waits for
-// its due date, and the deployment caps Stripe test transfers per day, so the cut takes the payment from its own take.
-const ORDER = ["landing", "held", "ledger", "rules", "reconcile", "calendar", "autonomy", "attack", "arena", "stage", "docs"];
+// approve stays available. Since the scheduler (L13) an approved payment waits for its due date, so the cut shows the
+// transfer of an invoice paid on its own (paid). The deployment caps Stripe test transfers per day; when the cap is hit,
+// paid fails loudly and build.py falls back to a paid_stripe take recorded earlier, if there is one.
+const ORDER = ["landing", "held", "paid", "ledger", "rules", "reconcile", "calendar", "autonomy", "attack", "arena", "stage", "docs"];
 
 // Without the landing take, reuse the demo workspace the last full run created (handy to re-record one take).
 const STATE = path.join(OUT, "state.json");
@@ -410,7 +412,14 @@ const page = await preparePage(context);
 page.on("pageerror", (error) => console.log("pageerror", error.message));
 for (const take of ORDER.filter((name) => ONLY.length === 0 || ONLY.includes(name))) {
   const rec = await startRecording(page, OUT, take);
-  await TAKES[take](page, rec);
+  try {
+    await TAKES[take](page, rec);
+  } catch (error) {
+    if (take !== "paid") throw error;
+    console.log(`paid: ${error.message}; se omite la toma`);
+    await rec.stop();
+    continue;
+  }
   const { list, frames, end } = await rec.stop();
   if (take === "landing") await context.storageState({ path: STATE });
   console.log(`${take}: ${frames} frames in ${end.toFixed(1)} s (${(frames / end).toFixed(1)} fps captured)`);

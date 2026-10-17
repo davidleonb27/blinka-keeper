@@ -78,6 +78,7 @@ export async function startRecording(page, outDir, take) {
       await page.waitForTimeout(400);
       await cdp.send("Page.stopScreencast").catch(() => {});
       const end = Date.now() / 1000 - t0;
+      if (frames.length === 0) return { list: null, frames: 0, end };
       const lines = [];
       frames.forEach((f, i) => {
         const next = i + 1 < frames.length ? frames[i + 1].t : end;
