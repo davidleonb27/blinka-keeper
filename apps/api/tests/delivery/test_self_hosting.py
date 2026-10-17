@@ -75,7 +75,7 @@ def test_the_api_waits_for_postgres_points_at_it_and_migrates_on_start() -> None
     api = compose_service("api")
     assert "condition: service_healthy" in api
     assert re.search(r"DATABASE_URL: postgresql://\S+@postgres:5432/", api)
-    assert "alembic upgrade head" in read("apps/api/Dockerfile") + api
+    assert "custodio.db.migrate" in read("apps/api/Dockerfile") + api
     assert "healthcheck:" in api
 
 
