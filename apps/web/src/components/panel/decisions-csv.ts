@@ -3,6 +3,7 @@ import { failingRules, STATUS_META } from "@/lib/presentation";
 
 const COLUMNS = ["proveedor", "numero", "monto", "moneda", "estado", "regla_decisiva", "fecha", "id_transferencia"];
 const WITHIN_RULES = "Dentro de las reglas";
+const NO_TRANSFER = "—";
 const NEEDS_QUOTES = /[",\r\n]/;
 // A spreadsheet runs a text cell that starts with one of these as a formula; the supplier name is read from an invoice.
 const FORMULA_START = /^[=+\-@\t\r]/;
@@ -18,6 +19,12 @@ function decisiveRule(item: DecisionListItem): string {
   return first ? `${first.rule_id} ${first.label}` : (item.decision.blocked_reason ?? WITHIN_RULES);
 }
 
+/** The rail's transfer id; a rail without one (simulated, Blinka) still has its instruction's key. Never blank. */
+function transferId({ decision }: DecisionListItem): string {
+  const execution = decision.execution;
+  return execution?.external_id || execution?.instruction?.idempotency_key || NO_TRANSFER;
+}
+
 function rowOf(item: DecisionListItem): (string | number | null | undefined)[] {
   const { decision } = item;
   return [
@@ -28,7 +35,7 @@ function rowOf(item: DecisionListItem): (string | number | null | undefined)[] {
     STATUS_META[decision.status].label,
     decisiveRule(item),
     item.received_at.slice(0, 10),
-    decision.execution?.external_id,
+    transferId(item),
   ];
 }
 
