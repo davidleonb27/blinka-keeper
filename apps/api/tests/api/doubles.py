@@ -389,10 +389,15 @@ def decide_all(
 
 @dataclass
 class FakeAuditor:
-    """Agrees with the engine unless told to flag specific invoices as improper payments."""
+    """Agrees with the engine unless told to flag specific invoices as improper payments.
+
+    `batch_findings` are objections to the batch as a whole (the prototype's `'saldo'` violation), not counted as
+    improper payments, the way a real auditor may report them.
+    """
 
     flagged: set[str] = field(default_factory=set)
     flag_every_payment: bool = False
+    batch_findings: list[AuditFinding] = field(default_factory=list)
 
     def __call__(
         self, batch: BatchResult, cases: Sequence[InvoiceCase], state: CompanyState, policy: Policy
@@ -403,7 +408,12 @@ class FakeAuditor:
             for d in paid
             if self.flag_every_payment or d.invoice_id in self.flagged
         ]
-        return AuditReport(agrees=not findings, checked=len(paid), improper_payments=len(findings), findings=findings)
+        return AuditReport(
+            agrees=not findings and not self.batch_findings,
+            checked=len(paid),
+            improper_payments=len(findings),
+            findings=findings + self.batch_findings,
+        )
 
 
 def simulate(cases: Sequence[InvoiceCase], state: CompanyState, before: Policy, after: Policy) -> SimulationReport:

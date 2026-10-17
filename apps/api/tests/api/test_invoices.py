@@ -2,7 +2,7 @@ from typing import Any
 
 from fastapi.testclient import TestClient
 
-from custodio.contracts import BatchResult, DecisionStatus
+from custodio.contracts import AuditFinding, BatchResult, DecisionStatus
 from custodio.services.lanes import Lanes
 
 from .doubles import FakeAuditor, failing, invoice_text
@@ -127,6 +127,23 @@ def test_the_auditor_wins_and_the_payment_is_not_made(client: TestClient, audito
     assert "auditor" in f01["blocked_reason"]
     assert summary["balance"] == 100000.0
     assert summary["metrics"]["improper_payments"] == 1  # stopped by the auditor, never paid
+    assert_ledger_valid(client, workspace)
+
+
+def test_a_critical_finding_on_the_whole_batch_stops_every_payment(client: TestClient, auditor: FakeAuditor) -> None:
+    workspace = new_workspace(client)
+    auditor.batch_findings.append(
+        AuditFinding(invoice_id="saldo", severity="critical", message="Los pagos aprobados tocan la reserva.")
+    )
+
+    result = process(client, workspace)
+    summary = client.get("/api/v1/workspaces/current", headers=workspace.headers).json()
+
+    f01 = next(d for d in result["batch"]["decisions"] if d["invoice_id"] == "F01")
+    assert f01["status"] == "hold"
+    assert "auditor" in f01["blocked_reason"]
+    assert result["vetoed"] == ["F01"]
+    assert summary["balance"] == 100000.0
     assert_ledger_valid(client, workspace)
 
 
