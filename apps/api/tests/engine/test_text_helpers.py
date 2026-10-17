@@ -28,7 +28,8 @@ def test_money_uses_colombian_spanish_style(amount: Decimal, currency: str, text
 def test_percent_and_signed_percent() -> None:
     assert percent(Decimal("0.9")) == "90 %"
     assert percent(Decimal("0.975")) == "97,5 %"
-    assert signed_percent(Decimal("23.275862")) == "+23,3 %"
+    assert signed_percent(Decimal("23.275862")) == "+23,28 %"
+    assert signed_percent(Decimal("2.01")) == "+2,01 %"
     assert signed_percent(Decimal("-2")) == "−2 %"
     assert signed_percent(Decimal("0")) == "0 %"
 
