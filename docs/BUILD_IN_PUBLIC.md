@@ -10,8 +10,9 @@ lanzamiento del reto público «Róbale a Custodio».
   hace falta estar despierto.
 - **Sólo cifras medidas.** Lo que está entre `{{llaves}}` se copia del contador de la demo justo antes de publicar. Si el
   contador dice NO MEDIDO, se escribe «aún no lo medimos». Nunca se redondea hacia arriba.
-- `{{DEMO_URL}}` es el enlace de la demo desplegada.
-- Cada borrador de X cabe en 280 caracteres, contando con que `{{DEMO_URL}}` ocupa 23 (así cuenta X cualquier enlace).
+- La demo desplegada está en https://custodio-blinka-green.vercel.app.
+- Cada borrador de X cabe en 280 caracteres, contando con que el enlace de la demo ocupa 23 (así cuenta X cualquier
+  enlace).
 - Todas mencionan el hackathon 30X y a Blinka. Si el equipo confirma los usuarios oficiales, se añaden como menciones.
 - **Antes de publicar, comprobar que es verdad.** Cada borrador describe algo que debe existir a esa hora (la Arena
   corriendo, el muro, el botón de alterar el registro). Si no existe todavía, se reescribe el texto.
@@ -68,18 +69,18 @@ lanzamiento del reto público «Róbale a Custodio».
 >
 > Antes de abrirlo hicimos que Claude Opus atacara a Custodio en la Arena: escribe una factura fraudulenta, lee por qué la bloquearon y cambia de técnica. El defensor no cambia, porque sus reglas son código.
 >
-> Quien quiera intentarlo, a mediodía en {{DEMO_URL}}. #30X #Blinka
+> Quien quiera intentarlo, a mediodía en https://custodio-blinka-green.vercel.app. #30X #Blinka
 
 ### 2026-10-17 12:00 · Lanzamiento: Róbale a Custodio
 **Imagen:** `arena.png`
 
 #### X
-> Ya está abierto: Róbale a Custodio. Sube o escribe una factura trampa y mira si logras que pague algo indebido. El contador es público, los mejores ataques van al muro. Hackathon 30X, reto Blinka. {{DEMO_URL}} #30X #RetoBlinka
+> Ya está abierto: Róbale a Custodio. Sube o escribe una factura trampa y mira si logras que pague algo indebido. El contador es público, los mejores ataques van al muro. Hackathon 30X, reto Blinka. https://custodio-blinka-green.vercel.app #30X #RetoBlinka
 
 #### LinkedIn
 > Lanzamos «Róbale a Custodio», el reto público de nuestro proyecto para el hackathon 30X, reto Blinka.
 >
-> Qué hacer: abre {{DEMO_URL}}, ve a «Róbale a Custodio», sube o escribe una factura trampa y mira qué decide. Puedes cambiar la cuenta, repetir un cobro, esconder una instrucción en el PDF o partir un pago en dos.
+> Qué hacer: abre https://custodio-blinka-green.vercel.app, ve a «Róbale a Custodio», sube o escribe una factura trampa y mira qué decide. Puedes cambiar la cuenta, repetir un cobro, esconder una instrucción en el PDF o partir un pago en dos.
 >
 > Qué verás: el resultado al instante con el acta de las doce reglas, y un contador global de intentos y de pagos indebidos. Si logras que pague algo indebido, queda en el muro y lo corregimos a la vista. Cada ataque atrapado se vuelve un caso de prueba. #30X #Blinka
 
@@ -87,20 +88,20 @@ lanzamiento del reto público «Róbale a Custodio».
 **Imagen:** captura del contador del reto
 
 #### X
-> Primer parcial de Róbale a Custodio: {{intentos}} intentos, {{indebidos}} pagos indebidos. El ataque más creativo hasta ahora: {{ataque}}. Sigue abierto para el hackathon 30X, reto Blinka. {{DEMO_URL}} #30X #RetoBlinka
+> Primer parcial de Róbale a Custodio: {{intentos}} intentos, {{indebidos}} pagos indebidos. El ataque más creativo hasta ahora: {{ataque}}. Sigue abierto para el hackathon 30X, reto Blinka. https://custodio-blinka-green.vercel.app #30X #RetoBlinka
 
 #### LinkedIn
 > Cuatro horas de reto público abierto en el hackathon 30X, reto Blinka. Parcial del contador de la demo: {{intentos}} intentos y {{indebidos}} pagos indebidos.
 >
 > El ataque que más nos gustó: {{ataque}}. Qué regla lo atrapó y cuál fue la razón que mostró el acta: {{regla}}.
 >
-> Si todavía no lo has intentado: {{DEMO_URL}}. #30X #Blinka
+> Si todavía no lo has intentado: https://custodio-blinka-green.vercel.app. #30X #Blinka
 
 ### 2026-10-17 20:00 · Lo que nos enseñaron los ataques
 **Imagen:** captura del muro de ataques
 
 #### X
-> Lo que aprendimos del reto hasta ahora: {{aprendizaje}}. Cada ataque atrapado ya es un caso de prueba en el repo. Hackathon 30X, reto Blinka. {{DEMO_URL}} #30X #RetoBlinka
+> Lo que aprendimos del reto hasta ahora: {{aprendizaje}}. Cada ataque atrapado ya es un caso de prueba en el repo. Hackathon 30X, reto Blinka. https://custodio-blinka-green.vercel.app #30X #RetoBlinka
 
 #### LinkedIn
 > Balance de la tarde del reto público de Custodio, hackathon 30X, reto Blinka.
@@ -136,11 +137,11 @@ lanzamiento del reto público «Róbale a Custodio».
 **Imagen:** `demo.gif`
 
 #### X
-> Faltan menos de 4 horas para entregar Custodio en el hackathon 30X, reto Blinka. Demo: {{DEMO_URL}} · Código: github.com/davidleonb27/custodio-blinka. El reto sigue abierto: {{intentos}} intentos, {{indebidos}} pagos indebidos. #30X #RetoBlinka
+> Faltan menos de 4 horas para entregar Custodio en el hackathon 30X, reto Blinka. Demo: https://custodio-blinka-green.vercel.app · Código: github.com/davidleonb27/custodio-blinka. El reto sigue abierto: {{intentos}} intentos, {{indebidos}} pagos indebidos. #30X #RetoBlinka
 
 #### LinkedIn
 > Hoy a las 11:59 a. m. cerramos la entrega de Custodio en el hackathon 30X, reto Blinka. Gracias a quienes intentaron romperlo.
 >
 > Contador de la demo en este momento: {{intentos}} intentos y {{indebidos}} pagos indebidos. Lo que aún no medimos lo dejamos escrito como NO MEDIDO en el README.
 >
-> Demo: {{DEMO_URL}}. Código abierto (MIT): github.com/davidleonb27/custodio-blinka. Equipo DreamMakers: Adriano Joao Souza Reyna, Juan David Leon y Leober Ramos. #30X #Blinka
+> Demo: https://custodio-blinka-green.vercel.app. Código abierto (MIT): github.com/davidleonb27/custodio-blinka. Equipo DreamMakers: Adriano Joao Souza Reyna, Juan David Leon y Leober Ramos. #30X #Blinka

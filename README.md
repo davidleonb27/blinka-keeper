@@ -13,7 +13,7 @@ que se note.
 
 ## Pruébalo en 30 segundos
 
-1. Abre **{{DEMO_URL}}** y pulsa **«Probar con una empresa demo»**. No hay registro: recibes tu propio espacio.
+1. Abre **https://custodio-blinka-green.vercel.app** y pulsa **«Probar con una empresa demo»**. No hay registro: recibes tu propio espacio.
 2. En el panel verás una semana de facturas ya decidida: pagado, retenido y pendiente, cada una con su razón.
 3. Abre cualquier fila para ver el acta con las 12 reglas. Prueba «Róbale a Custodio» e intenta que pague algo indebido.
 
@@ -137,6 +137,6 @@ the text behind every value; deterministic code (12 pure rules) decides pay, hol
 is ambiguous. An independent auditor recomputes every payment through a different code path and overrides the engine if
 they disagree. Every decision ships with a plain-language record and a SHA-256 hash chain that shows where it was
 altered. Other agents can use Custodio as a payment firewall through an API or an MCP server, and anyone can try to
-break it on the public "Róbale a Custodio" challenge. Try it: **{{DEMO_URL}}**. Figures are published only when
+break it on the public "Róbale a Custodio" challenge. Try it: **https://custodio-blinka-green.vercel.app**. Figures are published only when
 measured; until then they read NO MEDIDO ("not measured"). Built by team DreamMakers for the 30X hackathon, Blinka
 challenge. MIT licensed.
