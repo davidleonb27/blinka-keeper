@@ -12,19 +12,23 @@ Rules that hold for every call:
 from __future__ import annotations
 
 import threading
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import lru_cache
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import anthropic
 from anthropic import omit
 from anthropic.types.beta import (
     BetaContentBlockParam,
     BetaImageBlockParam,
+    BetaMessageParam,
     BetaRequestDocumentBlockParam,
     BetaTextBlockParam,
     BetaToolUnionParam,
+    BetaWebFetchBlock,
+    BetaWebFetchToolResultBlock,
 )
 from pydantic import BaseModel
 
@@ -41,6 +45,9 @@ _PRICES: dict[str, tuple[float, float]] = {
 # Server-side refusal fallback ("default" routing) is available on these models only.
 _FALLBACK_MODELS = {"claude-opus-5-5", "claude-sonnet-5-5", "claude-fable-5-1"}
 _FALLBACK_BETA = "server-side-fallback-2026-07-01"
+# A server-tool turn (e.g. web_fetch) that hits the API's sampling-loop limit stops with "pause_turn" and is
+# resent to continue. Past this many continuations the turn is treated as stuck.
+MAX_CONTINUATIONS = 4
 
 
 class LLMError(RuntimeError):
@@ -67,6 +74,7 @@ class LLMResult[T: BaseModel]:
     output_tokens: int
     cache_read_tokens: int
     cost_usd: float
+    fetched_urls: tuple[str, ...] = ()  # pages web_fetch actually read during the call, in order, once each
 
 
 class _Budget:
@@ -129,23 +137,36 @@ def structured[T: BaseModel](
     """Ask Claude for an object of type `schema`.
 
     `content` is the user turn: a string, or a list of content blocks (text, image, document). Put the
-    document blocks before the instruction text. `tools` is for server tools only (e.g. web_fetch).
+    document blocks before the instruction text. `tools` is for server tools only (e.g. web_fetch). A turn that
+    the server pauses mid tool use is continued up to MAX_CONTINUATIONS times; `fetched_urls` lists the pages
+    web_fetch read.
     """
-    budget.check()
     use_fallback = model in _FALLBACK_MODELS
-    response = client().beta.messages.parse(
-        model=model,
-        max_tokens=max_tokens,
-        system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
-        messages=[{"role": "user", "content": content}],
-        output_format=schema,
-        output_config={"effort": effort},
-        tools=tools if tools else omit,
-        betas=[_FALLBACK_BETA] if use_fallback else omit,
-        fallbacks="default" if use_fallback else omit,
-    )
-    cost = _cost(model, response.usage)
-    budget.add(cost)
+    user_turn: BetaMessageParam = {"role": "user", "content": content}
+    assistant_so_far: list[BetaContentBlockParam] = []
+    responses = []
+    for _ in range(MAX_CONTINUATIONS + 1):
+        budget.check()
+        messages = [user_turn, {"role": "assistant", "content": assistant_so_far}] if assistant_so_far else [user_turn]
+        response = client().beta.messages.parse(
+            model=model,
+            max_tokens=max_tokens,
+            system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
+            messages=cast(list[BetaMessageParam], messages),
+            output_format=schema,
+            output_config={"effort": effort},
+            tools=tools if tools else omit,
+            betas=[_FALLBACK_BETA] if use_fallback else omit,
+            fallbacks="default" if use_fallback else omit,
+        )
+        budget.add(_cost(model, response.usage))
+        responses.append(response)
+        if response.stop_reason != "pause_turn":
+            break
+        # The paused turn goes back as the trailing assistant message; the server resumes it from there.
+        assistant_so_far = [*assistant_so_far, *(cast(BetaContentBlockParam, b.to_dict()) for b in response.content)]
+    else:
+        raise LLMTruncated(f"El modelo no terminó de usar sus herramientas tras {MAX_CONTINUATIONS} continuaciones.")
 
     if response.stop_reason == "refusal":
         category = getattr(response.stop_details, "category", None) if response.stop_details else None
@@ -158,11 +179,22 @@ def structured[T: BaseModel](
     return LLMResult(
         value=parsed,
         model=response.model,
-        input_tokens=response.usage.input_tokens or 0,
-        output_tokens=response.usage.output_tokens or 0,
-        cache_read_tokens=getattr(response.usage, "cache_read_input_tokens", 0) or 0,
-        cost_usd=cost,
+        input_tokens=sum(r.usage.input_tokens or 0 for r in responses),
+        output_tokens=sum(r.usage.output_tokens or 0 for r in responses),
+        cache_read_tokens=sum(getattr(r.usage, "cache_read_input_tokens", 0) or 0 for r in responses),
+        cost_usd=sum(_cost(model, r.usage) for r in responses),
+        fetched_urls=_fetched_urls(block for r in responses for block in r.content),
     )
+
+
+def _fetched_urls(blocks: Iterable[object]) -> tuple[str, ...]:
+    """URLs of successful web_fetch results; failed fetches carry an error block instead of a page."""
+    urls = [
+        block.content.url
+        for block in blocks
+        if isinstance(block, BetaWebFetchToolResultBlock) and isinstance(block.content, BetaWebFetchBlock)
+    ]
+    return tuple(dict.fromkeys(urls))
 
 
 def pdf_block(data_b64: str) -> BetaRequestDocumentBlockParam:

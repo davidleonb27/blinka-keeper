@@ -1,0 +1,20 @@
+{
+  "changes": [
+    {
+      "field": "max_invoices_per_day",
+      "source_quote": "No pagues más de 3 facturas por día",
+      "amount": "3",
+      "currency": null,
+      "percent": null,
+      "days": null,
+      "currencies": [],
+      "operation": "set",
+      "beneficiary_id": null,
+      "agreement_kind": null,
+      "allowed": null,
+      "approver_name": null
+    }
+  ],
+  "unsupported": [],
+  "questions": []
+}

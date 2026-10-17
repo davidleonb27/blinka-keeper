@@ -1,0 +1,36 @@
+{
+  "changes": [
+    {
+      "field": "allowed_currencies",
+      "source_quote": "No pagues en reales",
+      "amount": null,
+      "currency": null,
+      "percent": null,
+      "days": null,
+      "currencies": [
+        "BRL"
+      ],
+      "operation": "remove",
+      "beneficiary_id": null,
+      "agreement_kind": null,
+      "allowed": null,
+      "approver_name": null
+    },
+    {
+      "field": "per_payment_limit",
+      "source_quote": "los pagos grandes ya no necesitan un límite estricto",
+      "amount": "20000",
+      "currency": "USD",
+      "percent": null,
+      "days": null,
+      "currencies": [],
+      "operation": "set",
+      "beneficiary_id": null,
+      "agreement_kind": null,
+      "allowed": null,
+      "approver_name": null
+    }
+  ],
+  "unsupported": [],
+  "questions": []
+}

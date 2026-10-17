@@ -1,0 +1,17 @@
+{
+  "industry": "Software de logística",
+  "country": "colombia",
+  "base_currency": "COP",
+  "summary": "Rutas Claras vende software para flotas de reparto en Colombia (rutasclaras.co).",
+  "likely_suppliers": ["hosting", "nómina tercerizada", "", "hosting"],
+  "suggested_rules_text": "Nada sobre 20 millones de pesos sin aprobación de la gerente.",
+  "evidence_urls": [
+    "https://rutasclaras.co/",
+    "https://www.rutasclaras.co/nosotros",
+    "https://blog.rutasclaras.co/precios",
+    "https://www.linkedin.com/company/rutasclaras",
+    "https://rutasclaras.co.evil.example/",
+    "javascript:alert(1)",
+    "https://rutasclaras.co/"
+  ]
+}
