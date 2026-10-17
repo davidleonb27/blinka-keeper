@@ -608,7 +608,7 @@ def bank_details(ctx: RuleContext) -> RuleCheck:
     valid = join_es([f"{c.scheme} {c.written}" for c in checks]) if checks else ""
     if not accounts:
         rail = f" en {ctx.invoice.currency}" if ctx.invoice.currency else ""
-        also = f"; {valid} es válido" if valid else ""
+        also = f"; {valid} pasa su verificación" if valid else ""
         return check(
             "R13",
             RuleOutcome.SKIPPED,
@@ -774,8 +774,8 @@ def _verification(known: Beneficiary, new_digits: str | None, invoice_number: st
     never = "No use ningún teléfono, correo ni enlace de la factura ni del correo que la envió."
     if known.approver_contact:
         return (
-            f"Verificación fuera de banda: comuníquese con {known.approver_contact}, el contacto registrado de "
-            f"{known.name}, y pídale que confirme {what}. {never}"
+            f"Verificación fuera de banda: comuníquese con el contacto registrado de {known.name} "
+            f"({known.approver_contact}) y pídale que confirme {what}. {never}"
         )
     return (
         f"{known.name} no tiene un contacto registrado: consiga uno por un canal ya conocido (contrato o pagos "
@@ -790,7 +790,7 @@ def _verification_fix(known: Beneficiary, new_digits: str | None) -> str:
         else f"un contacto ya conocido de {known.name}"
     )
     if new_digits is not None:
-        return f"los últimos {LAST_DIGITS} dígitos de la cuenta nueva se confirmaran con {who}"
+        return f"{who} confirmara los últimos {LAST_DIGITS} dígitos de la cuenta nueva"
     return f"{who} confirmara que la factura es suya"
 
 

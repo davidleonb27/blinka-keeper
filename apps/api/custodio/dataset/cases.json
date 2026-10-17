@@ -1467,7 +1467,7 @@
     },
     {
       "id": "F-037",
-      "received_at": "2026-10-15T13:30:00Z",
+      "received_at": "2026-10-09T15:00:00Z",
       "expected": "hold",
       "trap": "CLABE con dígito de control errado",
       "spec": {
@@ -1475,8 +1475,8 @@
         "supplier_tax_id": "CAN200815MX3",
         "tax_label": "RFC",
         "invoice_number": "CA-2026-10",
-        "issue_date": "2026-10-14",
-        "due_date": "2026-10-29",
+        "issue_date": "2026-10-08",
+        "due_date": "2026-10-23",
         "amount": 46000,
         "currency": "MXN",
         "bank_name": "Banorte",
@@ -1488,7 +1488,7 @@
     },
     {
       "id": "F-038",
-      "received_at": "2026-10-15T14:07:00Z",
+      "received_at": "2026-10-09T15:30:00Z",
       "expected": "hold",
       "trap": "Dominio parecido y cambio de cuenta",
       "spec": {
@@ -1496,8 +1496,8 @@
         "supplier_tax_id": "20-38455120-7",
         "tax_label": "CUIT",
         "invoice_number": "JM-2026-10",
-        "issue_date": "2026-10-14",
-        "due_date": "2026-10-29",
+        "issue_date": "2026-10-08",
+        "due_date": "2026-10-23",
         "amount": 3600,
         "currency": "USD",
         "bank_name": "Banco Galicia",
