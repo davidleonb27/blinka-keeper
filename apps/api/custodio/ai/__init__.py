@@ -7,38 +7,15 @@ returns contract objects. When the model cannot answer, the function says so (ra
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Iterator
 
-from custodio.contracts import (
-    AttackSpec,
-    CompanyProfile,
-    CompanyState,
-    Decision,
-    Policy,
-    PolicyProposal,
-    RedTeamEvent,
-    SupplierImport,
-)
+from custodio.ai.narrator import narrate
+from custodio.ai.policy_compiler import compile_policy
+from custodio.ai.profile import profile_company
+from custodio.ai.suppliers import import_suppliers
+from custodio.contracts import AttackSpec, CompanyState, Decision, Policy, RedTeamEvent
 
-
-def compile_policy(text: str, current: Policy) -> PolicyProposal:
-    """Turn Spanish rules into a policy proposal. `simulation` is left None; the API fills it with the engine."""
-    raise NotImplementedError("lane L3")
-
-
-def narrate(decision: Decision) -> str:
-    """Plain-language version of an acta. Every number in the output must appear in the decision."""
-    raise NotImplementedError("lane L3")
-
-
-def profile_company(company_name: str, website: str | None, answers: Mapping[str, str]) -> CompanyProfile:
-    """Infer a company profile from its public website and onboarding answers, citing the pages used."""
-    raise NotImplementedError("lane L3")
-
-
-def import_suppliers(data: bytes, *, filename: str, media_type: str) -> SupplierImport:
-    """Read a supplier list (CSV, XLSX, PDF contract or invoice) into beneficiaries with agreements."""
-    raise NotImplementedError("lane L3")
+__all__ = ["compile_policy", "import_suppliers", "narrate", "profile_company", "red_team"]
 
 
 def red_team(
