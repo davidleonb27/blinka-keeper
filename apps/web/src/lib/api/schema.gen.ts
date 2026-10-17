@@ -878,6 +878,8 @@ export interface components {
         Body_import_suppliers_api_v1_onboarding_suppliers_post: {
             /** File */
             file: string;
+            /** Currency */
+            currency?: string | null;
         };
         /** Body_submit_attempt_api_v1_challenge_attempts_post */
         Body_submit_attempt_api_v1_challenge_attempts_post: {
