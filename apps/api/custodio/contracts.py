@@ -92,7 +92,6 @@ class Beneficiary(Model):
 class Approver(Model):
     name: str
     role: str | None = None
-    telegram_chat_id: str | None = None
     email: str | None = None
 
 
@@ -274,7 +273,7 @@ class Approval(Model):
     invoice_id: str
     decision: Literal["approved", "rejected"]
     approver: str
-    channel: Literal["web", "telegram", "api"]
+    channel: Literal["web", "api"]
     at: datetime
     note: str | None = None
 

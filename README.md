@@ -13,7 +13,7 @@ que se note.
 
 ## Pruébalo en 30 segundos
 
-1. Abre **{{DEMO_URL}}** y pulsa **«Probar con una empresa demo»**. No hay registro: recibes tu propio espacio.
+1. Abre **https://custodio-blinka-green.vercel.app** y pulsa **«Probar con una empresa demo»**. No hay registro: recibes tu propio espacio.
 2. En el panel verás una semana de facturas ya decidida: pagado, retenido y pendiente, cada una con su razón.
 3. Abre cualquier fila para ver el acta con las 12 reglas. Prueba «Róbale a Custodio» e intenta que pague algo indebido.
 
@@ -43,13 +43,19 @@ convencerlo. Por eso en Custodio el modelo sólo lee y cita; quien decide es có
 
 ## Métricas
 
-Sólo se publican cifras medidas. Mientras el coordinador no las mida sobre la versión desplegada, dicen NO MEDIDO.
+Sólo se publican cifras medidas, todas el 2026-10-17. Lo que no se midió dice NO MEDIDO. El detalle y los comandos están
+en [`docs/DATASET.md`](docs/DATASET.md) y [`docs/MEASUREMENTS.md`](docs/MEASUREMENTS.md).
 
-| Métrica | Valor | Cómo se mide |
+| Métrica | Valor | Cómo se midió (2026-10-17) |
 |---|---|---|
-| Autonomía | NO MEDIDO | (pagadas solas + retenidas) / total, sobre el dataset |
-| Exactitud sobre el dataset etiquetado | NO MEDIDO | decisión del motor frente a `expected` |
-| Pagos indebidos según el auditor | NO MEDIDO | `improper_payments`; debe ser 0 |
+| Autonomía | 61,1 % (17 pagadas solas + 5 retenidas, de 36) | dataset dorado en producción: espacio demo, `metrics.autonomy_rate` |
+| Pendientes de una persona | 14 de 36 | mismo espacio demo en producción |
+| Exactitud sobre el dataset etiquetado | 1,0 | mismo espacio demo: decisión del motor frente a `expected` |
+| Pagos indebidos según el auditor (producción) | 0 de 36 facturas | mismo espacio demo: `improper_payments` |
+| Pagos indebidos en el estrés | 0 (8.136 pagos re-auditados) | `scripts/stress.py --companies 1000 --seed 7`: 1.000 empresas simuladas, 25.139 facturas |
+| Latencia del narrador | 4,2 s (N=1, sin intervalo) | una llamada real a Claude en producción |
+| Latencia del compilador de políticas | 6,0 s (N=1, sin intervalo) | una llamada real a Claude en producción |
+| Lectura de facturas con el modelo real | 36 de 36 con proveedor, monto, moneda y cuenta correctos; 0 rechazos | `apps/api/scripts/measure_reading.py` contra producción, una corrida ([detalle](docs/MEASUREMENTS.md)) |
 | Ataques probados del red team | NO MEDIDO | rondas de Claude contra las reglas |
 | Intentos del reto público | NO MEDIDO | contador en vivo de «Róbale a Custodio» |
 | Decisiones con acta | NO MEDIDO | actas / decisiones |
@@ -137,6 +143,7 @@ the text behind every value; deterministic code (12 pure rules) decides pay, hol
 is ambiguous. An independent auditor recomputes every payment through a different code path and overrides the engine if
 they disagree. Every decision ships with a plain-language record and a SHA-256 hash chain that shows where it was
 altered. Other agents can use Custodio as a payment firewall through an API or an MCP server, and anyone can try to
-break it on the public "Róbale a Custodio" challenge. Try it: **{{DEMO_URL}}**. Figures are published only when
-measured; until then they read NO MEDIDO ("not measured"). Built by team DreamMakers for the 30X hackathon, Blinka
+break it on the public "Róbale a Custodio" challenge. Try it: **https://custodio-blinka-green.vercel.app**. Figures are published only when
+measured (2026-10-17: 36 golden invoices in production, 0 improper payments, 61.1 % autonomy; 1,000 simulated companies
+and 25,139 invoices in the stress run, 0 improper payments); the rest reads NO MEDIDO ("not measured"). Built by team DreamMakers for the 30X hackathon, Blinka
 challenge. MIT licensed.

@@ -33,8 +33,6 @@ export interface components {
             version: string;
             /** Anthropic */
             anthropic: boolean;
-            /** Gemini */
-            gemini: boolean;
         };
     };
     responses: never;

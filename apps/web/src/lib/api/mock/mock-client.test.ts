@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { RedTeamEvent } from "../contracts";
+import raw from "./demo-dataset.json";
 import { createMockClient } from "./mock-client";
 
 const instant = { latencyMs: 0 };
@@ -14,6 +15,10 @@ describe("mock client", () => {
     expect(workspace.metrics.improper_payments).toBe(0);
     expect(decisions).toHaveLength(workspace.metrics.total);
     expect(decisions.every((item) => item.decision.rules.length === 12)).toBe(true);
+  });
+
+  it("carries no trace of a messaging channel for approvals", () => {
+    expect(JSON.stringify(raw).toLowerCase().includes("telegram")).toBe(false);
   });
 
   it("pays an approved invoice and records it in the ledger", async () => {

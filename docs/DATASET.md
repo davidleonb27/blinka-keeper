@@ -64,15 +64,44 @@ tiempo. Con la misma semilla los conteos son los mismos; el tiempo cambia. Sale 
 
 ## Qué se ha medido
 
+Todo se midió el 2026-10-17. Lo que no aparece aquí no se midió.
+
+**Dataset dorado en producción.** Un espacio demo en https://custodio-blinka-green.vercel.app
+(`POST /api/v1/workspaces` con `{"mode": "demo"}`) nace con las 36 facturas del dataset sembradas como pendientes; las
+cifras son las métricas del lote una vez decidido por la API desplegada. El mismo resultado sale en local con
+`decide_all(demo_cases(), *demo_company())` y `audit` (17 pagos re-auditados, 0 indebidos).
+
 | Dato | Valor |
 |---|---|
-| Facturas en el dataset | NO MEDIDO (el diseño exige 36 o más; se cuenta con el comando de arriba) |
-| Exactitud del motor sobre el dataset | NO MEDIDO |
-| Pagos indebidos según el auditor en la prueba de estrés | NO MEDIDO |
-| Lectura de PDF e imagen sobre estas facturas | NO MEDIDO |
+| Facturas en el dataset | 36 |
+| Pagadas solas | 17 |
+| Retenidas | 5 |
+| Pendientes de aprobación | 14 |
+| Autonomía ((pagadas solas + retenidas) / total) | 61,1 % |
+| Exactitud del motor frente a `expected` | 1,0 |
+| Pagos indebidos según el auditor | 0 |
 
-Cuando el coordinador corra los comandos sobre la versión final, estos valores se llenan con el resultado exacto y el
-commit en que se obtuvo.
+**Prueba de estrés.** `uv run python scripts/stress.py --companies 1000 --seed 7`, en local; con la misma semilla los
+conteos se repiten.
+
+| Dato | Valor |
+|---|---|
+| Empresas simuladas | 1.000 |
+| Facturas | 25.139 |
+| Pagos re-auditados por el auditor independiente | 8.136 |
+| Pagos indebidos | 0 |
+
+**Latencia de una llamada real a Claude en producción.** N=1 por función, así que no hay intervalo: es una sola
+observación, no un promedio.
+
+| Función | Latencia |
+|---|---|
+| Narrador | 4,2 s |
+| Compilador de políticas | 6,0 s |
+
+**Lectura con el modelo real en producción:** las 36 facturas, convertidas en PDF, texto e imágenes, se leyeron con
+proveedor, monto, moneda y cuenta correctos en 36 de 36, sin rechazos; detalle y método en
+[`MEASUREMENTS.md`](MEASUREMENTS.md). Ataques del red team e intentos del reto público: NO MEDIDO.
 
 ## Límites
 

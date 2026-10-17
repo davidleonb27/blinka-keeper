@@ -129,7 +129,7 @@ def demo_company() -> tuple[CompanyState, Policy]:
     )
     policy = Policy(
         beneficiaries=[NUBE, ARRIENDO],
-        approvers=[Approver(name="Ana Gómez", role="Gerente financiera", telegram_chat_id="4242")],
+        approvers=[Approver(name="Ana Gómez", role="Gerente financiera")],
     )
     return state, policy
 

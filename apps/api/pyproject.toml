@@ -46,7 +46,7 @@ ignore = ["S101", "RUF001", "RUF002", "RUF003"]
 testpaths = ["tests"]
 pythonpath = ["."]
 markers = [
-    "live: calls a real external model API (Claude or Gemini); skipped unless CUSTODIO_LIVE_TESTS=1",
+    "live: calls the real Claude API; skipped unless CUSTODIO_LIVE_TESTS=1",
 ]
 
 [tool.mypy]

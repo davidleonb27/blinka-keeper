@@ -59,7 +59,6 @@ export interface Beneficiary {
 export interface Approver {
   name: string;
   role?: string | null;
-  telegram_chat_id?: string | null;
   email?: string | null;
 }
 
@@ -157,7 +156,7 @@ export interface Approval {
   invoice_id: string;
   decision: "approved" | "rejected";
   approver: string;
-  channel: "web" | "telegram" | "api";
+  channel: "web" | "api";
   at: ISODateTime;
   note?: string | null;
 }

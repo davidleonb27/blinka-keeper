@@ -149,7 +149,6 @@ function approversOf(answers: Answers): Approver[] {
     .map((p) => ({
       name: p.name.trim(),
       role: p.role.trim() || null,
-      telegram_chat_id: null,
       email: p.email.trim() || null,
     }));
 }

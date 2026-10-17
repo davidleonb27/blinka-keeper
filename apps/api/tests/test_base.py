@@ -1,10 +1,11 @@
 import json
 from decimal import Decimal
+from typing import get_args
 
 from fastapi.testclient import TestClient
 
 from custodio.config import Settings
-from custodio.contracts import RULES, Policy, RuleEffect
+from custodio.contracts import RULES, Approval, Approver, Policy, RuleEffect
 from main import app
 
 
@@ -48,3 +49,8 @@ def test_settings_carry_no_retired_integrations() -> None:
 
     assert retired.isdisjoint(Settings.model_fields)
     assert not hasattr(Settings, "gemini_configured")
+
+
+def test_approvals_are_web_or_api_only() -> None:
+    assert set(Approver.model_fields) == {"name", "role", "email"}
+    assert get_args(Approval.model_fields["channel"].annotation) == ("web", "api")

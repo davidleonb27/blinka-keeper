@@ -79,8 +79,8 @@ const policy = {
   allowed_currencies: rules.allowedCurrencies,
   beneficiaries: rules.beneficiaries.map(beneficiary),
   approvers: [
-    { name: "Ana Gómez", role: "CFO", telegram_chat_id: null, email: "ana@cobalto.example" },
-    { name: "Tomás Rivera", role: "Controller", telegram_chat_id: null, email: "tomas@cobalto.example" },
+    { name: "Ana Gómez", role: "CFO", email: "ana@cobalto.example" },
+    { name: "Tomás Rivera", role: "Controller", email: "tomas@cobalto.example" },
   ],
 };
 
