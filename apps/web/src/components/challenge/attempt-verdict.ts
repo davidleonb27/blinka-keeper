@@ -26,7 +26,7 @@ export function attemptVerdict(attempt: ChallengeAttempt): AttemptVerdict {
 }
 
 /** The model that names a technique never sees the decision, so it may call a stopped attack harmless. */
-const CLEARED_BY_MODEL = /sin fraude|ninguna detectada|ninguno detectado|leg[ií]tim|sin ataque|no se detect/i;
+const CLEARED_BY_MODEL = /sin fraude|no hay fraude|ning[uú]n|leg[ií]tim|sin ataque|no se detect/i;
 
 /**
  * The wall's label. A stopped attempt never reads as harmless: when the model's name contradicts the

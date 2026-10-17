@@ -60,6 +60,7 @@ describe("Challenge", () => {
         hall_of_fame: [
           { ...stopped, id: "A-1", technique: "Sin fraude aparente" },
           { ...stopped, id: "A-2", technique: "Ninguna detectada (factura legítima)" },
+          { ...stopped, id: "A-4", technique: "Ningún ataque aparente" },
           { ...attemptWith({}), id: "A-3", technique: "Ninguna detectada (factura legítima)" },
         ],
       }),
@@ -68,7 +69,7 @@ describe("Challenge", () => {
     renderWithApi(<Challenge />, api);
 
     const wall = await screen.findByRole("region", { name: "El muro" });
-    expect(within(wall).getAllByText(/^Frenado por R\d+ y R\d+$/)).toHaveLength(2);
+    expect(within(wall).getAllByText(/^Frenado por R\d+ y R\d+$/)).toHaveLength(3);
     expect(within(wall).queryByText("Sin fraude aparente")).not.toBeInTheDocument();
     expect(within(wall).getByText("Ninguna detectada (factura legítima)")).toBeInTheDocument();
   });
