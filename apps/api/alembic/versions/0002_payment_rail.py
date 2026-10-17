@@ -38,6 +38,7 @@ def upgrade() -> None:
         sa.Column("external_id", sa.String(length=64), nullable=True),
         sa.Column("dashboard_url", sa.String(length=255), nullable=True),
         sa.Column("error", sa.String(length=500), nullable=True),
+        sa.Column("attempts", sa.Integer(), nullable=False),
         sa.Column("executed_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["workspace_id"],

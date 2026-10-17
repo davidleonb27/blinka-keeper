@@ -10,12 +10,13 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import Final, Protocol
+from typing import Final, Literal, Protocol
 
 from sqlalchemy.orm import Session
 
 from custodio.contracts import PaymentExecution
 
+RailName = Literal["simulated", "stripe_test"]
 SIMULATED: Final = "simulated"
 STRIPE_TEST: Final = "stripe_test"
 
@@ -48,5 +49,5 @@ class PaymentRail(Protocol):
 class RailChoice:
     """The rail this deployment pays with, built per unit of work so it can keep its own records in that session."""
 
-    name: str
+    name: RailName
     build: Callable[[Session, Clock], PaymentRail]

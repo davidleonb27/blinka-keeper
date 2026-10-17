@@ -33,7 +33,7 @@ class FakeStripe(stripe.HTTPClient):
 
     balance_cents: int = 100_000_000
     requests: list[StripeRequest] = field(default_factory=list)
-    failures: dict[str, list[Response]] = field(default_factory=dict)  # path -> responses to give before working
+    failures: dict[str, list[Response]] = field(default_factory=dict)  # path -> answers to the next POSTs
     unreachable: bool = False
     transfers: list[dict[str, Any]] = field(default_factory=list)
     _replays: dict[str, Response] = field(default_factory=dict)
@@ -89,7 +89,7 @@ class FakeStripe(stripe.HTTPClient):
         return None
 
     def _answer(self, request: StripeRequest) -> Response:
-        pending = self.failures.get(request.path)
+        pending = self.failures.get(request.path) if request.method == "post" else None
         if pending:
             return pending.pop(0)
         if request.path == "/v1/balance":

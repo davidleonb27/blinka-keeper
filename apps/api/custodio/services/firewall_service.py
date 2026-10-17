@@ -20,7 +20,7 @@ def submit(ctx: ServiceContext, workspace: WorkspaceRow, intent: PaymentIntent) 
     return IntentVerdict(
         decision=decision,
         ledger_hash=_decision_hash(ctx, workspace.id, decision),
-        acta_url=acta_url(ctx.runtime.public_base_url, decision.invoice_id),
+        acta_url=records.acta_url(ctx.runtime.public_base_url, decision.invoice_id),
     )
 
 
@@ -41,10 +41,6 @@ def intent_document(intent: PaymentIntent) -> str:
     if intent.document_text:
         lines += ["", "Documento adjunto:", intent.document_text]
     return "\n".join(lines)
-
-
-def acta_url(public_base_url: str, invoice_id: str) -> str:
-    return f"{public_base_url.rstrip('/')}/acta/{invoice_id}"
 
 
 def _intent_payload(intent: PaymentIntent) -> dict[str, str | None]:

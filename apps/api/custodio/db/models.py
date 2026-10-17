@@ -211,4 +211,5 @@ class PaymentExecutionRow(Base):
     external_id: Mapped[str | None] = mapped_column(ID)
     dashboard_url: Mapped[str | None] = mapped_column(String(255))
     error: Mapped[str | None] = mapped_column(String(500))
+    attempts: Mapped[int]
     executed_at: Mapped[datetime] = mapped_column(index=True)

@@ -10,6 +10,7 @@ from custodio.payments.port import (
     PaymentRail,
     PaymentReceipt,
     RailChoice,
+    RailName,
 )
 from custodio.payments.simulated import SimulatedRail
 from custodio.payments.stripe_rail import StripeTestRail
@@ -22,6 +23,7 @@ __all__ = [
     "PaymentRail",
     "PaymentReceipt",
     "RailChoice",
+    "RailName",
     "SimulatedRail",
     "StripeAccountTable",
     "StripeTestRail",

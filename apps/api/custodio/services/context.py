@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
 from custodio.config import Settings
 from custodio.db import Database
+from custodio.payments import PaymentRail, RailChoice, choose_rail, simulated_choice
 from custodio.services.lanes import Lanes, production_lanes
 
 Clock = Callable[[], datetime]
@@ -25,6 +27,8 @@ class RateLimits:
     model_calls_per_minute_per_workspace: int = 30
     challenge_attempts_per_minute_per_ip: int = 5
     challenge_attempts_per_day: int = 2000  # the public challenge's own cap, on top of llm.py's daily spend cap
+    test_transfers_per_workspace: int = 40  # Stripe test-mode transfers: keep the shared test account tidy
+    test_transfers_per_day: int = 400  # per UTC day, across the whole deployment
 
 
 @dataclass(frozen=True)
@@ -34,6 +38,7 @@ class Runtime:
     clock: Clock
     limits: RateLimits
     public_base_url: str
+    payment_rail: RailChoice = field(default_factory=simulated_choice)
 
     def context(self, session: Session) -> ServiceContext:
         return ServiceContext(session=session, runtime=self)
@@ -51,6 +56,9 @@ class ServiceContext:
     def now(self) -> datetime:
         return self.runtime.clock()
 
+    def payment_rail(self) -> PaymentRail:
+        return self.runtime.payment_rail.build(self.session, self.runtime.clock)
+
 
 def production_runtime(settings: Settings) -> Runtime:
     return Runtime(
@@ -59,4 +67,5 @@ def production_runtime(settings: Settings) -> Runtime:
         clock=utc_now,
         limits=RateLimits(),
         public_base_url=settings.public_base_url,
+        payment_rail=choose_rail(settings.payment_rail, os.environ.get("STRIPE_SECRET_KEY")),
     )

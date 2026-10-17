@@ -103,6 +103,19 @@ def claim_pending(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> bo
     return claimed.rowcount == 1
 
 
+def attach_execution(ctx: ServiceContext, workspace_id: str, decided: Decision) -> None:
+    """Records how a payment went out without touching when it was decided (the payment history keys on that)."""
+    row = ctx.session.get(DecisionRow, (workspace_id, decided.invoice_id))
+    if row is None:
+        raise DecisionNotFound()
+    row.document = decided.model_dump(mode="json")
+    ctx.session.flush()
+
+
+def acta_url(public_base_url: str, invoice_id: str) -> str:
+    return f"{public_base_url.rstrip('/')}/acta/{invoice_id}"
+
+
 def decision(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> Decision:
     row = ctx.session.get(DecisionRow, (workspace_id, invoice_id))
     if row is None:

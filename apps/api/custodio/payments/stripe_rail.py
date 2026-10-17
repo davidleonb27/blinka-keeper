@@ -76,8 +76,7 @@ class StripeTestRail:
         if cents <= 0:
             return self._failed(NO_AMOUNT)
         try:
-            account = self._account(order.beneficiary_id, order.supplier_name)
-            transfer = self._transfer_topping_up(order, account, cents)
+            transfer = self._sent_before(order) or self._send(order, order.beneficiary_id, cents)
         except stripe.StripeError as error:
             logger.warning("stripe refused a payment: %s %s", type(error).__name__, _safe_code(error))
             return self._failed(spanish_error(error))
@@ -88,6 +87,15 @@ class StripeTestRail:
             dashboard_url=DASHBOARD_TRANSFER_URL.format(transfer.id),
             executed_at=self._clock(),
         )
+
+    def _sent_before(self, order: PaymentOrder) -> stripe.Transfer | None:
+        """A retry after a lost answer must find the transfer that did go out, not send a second one."""
+        sent = self._client.v1.transfers.list(params={"transfer_group": transfer_group(order), "limit": 1})
+        return sent.data[0] if sent.data else None
+
+    def _send(self, order: PaymentOrder, beneficiary_id: str, cents: int) -> stripe.Transfer:
+        account = self._account(beneficiary_id, order.supplier_name)
+        return self._transfer_topping_up(order, account, cents)
 
     def _account(self, beneficiary_id: str, supplier_name: str) -> str:
         name_key = name_key_of(supplier_name)
@@ -117,6 +125,7 @@ class StripeTestRail:
                 "currency": CURRENCY,
                 "destination": account,
                 "description": f"Custodio · factura {order.invoice_id}",
+                "transfer_group": transfer_group(order),
                 "metadata": {
                     "workspace_id": order.workspace_id,
                     "invoice_id": order.invoice_id,
@@ -144,6 +153,11 @@ class StripeTestRail:
 
     def _failed(self, message: str) -> PaymentReceipt:
         return PaymentReceipt(rail=STRIPE_TEST, status="failed", executed_at=self._clock(), error=message)
+
+
+def transfer_group(order: PaymentOrder) -> str:
+    """One group per invoice, whatever the attempt: what a retry looks up before sending anything."""
+    return f"{order.workspace_id}:{order.invoice_id}"
 
 
 def to_cents(amount: Decimal) -> int:
