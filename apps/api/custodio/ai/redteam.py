@@ -8,7 +8,7 @@ techniques already tried and the reasons that stopped them, with every registere
 from __future__ import annotations
 
 import re
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator, Iterator
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -36,6 +36,7 @@ _RULE_IDS = {rule.id for rule in RULES}
 _PAID = {DecisionStatus.PAID_AUTO, DecisionStatus.PAID_HUMAN}
 _SEPARATOR = r"[\s.\-]?"
 _REDACTED_ACCOUNT = "[cuenta registrada]"
+_MODEL_FAILURES = (llm.LLMError, anthropic.APIError)  # LLMRefused, LLMTruncated and LLMBudgetExceeded included
 
 
 class DraftAttack(Model):
@@ -120,18 +121,39 @@ def _rounds(
     attempts: list[Attempt] = []
     for number in range(1, rounds + 1):
         yield RedTeamEvent(type="round_started", round=number)
-        try:
-            attack = _attack(number, policy, state, attempts)
-        except (llm.LLMError, anthropic.APIError, InvalidAttack) as error:
-            yield RedTeamEvent(type="error", round=number, message=f"El atacante no produjo un ataque: {error}")
-        else:
-            yield RedTeamEvent(type="attack_generated", round=number, attack=attack)
-            decision = judge(attack)
-            attempt = _attempt(attack, decision, policy)
-            attempts.append(attempt)
-            yield RedTeamEvent(type="verdict", round=number, attack=attack, decision=decision, caught=attempt.caught)
+        out_of_budget = yield from _play(number, policy, state, attempts, judge)
         yield RedTeamEvent(type="round_finished", round=number)
-    yield _summary(rounds, attempts)
+        if out_of_budget:
+            break
+    yield _summary(number, rounds, attempts)
+
+
+def _play(
+    number: int,
+    policy: Policy,
+    state: CompanyState,
+    attempts: list[Attempt],
+    judge: Callable[[AttackSpec], Decision],
+) -> Generator[RedTeamEvent, None, bool]:
+    """One round. Returns True when the model budget is spent: every later round would fail the same way."""
+    try:
+        attack = _attack(number, policy, state, attempts)
+    except (*_MODEL_FAILURES, InvalidAttack) as error:
+        yield RedTeamEvent(type="error", round=number, message=f"El atacante no produjo un ataque: {_said(error)}")
+        return isinstance(error, llm.LLMBudgetExceeded)
+    yield RedTeamEvent(type="attack_generated", round=number, attack=attack)
+    decision = judge(attack)
+    attempt = _attempt(attack, decision, policy)
+    attempts.append(attempt)
+    yield RedTeamEvent(type="verdict", round=number, attack=attack, decision=decision, caught=attempt.caught)
+    return False
+
+
+def _said(error: Exception) -> str:
+    """Our errors carry Spanish text; a raw API error is English and may echo the response body."""
+    if isinstance(error, anthropic.APIError):
+        return f"la API de Claude falló ({type(error).__name__})."
+    return str(error)
 
 
 def _attack(number: int, policy: Policy, state: CompanyState, attempts: list[Attempt]) -> AttackSpec:
@@ -217,15 +239,15 @@ def _attempt_view(attempt: Attempt) -> dict[str, Any]:
     }
 
 
-def _summary(rounds: int, attempts: list[Attempt]) -> RedTeamEvent:
+def _summary(played: int, requested: int, attempts: list[Attempt]) -> RedTeamEvent:
     """Only judged attacks count; a run with none is NO MEDIDO, never "all caught"."""
-    unjudged = f"Rondas sin veredicto: {rounds - len(attempts)}."
+    notes = [f"Rondas sin veredicto: {played - len(attempts)}."] if len(attempts) < played else []
+    if played < requested:
+        notes.append(f"Corrida detenida en la ronda {played} de {requested}.")
     if not attempts:
-        message = f"Ningún ataque llegó al juez: NO MEDIDO. {unjudged}"
-        return RedTeamEvent(type="summary", round=rounds, caught=None, message=message)
+        message = " ".join(["Ningún ataque llegó al juez: NO MEDIDO.", *notes])
+        return RedTeamEvent(type="summary", round=played, caught=None, message=message)
     caught = sum(attempt.caught for attempt in attempts)
     improper = len(attempts) - caught
-    message = f"Custodio atrapó {caught} de {len(attempts)} ataques; pagos indebidos: {improper}."
-    if len(attempts) < rounds:
-        message = f"{message} {unjudged}"
-    return RedTeamEvent(type="summary", round=rounds, caught=improper == 0, message=message)
+    score = f"Custodio atrapó {caught} de {len(attempts)} ataques; pagos indebidos: {improper}."
+    return RedTeamEvent(type="summary", round=played, caught=improper == 0, message=" ".join([score, *notes]))
