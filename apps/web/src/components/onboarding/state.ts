@@ -39,7 +39,7 @@ export function starterMoney(currency: string): StarterMoney {
 export interface ApproverDraft {
   name: string;
   role: string;
-  telegram: string;
+  email: string;
 }
 
 export interface Answers {
@@ -58,7 +58,7 @@ export interface Answers {
   result: OnboardingResult | null;
 }
 
-export const EMPTY_APPROVER: ApproverDraft = { name: "", role: "", telegram: "" };
+export const EMPTY_APPROVER: ApproverDraft = { name: "", role: "", email: "" };
 
 export const INITIAL_ANSWERS: Answers = {
   companyName: "",
@@ -143,8 +143,8 @@ function approversOf(answers: Answers): Approver[] {
     .map((p) => ({
       name: p.name.trim(),
       role: p.role.trim() || null,
-      telegram_chat_id: p.telegram.trim() || null,
-      email: null,
+      telegram_chat_id: null,
+      email: p.email.trim() || null,
     }));
 }
 

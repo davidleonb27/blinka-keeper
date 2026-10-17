@@ -7,8 +7,8 @@ import {
   FileSearch,
   Link2,
   MessagesSquare,
+  MousePointerClick,
   Scale,
-  Smartphone,
   Swords,
   Target,
   UserCheck,
@@ -35,7 +35,7 @@ const FEATURES: { title: string; text: string; icon: LucideIcon; href: string }[
   { title: "Róbale a Custodio", icon: Target, href: "/reto", text: "Cualquiera puede intentar que pague algo indebido. Contador público de intentos y muro de los más creativos." },
   { title: "Reglas en tus palabras", icon: MessagesSquare, href: "/reglas", text: "«Nada sobre 3.000 USD sin que lo apruebe Ana» se compila, se muestra el cambio y se simula antes de aplicarlo." },
   { title: "Registro que nadie altera", icon: Link2, href: "/registro", text: "Cada decisión se encadena con SHA-256. Altera una copia y mira exactamente dónde se rompe." },
-  { title: "Aprobar desde el celular", icon: Smartphone, href: "/panel", text: "El acta llega por Telegram; un toque aprueba o rechaza y el panel se actualiza." },
+  { title: "Aprobar en un clic", icon: MousePointerClick, href: "/panel", text: "Lo que espera tu sí se aprueba o rechaza desde su acta, en la web, y el panel se actualiza al instante." },
 ];
 
 function SiteHeader() {

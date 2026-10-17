@@ -95,7 +95,7 @@ function numericClause(clause: string, normalized: string, policy: Policy): Clau
     change: { field, label: FIELD_LABELS[field], before: policy[field], after: amount, source_quote: clause },
     question: knownApprover
       ? undefined
-      : `¿Quién es «${approver}»? Agrégala como aprobadora con su Telegram para que le lleguen las actas.`,
+      : `¿Quién es «${approver}»? Agrégala como aprobadora para que pueda aprobar desde el acta.`,
   };
 }
 

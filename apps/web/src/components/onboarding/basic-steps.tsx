@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, Plus, Send, X } from "lucide-react";
+import { Globe, MousePointerClick, Plus, X } from "lucide-react";
 import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
@@ -215,11 +215,14 @@ function ApproverRow({
         onChange={(e) => onChange({ ...approver, role: e.target.value })}
       />
       <BigField
-        label={`Usuario de Telegram${suffix} (opcional)`}
-        placeholder="@ana"
+        label={`Correo de quien aprueba${suffix} (opcional)`}
+        type="email"
+        inputMode="email"
+        autoComplete="email"
+        placeholder="ana@tuempresa.co"
         className="sm:col-span-2"
-        value={approver.telegram}
-        onChange={(e) => onChange({ ...approver, telegram: e.target.value })}
+        value={approver.email}
+        onChange={(e) => onChange({ ...approver, email: e.target.value })}
       />
       {onRemove ? (
         <Button type="button" variant="ghost" size="sm" className="justify-self-start" onClick={onRemove}>
@@ -239,7 +242,8 @@ export function ApproversStep({ answers, update, frame }: StepProps) {
       title="¿Quién aprueba lo que se sale de las reglas?"
       helper={
         <span className="inline-flex flex-wrap items-center gap-1.5">
-          <Send aria-hidden className="size-4 text-brand" /> Le llegará el acta por Telegram y aprobará o rechazará con un toque.
+          <MousePointerClick aria-hidden className="size-4 text-brand" /> Lo que se sale de las reglas espera su clic en el
+          acta, desde la web.
         </span>
       }
     >

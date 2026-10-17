@@ -33,7 +33,7 @@ function ActaContent({ invoiceId }: { invoiceId: string }) {
   return <Acta detail={detail.data} policy={policy.data} onDecide={onDecide} deciding={decide.isPending} />;
 }
 
-/** The acta opens from ?acta=<invoice id>, so a Telegram message or a shared link lands on it directly. */
+/** The acta opens from ?acta=<invoice id>, so a shared link lands on it directly. */
 export function ActaDrawer() {
   const params = useSearchParams();
   const router = useRouter();
