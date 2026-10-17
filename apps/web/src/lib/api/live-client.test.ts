@@ -60,6 +60,43 @@ describe("live client", () => {
     expect(init?.method).toBe("POST");
   });
 
+  it("uploads a statement file, or asks for the demo statement, as a form", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(201, {}));
+    const client = clientWith(fetchMock);
+    await client.reconcileStatement({ file: new File(["Fecha;Descripción;Monto"], "extracto.csv") });
+    await client.reconcileStatement({ demo: true });
+
+    const [[url, upload], [, demo]] = fetchMock.mock.calls;
+    expect(url).toBe("/api/v1/reconciliations");
+    expect((upload?.body as FormData).get("file")).toBeInstanceOf(File);
+    expect((demo?.body as FormData).get("demo")).toBe("true");
+  });
+
+  it("resolves a movement and closes a month on their routes", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(200, {}));
+    const client = clientWith(fetchMock);
+    await client.resolveMovement("rec1", { movement_id: "m020", reviewer: "Ana Gómez", note: "Revisado." });
+    await client.closePeriod("2026-10", "Ana Gómez");
+
+    const [[resolveUrl], [closeUrl, close]] = fetchMock.mock.calls;
+    expect(resolveUrl).toBe("/api/v1/reconciliations/rec1/resolve");
+    expect(closeUrl).toBe("/api/v1/periods/2026-10/close");
+    expect(close?.body).toBe(JSON.stringify({ closed_by: "Ana Gómez" }));
+  });
+
+  it("downloads the evidence pack and the demo statement as files", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => new Response(new Blob(["PK"]), { status: 200 }));
+    const client = clientWith(fetchMock);
+    const pack = await client.downloadEvidence("2026-10");
+    await client.downloadDemoStatement("pdf");
+
+    expect(await pack.text()).toBe("PK");
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      "/api/v1/periods/2026-10/evidence.zip",
+      "/api/v1/reconciliations/demo-statement?format=pdf",
+    ]);
+  });
+
   it("processes the pending invoices of the workspace", async () => {
     const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(200, {}));
     await clientWith(fetchMock).processInvoices();
