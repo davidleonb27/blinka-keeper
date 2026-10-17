@@ -27,6 +27,7 @@ CAP_REACHED = "Tope de pagos de prueba alcanzado"
 WORKSPACE_CAP = CAP_REACHED + ": {} transferencias en este espacio. No se transfirió dinero."
 DAILY_CAP = CAP_REACHED + ": {} transferencias hoy (UTC) en todo Custodio. No se transfirió dinero; reintenta mañana."
 NOT_USD = "El riel de prueba sólo paga en USD y la moneda base de este espacio es {}. No se transfirió dinero."
+NO_ATTEMPTS_LEFT = "Este pago ya usó el máximo de {} intentos. No se transfirió dinero."
 
 
 def may_execute(workspace: WorkspaceRow) -> bool:
@@ -39,7 +40,7 @@ def execute(ctx: ServiceContext, workspace_id: str, decision: Decision, policy: 
         return _execution(row)
     attempt = 1 if row is None else row.attempts + 1
     rail = ctx.payment_rail()
-    receipt = _refusal(ctx, workspace_id, rail, policy) or rail.execute(
+    receipt = _refusal(ctx, workspace_id, rail, policy, attempt) or rail.execute(
         _order(ctx, workspace_id, decision, policy, attempt)
     )
     _store(ctx, workspace_id, decision.invoice_id, receipt, attempt, row)
@@ -77,11 +78,14 @@ def payment_payload(decision: Decision) -> dict[str, Any]:
     }
 
 
-def _refusal(ctx: ServiceContext, workspace_id: str, rail: PaymentRail, policy: Policy) -> PaymentReceipt | None:
+def _refusal(
+    ctx: ServiceContext, workspace_id: str, rail: PaymentRail, policy: Policy, attempt: int
+) -> PaymentReceipt | None:
     """Why a rail that moves money must not be called for this payment, as the failed receipt the acta shows."""
     if rail.name == SIMULATED:
         return None
-    reason = _cap_reached(ctx, workspace_id, rail.name)
+    allowed = ctx.runtime.limits.payment_attempts_per_invoice
+    reason = NO_ATTEMPTS_LEFT.format(allowed) if attempt > allowed else _cap_reached(ctx, workspace_id, rail.name)
     if reason is None and policy.base_currency != RAIL_CURRENCY:
         reason = NOT_USD.format(policy.base_currency)
     if reason is None:

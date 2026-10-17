@@ -65,7 +65,9 @@ legítimas que sí quedan pagadas en papel.
 - **Errores.** Cualquier error de Stripe se vuelve un recibo `failed` con un mensaje en español armado sólo con el tipo y
   el código del error (el mensaje original de Stripe puede citar parte de la clave). Nunca sale una excepción hacia la API.
 - **Topes.** Como mucho 40 transferencias por espacio y 400 por día UTC en todo el despliegue. Al pasarlos, el recibo es
-  `failed` con «Tope de pagos de prueba alcanzado». Un espacio cuya moneda base no es USD tampoco paga por este riel.
+  `failed` con «Tope de pagos de prueba alcanzado». Cada factura tiene como mucho 5 intentos (el primero y cuatro
+  reintentos); después, «Reintentar pago» ya no llama a Stripe. Un espacio cuya moneda base no es USD tampoco paga por
+  este riel.
 
 ### Idempotencia: lo que la API real obliga a hacer distinto
 
