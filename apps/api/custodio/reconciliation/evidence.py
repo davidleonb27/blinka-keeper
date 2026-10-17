@@ -43,6 +43,7 @@ FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)  # the earliest a ZIP can store: the ent
 UNIX_FILE = 3
 FILE_MODE = 0o644 << 16
 COMPRESSION_LEVEL = 9
+FORMULA_STARTS = ("=", "+", "-", "@", "\t", "\r")  # a spreadsheet would run a cell that starts like this
 VERIFIER = "ledger_verifier.py"
 CSV_COLUMNS = (
     "fila",
@@ -155,8 +156,8 @@ def _reconciliation_csv(source: EvidenceSource) -> bytes:
             [
                 movement.row,
                 movement.booked_on.isoformat() if movement.booked_on else "",
-                movement.description,
-                movement.reference or "",
+                _text(movement.description),
+                _text(movement.reference or ""),
                 _plain(movement.amount),
                 movement.currency or "",
                 STATUS_LABELS[result.status],
@@ -165,12 +166,17 @@ def _reconciliation_csv(source: EvidenceSource) -> bytes:
                 _plain(result.allocated) if result.invoice_id else "",
                 _plain(result.difference),
                 movements[result.duplicate_of].row if result.duplicate_of else "",
-                result.reason,
-                review.reviewer if review else "",
-                review.note if review else "",
+                _text(result.reason),
+                _text(review.reviewer) if review else "",
+                _text(review.note) if review else "",
             ]
         )
     return ("﻿" + buffer.getvalue()).encode()  # the byte order mark makes spreadsheets read UTF-8
+
+
+def _text(value: str) -> str:
+    """Statement text and notes stay text: a leading apostrophe keeps «=HYPERLINK(…)» from running as a formula."""
+    return f"'{value}" if value.startswith(FORMULA_STARTS) else value
 
 
 def _plain(value: Decimal | None) -> str:

@@ -213,6 +213,6 @@ def test_text_from_the_statement_cannot_become_a_spreadsheet_formula() -> None:
     files = files_of(evidence_pack(evidence, GENERATED))
     first = next(csv.DictReader(io.StringIO(files["conciliacion.csv"].decode("utf-8-sig")), delimiter=";"))
 
-    assert first["descripcion"] == "'=HYPERLINK(\"https://example.test\",\"x\")"
+    assert first["descripcion"] == '\'=HYPERLINK("https://example.test","x")'
     assert first["referencia"] == "'+1-2"
     assert first["monto"] == "18500.00"
