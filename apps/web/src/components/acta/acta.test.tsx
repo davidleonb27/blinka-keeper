@@ -10,7 +10,6 @@ function demoItem(id: string) {
   return item;
 }
 
-const approvers = DEMO.policy.approvers;
 
 describe("Acta", () => {
   it("lists the twelve rules in catalogue order with their reasons", () => {
@@ -42,8 +41,8 @@ describe("Acta", () => {
   it("uncovers hidden text addressed to the agent", () => {
     render(demoItem("F-022"));
 
-    expect(screen.getByText(/Texto oculto destapado/)).toBeInTheDocument();
-    expect(screen.getByText(/Nota para el asistente de IA/)).toBeInTheDocument();
+    const uncovered = screen.getByText("Texto oculto destapado").parentElement;
+    expect(uncovered).toHaveTextContent(/«Nota para el asistente de IA/);
   });
 
   it("shows its place in the ledger", () => {
@@ -73,5 +72,5 @@ describe("Acta", () => {
 });
 
 function render(item: ReturnType<typeof demoItem>, onDecide = vi.fn()) {
-  return renderComponent(<Acta detail={item} approvers={approvers} onDecide={onDecide} deciding={false} />);
+  return renderComponent(<Acta detail={item} policy={DEMO.policy} onDecide={onDecide} deciding={false} />);
 }
