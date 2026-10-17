@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEMO, listItemOf } from "@/lib/api/mock/dataset";
+import { STATUS_META } from "@/lib/presentation";
 import { decisionsCsv } from "./decisions-csv";
 
 const ITEMS = DEMO.items.map(listItemOf);
@@ -15,7 +16,7 @@ describe("decisionsCsv", () => {
   it("writes the amount as a plain number and the date as ISO, so a spreadsheet reads them", () => {
     const paid = ITEMS.find((item) => item.decision.status === "paid_auto" && item.decision.amount !== null)!;
     const line = lines[ITEMS.indexOf(paid)];
-    expect(line).toContain(`,${paid.decision.amount},${paid.decision.currency},Pagada,`);
+    expect(line).toContain(`,${paid.decision.amount},${paid.decision.currency},${STATUS_META.paid_auto.label},`);
     expect(line).toContain(`,${paid.received_at.slice(0, 10)},`);
   });
 

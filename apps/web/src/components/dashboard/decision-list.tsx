@@ -3,6 +3,7 @@
 import { ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
 import { StatusPill } from "@/components/status-pill";
+import { ListActions } from "@/components/panel/list-actions";
 import { Input } from "@/components/ui/input";
 import type { DecisionListItem } from "@/lib/api/client";
 import { formatDate } from "@/lib/format";
@@ -66,6 +67,7 @@ export function DecisionList({ items, baseCurrency, filter, query, onFilterChang
           <h2 id="facturas-title" className="font-semibold">Facturas</h2>
           <p className="text-[12.5px] text-ink-3">Toca una para ver su acta.</p>
         </div>
+        <ListActions items={visible} />
         <label className="relative w-full sm:w-64">
           <span className="sr-only">Buscar proveedor o número</span>
           <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />

@@ -5,6 +5,7 @@ import { Suspense, useState } from "react";
 import { ActaDrawer } from "@/components/acta/acta-drawer";
 import { Chip, PageHeader } from "@/components/shell/page-header";
 import { RailBadge } from "@/components/shell/rail-badge";
+import { EmptyInbox } from "@/components/panel/empty-inbox";
 import { ErrorState, LoadingBlock } from "@/components/states";
 import { useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -74,6 +75,7 @@ export function Dashboard() {
 
   const base = summary.data.base_currency;
   const totals = statusTotals(decisions.data);
+  if (!decisions.data.length && !summary.data.pending_invoices) return <>{header}<EmptyInbox /></>;
   return (
     <>
       {header}
