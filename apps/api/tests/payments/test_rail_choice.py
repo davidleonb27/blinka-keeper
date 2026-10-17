@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from custodio.payments import SIMULATED, STRIPE_TEST, PaymentOrder, SimulatedRail, choose_rail
+from custodio.payments import BLINKA_SIMULATED, SIMULATED, STRIPE_TEST, PaymentOrder, SimulatedRail, choose_rail
 
 NOW = datetime(2026, 10, 17, 15, 0, tzinfo=UTC)
 LIVE_KEY = "sk_live_" + "x" * 24
@@ -43,6 +43,11 @@ def test_stripe_runs_only_when_asked_for_with_a_test_key() -> None:
     assert choose_rail("stripe_test", "sk_test_abc").name == STRIPE_TEST
     assert choose_rail("stripe_test", None).name == SIMULATED
     assert choose_rail("stripe_test", "pk_test_abc").name == SIMULATED
+
+
+def test_the_blinka_rail_runs_when_asked_for_and_needs_no_key() -> None:
+    assert choose_rail("blinka_simulated", None).name == BLINKA_SIMULATED
+    assert choose_rail(" Blinka_Simulated ", "sk_live_" + "z" * 24).name == BLINKA_SIMULATED
 
 
 @pytest.mark.parametrize("live_key", [LIVE_KEY, RESTRICTED_LIVE_KEY])
