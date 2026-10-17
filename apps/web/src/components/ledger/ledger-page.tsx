@@ -47,6 +47,13 @@ function payloadSummary(entry: LedgerEntry): string {
   return [who, what].filter((part): part is string => part !== null).join(" · ");
 }
 
+const TRUST_KINDS: ReadonlySet<LedgerKind> = new Set(["trust_raised", "trust_revoked"]);
+
+/** A trust entry is about a supplier, every other one about an invoice. */
+function subjectHref(entry: LedgerEntry): string {
+  return TRUST_KINDS.has(entry.kind) ? `/autonomia#${entry.subject_id}` : `/panel?acta=${entry.subject_id}`;
+}
+
 function VerificationBanner({ result, copy }: { result: LedgerVerification; copy: boolean }) {
   return result.valid ? (
     <p className="flex items-center gap-2.5 rounded-xl bg-pay-weak px-3.5 py-3 text-[14px]">
@@ -68,6 +75,7 @@ function LedgerTable({ entries, brokenSeq }: { entries: LedgerEntry[]; brokenSeq
       {entries.toReversed().map((entry) => (
         <li
           key={entry.seq}
+          id={`asiento-${entry.seq}`}
           className={cn(
             "grid grid-cols-[48px_minmax(0,1fr)] gap-x-3 gap-y-1 px-2 py-3 sm:grid-cols-[56px_150px_minmax(0,1fr)_auto]",
             entry.seq === brokenSeq && "rounded-lg bg-crit-weak",
@@ -80,7 +88,7 @@ function LedgerTable({ entries, brokenSeq }: { entries: LedgerEntry[]; brokenSeq
           </span>
           <span className="col-start-2 min-w-0 text-[13px] text-ink-2 sm:col-start-auto">
             {entry.subject_id ? (
-              <Link href={`/panel?acta=${entry.subject_id}`} className="font-mono text-[12.5px] text-brand hover:underline">
+              <Link href={subjectHref(entry)} className="font-mono text-[12.5px] text-brand hover:underline">
                 {entry.subject_id}
               </Link>
             ) : null}{" "}

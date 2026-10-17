@@ -105,7 +105,12 @@ export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retry
         ) : null}
       </Section>
 
-      <PaymentExecutionBlock decision={decision} onRetry={onRetryPayment} retrying={retryingPayment} />
+      <PaymentExecutionBlock
+        decision={decision}
+        paidByItsAgent={extraction.source === "intent"}
+        onRetry={onRetryPayment}
+        retrying={retryingPayment}
+      />
 
       {decision.counterfactual ? (
         <Section title={paid ? "Qué habría cambiado la decisión" : "Qué tendría que cambiar"}>
