@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint --max-warnings=0",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "gen:api": "uv run --directory ../api python -c \"import json; from main import app; print(json.dumps(app.openapi()))\" > openapi.json && openapi-typescript openapi.json -o src/lib/api/openapi.d.ts && rm openapi.json",
     "gen:mock": "node scripts/port-prototype-dataset.mjs"
