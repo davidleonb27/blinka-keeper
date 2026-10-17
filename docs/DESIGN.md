@@ -148,20 +148,20 @@ espacio.
 |---|---|
 | `GET /health` | estado y si hay claves configuradas |
 | `POST /workspaces` | crea un espacio (demo o vacío) → `{workspace_id, api_key}` |
-| `GET /workspaces/current` | empresa, saldo, métricas |
+| `GET /workspaces/current` | empresa, hoy, saldo inicial y actual, cupo usado en el mes, métricas e informe del auditor independiente |
 | `POST /onboarding/profile` | nombre + sitio + respuestas → `CompanyProfile` |
 | `POST /onboarding/suppliers` | archivo → `SupplierImport` |
 | `POST /onboarding/complete` | perfil + política + proveedores → espacio listo y simulación inicial |
 | `GET /policy` · `PUT /policy` | leer / aplicar la política (queda en el ledger) |
-| `POST /policy/compile` | texto → `PolicyProposal` con simulación |
+| `POST /policy/compile` | texto → `PolicyProposal` con simulación; con un borrador `base` (onboarding) compila contra él y no simula |
 | `POST /invoices` | subir PDF/imagen/texto → lectura |
 | `POST /invoices/process` | decidir lo pendiente → `BatchResult` + auditoría |
-| `GET /decisions` · `GET /decisions/{id}` | lista y acta |
+| `GET /decisions` · `GET /decisions/{id}` | lista (`{decision, received_at, source}`) y acta (`{decision, invoice, ledger}`) |
 | `POST /decisions/{id}/approve` · `/reject` | aprobación humana |
 | `POST /decisions/{id}/execute` | reintenta un pago cuya ejecución falló (idempotente; ver `docs/PAYMENTS.md`) |
 | `GET /ledger` · `GET /ledger/verify` | registro y verificación |
 | `POST /ledger/tamper-demo` | altera una copia del registro y muestra dónde se rompe (nunca el real) |
-| `POST /redteam/runs` (SSE) | rondas del atacante en vivo |
+| `POST /redteam/runs` (SSE) | rondas del atacante en vivo; cada mensaje es un `RedTeamEvent` (documentado en el OpenAPI) |
 | `POST /challenge/attempts` · `GET /challenge/stats` | reto público |
 | `POST /firewall/intents` | intención de pago de otro agente → `IntentVerdict` |
 | `/mcp` | servidor MCP (streamable HTTP): `submit_payment_intent`, `get_decision`, `get_policy` |
@@ -198,8 +198,11 @@ shadcn/ui, tema claro y oscuro, móvil primero.
   en constantes con nombre).
 - **Tipos**: Python con mypy estricto; TypeScript `strict` sin `any`.
 - **Idioma**: código, identificadores, tests y comentarios en inglés; todo texto que ve una persona, en español neutro.
-- **Compuerta única**: `./scripts/check.sh` (ruff, formato, mypy, pytest y, si existe la web, lint, tipos, tests y
-  build). La corre quien implementa, quien revisa y CI.
+- **Compuerta única**: `./scripts/check.sh` (ruff, formato, mypy, pytest y, si existe la web, tipos de la API al día,
+  lint, tipos, tests y build). La corre quien implementa, quien revisa y CI.
+- **Contrato web ↔ API**: la web toma sus tipos del OpenAPI de FastAPI (`apps/web/src/lib/api/schema.gen.ts`, generado
+  con `npm run gen:api`); la compuerta falla si están desactualizados y `tsc` falla si la web o el mock se desvían.
+  `npm run e2e` (fuera de la compuerta) recorre todas las páginas contra la API real sin un solo error de consola.
 - **Tests con modelo**: marcados `@pytest.mark.live`, se corren con `CUSTODIO_LIVE_TESTS=1` en la nube; CI no llama
   modelos. Las salidas malas grabadas del modelo se guardan como fixtures y el sistema debe rechazarlas o escalar.
 - **PR**: una por carril o sub-tarea, < 800 líneas cuando se pueda, con qué cambió, qué se verificó (comandos y
