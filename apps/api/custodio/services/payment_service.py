@@ -81,11 +81,18 @@ def payment_payload(decision: Decision) -> dict[str, Any]:
 def _refusal(
     ctx: ServiceContext, workspace_id: str, rail: PaymentRail, policy: Policy, attempt: int
 ) -> PaymentReceipt | None:
-    """Why a rail that moves money must not be called for this payment, as the failed receipt the acta shows."""
-    if rail.name in MOVES_NO_MONEY:
-        return None
+    """Why the rail must not be called for this payment, as the failed receipt the acta shows.
+
+    Every rail has the attempts cap, since a rail that moves no money can still refuse the same payment on every
+    click; the transfer caps and the USD base only bind the rails that move money.
+    """
     allowed = ctx.runtime.limits.payment_attempts_per_invoice
-    reason = NO_ATTEMPTS_LEFT.format(allowed) if attempt > allowed else _cap_reached(ctx, workspace_id, rail.name)
+    if attempt > allowed:
+        reason: str | None = NO_ATTEMPTS_LEFT.format(allowed)
+    elif rail.name in MOVES_NO_MONEY:
+        return None
+    else:
+        reason = _cap_reached(ctx, workspace_id, rail.name)
     if reason is None and policy.base_currency != RAIL_CURRENCY:
         reason = NOT_USD.format(policy.base_currency)
     if reason is None:
