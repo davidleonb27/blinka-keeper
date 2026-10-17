@@ -76,15 +76,21 @@ def simulate_month(ctx: ServiceContext, workspace: WorkspaceRow) -> SimulationRe
         "inflow_base": str(inflow),
     }
     marker = ledger_service.append(ctx, workspace.id, LedgerKind.SIMULATION, None, {**payload, "note": INFLOW_NOTE})
+    ids = {invoice.case.id for invoice in month}
     approver = (policy.approvers[0].name if policy.approvers else DEFAULT_APPROVER) + SIMULATED_SUFFIX
     for offset in range(DAYS):
         day = start + timedelta(days=offset)
-        _play_day(simulated, workspace, [m for m in month if m.day == day], day, approver)
+        _play_day(simulated, workspace, [m for m in month if m.day == day], day, approver, ids)
     return _result(ctx, workspace, marker.payload, created=True)
 
 
 def _play_day(
-    ctx: ServiceContext, workspace: WorkspaceRow, today: list[MonthInvoice], day: date, approver: str
+    ctx: ServiceContext,
+    workspace: WorkspaceRow,
+    today: list[MonthInvoice],
+    day: date,
+    approver: str,
+    simulated_ids: set[str],
 ) -> None:
     on_the_day = replace(ctx.runtime, clock=lambda: datetime.combine(day, END_OF_DAY, tzinfo=UTC)).context(ctx.session)
     rows = []
@@ -99,7 +105,7 @@ def _play_day(
         for decision in outcome.batch.decisions:
             if decision.status is DecisionStatus.PENDING_APPROVAL and decision.invoice_id not in frauds:
                 approval_service.decide(on_the_day, workspace, decision.invoice_id, "approved", approver=approver)
-    schedule_service.run_due(on_the_day, workspace)
+    schedule_service.run_due(on_the_day, workspace, only=simulated_ids)
 
 
 def _inflow(month: list[MonthInvoice], workspace: WorkspaceRow) -> Decimal:

@@ -7,7 +7,7 @@ its day has come; otherwise its payment entry in the ledger says the day it is s
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -115,14 +115,20 @@ def view(ctx: ServiceContext, workspace: WorkspaceRow) -> ScheduleView:
     return _view(ctx, workspace, policy_service.current(ctx, workspace.id))
 
 
-def run_due(ctx: ServiceContext, workspace: WorkspaceRow) -> RunDue:
-    """Sends what is due today or earlier through the rail; what waits for cash or for its day stays."""
+def run_due(ctx: ServiceContext, workspace: WorkspaceRow, only: Collection[str] | None = None) -> RunDue:
+    """Sends what is due today or earlier through the rail; what waits for cash or for its day stays.
+
+    `only` limits the run to those invoices (the simulated month pays its own and leaves the real ones alone).
+    """
     policy = policy_service.current(ctx, workspace.id)
     today = ctx.now().date()
     executed = [
         _execute(ctx, workspace, decision, planned, policy)
         for planned, decision in _planned(ctx, workspace, policy)
-        if payment_service.may_execute(workspace) and planned.pay_on is not None and planned.pay_on <= today
+        if payment_service.may_execute(workspace)
+        and planned.pay_on is not None
+        and planned.pay_on <= today
+        and (only is None or decision.invoice_id in only)
     ]
     return RunDue(executed=executed, schedule=_view(ctx, workspace, policy))
 
