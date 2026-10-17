@@ -45,4 +45,16 @@ describe("ReceivedInvoices", () => {
     expect(screen.getByText(/1 factura recibida/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Decidir la factura/ })).toBeInTheDocument();
   });
+
+  it("opens the panel with where the invoices came from and shows progress while it decides", async () => {
+    const api = createMockClient({ latencyMs: 0 });
+    vi.spyOn(api, "processInvoices").mockImplementation(() => new Promise(() => {}));
+    renderWithApi(<ReceivedInvoices count={38} first />, api);
+
+    expect(screen.getByText("38 facturas recibidas: correo, PDF, foto, WhatsApp")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /Decidir las 38 facturas/ }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(/Leyendo cada documento/);
+    expect(screen.getByRole("button", { name: /Decidiendo/ })).toBeDisabled();
+  });
 });

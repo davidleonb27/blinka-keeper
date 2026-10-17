@@ -123,7 +123,7 @@ export function Arena() {
   return (
     <>
       <PageHeader
-        title="Arena: Claude contra Claude"
+        title="Arena: ataque contra defensa"
         subtitle="Un atacante genera facturas fraudulentas contra tus reglas, lee por qué lo bloquearon y cambia de técnica. El defensor no cambia: las reglas son código."
       />
       <section className="card-surface mb-4 flex flex-col gap-4 p-5" aria-label="Marcador">
