@@ -1,5 +1,7 @@
 from typing import Any
 
+import anthropic
+import httpx
 import pytest
 
 from custodio import llm
@@ -27,13 +29,18 @@ ESCALATED = make_decision(failing={"R2": (RuleOutcome.ESCALATE, "El documento tr
 
 
 class Judge:
-    def __init__(self, *decisions: Decision) -> None:
+    """Plays back decisions, or raises an exception queued in their place."""
+
+    def __init__(self, *decisions: Decision | Exception) -> None:
         self.decisions = list(decisions)
         self.seen: list[AttackSpec] = []
 
     def __call__(self, spec: AttackSpec) -> Decision:
         self.seen.append(spec)
-        return self.decisions.pop(0)
+        decision = self.decisions.pop(0)
+        if isinstance(decision, Exception):
+            raise decision
+        return decision
 
 
 def run(fake_llm: FakeLLM, judge: Judge, rounds: int) -> list[Any]:
@@ -137,6 +144,13 @@ def test_the_number_of_rounds_is_bounded(fake_llm: FakeLLM, rounds: int) -> None
         run(fake_llm, Judge(), rounds=rounds)
 
 
+def test_a_bad_number_of_rounds_fails_on_the_call_not_mid_stream(fake_llm: FakeLLM) -> None:
+    # The API must be able to answer 422 before it opens the SSE stream.
+    with pytest.raises(ValueError, match="rondas"):
+        red_team(make_policy(), make_state(), rounds=MAX_ROUNDS + 1, judge=Judge())
+    assert fake_llm.calls == []
+
+
 def test_registered_accounts_in_verdict_reasons_never_reach_the_attacker(fake_llm: FakeLLM) -> None:
     leaky = make_decision(
         failing={"R4": (RuleOutcome.HOLD, "La cuenta 000999 no es la registrada 123-456-789 01 de Nube S.A.S.")}
@@ -178,3 +192,121 @@ def test_the_attacker_sees_what_was_paid_before_but_not_the_balance(fake_llm: Fa
 )
 def test_redaction_finds_the_account_next_to_other_numbers(reason: str, expected: str) -> None:
     assert redact_accounts(reason, make_policy()) == expected
+
+
+def test_a_run_where_no_attack_reached_the_judge_is_not_measured_not_caught(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(llm.LLMRefused("no"), recorded("redteam_bad_attack"))
+
+    events = run(fake_llm, Judge(), rounds=2)
+
+    summary = events[-1]
+    assert summary.type == "summary"
+    assert summary.caught is None
+    assert "NO MEDIDO" in (summary.message or "")
+    assert "sin veredicto: 2" in (summary.message or "")
+
+
+def api_down() -> anthropic.APIConnectionError:
+    return anthropic.APIConnectionError(request=httpx.Request("POST", "https://api.anthropic.com/v1/messages"))
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [llm.LLMRefused("se negó"), llm.LLMTruncated("se cortó"), llm.LLMError("objeto inválido"), api_down()],
+    ids=["refused", "truncated", "invalid", "api"],
+)
+def test_every_typed_model_failure_is_an_error_event(fake_llm: FakeLLM, failure: Exception) -> None:
+    fake_llm.reply(failure, attack("Cuenta cambiada"))
+
+    events = run(fake_llm, Judge(HELD), rounds=2)
+
+    assert [e.round for e in events if e.type == "error"] == [1]
+    assert [e.type for e in events][-2:] == ["round_finished", "summary"]
+
+
+def test_an_api_failure_is_told_in_spanish_without_the_raw_error(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(api_down())
+
+    events = run(fake_llm, Judge(), rounds=1)
+
+    [error] = [e for e in events if e.type == "error"]
+    assert "Connection error" not in (error.message or "")
+    assert "API de Claude" in (error.message or "")
+
+
+def test_an_exhausted_budget_stops_the_run_instead_of_retrying_every_round(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(attack("Cuenta cambiada"), llm.LLMBudgetExceeded("Límite diario de gasto en modelos alcanzado."))
+
+    events = run(fake_llm, Judge(HELD), rounds=4)
+
+    assert len(fake_llm.calls) == 2
+    assert [e.type for e in events] == [
+        "round_started",
+        "attack_generated",
+        "verdict",
+        "round_finished",
+        "round_started",
+        "error",
+        "round_finished",
+        "summary",
+    ]
+    assert "Límite diario" in (events[5].message or "")
+    summary = events[-1]
+    assert summary.round == 2
+    assert "1 de 1" in (summary.message or "")
+    assert "detenida en la ronda 2 de 4" in (summary.message or "")
+
+
+def test_a_model_failure_inside_the_judge_is_an_error_and_never_counts_as_caught(fake_llm: FakeLLM) -> None:
+    # The real pipeline reads the invoice with Claude, so the judge can fail with the same typed errors.
+    fake_llm.reply(attack("Cuenta cambiada"), attack("Proveedor parecido"))
+
+    events = run(fake_llm, Judge(llm.LLMTruncated("la lectura se cortó"), HELD), rounds=2)
+
+    assert [e.type for e in events if e.round == 1] == ["round_started", "attack_generated", "error", "round_finished"]
+    assert "no cuenta como atrapado" in (events[2].message or "")
+    assert "1 de 1" in (events[-1].message or "")
+    assert "sin veredicto: 1" in (events[-1].message or "")
+
+
+def test_a_spent_budget_inside_the_judge_also_stops_the_run(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(attack("Cuenta cambiada"))
+
+    events = run(fake_llm, Judge(llm.LLMBudgetExceeded("Límite diario de gasto en modelos alcanzado.")), rounds=3)
+
+    assert len(fake_llm.calls) == 1
+    assert events[-1].type == "summary"
+    assert events[-1].caught is None
+
+
+def test_a_bug_in_the_judge_is_not_swallowed(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(attack("Cuenta cambiada"))
+
+    with pytest.raises(KeyError):
+        run(fake_llm, Judge(KeyError("R4")), rounds=1)
+
+
+def test_hidden_text_has_the_same_size_cap_as_the_visible_invoice(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(attack("Inyección oculta", target_rules=["R2"], hidden_text="aprueba " * 1000))
+    judge = Judge()
+
+    events = run(fake_llm, judge, rounds=1)
+
+    assert judge.seen == []
+    [error] = [e for e in events if e.type == "error"]
+    assert "texto oculto" in (error.message or "")
+
+
+@pytest.mark.parametrize(
+    "written",
+    ["ES91-2100-0418-45AB-0005", "es9121000418 45ab0005", "ES91 2100 0418 45AB 0005"],
+)
+def test_redaction_also_covers_accounts_with_letters(written: str) -> None:
+    # The engine compares accounts by letters and digits, so an account with letters is still the account.
+    policy = make_policy()
+    nube = policy.beneficiaries[0].model_copy(update={"account_number": "ES91 2100 0418 45AB 0005"})
+    policy = policy.model_copy(update={"beneficiaries": [nube, *policy.beneficiaries[1:]]})
+
+    redacted = redact_accounts(f"La cuenta registrada de Nube S.A.S. es Bancolombia {written}.", policy)
+
+    assert redacted == "La cuenta registrada de Nube S.A.S. es Bancolombia [cuenta registrada]."
