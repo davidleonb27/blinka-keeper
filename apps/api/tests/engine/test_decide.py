@@ -185,6 +185,13 @@ def test_metrics_count_every_status() -> None:
     assert metrics.improper_payments == 0
 
 
+def test_an_approval_blocked_by_the_reserve_is_not_counted_as_decided_alone() -> None:
+    cases, money = squeezed_by_a_later_payment()
+    metrics = decide_all(cases, money, CAPPED, {"F-001": approval("F-001")}).metrics
+    assert (metrics.paid_auto, metrics.hold) == (1, 1)
+    assert metrics.autonomy_rate == pytest.approx(0.5)
+
+
 def test_accuracy_compares_the_agent_verdict_with_the_labels() -> None:
     right = invoice("F-1", number="A-1").model_copy(update={"expected": "pay"})
     wrong = invoice("F-2", day=10, number="A-2", account="7788-9902").model_copy(update={"expected": "escalate"})
