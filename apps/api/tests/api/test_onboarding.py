@@ -1,6 +1,6 @@
-from fastapi.testclient import TestClient
-
 from typing import Any
+
+from fastapi.testclient import TestClient
 
 from custodio.ai.suppliers import UnreadableSupplierFile, UnsupportedSupplierFile
 from custodio.contracts import SupplierImport
@@ -155,6 +155,8 @@ def test_a_colombian_company_keeps_cop_as_its_base_currency_and_its_country(clie
     assert response.status_code == 200, response.text
     assert response.json()["workspace"]["base_currency"] == "COP"
     assert client.get("/api/v1/policy", headers=workspace.headers).json()["base_currency"] == "COP"
-    company = [e for e in client.get("/api/v1/ledger", headers=workspace.headers).json() if e["kind"] == "policy_changed"]
+    company = [
+        e for e in client.get("/api/v1/ledger", headers=workspace.headers).json() if e["kind"] == "policy_changed"
+    ]
     assert company[-1]["payload"]["company"]["country"] == "CO"
     assert company[-1]["payload"]["company"]["base_currency"] == "COP"

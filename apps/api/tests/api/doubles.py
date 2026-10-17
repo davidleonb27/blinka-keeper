@@ -509,7 +509,7 @@ def profile_company(company_name: str, website: str | None, answers: Mapping[str
     )
 
 
-def import_suppliers(data: bytes, *, filename: str, media_type: str) -> SupplierImport:
+def import_suppliers(data: bytes, *, filename: str, media_type: str, default_currency: str = "USD") -> SupplierImport:
     beneficiaries: list[Beneficiary] = []
     warnings: list[str] = []
     for number, row in enumerate(data.decode().splitlines(), start=1):
@@ -520,7 +520,12 @@ def import_suppliers(data: bytes, *, filename: str, media_type: str) -> Supplier
         name, tax_id, bank, account = cells
         beneficiaries.append(
             Beneficiary(
-                id=f"B-{tax_id}", name=name, tax_id=tax_id, bank_name=bank, account_number=account, currency="USD"
+                id=f"B-{tax_id}",
+                name=name,
+                tax_id=tax_id,
+                bank_name=bank,
+                account_number=account,
+                currency=default_currency,
             )
         )
     return SupplierImport(beneficiaries=beneficiaries, warnings=warnings)

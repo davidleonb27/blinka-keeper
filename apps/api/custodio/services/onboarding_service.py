@@ -8,6 +8,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict
 
+from custodio.ai import suppliers as supplier_files
 from custodio.contracts import (
     Amount,
     BatchResult,
@@ -26,7 +27,12 @@ from custodio.db.models import WorkspaceRow
 from custodio.llm import LLMError
 from custodio.services import policy_service, records, workspace_service
 from custodio.services.context import ServiceContext
-from custodio.services.errors import PayloadTooLarge, model_failure
+from custodio.services.errors import (
+    PayloadTooLarge,
+    UnreadableSupplierFile,
+    UnsupportedSupplierFile,
+    model_failure,
+)
 from custodio.services.invoice_service import MAX_DOCUMENT_BYTES
 from custodio.services.workspace_service import WorkspaceSummary
 
@@ -57,22 +63,42 @@ def propose_profile(
         raise model_failure(error) from error
 
 
-def import_suppliers(ctx: ServiceContext, data: bytes, *, filename: str, media_type: str) -> SupplierImport:
+def import_suppliers(
+    ctx: ServiceContext,
+    workspace: WorkspaceRow,
+    data: bytes,
+    *,
+    filename: str,
+    media_type: str,
+    currency: str | None = None,
+) -> SupplierImport:
+    """`currency` is the one the company chose while onboarding; without it, the workspace's base currency."""
     if len(data) > MAX_DOCUMENT_BYTES:
         raise PayloadTooLarge()
+    default_currency = (currency or policy_service.current(ctx, workspace.id).base_currency).upper()
     try:
-        return ctx.lanes.import_suppliers(data, filename=filename, media_type=media_type)
+        return ctx.lanes.import_suppliers(
+            data, filename=filename, media_type=media_type, default_currency=default_currency
+        )
     except LLMError as error:
         raise model_failure(error) from error
+    except supplier_files.UnreadableSupplierFile as error:
+        raise UnreadableSupplierFile(str(error)) from error
+    except supplier_files.UnsupportedSupplierFile as error:
+        raise UnsupportedSupplierFile(str(error)) from error
 
 
 def complete(ctx: ServiceContext, workspace: WorkspaceRow, request: OnboardingRequest) -> OnboardingResult:
-    base = request.profile.base_currency
-    policy = request.policy.model_copy(
-        update={"base_currency": base, "beneficiaries": request.suppliers or request.policy.beneficiaries}
-    )
+    # The base currency is the one the person chose for the policy; a proposed profile may still carry USD.
+    base = request.policy.base_currency
+    policy = request.policy.model_copy(update={"beneficiaries": request.suppliers or request.policy.beneficiaries})
     fx = request.fx_units_per_base or {base: Decimal(1)}
-    company = {"name": request.profile.company_name, "opening_balance": str(request.opening_balance)}
+    company = {
+        "name": request.profile.company_name,
+        "opening_balance": str(request.opening_balance),
+        "country": request.profile.country,
+        "base_currency": base,
+    }
     applied = policy_service.apply(ctx, workspace.id, policy, context={"company": company})
     workspace_service.update_company(
         ctx, workspace, name=request.profile.company_name, opening_balance=request.opening_balance, fx=fx

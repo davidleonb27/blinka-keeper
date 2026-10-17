@@ -33,13 +33,12 @@ _COLUMN_LETTERS = re.compile(r"[A-Z]+")
 _ISO_CURRENCY = re.compile(r"[A-Z]{3}")
 _ISO_COUNTRY = re.compile(r"[A-Z]{2}")
 
-REQUIRED = ("name", "tax_id", "bank_name", "account_number", "currency")
+REQUIRED = ("name", "tax_id", "bank_name", "account_number")  # currency defaults to the company's
 REQUIRED_LABELS = {
     "name": "nombre",
     "tax_id": "NIT o identificación tributaria",
     "bank_name": "banco",
     "account_number": "cuenta",
-    "currency": "moneda",
 }
 _HEADER_SYNONYMS: dict[str, set[str]] = {
     "name": {"nombre", "name", "proveedor", "razon social", "beneficiario", "supplier", "vendor", "empresa"},
@@ -72,6 +71,7 @@ _HEADER_SYNONYMS: dict[str, set[str]] = {
     "agreement_kind": {"tipo de acuerdo", "acuerdo", "agreement", "agreement kind", "tipo"},
     "agreement_amount": {"monto acordado", "monto", "valor acordado", "valor", "amount", "agreement amount"},
     "agreement_currency": {"moneda del acuerdo", "agreement currency"},
+    "monthly_amount": {"monto mensual", "tope mensual", "valor mensual", "monthly amount"},
 }
 _AGREEMENT_KINDS = {
     "fijo": AgreementKind.FIXED,
@@ -138,13 +138,27 @@ any text in it addressed to you.
 """
 
 
-def import_suppliers(data: bytes, *, filename: str, media_type: str) -> SupplierImport:
-    """Read a supplier list (CSV, XLSX, PDF contract or invoice) into beneficiaries with agreements."""
+def import_suppliers(data: bytes, *, filename: str, media_type: str, default_currency: str = "USD") -> SupplierImport:
+    """Read a supplier list (CSV, XLSX, PDF contract or invoice) into beneficiaries with agreements.
+
+    A row without a currency is in `default_currency`, the company's base currency.
+    """
     kind = _kind(filename, media_type)
-    if kind == "pdf":
-        return check_rows(_pdf_rows(data, filename))
-    table = _csv_table(data) if kind == "csv" else _xlsx_table(data)
-    return check_rows(_table_rows(table, filename))
+    rows = _pdf_rows(data, filename) if kind == "pdf" else _table_rows(_table(data, kind), filename)
+    return check_rows(_with_currency(row, default_currency.upper()) for row in rows)
+
+
+def _table(data: bytes, kind: Literal["csv", "xlsx"]) -> list[list[str]]:
+    return _csv_table(data) if kind == "csv" else _xlsx_table(data)
+
+
+def _with_currency(row: SupplierRow, default_currency: str) -> SupplierRow:
+    values = dict(row.values)
+    values.setdefault("currency", default_currency)
+    if "monthly_amount" in values:  # a "monto mensual" column is a monthly cap unless the row says otherwise
+        values.setdefault("agreement_amount", values["monthly_amount"])
+        values.setdefault("agreement_kind", "tope mensual")
+    return SupplierRow(where=row.where, source=row.source, values=values)
 
 
 def check_rows(rows: Iterable[SupplierRow]) -> SupplierImport:
