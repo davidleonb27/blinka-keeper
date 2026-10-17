@@ -12,7 +12,9 @@ from decimal import Decimal
 from custodio.extraction.amounts import parse_amount
 from custodio.extraction.errors import AmountFormatError
 
-_NUMBER = re.compile(r"\d(?:[\d.,'  ]*\d)?")
+# Unlike an invoice total, a statement line puts several figures side by side («-634,02 112.365,98»), so a space
+# ends a number here instead of grouping its thousands.
+_NUMBER = re.compile(r"\d(?:[\d.,']*\d)?")
 MINUS_SIGNS = "-−–"
 _CURRENCY_BEFORE = re.compile(r"(?:[A-Z]{3}|US\$|R\$|\$|€)\s*$")
 

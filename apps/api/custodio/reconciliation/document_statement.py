@@ -67,6 +67,8 @@ _PLAIN_SIGNED = re.compile(r"[-+]?\d+(?:\.\d+)?")
 _ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 _ISO_CURRENCY = re.compile(r"[A-Z]{3}")
 _BALANCE_LINE = re.compile(r"\b(saldo|total|subtotal|balance)\b")
+_DATE_LIKE = re.compile(r"\b\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}\b")
+_MONEY = re.compile(r"\d[.,]\d{2}(?!\d)")  # statements write cents; a bare number is a date part or an id
 NOT_IN_DOCUMENT = "La línea que devolvió el modelo no está en el documento."
 REPEATED = "El modelo devolvió esta línea más veces de las que el documento la trae."
 SKIPPED = "El modelo no devolvió esta línea del documento; no se interpretó."
@@ -217,10 +219,14 @@ def _transaction_lines(source: str, covered: Sequence[tuple[int, int]]) -> Itera
         start, end = offset, offset + len(line)
         offset = end + 1
         text = line.strip()
-        if not text or _BALANCE_LINE.search(fold(text)) or not dates_in(text) or not signed_amounts_in(text):
+        if not text or _BALANCE_LINE.search(fold(text)) or not _looks_like_a_transaction(text):
             continue
         if not any(start < covered_end and covered_start < end for covered_start, covered_end in covered):
             yield start, end, text
+
+
+def _looks_like_a_transaction(line: str) -> bool:
+    return bool(dates_in(line)) and _MONEY.search(_DATE_LIKE.sub(" ", line)) is not None
 
 
 def _date(value: str | None) -> date | None:

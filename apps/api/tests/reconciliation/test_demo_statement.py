@@ -134,11 +134,13 @@ def pdf_text(data: bytes) -> str:
 def test_the_pdf_lists_the_same_movements_as_the_csv_on_one_line_each() -> None:
     text = pdf_text(demo_statement_pdf())
     movements = csv_movements()
+    lines = text.splitlines()
     rows = []
     for movement in movements:
         assert movement.booked_on is not None
         written = movement.booked_on.strftime("%d/%m/%Y")
-        (line,) = {line for line in text.splitlines() if movement.description in line and written in line}
+        line = next(line for line in lines if movement.description in line and written in line)
+        lines.remove(line)
         rows.append(
             RowReading(
                 quote=line,
