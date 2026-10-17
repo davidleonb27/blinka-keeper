@@ -37,7 +37,7 @@ KYC, cumplimiento, decisiones de fraude como servicio y el diseño de la app de 
    termina simulando la primera semana. Se adapta a cualquier empresa en dos minutos.
 6. **Prueba, no promesa.** Tests de propiedades sobre miles de empresas aleatorias en cada commit; botón «alterar el
    registro» que muestra cómo se rompe la cadena.
-7. **Aprobar desde el celular.** El acta llega por Telegram; un toque aprueba o rechaza, y el panel se actualiza.
+7. **Aprobar en un clic.** Desde el acta en la web. (Telegram queda fuera por ahora: las aprobaciones son sólo por la web.)
 
 ## 3. Invariantes (los hace cumplir un test)
 
@@ -62,7 +62,7 @@ KYC, cumplimiento, decisiones de fraude como servicio y el diseño de la app de 
                  └─────────────────────────────────────────────┬──────────────┘
                                                                │
               Neon Postgres (estado, documentos ≤ 4 MB y ledger)
-              Claude (estructurar, narrar, compilar reglas, perfilar, atacar) · Gemini (OCR de imágenes)
+              Claude (leer imágenes y PDFs, estructurar, narrar, compilar reglas, perfilar, atacar)
 ```
 
 Backend `apps/api/custodio/`:
@@ -73,7 +73,7 @@ Backend `apps/api/custodio/`:
 | `config.py`, `llm.py` | ajustes y la única puerta a Claude (salida estructurada, caché, fallback, tope de gasto) | base |
 | `engine/` | reglas R1–R12, `decide_all`, `audit`, `simulate`, contrafactual, explicación, `ledger` | L1 |
 | `dataset/` | empresa demo y casos trampa etiquetados (`cases.json`) | L1 |
-| `extraction/` | PDF (pdfplumber + detección de texto oculto), imágenes (Gemini), estructuración (Claude), verificación de citas, `render_invoice` | L2 |
+| `extraction/` | PDF (pdfplumber + detección de texto oculto), imágenes y PDFs escaneados (Claude con visión), estructuración (Claude), verificación de citas, `render_invoice` | L2 |
 | `ai/` | compilador de reglas, narración, perfil de empresa, importación de proveedores, red team | L3 |
 | `api/`, `db/` | rutas, persistencia, espacios de trabajo, aprobaciones, Telegram, firewall, MCP, reto público, límites | L4 |
 
@@ -116,7 +116,7 @@ Ledger: `hash = sha256(prev_hash + canonical_json({seq, at, kind, subject_id, pa
 1. PDF: `pdfplumber` extrae texto visible por carácter con color, tamaño y posición. Texto oculto = color igual al fondo
    (blanco o casi), tamaño < 2 pt, fuera de la página, tapado por un rectángulo o imagen, o en metadatos/anotaciones.
    PDF sin texto → se rasteriza y va a OCR.
-2. Imagen: Gemini transcribe el texto (modelo por `CUSTODIO_GEMINI_MODEL`; verificar el id vigente con `models.list`).
+2. Imagen o PDF escaneado: Claude (`model_fast`) lo lee directamente con visión (bloque `image` o `document`). **No usamos Gemini**: un solo proveedor y una sola clave.
 3. Claude (`model_fast`, esfuerzo bajo) estructura los campos con salida estructurada y devuelve, por campo, el valor
    normalizado y la cita exacta.
 4. Código verifica cada cita contra el texto fuente (normalizando espacios) y que la cita respalde el valor (el monto
@@ -164,7 +164,6 @@ espacio.
 | `POST /challenge/attempts` · `GET /challenge/stats` | reto público |
 | `POST /firewall/intents` | intención de pago de otro agente → `IntentVerdict` |
 | `/mcp` | servidor MCP (streamable HTTP): `submit_payment_intent`, `get_decision`, `get_policy` |
-| `POST /telegram/webhook` | botones aprobar / rechazar |
 
 Límites: por IP y por espacio en rutas que llaman modelos; tope diario de gasto en `llm.py`; archivos ≤ 4 MB
 (límite de cuerpo de Vercel 4,5 MB); el reto público usa Haiku y tiene su propio tope.
@@ -207,12 +206,18 @@ shadcn/ui, tema claro y oscuro, móvil primero.
 
 ## 11. Variables de entorno
 
-`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DATABASE_URL` (Neon),
-`TELEGRAM_BOT_TOKEN`, `CUSTODIO_PUBLIC_BASE_URL`, `CUSTODIO_LLM_DAILY_BUDGET_USD`, `CUSTODIO_MODEL_FAST`,
-`CUSTODIO_MODEL_SMART`, `CUSTODIO_MODEL_CHEAP`, `CUSTODIO_GEMINI_MODEL`, `CUSTODIO_LIVE_TESTS`.
+`ANTHROPIC_API_KEY`, `DATABASE_URL` (Neon; normalizar `postgresql://` a `postgresql+psycopg://`),
+`CUSTODIO_PUBLIC_BASE_URL`, `CUSTODIO_LLM_DAILY_BUDGET_USD`, `CUSTODIO_MODEL_FAST`,
+`CUSTODIO_MODEL_SMART`, `CUSTODIO_MODEL_CHEAP`, `CUSTODIO_LIVE_TESTS`.
 
 ## 12. Guion de la demo (3 minutos)
 
 0:00 una factura idéntica en la que sólo cambió la cuenta · 0:20 el problema · 0:40 la semana decidida en segundos ·
 1:15 Claude contra Claude y el contador del reto · 2:00 el celular aprueba · 2:20 firewall y modelo de negocio ·
 2:40 uso real, equipo y cierre. Sólo cifras medidas.
+
+## 13. Cambios de alcance (2026-10-17)
+
+- **Sin Gemini**: Claude lee imágenes y PDFs escaneados con visión. Quitar `google-genai`, `gemini_model` y `gemini_configured`.
+- **Sin Telegram por ahora**: las aprobaciones son por la web. El código de Telegram, si existe, queda apagado sin token y fuera de la demo.
+- **Neon**: `DATABASE_URL` llega como `postgresql://`; la capa `db` la normaliza a `postgresql+psycopg://`.
