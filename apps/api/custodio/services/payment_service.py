@@ -13,9 +13,9 @@ from typing import Any
 
 from sqlalchemy import func, select
 
-from custodio.contracts import Decision, DecisionStatus, LedgerKind, PaymentExecution, Policy
+from custodio.contracts import Beneficiary, Decision, DecisionStatus, LedgerKind, PaymentExecution, Policy
 from custodio.db.models import PaymentExecutionRow, WorkspaceRow
-from custodio.payments import SIMULATED, PaymentOrder, PaymentRail, PaymentReceipt
+from custodio.payments import MOVES_NO_MONEY, PaymentOrder, PaymentRail, PaymentReceipt
 from custodio.services import ledger_service, policy_service, records
 from custodio.services.context import ServiceContext
 from custodio.services.errors import PaymentNotRetryable
@@ -82,7 +82,7 @@ def _refusal(
     ctx: ServiceContext, workspace_id: str, rail: PaymentRail, policy: Policy, attempt: int
 ) -> PaymentReceipt | None:
     """Why a rail that moves money must not be called for this payment, as the failed receipt the acta shows."""
-    if rail.name == SIMULATED:
+    if rail.name in MOVES_NO_MONEY:
         return None
     allowed = ctx.runtime.limits.payment_attempts_per_invoice
     reason = NO_ATTEMPTS_LEFT.format(allowed) if attempt > allowed else _cap_reached(ctx, workspace_id, rail.name)
@@ -126,13 +126,18 @@ def _order(ctx: ServiceContext, workspace_id: str, decision: Decision, policy: P
         currency=decision.currency or RAIL_CURRENCY,
         amount=decision.amount if decision.amount is not None else amount_base,
         acta_url=records.acta_url(ctx.runtime.public_base_url, decision.invoice_id),
+        beneficiary=_registered(decision, policy),
     )
+
+
+def _registered(decision: Decision, policy: Policy) -> Beneficiary | None:
+    return next((b for b in policy.beneficiaries if b.id == decision.beneficiary_id), None)
 
 
 def _beneficiary_name(decision: Decision, policy: Policy) -> str:
     """The registered name, not the invoice's spelling, so every invoice of a supplier reaches the same account."""
-    registered = next((b.name for b in policy.beneficiaries if b.id == decision.beneficiary_id), None)
-    return registered or decision.supplier_name or ""
+    registered = _registered(decision, policy)
+    return registered.name if registered else decision.supplier_name or ""
 
 
 def _row(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> PaymentExecutionRow | None:
@@ -159,6 +164,7 @@ def _store(
     row.external_id = receipt.external_id
     row.dashboard_url = receipt.dashboard_url
     row.error = receipt.error
+    row.instruction = receipt.instruction.model_dump(mode="json") if receipt.instruction else None
     row.attempts = attempt
     row.executed_at = receipt.executed_at
     ctx.session.flush()
@@ -173,6 +179,7 @@ def _execution(row: PaymentExecutionRow) -> PaymentExecution:
             "dashboard_url": row.dashboard_url,
             "executed_at": row.executed_at,
             "error": row.error,
+            "instruction": row.instruction,
         }
     )
 
