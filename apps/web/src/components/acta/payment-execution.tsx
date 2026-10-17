@@ -59,12 +59,14 @@ export function PaymentExecutionBlock({ decision, onRetry, retrying }: PaymentEx
   return (
     <section aria-labelledby={titleId}>
       <h3 id={titleId} className="eyebrow mb-2.5">
-        Pago ejecutado
+        Ejecución del pago
       </h3>
       <div className="flex flex-col gap-2.5 rounded-xl border border-line px-3.5 py-3">
         <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[13px] text-ink-3">
           <span className="font-semibold text-ink">{RAIL_LABEL[execution.rail]}</span>
-          <span className="tabular">enviado {formatMoney(decision.amount_base, SENT_CURRENCY)}</span>
+          <span className="tabular">
+            {execution.status === "executed" ? "enviado" : "monto"} {formatMoney(decision.amount_base, SENT_CURRENCY)}
+          </span>
           <span>{formatDateTime(execution.executed_at)}</span>
         </p>
         <Outcome execution={execution} onRetry={onRetry} retrying={retrying} />
