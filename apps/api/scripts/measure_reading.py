@@ -2,9 +2,9 @@
 
 Usage: uv run python scripts/measure_reading.py --base-url https://custodio-blinka-green.vercel.app --max-uploads 36
 
-Creates one demo workspace, keeps its golden metrics, then uploads the rendered documents one at a time and compares
-supplier, amount, currency and account with the specs that produced them. Prints one JSON report. Needs no local
-model key: the deployed API makes the model calls. The workspace credentials are used in memory and never printed.
+Creates one demo workspace, counts the golden invoices it was seeded with, then uploads the rendered documents one at
+a time and compares supplier, amount, currency and account with the specs that produced them. Prints one JSON report.
+Needs no local model key: the deployed API makes the model calls. The workspace credentials stay in memory, unprinted.
 """
 
 from __future__ import annotations
@@ -72,16 +72,14 @@ def measure(
     specs: Sequence[InvoiceSpec] | None = None,
 ) -> dict[str, Any]:
     headers = {"X-Custodio-Workspace": _create_demo_workspace(client)}
-    golden_metrics = client.get("/workspaces/current", headers=headers).raise_for_status().json()["metrics"]
+    seeded = client.get("/workspaces/current", headers=headers).raise_for_status().json()["pending_invoices"]
     tally = _Tally()
     for spec in specs if specs is not None else demo_specs():
         response = _upload(client, headers, spec, tally, max_uploads, pause)
         if response is None:
             break
         tally.record(spec, response)
-    return {"measured_at": datetime.now(UTC).isoformat(timespec="seconds"), "golden_metrics": golden_metrics} | (
-        tally.report()
-    )
+    return {"measured_at": datetime.now(UTC).isoformat(timespec="seconds"), "seeded_invoices": seeded} | tally.report()
 
 
 def _create_demo_workspace(client: httpx.Client) -> str:
