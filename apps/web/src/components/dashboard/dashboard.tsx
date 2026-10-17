@@ -5,6 +5,7 @@ import { Suspense, useState } from "react";
 import { ActaDrawer } from "@/components/acta/acta-drawer";
 import { Chip, PageHeader } from "@/components/shell/page-header";
 import { RailBadge } from "@/components/shell/rail-badge";
+import { UploadDialog } from "@/components/intake/upload-dialog";
 import { EmptyInbox } from "@/components/panel/empty-inbox";
 import { ErrorState, LoadingBlock } from "@/components/states";
 import { useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
@@ -75,10 +76,11 @@ export function Dashboard() {
 
   const base = summary.data.base_currency;
   const totals = statusTotals(decisions.data);
-  if (!decisions.data.length && !summary.data.pending_invoices) return <>{header}<EmptyInbox /></>;
+  if (!decisions.data.length && !summary.data.pending_invoices) return <>{header}<UploadDialog /><EmptyInbox /></>;
   return (
     <>
       {header}
+      <UploadDialog />
       <div className="flex flex-col gap-4">
         {summary.data.pending_invoices > 0 ? <ReceivedInvoices count={summary.data.pending_invoices} /> : null}
         <Overview summary={summary.data} pendingTotal={totals.pending.total} onShowPending={() => setFilter("pending")} />

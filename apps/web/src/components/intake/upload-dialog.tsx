@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, CircleAlert, FileUp, LoaderCircle, Scale, Upload } from "lucide-react";
-import { useId, useRef, useState, type DragEvent } from "react";
+import { useId, useRef, useState, useSyncExternalStore, type DragEvent } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
@@ -174,27 +174,44 @@ function UploadForm({ onDecided }: { onDecided: () => void }) {
   );
 }
 
+// One dialog per panel, opened from any button: it must outlive the empty state that unmounts with the first invoice.
+let dialogOpen = false;
+const listeners = new Set<() => void>();
+
+function setDialogOpen(open: boolean) {
+  dialogOpen = open;
+  for (const listener of listeners) listener();
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
 export function UploadInvoicesButton({ size = "default" }: { size?: "default" | "sm" | "lg" }) {
-  const [open, setOpen] = useState(false);
   return (
-    <>
-      <Button size={size} onClick={() => setOpen(true)}>
-        <Upload aria-hidden /> Subir facturas
-      </Button>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent
-          side="right"
-          className="gap-4 overflow-y-auto border-line-2 bg-surface px-5 pt-5 pb-6 data-[side=right]:w-full data-[side=right]:sm:max-w-[520px] sm:px-6"
-        >
-          <div className="pr-8">
-            <SheetTitle className="font-serif text-2xl font-semibold">Subir facturas</SheetTitle>
-            <SheetDescription className="mt-1 text-ink-2">
-              Custodio las lee y las deja listas; ninguna se paga hasta que decidas el lote con tus reglas.
-            </SheetDescription>
-          </div>
-          <UploadForm onDecided={() => setOpen(false)} />
-        </SheetContent>
-      </Sheet>
-    </>
+    <Button size={size} onClick={() => setDialogOpen(true)}>
+      <Upload aria-hidden /> Subir facturas
+    </Button>
+  );
+}
+
+export function UploadDialog() {
+  const open = useSyncExternalStore(subscribe, () => dialogOpen, () => false);
+  return (
+    <Sheet open={open} onOpenChange={setDialogOpen}>
+      <SheetContent
+        side="right"
+        className="gap-4 overflow-y-auto border-line-2 bg-surface px-5 pt-5 pb-6 data-[side=right]:w-full data-[side=right]:sm:max-w-[520px] sm:px-6"
+      >
+        <div className="pr-8">
+          <SheetTitle className="font-serif text-2xl font-semibold">Subir facturas</SheetTitle>
+          <SheetDescription className="mt-1 text-ink-2">
+            Custodio las lee y las deja listas; ninguna se paga hasta que decidas el lote con tus reglas.
+          </SheetDescription>
+        </div>
+        <UploadForm onDecided={() => setDialogOpen(false)} />
+      </SheetContent>
+    </Sheet>
   );
 }

@@ -264,7 +264,7 @@ test("every page and the whole demo work against the real API without a single e
     await expect(page.getByRole("heading", { level: 1, name: "Custodio está listo" })).toBeVisible();
     await page.getByRole("link", { name: /Ir al panel/ }).click();
     await expect(page.getByRole("heading", { level: 1, name: "Panel" })).toBeVisible();
-    await expect(page.getByRole("region", { name: "Resumen" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Aún no hay facturas: súbelas o reenvíalas" })).toBeVisible();
     await expectNoErrorScreen(page);
     const workspace = (await page.context().cookies()).find((cookie) => cookie.name === "custodio_ws")?.value ?? "";
     const summary = await page.request.get("/api/v1/workspaces/current", {
