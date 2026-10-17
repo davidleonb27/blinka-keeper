@@ -134,3 +134,13 @@ def test_a_workspace_cannot_see_or_approve_another_workspace_decisions(client: T
     assert client.get("/api/v1/decisions/F02", headers=owner.headers).json()["decision"]["status"] == (
         "pending_approval"
     )
+
+
+def test_the_narrative_explains_a_decision_in_plain_words(client: TestClient) -> None:
+    workspace = new_workspace(client)
+    process(client, workspace)
+
+    response = client.get("/api/v1/decisions/F03/narrative", headers=workspace.headers)
+
+    assert response.status_code == 200
+    assert response.json()["narrative"].startswith("En palabras simples")

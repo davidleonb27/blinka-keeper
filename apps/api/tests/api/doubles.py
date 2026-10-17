@@ -393,6 +393,7 @@ class FakeAuditor:
     """Agrees with the engine unless told to flag specific invoices as improper payments."""
 
     flagged: set[str] = field(default_factory=set)
+    flag_every_payment: bool = False
 
     def __call__(
         self, batch: BatchResult, cases: Sequence[InvoiceCase], state: CompanyState, policy: Policy
@@ -401,7 +402,7 @@ class FakeAuditor:
         findings = [
             AuditFinding(invoice_id=d.invoice_id, severity="critical", message="El auditor no reconoce este pago.")
             for d in paid
-            if d.invoice_id in self.flagged
+            if self.flag_every_payment or d.invoice_id in self.flagged
         ]
         return AuditReport(agrees=not findings, checked=len(paid), improper_payments=len(findings), findings=findings)
 

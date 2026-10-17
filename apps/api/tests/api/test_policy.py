@@ -1,5 +1,8 @@
 from fastapi.testclient import TestClient
 
+from custodio.services.lanes import Lanes
+
+from .doubles import failing
 from .helpers import assert_ledger_valid, new_workspace
 
 
@@ -56,3 +59,28 @@ def test_a_policy_change_in_one_workspace_does_not_touch_another(client: TestCli
     client.put("/api/v1/policy", headers=first.headers, json={**policy, "approval_threshold": 1})
 
     assert client.get("/api/v1/policy", headers=second.headers).json()["approval_threshold"] == 5000.0
+
+
+def test_compiling_rules_proposes_and_simulates_without_applying(client: TestClient) -> None:
+    workspace = new_workspace(client)
+
+    response = client.post(
+        "/api/v1/policy/compile", headers=workspace.headers, json={"text": "Nada sobre 1000 sin aprobación"}
+    )
+
+    assert response.status_code == 200
+    proposal = response.json()
+    assert proposal["changes"][0]["field"] == "approval_threshold"
+    assert proposal["simulation"]["changed"][0]["invoice_id"] == "F01"
+    assert proposal["simulation"]["changed"][0]["after"] == "pending_approval"
+    assert client.get("/api/v1/policy", headers=workspace.headers).json()["version"] == 1
+
+
+def test_a_model_failure_while_compiling_is_an_honest_503(client: TestClient, lanes: Lanes) -> None:
+    object.__setattr__(lanes, "compile_policy", failing)
+    workspace = new_workspace(client)
+
+    response = client.post("/api/v1/policy/compile", headers=workspace.headers, json={"text": "Nada sobre 1000"})
+
+    assert response.status_code == 503
+    assert response.json()["code"] == "model_unavailable"
