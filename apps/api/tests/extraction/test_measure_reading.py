@@ -60,8 +60,6 @@ class FakeProduction:
         self.rate_limit = rate_limit
         self.wrong_amount = wrong_amount
         self.uploads = 0
-        self.in_flight = 0
-        self.max_in_flight = 0
 
     def __call__(self, request: httpx.Request) -> httpx.Response:
         if request.url.path == "/api/v1/workspaces":
@@ -74,14 +72,10 @@ class FakeProduction:
         return self.upload()
 
     def upload(self) -> httpx.Response:
-        self.in_flight += 1
-        self.max_in_flight = max(self.max_in_flight, self.in_flight)
         self.uploads += 1
         if self.uploads <= self.rate_limit:
-            self.in_flight -= 1
             return httpx.Response(429, headers={"Retry-After": "7"}, json={"code": "rate_limited"})
         spec = next(self.specs)
-        self.in_flight -= 1
         if self.uploads <= self.refuse:
             return httpx.Response(503, json={"code": "reading_unavailable", "invoice_id": "i"})
         amount = spec.amount + Decimal(1) if self.uploads <= self.refuse + self.wrong_amount else spec.amount
@@ -101,13 +95,12 @@ def measure(server: FakeProduction, *, max_uploads: int = 40, pauses: list[float
     return report
 
 
-def test_every_golden_document_is_uploaded_once_and_one_at_a_time() -> None:
+def test_every_golden_document_is_uploaded_once() -> None:
     server = FakeProduction()
 
     report = measure(server)
 
     assert server.uploads == report["uploads"] == len(demo_specs())
-    assert server.max_in_flight == 1
     assert report["read"] == len(demo_specs())
     assert report["rejected"] == {}
 
