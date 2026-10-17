@@ -419,14 +419,14 @@
       {
         "name": "Ana Gómez",
         "role": "CFO",
-        "telegram_chat_id": "@ana_cobalto",
-        "email": null
+        "telegram_chat_id": null,
+        "email": "ana@cobalto.example"
       },
       {
         "name": "Tomás Rivera",
         "role": "Controller",
-        "telegram_chat_id": "@tomas_cobalto",
-        "email": null
+        "telegram_chat_id": null,
+        "email": "tomas@cobalto.example"
       }
     ]
   },

@@ -23,7 +23,8 @@ import type {
 } from "./contracts";
 import type { components } from "./openapi";
 
-export type Health = components["schemas"]["Health"];
+/** Only the fields the web reads, so it holds whether or not the API still reports retired providers. */
+export type Health = Pick<components["schemas"]["Health"], "status" | "version" | "anthropic">;
 
 export type WorkspaceMode = "demo" | "blank";
 

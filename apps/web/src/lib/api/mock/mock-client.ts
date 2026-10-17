@@ -190,7 +190,7 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
   }
 
   return {
-    health: () => respond(() => ({ status: "ok", version: "mock", anthropic: false, gemini: false })),
+    health: () => respond(() => ({ status: "ok", version: "mock", anthropic: false })),
     createWorkspace: () => respond(() => ({ workspace_id: "ws_demo", api_key: MOCK_API_KEY })),
     getWorkspace: () => respond(summary),
     listDecisions: () =>

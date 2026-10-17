@@ -1,10 +1,12 @@
 "use client";
 
-import { Eye, EyeOff, KeyRound, Plug, Workflow } from "lucide-react";
+import { Activity, Eye, EyeOff, KeyRound, Plug, Workflow } from "lucide-react";
 import { useState, useSyncExternalStore } from "react";
 import { useApiMode } from "@/components/providers/api-provider";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
+import { messageOf } from "@/lib/api/errors";
+import { useHealth } from "@/lib/api/hooks";
 import { API_BASE } from "@/lib/api/live-client";
 import { browserWorkspaceStore } from "@/lib/api/workspace";
 import { CodeBlock } from "./code-block";
@@ -47,7 +49,7 @@ const RESPONSE_EXAMPLE = `{
     "rules": [ /* las doce reglas, en orden */ ]
   },
   "ledger_hash": "9f2c4e1ab7d03f55…",
-  "acta_url": "/panel?acta=INT-0042"
+  "acta_url": "/acta/INT-0042"
 }`;
 
 function mcpConfig(base: string, key: string): string {
@@ -70,6 +72,22 @@ const MCP_TOOLS: [string, string][] = [
   ["get_decision", "Trae el acta completa de una decisión por su id."],
   ["get_policy", "Lee las reglas vigentes de la empresa."],
 ];
+
+function ApiStatus() {
+  const health = useHealth();
+  if (health.error) return <p className="text-[13px] text-crit">API sin respuesta: {messageOf(health.error)}</p>;
+  if (!health.data) return <p className="text-[13px] text-ink-3">Consultando la API…</p>;
+  const { status, version, anthropic } = health.data;
+  return (
+    <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-2">
+      <span className="inline-flex items-center gap-1.5 font-semibold text-pay">
+        <Activity aria-hidden className="size-4" /> {status === "ok" ? "API en línea" : `API: ${status}`}
+      </span>
+      <span>versión {version}</span>
+      <span>{anthropic ? "Lectura con modelo configurada" : "Lectura con modelo sin configurar"}</span>
+    </p>
+  );
+}
 
 export function DevelopersPage() {
   const mode = useApiMode();
@@ -97,6 +115,7 @@ export function DevelopersPage() {
               {revealed ? <EyeOff aria-hidden /> : <Eye aria-hidden />} {revealed ? "Ocultar" : "Mostrar"}
             </Button>
           </div>
+          <ApiStatus />
           <p className="text-[12.5px] text-ink-3">
             {storedKey
               ? "Es de tu espacio de trabajo y sólo vive en este navegador. Trátala como una contraseña."

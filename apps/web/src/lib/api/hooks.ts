@@ -16,6 +16,11 @@ const queryKeys = {
   challenge: ["challenge-stats"] as const,
 };
 
+export function useHealth() {
+  const api = useApi();
+  return useQuery({ queryKey: ["health"], queryFn: () => api.health() });
+}
+
 export function useWorkspaceSummary() {
   const api = useApi();
   return useQuery({ queryKey: queryKeys.workspace, queryFn: () => api.getWorkspace() });

@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // The firewall's IntentVerdict.acta_url points at /acta/{id}; the acta lives in the panel's drawer.
+  async redirects() {
+    return [{ source: "/acta/:id", destination: "/panel?acta=:id", permanent: false }];
+  },
   async rewrites() {
     return apiUrl ? [{ source: "/api/v1/:path*", destination: `${apiUrl}/api/v1/:path*` }] : [];
   },
