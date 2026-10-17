@@ -5,14 +5,11 @@ that produced them. A field counts as correct only when its value matches and co
 ambiguous "$" invoice, the correct outcome for currency is "not verified".
 """
 
-import json
-import re
 from collections.abc import Callable
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 import pytest
-from google import genai
 from pydantic import TypeAdapter
 
 from custodio.config import get_settings
@@ -88,26 +85,13 @@ def claude_key() -> None:
         pytest.skip("NO MEDIDO: falta ANTHROPIC_API_KEY")
 
 
-@pytest.fixture
-def gemini_key() -> None:
-    if not get_settings().gemini_configured:
-        pytest.skip("NO MEDIDO: falta GEMINI_API_KEY")
-
-
-def test_the_configured_gemini_model_is_listed(gemini_key: None) -> None:
-    names = [model.name or "" for model in genai.Client().models.list()]
-    flash = sorted(name for name in names if re.search(r"gemini-[\d.]+-flash", name))
-    print("\nGemini flash models:", json.dumps(flash, indent=1))
-    assert f"models/{get_settings().gemini_model}" in names
-
-
 def test_one_rendered_pdf_is_read_end_to_end(claude_key: None) -> None:
     invoice = read(SPECS[0], "live-0")
     print("\n", invoice.model_dump_json(indent=1, exclude={"visible_text"}))
     assert invoice.amount.verified and invoice.amount.value == "4200000.00"
 
 
-def test_ten_rendered_documents_per_field_accuracy(claude_key: None, gemini_key: None) -> None:
+def test_ten_rendered_documents_per_field_accuracy(claude_key: None) -> None:
     invoices = [read(spec, f"live-{number}") for number, spec in enumerate(SPECS)]
 
     accuracy = {

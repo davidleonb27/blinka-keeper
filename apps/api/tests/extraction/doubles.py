@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from custodio.extraction.ocr import Transcript
+from custodio.extraction.vision import Transcription
+
 from custodio.extraction.structure import InvoiceReading, QuotedValue
 from custodio.llm import LLMResult
 
@@ -31,19 +32,24 @@ def make_reading(confidence: float = 0.95, **overrides: tuple[str | None, str | 
 
 @dataclass
 class FakeClaude:
-    """Stands in for custodio.llm.structured and remembers every call."""
+    """Stands in for custodio.llm.structured and remembers every call.
+
+    It answers a transcription request (vision) with `transcription` and a field request with `reading`.
+    """
 
     reading: InvoiceReading | None = None
+    transcription: str | None = None
     error: Exception | None = None
     calls: list[dict[str, Any]] = field(default_factory=list)
 
-    def __call__(self, **kwargs: Any) -> LLMResult[InvoiceReading]:
+    def __call__(self, **kwargs: Any) -> LLMResult[Any]:
         self.calls.append(kwargs)
         if self.error is not None:
             raise self.error
-        assert self.reading is not None
+        value = Transcription(text=self.transcription or "") if kwargs["schema"] is Transcription else self.reading
+        assert value is not None
         return LLMResult(
-            value=self.reading,
+            value=value,
             model="claude-sonnet-5-5",
             input_tokens=1000,
             output_tokens=300,
@@ -53,17 +59,10 @@ class FakeClaude:
 
     @property
     def sent_text(self) -> str:
-        content = self.calls[-1]["content"]
-        return content if isinstance(content, str) else " ".join(block["text"] for block in content)
+        """Every text block sent to the model, across all calls."""
+        return " ".join(
+            block.get("text", "") for call in self.calls for block in call["content"] if isinstance(block, dict)
+        )
 
-
-@dataclass
-class FakeGemini:
-    """Stands in for custodio.extraction.ocr.transcribe."""
-
-    text: str
-    images: list[tuple[bytes, str]] = field(default_factory=list)
-
-    def __call__(self, image: bytes, media_type: str) -> Transcript:
-        self.images.append((image, media_type))
-        return Transcript(text=self.text, model="gemini-test-flash")
+    def blocks(self, kind: str) -> list[dict[str, Any]]:
+        return [block for call in self.calls for block in call["content"] if block.get("type") == kind]

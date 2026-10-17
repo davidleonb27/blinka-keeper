@@ -7,10 +7,10 @@ from pydantic import TypeAdapter
 
 from custodio import llm
 from custodio.contracts import InvoiceSource, InvoiceSpec
-from custodio.extraction import extract_document, ocr, render_invoice
+from custodio.extraction import extract_document, render_invoice
 from custodio.extraction.content import content_of
 from custodio.extraction.structure import InvoiceReading, QuotedValue
-from tests.extraction.doubles import FakeClaude, FakeGemini
+from tests.extraction.doubles import FakeClaude
 
 SPECS = TypeAdapter(list[InvoiceSpec]).validate_json(
     (Path(__file__).parents[1] / "fixtures" / "documents" / "specs.json").read_text()
@@ -42,9 +42,10 @@ def ideal_reading(spec: InvoiceSpec) -> InvoiceReading:
 
 @pytest.mark.parametrize("spec", SPECS, ids=[spec.invoice_number for spec in SPECS])
 def test_an_ideal_reading_of_each_fixture_document_verifies(monkeypatch: pytest.MonkeyPatch, spec: InvoiceSpec) -> None:
-    monkeypatch.setattr(llm, "structured", FakeClaude(reading=ideal_reading(spec)))
     transcript = render_invoice(spec.model_copy(update={"channel": InvoiceSource.TEXT, "hidden_text": None}))
-    monkeypatch.setattr(ocr, "transcribe", FakeGemini(text=transcript.data.decode()))
+    monkeypatch.setattr(
+        llm, "structured", FakeClaude(reading=ideal_reading(spec), transcription=transcript.data.decode())
+    )
     document = render_invoice(spec)
 
     invoice = extract_document(
