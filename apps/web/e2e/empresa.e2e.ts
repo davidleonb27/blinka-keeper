@@ -182,10 +182,12 @@ test("a real company sets up, uploads its own invoices, decides them and exports
     const list = page.getByRole("region", { name: "Facturas", exact: true });
     await list.getByRole("button", { name: "Subir facturas" }).click();
     const dialog = page.getByRole("dialog", { name: "Subir facturas" });
-    await dialog.getByLabel("O pega el texto de un correo con la factura").fill(invoice("LE-77", "300.00", ESPIGA));
-    await dialog.getByRole("button", { name: "Enviar el texto" }).click();
-    await dialog.getByRole("button", { name: "Decidir 1 factura" }).click();
-    await expect(page.getByText("Custodio decidió 1 factura.")).toBeVisible();
+    await dialog.locator('input[type="file"]').setInputFiles([
+      { name: "DA-504.pdf", mimeType: "application/pdf", buffer: Buffer.from(invoice("DA-504", "500.00")) },
+      { name: "LE-77.pdf", mimeType: "application/pdf", buffer: Buffer.from(invoice("LE-77", "300.00", ESPIGA)) },
+    ]);
+    await dialog.getByRole("button", { name: "Decidir 2 facturas" }).click();
+    await expect(page.getByText("Custodio decidió 2 facturas.")).toBeVisible();
     await list.getByRole("link", { name: new RegExp(ESPIGA.name) }).click();
     const acta = page.getByRole("dialog");
     await expect(acta).toContainText(`${ESPIGA.name} no está entre tus proveedores registrados`);
@@ -230,6 +232,31 @@ test("a real company sets up, uploads its own invoices, decides them and exports
     );
     const ledger = await (await page.request.get("/api/v1/ledger", { headers })).json();
     expect(ledger.at(-1)).toMatchObject({ kind: "policy_changed" });
+  });
+
+  await test.step("volver a decidir: la próxima factura del proveedor agregado ya lo reconoce", async () => {
+    await page.goto("/panel");
+    const list = page.getByRole("region", { name: "Facturas", exact: true });
+    await list.getByRole("button", { name: "Subir facturas" }).click();
+    const dialog = page.getByRole("dialog", { name: "Subir facturas" });
+    await expect(dialog).toContainText("sólo a tus 4 proveedores registrados");
+    await dialog.getByLabel("O pega el texto de un correo con la factura").fill(invoice("LE-78", "300.00", ESPIGA));
+    await dialog.getByRole("button", { name: "Enviar el texto" }).click();
+    await dialog.getByRole("button", { name: "Decidir 1 factura" }).click();
+    await expect(page.getByText("Custodio decidió 1 factura.")).toBeVisible();
+    const workspace = (await page.context().cookies()).find((cookie) => cookie.name === "custodio_ws")?.value ?? "";
+    const decisions = await (
+      await page.request.get("/api/v1/decisions", { headers: { "X-Custodio-Workspace": workspace } })
+    ).json();
+    const byNumber = (n: string) => decisions.find((d: { invoice_number: string }) => d.invoice_number === n).decision;
+    expect(byNumber("LE-77").beneficiary_id).toBeNull();
+    expect(byNumber("LE-78").beneficiary_id).not.toBeNull();
+    expect(byNumber("LE-77").status).not.toMatch(/^paid/);
+    await expect(list.getByRole("listitem")).toHaveCount(6);
+    const download = page.waitForEvent("download");
+    await list.getByRole("button", { name: "Exportar CSV" }).click();
+    const csv = await readFile((await (await download).path()) ?? "", "utf8");
+    expect(csv).toContain(`${ESPIGA.name},LE-78,300,USD`);
   });
 
   expect(problems.list, problems.list.join("\n")).toEqual([]);
