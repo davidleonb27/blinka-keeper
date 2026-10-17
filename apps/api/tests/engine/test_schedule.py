@@ -81,7 +81,8 @@ def test_an_expired_discount_is_not_taken() -> None:
 
 
 def test_an_overdue_payment_or_one_without_a_due_date_goes_out_today() -> None:
-    overdue, undated = plan([obligation("F-1", due=date(2026, 10, 10)), obligation("F-2", due=None)], TREASURY)
+    planned = plan([obligation("F-1", due=date(2026, 10, 10)), obligation("F-2", due=None)], TREASURY)
+    overdue, undated = sorted(planned, key=lambda p: p.obligation.invoice_id)
     assert (overdue.pay_on, overdue.timing) == (TODAY, Timing.OVERDUE)
     assert "Venció el 10 de octubre" in overdue.reason
     assert (undated.pay_on, undated.timing) == (TODAY, Timing.NO_DUE_DATE)
