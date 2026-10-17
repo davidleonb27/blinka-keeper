@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Custodio · títulos del pitch</title>
+<!--
+  Title cards and overlays of the pitch. titles.mjs opens this page with ?scene=<id>&w=&h=&d=<seconds>&data=<json>
+  and calls window.frame(t) for each frame, so every animation is a pure function of time.
+-->
+<style>
+  @font-face { font-family: "SourceSerif"; src: url("build/fonts/SourceSerif4-600.ttf"); font-weight: 600; }
+  @font-face { font-family: "SourceSerif"; src: url("build/fonts/SourceSerif4-700.ttf"); font-weight: 700; }
+  @font-face { font-family: "Inter"; src: url("build/fonts/Inter-400.ttf"); font-weight: 400; }
+  @font-face { font-family: "Inter"; src: url("build/fonts/Inter-500.ttf"); font-weight: 500; }
+  @font-face { font-family: "Inter"; src: url("build/fonts/Inter-600.ttf"); font-weight: 600; }
+  @font-face { font-family: "Inter"; src: url("build/fonts/Inter-700.ttf"); font-weight: 700; }
+  :root {
+    --bg: #edf2f2; --surface: #ffffff; --surface-2: #f3f7f7; --line: rgb(12 48 54 / 0.1); --line-2: rgb(12 48 54 / 0.18);
+    --ink: #0b1618; --ink-2: #3b4c4f; --ink-3: #56696c; --brand: #08707e; --brand-weak: rgb(10 132 148 / 0.1);
+    --pay: #0f7443; --pay-weak: rgb(19 128 75 / 0.1); --hold: #a8411f; --hold-weak: rgb(189 75 37 / 0.1);
+    --crit: #c42b31; --crit-weak: rgb(196 43 49 / 0.1);
+    --shadow: 0 1px 2px rgb(10 40 45 / 0.05), 0 30px 60px -30px rgb(10 40 45 / 0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: var(--w); height: var(--h); overflow: hidden; }
+  body { font-family: "Inter", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+  body.card { background: var(--bg); }
+  body.overlay { background: transparent; }
+  .stage { position: absolute; inset: 0; }
+  .grid { position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 64px 64px; mask-image: radial-gradient(ellipse at 50% 40%, black 0%, transparent 75%); opacity: .55; }
+  .display { font-family: "SourceSerif", serif; font-weight: 600; letter-spacing: -0.02em; line-height: 1.02; }
+  .eyebrow { font-size: 22px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brand); }
+  .mono { font-family: ui-monospace, "DejaVu Sans Mono", monospace; }
+  .brand { position: absolute; display: flex; align-items: center; gap: 14px; font-weight: 600; font-size: 30px; }
+  .chip { display: inline-flex; align-items: center; gap: 12px; padding: 14px 24px; border-radius: 999px; background: var(--surface);
+    box-shadow: var(--shadow); border: 1px solid var(--line); font-size: 30px; font-weight: 500; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--pay); flex: none; }
+  .card-surface { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--shadow); }
+  .src { color: var(--ink-3); font-size: 22px; }
+  .check { width: 34px; height: 34px; border-radius: 50%; background: var(--pay-weak); color: var(--pay); display: grid; place-items: center; flex: none; }
+  .dash { width: 34px; height: 34px; border-radius: 50%; background: var(--surface-2); color: var(--ink-3); display: grid; place-items: center; flex: none; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<script>
+const P = new URLSearchParams(location.search);
+const W = +P.get("w") || 1920, H = +P.get("h") || 1080, D = +P.get("dur") || +P.get("d") || 8;
+const DATA = JSON.parse(P.get("data") || "{}");
+document.documentElement.style.setProperty("--w", W + "px");
+document.documentElement.style.setProperty("--h", H + "px");
+const stage = document.getElementById("stage");
+const VERTICAL = H > W;
+
+// Easing and time helpers: every element reads its state from t.
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const ease = (x) => { x = clamp(x); return x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2; };
+const out = (x) => 1 - (1 - clamp(x)) ** 3;
+const prog = (t, start, dur = 0.7) => out((t - start) / dur);
+const el = (html) => { const d = document.createElement("div"); d.innerHTML = html.trim(); return d.firstElementChild; };
+const put = (node, style) => { Object.assign(node.style, style); stage.appendChild(node); return node; };
+const rise = (node, p, dist = 34) => { node.style.opacity = p; node.style.transform = `translateY(${(1 - p) * dist}px)`; };
+const fmt = (n) => Math.round(n).toLocaleString("es-CO");
+const fadeOut = (t) => 1 - ease((t - (D - 0.35)) / 0.35);
+
+const SEAL = `<svg width="46" height="46" viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#08707e" stroke-width="1.6">
+  <circle cx="24" cy="24" r="21"/>${Array.from({ length: 12 }, (_, i) => `<ellipse cx="24" cy="24" rx="15" ry="6" transform="rotate(${i * 15} 24 24)"/>`).join("")}
+  </g><circle cx="24" cy="24" r="4" fill="#08707e"/></svg>`;
+const CHECK = `<svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+function brandRow(x, y, scale = 1) {
+  const b = put(el(`<div class="brand">${SEAL}<span>Custodio</span></div>`), { left: x + "px", top: y + "px", transform: `scale(${scale})`, transformOrigin: "0 0" });
+  return b;
+}
+
+const SCENES = {
+  open() {
+    stage.appendChild(el(`<div class="grid"></div>`));
+    const v = VERTICAL;
+    brandRow(v ? 80 : 120, v ? 110 : 90);
+    const a = put(el(`<div class="display">Una maqueta<br>lo dice.</div>`), { position: "absolute", left: (v ? 80 : 120) + "px", top: (v ? 420 : 250) + "px",
+      fontSize: (v ? 120 : 132) + "px", color: "var(--ink-3)" });
+    const strike = put(el(`<div></div>`), { position: "absolute", height: "10px", borderRadius: "5px", background: "var(--hold)",
+      left: (v ? 80 : 120) + "px", top: (v ? 420 + 175 : 250 + 190) + "px", width: "0px" });
+    const b = put(el(`<div class="display">Custodio<br><span style="color:var(--brand)">lo demuestra.</span></div>`), {
+      position: "absolute", left: (v ? 80 : 1010) + "px", top: (v ? 820 : 250) + "px", fontSize: (v ? 150 : 132) + "px" });
+    const chips = ["En producción", "Pagos reales · Stripe modo prueba", "Bajo ataque"].map((text, i) =>
+      put(el(`<div class="chip"><i class="dot"></i>${text}</div>`), { position: "absolute",
+        left: (v ? 80 : 120 + [0, 330, 930][i]) + "px", top: (v ? 1220 + i * 110 : 720) + "px" }));
+    const url = put(el(`<div class="mono" style="font-size:26px;color:var(--ink-3)">custodio-blinka-green.vercel.app</div>`), {
+      position: "absolute", left: (v ? 80 : 120) + "px", top: (v ? 1600 : 860) + "px" });
+    return (t) => {
+      rise(a, prog(t, 0.2));
+      strike.style.width = ease((t - 2.0) / 0.6) * (v ? 760 : 640) + "px";
+      a.style.opacity = prog(t, 0.2) * (1 - 0.45 * ease((t - 2.0) / 0.6));
+      rise(b, prog(t, 2.5, 0.8), 40);
+      chips.forEach((c, i) => rise(c, prog(t, 4.6 + i * 0.35), 20));
+      rise(url, prog(t, 5.8), 10);
+      stage.style.opacity = fadeOut(t);
+    };
+  },
+
+  problem() {
+    stage.appendChild(el(`<div class="grid"></div>`));
+    const v = VERTICAL, x = v ? 80 : 120;
+    const kicker = put(el(`<div class="eyebrow">El problema</div>`), { position: "absolute", left: x + "px", top: (v ? 300 : 150) + "px" });
+    const n1 = put(el(`<div><div class="display" style="font-size:${v ? 170 : 190}px">0</div>
+      <div style="font-size:34px;color:var(--ink-2);margin-top:14px;max-width:700px">denuncias de fraude por correo empresarial en 2025</div></div>`),
+      { position: "absolute", left: x + "px", top: (v ? 400 : 230) + "px" });
+    const n2 = put(el(`<div><div class="display" style="font-size:${v ? 110 : 116}px;color:var(--hold);white-space:nowrap">US$ 0</div>
+      <div style="font-size:34px;color:var(--ink-2);margin-top:14px;max-width:800px">en pérdidas reportadas</div></div>`),
+      { position: "absolute", left: (v ? 80 : 880) + "px", top: (v ? 800 : 262) + "px" });
+    const src = put(el(`<div class="src">Fuente: FBI IC3, Informe anual 2025 · ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf</div>`),
+      { position: "absolute", left: x + "px", top: (v ? 1160 : 560) + "px", maxWidth: (v ? 900 : 1600) + "px" });
+    const line = put(el(`<div class="card-surface" style="padding:26px 34px;font-size:${v ? 40 : 40}px;font-weight:500;display:flex;gap:20px;align-items:center">
+      <span style="width:16px;height:16px;border-radius:50%;background:var(--crit);flex:none"></span>
+      <span>A un agente que lee facturas le basta <b style="color:var(--crit)">una frase escondida</b>.</span></div>`),
+      { position: "absolute", left: x + "px", top: (v ? 1300 : 650) + "px", maxWidth: (v ? 920 : 1680) + "px" });
+    const big1 = n1.firstElementChild, big2 = n2.firstElementChild;
+    const t2 = D * 0.58;
+    return (t) => {
+      rise(kicker, prog(t, 0.1), 10);
+      rise(n1, prog(t, 0.2));
+      big1.textContent = fmt(24768 * ease((t - 0.3) / 1.8));
+      rise(n2, prog(t, 1.4));
+      big2.textContent = "US$ " + fmt(3046598558 * ease((t - 1.5) / 2.0));
+      rise(src, prog(t, 3.2), 10);
+      rise(line, prog(t, t2, 0.8));
+      stage.style.opacity = fadeOut(t);
+    };
+  },
+
+  pdf() {
+    stage.appendChild(el(`<div class="grid"></div>`));
+    const v = VERTICAL;
+    // The attack PDF's top 440 pt, scaled into a paper card; boxes come from pdftotext -bbox (points, top-left origin).
+    const crop = 440, pw = 612;
+    const paperW = v ? 920 : 900, k = paperW / pw, paperH = crop * k;
+    const px = v ? 80 : 110, py = v ? 260 : (H - paperH) / 2 - 30;
+    const paper = put(el(`<div class="card-surface" style="overflow:hidden;border-radius:18px"></div>`),
+      { position: "absolute", left: px + "px", top: py + "px", width: paperW + "px", height: paperH + "px" });
+    paper.appendChild(el(`<img src="build/assets/attack.png" style="position:absolute;left:0;top:0;width:${paperW}px">`));
+    const box = (b, color, weak) => { const n = el(`<div></div>`); Object.assign(n.style, { position: "absolute", left: (b.x0 * k - 10) + "px",
+      top: (b.y0 * k - 8) + "px", width: ((b.x1 - b.x0) * k + 20) + "px", height: ((b.y1 - b.y0) * k + 16) + "px", borderRadius: "10px",
+      border: `3px solid ${color}`, background: weak, opacity: 0 }); paper.appendChild(n); return n; };
+    const hb = DATA.hidden, ab = DATA.account;
+    const hiddenBox = box(hb, "var(--crit)", "var(--crit-weak)");
+    const hiddenText = el(`<div style="position:absolute;white-space:nowrap;color:var(--crit);font-weight:600"></div>`);
+    Object.assign(hiddenText.style, { left: hb.x0 * k + "px", top: (hb.y0 * k - 3) + "px", fontSize: (hb.y1 - hb.y0) * k * 1.05 + "px", opacity: 0 });
+    hiddenText.textContent = DATA.hiddenText;
+    paper.appendChild(hiddenText);
+    // Fit the revealed line to the width the PDF gives it, whatever the font's metrics.
+    document.fonts.ready.then(() => { hiddenText.style.transformOrigin = "0 50%";
+      hiddenText.style.transform = `scaleX(${((hb.x1 - hb.x0) * k) / hiddenText.scrollWidth})`; });
+    const accountBox = box(ab, "var(--hold)", "var(--hold-weak)");
+    const scan = el(`<div style="position:absolute;left:0;right:0;height:4px;background:var(--brand);box-shadow:0 0 30px 8px rgb(8 112 126 / .35)"></div>`);
+    paper.appendChild(scan);
+    const cx = v ? 80 : 1080, cw = v ? 920 : 720;
+    const call = (num, title, body, top, color) => put(el(`<div class="card-surface" style="padding:28px 32px;display:flex;gap:22px">
+      <div style="width:52px;height:52px;border-radius:50%;background:${color};color:#fff;display:grid;place-items:center;font-weight:700;font-size:26px;flex:none">${num}</div>
+      <div><div style="font-size:34px;font-weight:600;margin-bottom:8px">${title}</div><div style="font-size:26px;color:var(--ink-2);line-height:1.35">${body}</div></div></div>`),
+      { position: "absolute", left: cx + "px", top: top + "px", width: cw + "px" });
+    const c1 = call(1, "Una orden en texto blanco", "Invisible para una persona. Un lector automático sí la lee.", v ? 260 + paperH + 60 : 300, "var(--crit)");
+    const c2 = call(2, "La cuenta bancaria cambió", `Pide pagar a ${DATA.accountText}; la registrada es otra.`, v ? 260 + paperH + 330 : 580, "var(--hold)");
+    const kicker = put(el(`<div class="eyebrow" style="color:var(--crit)">Ataque real · el PDF que subimos</div>`),
+      { position: "absolute", left: (v ? 80 : 110) + "px", top: (v ? 170 : py - 70) + "px" });
+    return (t) => {
+      rise(kicker, prog(t, 0.1), 10);
+      rise(paper, prog(t, 0.2, 0.8), 40);
+      const s = ease((t - 1.4) / 1.6);
+      scan.style.top = s * paperH + "px";
+      scan.style.opacity = t > 1.3 && t < 3.2 ? 1 : 0;
+      const revealed = clamp((s * paperH - hb.y0 * k) / 20);
+      hiddenBox.style.opacity = revealed;
+      hiddenText.style.opacity = revealed;
+      rise(c1, prog(t, 2.6));
+      accountBox.style.opacity = prog(t, D * 0.55, 0.5);
+      rise(c2, prog(t, D * 0.55));
+      stage.style.opacity = fadeOut(t);
+    };
+  },
+
+  proof() {
+    stage.appendChild(el(`<div class="grid"></div>`));
+    const v = VERTICAL, x = v ? 80 : 120;
+    const kicker = put(el(`<div class="eyebrow">Medido · prueba de estrés reproducible</div>`), { position: "absolute", left: x + "px", top: (v ? 260 : 150) + "px" });
+    const stats = [[1000, "empresas simuladas"], [25139, "facturas"], [8136, "pagos auditados otra vez"]].map(([n, label], i) =>
+      put(el(`<div><div class="display" style="font-size:${v ? 120 : 110}px">0</div><div style="font-size:30px;color:var(--ink-2);margin-top:10px">${label}</div></div>`),
+        { position: "absolute", left: (v ? x : x + i * 560) + "px", top: (v ? 360 + i * 230 : 230) + "px" }));
+    const zero = put(el(`<div class="card-surface" style="padding:36px 48px;display:flex;align-items:center;gap:40px;background:#eaf4ee;border-color:rgb(15 116 67 / .2)">
+      <div class="display" style="font-size:${v ? 200 : 190}px;color:var(--pay)">0</div>
+      <div style="font-size:${v ? 44 : 46}px;font-weight:600;line-height:1.15">pagos indebidos<br><span style="font-weight:400;color:var(--ink-2);font-size:30px">según el auditor independiente</span></div></div>`),
+      { position: "absolute", left: x + "px", top: (v ? 1080 : 520) + "px" });
+    const src = put(el(`<div class="mono" style="font-size:22px;color:var(--ink-3)">scripts/stress.py --companies 1000 --seed 7 · README › Métricas, 2026-10-17</div>`),
+      { position: "absolute", left: x + "px", top: (v ? 1440 : 860) + "px", maxWidth: (v ? 920 : 1700) + "px" });
+    const values = [1000, 25139, 8136];
+    return (t) => {
+      rise(kicker, prog(t, 0.1), 10);
+      stats.forEach((s, i) => { rise(s, prog(t, 0.2 + i * 0.5)); s.firstElementChild.textContent = fmt(values[i] * ease((t - 0.3 - i * 0.5) / 1.4)); });
+      rise(zero, prog(t, D * 0.62, 0.8));
+      rise(src, prog(t, 2.2), 10);
+      stage.style.opacity = fadeOut(t);
+    };
+  },
+
+  compare() {
+    stage.appendChild(el(`<div class="grid"></div>`));
+    const rows = [
+      ["Un solo caso: un cobro duplicado", "38 facturas en el panel y un PDF con texto oculto, frenado"],
+      ["Un pago que sólo se anuncia", "Pago real en Stripe, modo prueba, con su id tr_ en el acta"],
+      ["Sin cifras", "0 pagos indebidos en 25.139 facturas del estrés"],
+      ["Una cadena dibujada", "Cadena SHA-256 que detecta la alteración en vivo"],
+      ["No muestra el producto funcionando", "Código abierto MIT · Docker · documentación en /docs"],
+    ];
+    const head = put(el(`<div style="display:grid;grid-template-columns:620px 1060px;gap:40px;font-size:30px;font-weight:600">
+      <div style="color:var(--ink-3)">Una maqueta lo dice</div><div style="color:var(--brand)">Custodio lo demuestra, en producción</div></div>`),
+      { position: "absolute", left: "120px", top: "120px" });
+    const items = rows.map(([a, b], i) => put(el(`<div style="display:grid;grid-template-columns:620px 1060px;gap:40px;align-items:center;padding:22px 0;border-top:1px solid var(--line-2)">
+      <div style="display:flex;gap:18px;align-items:center;font-size:30px;color:var(--ink-3)"><span class="dash">–</span>${a}</div>
+      <div style="display:flex;gap:18px;align-items:center;font-size:34px;font-weight:600"><span class="check">${CHECK}</span>${b}</div></div>`),
+      { position: "absolute", left: "120px", top: 200 + i * 128 + "px" }));
+    return (t) => {
+      rise(head, prog(t, 0.1), 10);
+      items.forEach((n, i) => rise(n, prog(t, 0.5 + i * Math.min(0.9, (D - 3) / 5)), 24));
+      stage.style.opacity = fadeOut(t);
+    };
+  },
+
+  close() {
+    stage.appendChild(el(`<div class="grid"></div>`));
+    const v = VERTICAL, x = v ? 80 : 120;
+    const seal = put(el(`<div>${SEAL}</div>`), { position: "absolute", left: x + "px", top: (v ? 360 : 150) + "px", transform: "scale(2.2)", transformOrigin: "0 0" });
+    const l1 = put(el(`<div class="display">Custodio decide;</div>`), { position: "absolute", left: x + "px", top: (v ? 520 : 290) + "px", fontSize: (v ? 112 : 150) + "px" });
+    const l2 = put(el(`<div class="display" style="color:var(--brand)">Blinka paga.</div>`), { position: "absolute", left: x + "px", top: (v ? 660 : 450) + "px", fontSize: (v ? 112 : 150) + "px" });
+    const tag = put(el(`<div style="font-size:${v ? 38 : 36}px;color:var(--ink-2)">El modelo lee, el código decide, la persona autoriza.</div>`),
+      { position: "absolute", left: x + "px", top: (v ? 870 : 640) + "px", maxWidth: (v ? 900 : 1600) + "px" });
+    const meta = put(el(`<div style="display:flex;flex-direction:column;gap:12px;font-size:26px;color:var(--ink-3)">
+      <span class="mono" style="color:var(--ink)">custodio-blinka-green.vercel.app</span>
+      <span class="mono">github.com/davidleonb27/custodio-blinka · MIT</span>
+      <span>DreamMakers · Adriano Joao Souza Reyna · Juan David Leon · Leober Ramos · Hackathon 30X, Reto Blinka</span></div>`),
+      { position: "absolute", left: x + "px", top: (v ? 1040 : 740) + "px", maxWidth: (v ? 920 : 1700) + "px" });
+    return (t) => {
+      rise(seal, prog(t, 0.1), 10);
+      rise(l1, prog(t, 0.2, 0.8));
+      rise(l2, prog(t, 0.9, 0.8));
+      rise(tag, prog(t, 1.8));
+      rise(meta, prog(t, 2.4), 12);
+    };
+  },
+
+  // Static overlays (one frame each).
+  label() {
+    document.body.className = "overlay";
+    put(el(`<div style="display:inline-flex;align-items:center;gap:14px;padding:12px 22px;border-radius:999px;background:rgb(11 22 24 / .86);color:#fff;font-size:24px;font-weight:500;box-shadow:0 8px 24px rgb(0 0 0 / .2)">
+      <i class="dot" style="background:#3ddc84;box-shadow:0 0 0 5px rgb(61 220 132 / .22)"></i>${DATA.text}</div>`), { position: "absolute", left: "36px", top: "30px" });
+    return () => {};
+  },
+  badge() {
+    document.body.className = "overlay";
+    put(el(`<div class="mono" style="padding:10px 20px;border-radius:999px;background:rgb(11 22 24 / .86);color:#fff;font-size:24px">acelerado ×${DATA.speed}</div>`),
+      { position: "absolute", right: "36px", top: "30px" });
+    return () => {};
+  },
+  // Vertical product frame: brand row and headline on top, a rounded window (transparent) for the footage.
+  vframe() {
+    const hole = DATA.hole;
+    document.body.className = "overlay";
+    const mask = el(`<div></div>`);
+    put(mask, { position: "absolute", left: hole.x + "px", top: hole.y + "px", width: hole.w + "px", height: hole.h + "px", borderRadius: "36px",
+      boxShadow: `0 0 0 2400px var(--bg), 0 0 0 2402px var(--line-2)` });
+    brandRow(80, 110);
+    put(el(`<div class="eyebrow">Producto real · en producción</div>`), { position: "absolute", left: "80px", top: "250px" });
+    put(el(`<div class="display">${DATA.headline}</div>`), { position: "absolute", left: "80px", top: "310px", width: "920px", fontSize: "96px" });
+    return () => {};
+  },
+};
+
+document.body.className = ["label", "badge", "vframe"].includes(P.get("scene")) ? "overlay" : "card";
+const draw = SCENES[P.get("scene")]();
+window.DURATION = D;
+window.frame = (t) => draw(t);
+window.ready = document.fonts.ready.then(() => Promise.all([...document.images].map((i) => i.decode().catch(() => {}))));
+</script>
+</body>
+</html>

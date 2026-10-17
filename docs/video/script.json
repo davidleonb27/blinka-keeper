@@ -1,0 +1,498 @@
+{
+  "voice": "es_ES-sharvard-medium",
+  "notes": "Each scene: a narration (caption text, with an optional `say` for the voice when digits or acronyms read badly) and a visual: a title card from titles.html or product segments cut from the recorded takes by their marks. Speeds above 1 are shown with an «acelerado ×N» badge. `spare` keeps scenes recorded and ready that do not fit the 3:00 cut (move one into `horizontal` to use it).",
+  "horizontal": [
+    {
+      "id": "open",
+      "title": "open",
+      "lines": [
+        "Cualquiera puede hacer una maqueta bonita.",
+        "Esto es Custodio funcionando de verdad: en producción, con pagos reales y bajo ataque."
+      ]
+    },
+    {
+      "id": "problem",
+      "title": "problem",
+      "lines": [
+        {
+          "text": "En 2025, el FBI recibió más de 24.000 denuncias de fraude por correo empresarial: más de 3.000 millones de dólares.",
+          "say": "En dos mil veinticinco, el FBI recibió más de veinticuatro mil denuncias de fraude por correo empresarial: más de tres mil millones de dólares."
+        }
+      ]
+    },
+    {
+      "id": "demo",
+      "label": "Producto real · empresa demo nueva",
+      "lines": [
+        {
+          "text": "Esta es Cobalto Labs, una empresa demo recién creada, con 38 facturas de correos, PDF, fotos y WhatsApp.",
+          "say": "Esta es Cobalto Labs, una empresa demo recién creada, con treinta y ocho facturas de correos, pe de efe, fotos y guatsap."
+        },
+        "Un clic, y quince reglas escritas en código deciden cada una."
+      ],
+      "segments": [
+        {
+          "take": "landing",
+          "from": "hero",
+          "fromOffset": -0.2,
+          "to": "click_demo",
+          "toOffset": 0.6
+        },
+        {
+          "take": "landing",
+          "from": "panel",
+          "fromOffset": 0.3,
+          "to": "decide_click",
+          "toOffset": 0.2
+        },
+        {
+          "take": "landing",
+          "from": "decide_click",
+          "fromOffset": 0.2,
+          "to": "decided",
+          "toOffset": 0.4,
+          "speed": 4
+        }
+      ]
+    },
+    {
+      "id": "results",
+      "label": "Producto real · cifras del panel",
+      "lines": [
+        "Diecisiete se pagan solas. Siete trampas se retienen. Catorce esperan a una persona.",
+        "Pagos indebidos: cero, y un auditor independiente está de acuerdo."
+      ],
+      "segments": [
+        {
+          "take": "landing",
+          "from": "zoom_zero",
+          "fromOffset": -0.6,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
+      "id": "pdf",
+      "title": "pdf",
+      "lines": [
+        "Ahora, un ataque de verdad.",
+        "Esta factura de Andes Code parece normal, pero esconde una orden en texto blanco y trae la cuenta bancaria cambiada."
+      ]
+    },
+    {
+      "id": "attack",
+      "label": "Producto real · Róbale a Custodio",
+      "lines": [
+        "La subimos al reto público. Frenada.",
+        "Custodio destapa la frase oculta, cita las reglas que la frenan y no obedece al documento."
+      ],
+      "segments": [
+        {
+          "take": "attack",
+          "from": "submit",
+          "fromOffset": -1.6,
+          "to": "submit",
+          "toOffset": 0.4
+        },
+        {
+          "take": "attack",
+          "from": "submit",
+          "fromOffset": 0.4,
+          "to": "result",
+          "toOffset": 0.2,
+          "speed": 3
+        },
+        {
+          "take": "attack",
+          "from": "result",
+          "fromOffset": 0.2,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
+      "id": "arena",
+      "label": "Producto real · Arena",
+      "lines": [
+        "Y no es un solo truco. En la Arena, un modelo atacante inventa fraudes, lee por qué lo bloquearon y cambia de técnica.",
+        "Tres ataques, tres atrapados, cero pagos indebidos."
+      ],
+      "segments": [
+        {
+          "take": "arena",
+          "from": "framed",
+          "fromOffset": 0.1,
+          "to": "done",
+          "toOffset": 0,
+          "speed": 6
+        },
+        {
+          "take": "arena",
+          "from": "done",
+          "fromOffset": 0,
+          "to": "done",
+          "toOffset": 0.75
+        }
+      ],
+      "note": "Ends before the stats zoom: that zoom would bring the page heading back into frame."
+    },
+    {
+      "id": "acta",
+      "label": "Producto real · acta de decisión",
+      "lines": [
+        "Cada decisión trae su acta: por qué, qué regla aplicó y qué tendría que cambiar.",
+        "Aquí cambió la cuenta y el correo imita el dominio: Custodio la retiene y pide llamar al contacto registrado.",
+        "Y cruza cada proveedor con la lista de sanciones de la OFAC."
+      ],
+      "segments": [
+        {
+          "take": "held",
+          "from": "acta",
+          "fromOffset": -1.6,
+          "to": "end",
+          "toOffset": -0.6
+        }
+      ]
+    },
+    {
+      "id": "paid",
+      "label": "Producto real · Stripe en modo prueba",
+      "lines": [
+        "Y cuando paga, paga de verdad: una transferencia en Stripe, en modo prueba, con su identificador en el acta."
+      ],
+      "segments": [
+        {
+          "take": "paid_stripe",
+          "from": "acta",
+          "fromOffset": -1.2,
+          "to": "end",
+          "toOffset": -0.4
+        }
+      ]
+    },
+    {
+      "id": "autonomy",
+      "label": "Producto real · autonomía ganada",
+      "lines": [
+        "Cada proveedor se gana su tope de pago automático.",
+        "Simulamos treinta días: una sola señal de riesgo lo devuelve a supervisión."
+      ],
+      "segments": [
+        {
+          "take": "autonomy",
+          "from": "simulate_click",
+          "fromOffset": -1.0,
+          "to": "simulated",
+          "toOffset": 0.3,
+          "speed": 2
+        },
+        {
+          "take": "autonomy",
+          "from": "simulated",
+          "fromOffset": 0.3,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
+      "id": "reconcile",
+      "label": "Producto real · conciliación bancaria",
+      "lines": [
+        "Y al cierre del mes, cruza el extracto del banco con lo pagado y marca cada salida sin factura."
+      ],
+      "segments": [
+        {
+          "take": "reconcile",
+          "from": "framed",
+          "fromOffset": 0.1,
+          "to": "demo_click",
+          "toOffset": 0.2
+        },
+        {
+          "take": "reconcile",
+          "from": "demo_click",
+          "fromOffset": 0.2,
+          "to": "reconciled",
+          "toOffset": 0.2,
+          "speed": 3
+        },
+        {
+          "take": "reconcile",
+          "from": "reconciled",
+          "fromOffset": 0.2,
+          "to": "zoom_summary",
+          "toOffset": -1.2
+        },
+        {
+          "take": "reconcile",
+          "from": "zoom_unbilled",
+          "fromOffset": -0.1,
+          "to": "end",
+          "toOffset": 0
+        }
+      ],
+      "note": "Skips the zoom to the summary, which would bring the upload hint back into frame."
+    },
+    {
+      "id": "ledger",
+      "label": "Producto real · registro encadenado",
+      "lines": [
+        {
+          "text": "Ese registro está encadenado con SHA-256. Verificar: íntegro.",
+          "say": "Ese registro está encadenado con sha doscientos cincuenta y seis. Verificar: íntegro."
+        },
+        "Si alguien altera una copia, la cadena se rompe justo en el asiento cambiado."
+      ],
+      "segments": [
+        {
+          "take": "ledger",
+          "from": "start",
+          "fromOffset": -0.4,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
+      "id": "rules",
+      "label": "Producto real · reglas en tus palabras",
+      "lines": [
+        "¿Quieres cambiar una regla? Escríbela en español.",
+        "Custodio la compila y te muestra qué facturas cambiarían antes de aplicarla."
+      ],
+      "segments": [
+        {
+          "take": "rules",
+          "from": "typing",
+          "fromOffset": -0.3,
+          "to": "compile_click",
+          "toOffset": 0.3
+        },
+        {
+          "take": "rules",
+          "from": "compile_click",
+          "fromOffset": 0.3,
+          "to": "compiled",
+          "toOffset": 0,
+          "speed": 3
+        },
+        {
+          "take": "rules",
+          "from": "compiled",
+          "fromOffset": 0,
+          "to": "zoom_simulation",
+          "toOffset": 3.4
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "label": "Producto real · reto en vivo",
+      "lines": [
+        "Y el reto sigue abierto. Jurado: escaneen el código e intenten robarnos ahora.",
+        "Pagos indebidos: cero."
+      ],
+      "segments": [
+        {
+          "take": "stage",
+          "from": "start",
+          "fromOffset": -0.2,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
+      "id": "proof",
+      "title": "proof",
+      "lines": [
+        "Y lo medimos a escala: mil empresas simuladas, veinticinco mil facturas, ocho mil pagos auditados otra vez.",
+        "Cero indebidos."
+      ]
+    },
+    {
+      "id": "compare",
+      "title": "compare",
+      "lines": [
+        "Una maqueta lo dice. Custodio lo demuestra: ataque real, pago real y un registro verificable.",
+        {
+          "text": "Código abierto, con licencia MIT y autoalojable con Docker.",
+          "say": "Código abierto, con licencia eme i te y autoalojable con dóquer."
+        }
+      ]
+    },
+    {
+      "id": "close",
+      "title": "close",
+      "lines": [
+        {
+          "text": "Custodio decide; Blinka paga.",
+          "say": "Custodio decide; Blinca paga."
+        },
+        {
+          "text": "Somos DreamMakers.",
+          "say": "Somos Drim Meikers."
+        }
+      ]
+    }
+  ],
+  "vertical": [
+    {
+      "id": "v-open",
+      "title": "v-open",
+      "lines": [
+        "Otros te muestran maquetas. Esto es Custodio, en producción."
+      ]
+    },
+    {
+      "id": "v-pdf",
+      "title": "v-pdf",
+      "lines": [
+        "Una factura con una orden escondida en texto blanco y la cuenta cambiada."
+      ]
+    },
+    {
+      "id": "v-attack",
+      "headline": "Ataque real. Frenado.",
+      "crop": {
+        "x": 470,
+        "y": 0,
+        "w": 960
+      },
+      "lines": [
+        "Custodio la frena y destapa la trampa."
+      ],
+      "segments": [
+        {
+          "take": "attack",
+          "from": "submit",
+          "fromOffset": 0.4,
+          "to": "result",
+          "toOffset": 0.2,
+          "speed": 3
+        },
+        {
+          "take": "attack",
+          "from": "result",
+          "fromOffset": 0.2,
+          "to": "zoom_result",
+          "toOffset": 4.2
+        }
+      ]
+    },
+    {
+      "id": "v-paid",
+      "headline": "Pago real. Stripe, modo prueba.",
+      "crop": {
+        "x": 540,
+        "y": 0,
+        "w": 960
+      },
+      "lines": [
+        "Cuando paga, paga de verdad: una transferencia en Stripe, en modo prueba."
+      ],
+      "segments": [
+        {
+          "take": "paid_stripe",
+          "from": "zoom_tr",
+          "fromOffset": -1.4,
+          "to": "end",
+          "toOffset": -1.2
+        }
+      ]
+    },
+    {
+      "id": "v-ledger",
+      "headline": "Alteras el registro: se nota.",
+      "crop": {
+        "x": 300,
+        "y": 0,
+        "w": 1200
+      },
+      "lines": [
+        "Alteras una copia del registro y la cadena se rompe justo ahí."
+      ],
+      "segments": [
+        {
+          "take": "ledger",
+          "from": "tampered",
+          "fromOffset": -1.2,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
+      "id": "v-stage",
+      "headline": "Ahora tú: intenta robarnos.",
+      "crop": {
+        "x": 360,
+        "y": 0,
+        "w": 1200
+      },
+      "lines": [
+        "Ahora tú: escanea el código e intenta robarnos. Pagos indebidos: cero."
+      ],
+      "segments": [
+        {
+          "take": "stage",
+          "from": "start",
+          "fromOffset": -0.2,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
+      "id": "v-close",
+      "title": "v-close",
+      "lines": [
+        {
+          "text": "Custodio decide; Blinka paga.",
+          "say": "Custodio decide; Blinca paga."
+        }
+      ]
+    }
+  ],
+  "speaker": "0",
+  "spare": [
+    {
+      "id": "calendar",
+      "label": "Producto real · calendario de pagos",
+      "lines": [
+        "Lo aprobado sale el día que vence, no antes, y nunca toca la reserva de caja."
+      ],
+      "segments": [
+        {
+          "take": "calendar",
+          "from": "start",
+          "fromOffset": -0.3,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
+      "id": "docs",
+      "label": "Producto real · documentación pública",
+      "lines": [
+        {
+          "text": "Es código abierto, con licencia MIT, y se autoaloja con un solo comando de Docker.",
+          "say": "Es código abierto, con licencia eme i te, y se autoaloja con un solo comando de dóquer."
+        }
+      ],
+      "segments": [
+        {
+          "take": "docs",
+          "from": "start",
+          "fromOffset": -0.3,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    }
+  ]
+}
