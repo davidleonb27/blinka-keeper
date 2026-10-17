@@ -67,7 +67,7 @@ de conflicto.
   - `received-invoices.test.tsx` en `8b1bf2c` (`ff54d07`) da `1 failed | 2 passed`, rojo antes de `acfb21e`
     (`b544add`).
   - `d5bff90` (`5e699fd`) importa un componente que aún no existe, así que es rojo por construcción.
-- **Autoría**: los 18 commits de `origin/main..lane/L8-integration` (incluido el de este informe) son de Juan David Leon con el correo noreply.
+- **Autoría**: todos los commits de `origin/main..lane/L8-integration`, incluidos los de este informe, son de Juan David Leon con el correo noreply.
   Ninguno trae `Co-Authored-By`, «Generated with» ni menciones a Claude o IA.
 - **§13**: ningún `+` del diff de L8 agrega Gemini ni Telegram, y `schema.gen.ts` no los menciona.
 
