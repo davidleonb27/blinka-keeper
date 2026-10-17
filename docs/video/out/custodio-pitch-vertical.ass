@@ -11,13 +11,14 @@ Style: Cap,Inter SemiBold,52,&H00FFFFFF,&H00FFFFFF,&H28181610,&H28181610,0,0,0,0
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.35,0:00:04.53,Cap,,0,0,0,,Otros te muestran maquetas.\NEsto es Custodio, en producción.
-Dialogue: 0,0:00:07.15,0:00:11.41,Cap,,0,0,0,,Una factura con una orden escondida\Nen texto blanco y la cuenta
-Dialogue: 0,0:00:11.26,0:00:12.00,Cap,,0,0,0,,cambiada.
-Dialogue: 0,0:00:13.75,0:00:16.33,Cap,,0,0,0,,Custodio la frena y\Ndestapa la trampa.
-Dialogue: 0,0:00:20.95,0:00:22.84,Cap,,0,0,0,,Cuando paga, paga de verdad:
-Dialogue: 0,0:00:22.69,0:00:25.56,Cap,,0,0,0,,una transferencia en\NStripe, en modo prueba.
-Dialogue: 0,0:00:25.86,0:00:30.00,Cap,,0,0,0,,Alteras una copia del registro\Ny la cadena se rompe justo ahí.
-Dialogue: 0,0:00:31.07,0:00:35.46,Cap,,0,0,0,,Ahora tú: escanea el código e\Nintenta robarnos. Pagos indebidos:
-Dialogue: 0,0:00:35.31,0:00:35.79,Cap,,0,0,0,,cero.
-Dialogue: 0,0:00:36.09,0:00:38.38,Cap,,0,0,0,,Custodio decide; Blinka paga.
+Dialogue: 0,0:00:00.35,0:00:04.57,Cap,,0,0,0,,Otros te muestran maquetas.\NEsto es Custodio, en producción.
+Dialogue: 0,0:00:07.15,0:00:11.51,Cap,,0,0,0,,Una factura con una orden escondida\Nen texto blanco y la cuenta
+Dialogue: 0,0:00:11.36,0:00:12.11,Cap,,0,0,0,,cambiada.
+Dialogue: 0,0:00:13.75,0:00:16.28,Cap,,0,0,0,,Custodio la frena y\Ndestapa la trampa.
+Dialogue: 0,0:00:20.95,0:00:22.79,Cap,,0,0,0,,Cuando paga, paga de verdad:
+Dialogue: 0,0:00:22.64,0:00:25.44,Cap,,0,0,0,,una transferencia en\NStripe, en modo prueba.
+Dialogue: 0,0:00:25.74,0:00:29.91,Cap,,0,0,0,,Cruza el extracto del banco con\Nlo pagado y marca cada salida
+Dialogue: 0,0:00:29.76,0:00:30.70,Cap,,0,0,0,,sin factura.
+Dialogue: 0,0:00:31.00,0:00:35.42,Cap,,0,0,0,,Ahora tú: escanea el código e\Nintenta robarnos. Pagos indebidos:
+Dialogue: 0,0:00:35.27,0:00:35.75,Cap,,0,0,0,,cero.
+Dialogue: 0,0:00:36.05,0:00:38.35,Cap,,0,0,0,,Custodio decide; Blinka paga.

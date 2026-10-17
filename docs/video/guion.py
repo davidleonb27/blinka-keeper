@@ -36,6 +36,7 @@ SHOTS = {
     "v-pdf": "Tarjeta vertical: el PDF con la línea oculta destapada y la cuenta cambiada.",
     "v-attack": "Producto: resultado del reto, FRENADO, con la cita destapada.",
     "v-paid": "Producto: la factura aprobada sale por Stripe en modo prueba, con su transferencia tr_….",
+    "v-reconcile": "Producto: la conciliación con el extracto de demo y la alerta «Sin factura».",
     "v-stage": "Producto: modo escenario del reto, con el QR y «Pagos indebidos 0».",
     "v-ledger": "Producto: la copia alterada rompe la cadena en el asiento exacto.",
     "v-proof": "Tarjeta vertical: 1.000 empresas, 25.139 facturas, 0 pagos indebidos.",
