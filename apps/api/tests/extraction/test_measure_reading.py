@@ -54,9 +54,10 @@ def extraction(supplier: str, amount: str, currency: str, account: str, *, hidde
 class FakeProduction:
     """Answers like the deployed API: echoes each spec back, except the ones told to fail or to read wrong."""
 
-    def __init__(self, *, refuse: int = 0, wrong_amount: int = 0) -> None:
+    def __init__(self, *, refuse: int = 0, wrong_amount: int = 0, rate_limit: int = 0) -> None:
         self.specs = iter(demo_specs())
         self.refuse = refuse
+        self.rate_limit = rate_limit
         self.wrong_amount = wrong_amount
         self.uploads = 0
         self.in_flight = 0
@@ -76,6 +77,9 @@ class FakeProduction:
         self.in_flight += 1
         self.max_in_flight = max(self.max_in_flight, self.in_flight)
         self.uploads += 1
+        if self.uploads <= self.rate_limit:
+            self.in_flight -= 1
+            return httpx.Response(429, headers={"Retry-After": "7"}, json={"code": "rate_limited"})
         spec = next(self.specs)
         self.in_flight -= 1
         if self.uploads <= self.refuse:
@@ -90,9 +94,10 @@ class FakeProduction:
         return httpx.Response(201, json={"id": "i", "read_ok": True, "extraction": body})
 
 
-def measure(server: FakeProduction, *, max_uploads: int = 40) -> dict[str, object]:
+def measure(server: FakeProduction, *, max_uploads: int = 40, pauses: list[float] | None = None) -> dict[str, object]:
     client = httpx.Client(base_url="https://example.test/api/v1", transport=httpx.MockTransport(server))
-    report: dict[str, object] = load_script().measure(client, max_uploads=max_uploads, pause=lambda _: None)
+    pause = pauses.append if pauses is not None else lambda _: None
+    report: dict[str, object] = load_script().measure(client, max_uploads=max_uploads, pause=pause)
     return report
 
 
@@ -130,6 +135,26 @@ def test_stops_at_the_upload_cap() -> None:
     report = measure(server, max_uploads=5)
 
     assert server.uploads == report["uploads"] == 5
+
+
+def test_waits_between_uploads_to_stay_under_the_rate_limit() -> None:
+    pauses: list[float] = []
+
+    measure(FakeProduction(), max_uploads=4, pauses=pauses)
+
+    assert pauses == [load_script().SECONDS_BETWEEN_UPLOADS] * 3
+
+
+def test_a_rate_limited_upload_waits_the_advertised_time_and_counts_against_the_cap() -> None:
+    pauses: list[float] = []
+    server = FakeProduction(rate_limit=2)
+
+    report = measure(server, max_uploads=5, pauses=pauses)
+
+    assert report["rate_limited"] == 2
+    assert report["uploads"] == server.uploads == 5
+    assert report["documents"] == report["read"] == 3
+    assert pauses[:2] == [7.0, load_script().SECONDS_BETWEEN_UPLOADS]
 
 
 def test_refuses_a_cap_above_forty_uploads() -> None:
