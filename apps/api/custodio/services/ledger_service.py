@@ -7,6 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from custodio.contracts import LedgerEntry, LedgerKind, LedgerVerification
 from custodio.db.models import LedgerEntryRow
@@ -14,6 +15,7 @@ from custodio.services.context import ServiceContext
 from custodio.services.errors import LedgerEntryNotFound
 
 TAMPER_MARK = "alterado"
+APPEND_ATTEMPTS = 5  # each retry re-reads the head another writer just committed; more than a few means a bug
 
 
 class TamperDemo(BaseModel):
@@ -26,23 +28,37 @@ class TamperDemo(BaseModel):
 def append(
     ctx: ServiceContext, workspace_id: str, kind: LedgerKind, subject_id: str | None, payload: dict[str, Any]
 ) -> LedgerEntry:
+    """Chains one entry. A concurrent writer may take the same seq first: retry on top of its committed head."""
+    for _ in range(APPEND_ATTEMPTS - 1):
+        try:
+            return _append_once(ctx, workspace_id, kind, subject_id, payload)
+        except IntegrityError:
+            continue
+    return _append_once(ctx, workspace_id, kind, subject_id, payload)
+
+
+def _append_once(
+    ctx: ServiceContext, workspace_id: str, kind: LedgerKind, subject_id: str | None, payload: dict[str, Any]
+) -> LedgerEntry:
     entry = ctx.lanes.next_ledger_entry(
         _head(ctx, workspace_id), kind=kind, subject_id=subject_id, payload=payload, at=ctx.now()
     )
-    ctx.session.add(
-        LedgerEntryRow(
-            workspace_id=workspace_id,
-            seq=entry.seq,
-            at=entry.at,
-            kind=entry.kind.value,
-            subject_id=entry.subject_id,
-            payload=entry.payload,
-            prev_hash=entry.prev_hash,
-            hash=entry.hash,
-        )
-    )
-    ctx.session.flush()
+    with ctx.session.begin_nested():  # a savepoint: a collision rolls back this insert, not the caller's work
+        ctx.session.add(_row(workspace_id, entry))
     return entry
+
+
+def _row(workspace_id: str, entry: LedgerEntry) -> LedgerEntryRow:
+    return LedgerEntryRow(
+        workspace_id=workspace_id,
+        seq=entry.seq,
+        at=entry.at,
+        kind=entry.kind.value,
+        subject_id=entry.subject_id,
+        payload=entry.payload,
+        prev_hash=entry.prev_hash,
+        hash=entry.hash,
+    )
 
 
 def entries(
