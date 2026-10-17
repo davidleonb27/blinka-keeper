@@ -56,11 +56,10 @@ test("every page and the whole demo work against the real API without a single e
   });
 
   await test.step("pago: el acta de una factura pagada dice cómo la ejecutó el riel", async () => {
+    // F-004 venció el 15 de octubre: salió en cuanto se decidió. Las que aún no vencen esperan en el calendario.
     await page.getByRole("button", { name: /^Pagadas/ }).click();
-    const paid = page.getByRole("region", { name: "Facturas" }).getByRole("link").first();
-    const paidId = new URLSearchParams(((await paid.getAttribute("href")) ?? "").split("?")[1]).get("acta") ?? "";
-    await paid.click();
-    const acta = await openActa(page, paidId);
+    await page.getByRole("region", { name: "Facturas" }).getByRole("link", { name: /Andes Code SAS/ }).first().click();
+    const acta = await openActa(page, "F-004");
     const payment = acta.getByRole("region", { name: "Ejecución del pago" });
     await expect(payment).toContainText("Simulado");
     await expect(payment).toContainText(/no se movió dinero/);
@@ -98,6 +97,51 @@ test("every page and the whole demo work against the real API without a single e
     await page.keyboard.press("Escape");
   });
 
+  await test.step("conciliación: el extracto cruza lo pagado, una persona revisa las alertas y se cierra el mes", async () => {
+    await visit(page, "/conciliacion", "Conciliación");
+    const workspace = (await page.context().cookies()).find((cookie) => cookie.name === "custodio_ws")?.value ?? "";
+    const statement = await page.request.get("/api/v1/reconciliations/demo-statement?format=csv", {
+      headers: { "X-Custodio-Workspace": workspace },
+    });
+    await page.getByLabel(/Arrastra el extracto/).setInputFiles({
+      name: "extracto.csv",
+      mimeType: "text/csv",
+      buffer: await statement.body(),
+    });
+    await expect(page.getByRole("heading", { name: /Extracto de \w+ de \d{4}/ })).toBeVisible();
+    await expect(page.getByText(/extracto\.csv · leído por csv/)).toBeVisible();
+
+    await page.getByRole("button", { name: /Usar extracto de demo/ }).click();
+    await expect(page.getByText(/extracto-demo\.csv · leído por csv/)).toBeVisible();
+    const reconciled = page.getByRole("region", { name: "Conciliado" });
+    await expect(reconciled.getByRole("link", { name: "Acta F-005" })).toHaveAttribute("href", "/panel?acta=F-005");
+    await expect(reconciled.getByText("Partido", { exact: true })).toHaveCount(2);
+    await expect(page.getByRole("region", { name: "Con diferencia" })).toContainText("KORA TRADUCCIONES");
+    const alerts = page.getByRole("region", { name: "Alertas" });
+    await expect(alerts).toContainText("ORBIT GROWTH PARTNERS");
+    await expect(alerts).toContainText(/esperaba aprobación/);
+    const closing = page.getByRole("region", { name: "Cierre del mes" });
+    await expect(closing.getByRole("button", { name: /Cerrar \w+ de \d{4}/ })).toBeDisabled();
+
+    const forms = alerts.getByRole("form", { name: /Revisar fila/ });
+    for (let left = await forms.count(); left > 0; left -= 1) {
+      const form = forms.first();
+      await form.getByLabel("Nota de revisión").fill("Revisado con el banco: se pidió el reverso.");
+      await form.getByLabel("Quién revisa").fill("Ana Gómez");
+      await form.getByRole("button", { name: "Marcar como revisado" }).click();
+      await expect(forms).toHaveCount(left - 1);
+    }
+    await expect(alerts.getByText(/Revisó Ana Gómez/).first()).toBeVisible();
+
+    await closing.getByLabel("Quién cierra").fill("Ana Gómez");
+    await closing.getByRole("button", { name: /Cerrar \w+ de \d{4}/ }).click();
+    await expect(closing.getByText(/Mes cerrado por Ana Gómez/)).toBeVisible();
+    const download = page.waitForEvent("download");
+    await closing.getByRole("button", { name: /Descargar el paquete/ }).click();
+    expect((await download).suggestedFilename()).toMatch(/^custodio-cierre-\d{4}-\d{2}\.zip$/);
+    await expectNoErrorScreen(page);
+  });
+
   await test.step("reglas: compila una regla en español, la simula y la aplica", async () => {
     await visit(page, "/reglas", "Reglas");
     await page.getByLabel("Regla en español").fill("Nada sobre 3000 dólares sin aprobación");
@@ -115,6 +159,36 @@ test("every page and the whole demo work against the real API without a single e
     await expect(page.getByText(/La cadena está íntegra: \d+ asientos/)).toBeVisible();
     await page.getByRole("button", { name: /Alterar una copia/ }).click();
     await expect(page.getByText(/En la copia alterada, la cadena se rompe en el asiento #\d+/)).toBeVisible();
+  });
+
+  await test.step("autonomía: cada proveedor gana su tope y un fraude lo tumba", async () => {
+    await visit(page, "/autonomia", "Autonomía");
+    const paredes = page.getByRole("article", { name: "Andrés Paredes" });
+    await expect(paredes.getByText("En supervisión", { exact: true })).toBeVisible();
+    await expect(paredes.getByText(/Confianza revocada · R4/)).toBeVisible();
+    await page.getByRole("button", { name: /Simular 30 días/ }).click();
+    await expect(page.getByText(/Simulado: 30 días desde el/)).toBeVisible({ timeout: 60_000 });
+    const cumulus = page.getByRole("article", { name: "Cumulus Hosting LLC" });
+    await expect(cumulus.getByText(/Confianza ganada/).first()).toBeVisible();
+    const fraud = cumulus.getByRole("listitem").filter({ hasText: /Confianza revocada · R4/ }).first();
+    await expect(fraud).toBeVisible();
+    const entry = fraud.getByRole("link", { name: /Asiento #\d+/ });
+    const seq = ((await entry.textContent()) ?? "").replace(/\D/g, "");
+    await entry.click();
+    await expect(page).toHaveURL(new RegExp(`/registro#asiento-${seq}$`));
+    await expect(page.locator(`#asiento-${seq}`)).toContainText("Confianza revocada");
+    await expectNoErrorScreen(page);
+  });
+
+  await test.step("calendario: lo aprobado sale el día que vence y se ve lo que eso vale", async () => {
+    await visit(page, "/calendario", "Calendario");
+    const value = page.getByRole("region", { name: "Valor capturado este mes" });
+    await expect(value).toContainText(/Supuesto configurable/);
+    await expect(page.getByRole("heading", { name: "Saldo proyectado contra la reserva" })).toBeVisible();
+    await expect(page.getByRole("region", { name: /Próximos 45 días/ })).toBeVisible();
+    await page.getByRole("button", { name: /Pagar lo que vence hoy/ }).click();
+    await expect(page.getByText(/Salieron \d+ pagos que vencían hoy|Hoy no vence ningún pago/)).toBeVisible();
+    await expectNoErrorScreen(page);
   });
 
   await test.step("arena: una ronda de Claude contra Claude", async () => {

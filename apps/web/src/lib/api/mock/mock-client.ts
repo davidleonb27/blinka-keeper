@@ -29,10 +29,12 @@ import { InvalidRequestError, NotFoundError } from "../errors";
 import { formatMoney } from "../../format";
 import { initialChallengeStats, judgeAttempt, recordAttempt } from "./challenge";
 import { actaOf, DEMO, freshDemo, simulatedExecution, type DemoDataset, type DemoItem } from "./dataset";
+import { mockSchedule, mockTrust } from "./autonomy";
 import { appendEntry, verifyChain } from "./ledger";
 import { importMockSuppliers, simulateFirstWeek } from "./onboarding";
 import { compilePolicyText } from "./policy-compiler";
 import { proposeMockProfile } from "./profile";
+import { createMockReconciliations } from "./reconciliation";
 import { RED_TEAM_SCRIPT, scriptedDecision } from "./red-team-script";
 
 const DEFAULT_LATENCY_MS = 450;
@@ -85,6 +87,11 @@ function beneficiaryFrom(input: OnboardingRequest["suppliers"][number]): Benefic
       ...agreement,
       amount: Number(agreement.amount),
       tolerance_pct: agreement.tolerance_pct == null ? null : Number(agreement.tolerance_pct),
+      early_payment_discount: agreement.early_payment_discount && {
+        ...agreement.early_payment_discount,
+        percent: Number(agreement.early_payment_discount.percent),
+      },
+      late_fee_pct: agreement.late_fee_pct == null ? null : Number(agreement.late_fee_pct),
     },
   };
 }
@@ -100,6 +107,7 @@ function policyFrom(input: PolicyInput): Policy {
     agreement_tolerance_pct: Number(input.agreement_tolerance_pct),
     min_confidence: Number(input.min_confidence),
     beneficiaries: input.beneficiaries.map(beneficiaryFrom),
+    trust: { floor: Number(input.trust?.floor ?? 0), hard_ceiling: input.trust?.hard_ceiling ?? false },
   };
 }
 
@@ -127,6 +135,7 @@ function blankWorkspace(): MockWorkspace {
 export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientOptions = {}): CustodioApi {
   let workspace: MockWorkspace = demoWorkspace();
   let stats: ChallengeStats = initialChallengeStats();
+  const reconciliations = createMockReconciliations();
 
   const wait = (factor = 1) =>
     new Promise<void>((resolve) => setTimeout(resolve, latencyMs * factor));
@@ -355,6 +364,46 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
       return respond(() => importMockSuppliers(file.name, text, workspace.data.policy.base_currency), 2);
     },
     completeOnboarding: (request) => respond(() => completeOnboarding(request), 2),
+    getTrust: () => respond(() => mockTrust(workspace.data.policy, decided(), summary().metrics.autonomy_rate)),
+    simulateMonth: () =>
+      respond(() => {
+        throw new InvalidRequestError("La simulación de 30 días corre en la API real, no en el modo de prueba.", CONFLICT);
+      }),
+    getSchedule: () => respond(() => mockSchedule(workspace.data.policy, summary().today, summary().balance)),
+    runDuePayments: () =>
+      respond(() => ({ executed: [], schedule: mockSchedule(workspace.data.policy, summary().today, summary().balance) })),
+    listReconciliations: () => respond(() => reconciliations.list()),
+    getReconciliation: (id) => respond(() => reconciliations.get(id)),
+    reconcileStatement: () =>
+      respond(async () => {
+        const view = reconciliations.reconcile(nowIso());
+        await record({ at: nowIso(), kind: "reconciliation", subject_id: view.id, payload: { summary: "Extracto de demo" } });
+        return view;
+      }, 2),
+    resolveMovement: (id, input) =>
+      respond(() =>
+        reconciliations.resolve(id, input, () =>
+          record({
+            at: nowIso(),
+            kind: "reconciliation_review",
+            subject_id: id,
+            payload: { actor: input.reviewer, summary: input.note },
+          }),
+        ),
+      ),
+    closePeriod: (period, closedBy) =>
+      respond(() =>
+        reconciliations.close(period, closedBy, () =>
+          record({
+            at: nowIso(),
+            kind: "period_closed",
+            subject_id: `periodo-${period}`,
+            payload: { actor: closedBy, summary: `Cierre de ${period}` },
+          }),
+        ),
+      ),
+    downloadEvidence: () => respond(() => reconciliations.files()),
+    downloadDemoStatement: () => respond(() => reconciliations.files()),
     runRedTeam: async ({ rounds }, onEvent, signal) => {
       const script = RED_TEAM_SCRIPT.slice(0, rounds);
       for (const [index, round] of script.entries()) {

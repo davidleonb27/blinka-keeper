@@ -21,7 +21,20 @@ const KIND_LABEL: Record<LedgerKind, string> = {
   redteam_attack: "Ataque del red team",
   challenge_attempt: "Intento del reto",
   intent: "Intención de otro agente",
+  trust_raised: "Confianza ganada",
+  trust_revoked: "Confianza revocada",
+  simulation: "Simulación de 30 días",
+  reconciliation: "Conciliación bancaria",
+  reconciliation_review: "Revisión de un movimiento",
+  period_closed: "Cierre del mes",
 };
+// Reconciliations and closes are about a statement or a month, not an invoice: they have no acta to open.
+const WITHOUT_ACTA = new Set<LedgerKind>(["reconciliation_review", "period_closed"]);
+
+/** A reconciliation's own entry names its statement; the ones that confirm a payment name the invoice. */
+function isReconciliationId(entry: LedgerEntry): boolean {
+  return entry.kind === "reconciliation" && "statement_sha256" in entry.payload;
+}
 
 function statusLabel(status: unknown): string | null {
   return isDecisionStatus(status) ? STATUS_META[status].label : null;
@@ -42,6 +55,13 @@ function payloadSummary(entry: LedgerEntry): string {
   const what =
     textOf(summary) ?? statusLabel(status) ?? textOf(number) ?? (typeof version === "number" ? `versión ${version}` : null);
   return [who, what].filter((part): part is string => part !== null).join(" · ");
+}
+
+const TRUST_KINDS: ReadonlySet<LedgerKind> = new Set(["trust_raised", "trust_revoked"]);
+
+/** A trust entry is about a supplier, every other one about an invoice. */
+function subjectHref(entry: LedgerEntry): string {
+  return TRUST_KINDS.has(entry.kind) ? `/autonomia#${entry.subject_id}` : `/panel?acta=${entry.subject_id}`;
 }
 
 function VerificationBanner({ result, copy }: { result: LedgerVerification; copy: boolean }) {
@@ -65,6 +85,7 @@ function LedgerTable({ entries, brokenSeq }: { entries: LedgerEntry[]; brokenSeq
       {entries.toReversed().map((entry) => (
         <li
           key={entry.seq}
+          id={`asiento-${entry.seq}`}
           className={cn(
             "grid grid-cols-[48px_minmax(0,1fr)] gap-x-3 gap-y-1 px-2 py-3 sm:grid-cols-[56px_150px_minmax(0,1fr)_auto]",
             entry.seq === brokenSeq && "rounded-lg bg-crit-weak",
@@ -76,8 +97,8 @@ function LedgerTable({ entries, brokenSeq }: { entries: LedgerEntry[]; brokenSeq
             {entry.seq === brokenSeq ? <span className="ml-2 text-xs font-semibold text-crit">alterado en la copia</span> : null}
           </span>
           <span className="col-start-2 min-w-0 text-[13px] text-ink-2 sm:col-start-auto">
-            {entry.subject_id ? (
-              <Link href={`/panel?acta=${entry.subject_id}`} className="font-mono text-[12.5px] text-brand hover:underline">
+            {entry.subject_id && !WITHOUT_ACTA.has(entry.kind) && !isReconciliationId(entry) ? (
+              <Link href={subjectHref(entry)} className="font-mono text-[12.5px] text-brand hover:underline">
                 {entry.subject_id}
               </Link>
             ) : null}{" "}

@@ -30,7 +30,16 @@ function supplier(
     bank_name: bank,
     account_number: account,
     currency,
-    agreement: { kind: "fixed", amount, currency, tolerance_pct: null, source: "Importado" },
+    agreement: {
+      kind: "fixed",
+      amount,
+      currency,
+      tolerance_pct: null,
+      source: "Importado",
+      early_payment_discount: null,
+      late_fee_pct: null,
+      critical: false,
+    },
     allowed: true,
     approver_contact: null,
   };

@@ -9,10 +9,10 @@ from __future__ import annotations
 import importlib
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Protocol
 
-from custodio import ai, dataset, engine, extraction
+from custodio import ai, dataset, engine, extraction, reconciliation
 from custodio.contracts import (
     Approval,
     AttackSpec,
@@ -35,6 +35,8 @@ from custodio.contracts import (
     SimulationReport,
     SupplierImport,
 )
+from custodio.dataset import MonthInvoice
+from custodio.reconciliation.models import Statement
 from custodio.services.triage import AttackTriage, triage_attack
 
 
@@ -68,8 +70,16 @@ class NextLedgerEntry(Protocol):
     ) -> LedgerEntry: ...
 
 
+class SimulatedMonth(Protocol):
+    def __call__(self, state: CompanyState, policy: Policy, start: date) -> list[MonthInvoice]: ...
+
+
 class ImportSuppliers(Protocol):
     def __call__(self, data: bytes, *, filename: str, media_type: str) -> SupplierImport: ...
+
+
+class ReadStatement(Protocol):
+    def __call__(self, data: bytes, *, filename: str, media_type: str, default_currency: str) -> Statement: ...
 
 
 class RedTeam(Protocol):
@@ -96,6 +106,9 @@ class Lanes:
     import_suppliers: ImportSuppliers
     red_team: RedTeam
     triage_attack: Callable[[str], AttackTriage]
+    simulated_month: SimulatedMonth
+    # L14 reads statements in PDF or image with the model; a default keeps the lanes built before it valid.
+    read_statement: ReadStatement = reconciliation.read_statement_document
 
 
 def _engine_ledger(name: str) -> Any:
@@ -133,4 +146,5 @@ def production_lanes() -> Lanes:
         import_suppliers=ai.import_suppliers,
         red_team=ai.red_team,
         triage_attack=triage_attack,
+        simulated_month=dataset.simulated_month,
     )

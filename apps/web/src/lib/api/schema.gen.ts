@@ -331,6 +331,204 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/trust": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Trust
+         * @description Each supplier's earned auto-approval cap (R9), folded from its trust entries in the ledger.
+         */
+        get: operations["read_trust_api_v1_trust_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trust/simulate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simulate Month
+         * @description Plays the demo's seeded month once, on the simulated rail. Calling it again changes nothing.
+         */
+        post: operations["simulate_month_api_v1_trust_simulate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Schedule
+         * @description The next 45 days of approved payments: when each goes out, through which rail and why then.
+         */
+        get: operations["read_schedule_api_v1_schedule_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schedule/run-due": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Due
+         * @description Pays what is due today or earlier through the configured rail. Running it twice pays nothing twice.
+         */
+        post: operations["run_due_api_v1_schedule_run_due_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reconciliations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Reconciliations */
+        get: operations["list_reconciliations_api_v1_reconciliations_get"];
+        put?: never;
+        /**
+         * Create Reconciliation
+         * @description Reconciles a bank statement (CSV, PDF or image) or the demo statement against what this workspace paid.
+         */
+        post: operations["create_reconciliation_api_v1_reconciliations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reconciliations/demo-statement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download Demo Statement
+         * @description The demo statement, moved to the day this workspace paid its batch.
+         */
+        get: operations["download_demo_statement_api_v1_reconciliations_demo_statement_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reconciliations/{reconciliation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Reconciliation */
+        get: operations["read_reconciliation_api_v1_reconciliations__reconciliation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reconciliations/{reconciliation_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve Movement
+         * @description A person marks a movement that needed review as reviewed, with a note. It stays in the ledger.
+         */
+        post: operations["resolve_movement_api_v1_reconciliations__reconciliation_id__resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/periods/{period}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close Period
+         * @description Closes the month once no outflow without an invoice is left unreviewed. Written to the ledger.
+         */
+        post: operations["close_period_api_v1_periods__period__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/periods/{period}/evidence.zip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download Evidence
+         * @description The accountant's pack: summary PDF, reconciliation CSV, actas and the ledger with its verification.
+         */
+        get: operations["download_evidence_api_v1_periods__period__evidence_zip_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/redteam/runs": {
         parameters: {
             query?: never;
@@ -426,6 +624,14 @@ export interface components {
             tolerance_pct?: number | string | null;
             /** Source */
             source?: string | null;
+            early_payment_discount?: components["schemas"]["EarlyPaymentDiscount-Input"] | null;
+            /** Late Fee Pct */
+            late_fee_pct?: number | string | null;
+            /**
+             * Critical
+             * @default false
+             */
+            critical: boolean;
         };
         /** Agreement */
         "Agreement-Output": {
@@ -438,6 +644,14 @@ export interface components {
             tolerance_pct?: number | null;
             /** Source */
             source?: string | null;
+            early_payment_discount?: components["schemas"]["EarlyPaymentDiscount-Output"] | null;
+            /** Late Fee Pct */
+            late_fee_pct?: number | null;
+            /**
+             * Critical
+             * @default false
+             */
+            critical: boolean;
         };
         /**
          * AgreementKind
@@ -530,6 +744,30 @@ export interface components {
              */
             findings: components["schemas"]["AuditFinding"][];
         };
+        /** AutonomyDay */
+        AutonomyDay: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Decisions */
+            decisions: number;
+            /** Decided Alone */
+            decided_alone: number;
+            /** Rate */
+            rate: number;
+        };
+        /** BalanceDay */
+        BalanceDay: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Balance */
+            balance: number;
+        };
         /** BatchResult */
         BatchResult: {
             /** Decisions */
@@ -604,6 +842,18 @@ export interface components {
             /** Email Domain */
             email_domain?: string | null;
         };
+        /** Body_create_reconciliation_api_v1_reconciliations_post */
+        Body_create_reconciliation_api_v1_reconciliations_post: {
+            /** File */
+            file?: string | null;
+            /**
+             * Demo
+             * @default false
+             */
+            demo: boolean;
+            /** Fx Tolerance Pct */
+            fx_tolerance_pct?: number | string | null;
+        };
         /** Body_import_suppliers_api_v1_onboarding_suppliers_post */
         Body_import_suppliers_api_v1_onboarding_suppliers_post: {
             /** File */
@@ -626,6 +876,23 @@ export interface components {
             file?: string | null;
             /** Text */
             text?: string | null;
+        };
+        /** CapturedThisMonth */
+        CapturedThisMonth: {
+            /** Year */
+            year: number;
+            /** Month */
+            month: number;
+            /** Discounts */
+            discounts: number;
+            /** Late Fees Avoided */
+            late_fees_avoided: number;
+            /** Treasury Yield */
+            treasury_yield: number;
+            /** Total */
+            total: number;
+            /** Payments */
+            payments: number;
         };
         /** ChallengeAttempt */
         ChallengeAttempt: {
@@ -661,6 +928,11 @@ export interface components {
              * @default []
              */
             hall_of_fame: components["schemas"]["ChallengeAttempt"][];
+        };
+        /** CloseBody */
+        CloseBody: {
+            /** Closed By */
+            closed_by: string;
         };
         /**
          * CompanyProfile
@@ -738,6 +1010,7 @@ export interface components {
             /** Blocked Reason */
             blocked_reason?: string | null;
             execution?: components["schemas"]["PaymentExecution"] | null;
+            trust?: components["schemas"]["TrustCap"] | null;
         };
         /**
          * DecisionItem
@@ -757,6 +1030,26 @@ export interface components {
          * @enum {string}
          */
         DecisionStatus: "paid_auto" | "paid_human" | "hold" | "pending_approval" | "rejected";
+        /**
+         * EarlyPaymentDiscount
+         * @description Early-payment terms such as "2/10 net 30": `percent` off when paid within `days` of the issue date.
+         */
+        "EarlyPaymentDiscount-Input": {
+            /** Percent */
+            percent: number | string;
+            /** Days */
+            days: number;
+        };
+        /**
+         * EarlyPaymentDiscount
+         * @description Early-payment terms such as "2/10 net 30": `percent` off when paid within `days` of the issue date.
+         */
+        "EarlyPaymentDiscount-Output": {
+            /** Percent */
+            percent: number;
+            /** Days */
+            days: number;
+        };
         /** Evidence */
         Evidence: {
             /** Quote */
@@ -904,7 +1197,7 @@ export interface components {
          * LedgerKind
          * @enum {string}
          */
-        LedgerKind: "policy_changed" | "invoice_received" | "decision" | "approval" | "payment" | "redteam_attack" | "challenge_attempt" | "intent";
+        LedgerKind: "policy_changed" | "invoice_received" | "decision" | "approval" | "payment" | "redteam_attack" | "challenge_attempt" | "intent" | "trust_raised" | "trust_revoked" | "simulation" | "reconciliation" | "reconciliation_review" | "period_closed";
         /** LedgerVerification */
         LedgerVerification: {
             /** Valid */
@@ -915,6 +1208,32 @@ export interface components {
             first_broken_seq: number | null;
             /** Head Hash */
             head_hash: string | null;
+        };
+        /**
+         * MatchLevel
+         * @enum {string}
+         */
+        MatchLevel: "exact" | "amount_date" | "split" | "tolerance";
+        /**
+         * MatchSettings
+         * @description Explicit and shown to the person: nothing is reconciled under a tolerance nobody can see.
+         */
+        MatchSettings: {
+            /**
+             * Date Window Days
+             * @default 3
+             */
+            date_window_days: number;
+            /**
+             * Fx Tolerance Pct
+             * @default 0.5
+             */
+            fx_tolerance_pct: number;
+            /**
+             * Max Split Parts
+             * @default 4
+             */
+            max_split_parts: number;
         };
         /** Metrics */
         Metrics: {
@@ -936,6 +1255,45 @@ export interface components {
             accuracy?: number | null;
             /** Improper Payments */
             improper_payments: number;
+        };
+        /** MovementResult */
+        MovementResult: {
+            /** Movement Id */
+            movement_id: string;
+            status: components["schemas"]["MovementStatus"];
+            level?: components["schemas"]["MatchLevel"] | null;
+            /** Invoice Id */
+            invoice_id?: string | null;
+            /**
+             * Allocated
+             * @default 0
+             */
+            allocated: number;
+            /** Difference */
+            difference?: number | null;
+            /** Duplicate Of */
+            duplicate_of?: string | null;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * MovementStatus
+         * @enum {string}
+         */
+        MovementStatus: "reconciled" | "reconciled_with_difference" | "unmatched_outflow" | "bank_fee" | "duplicate" | "unread" | "inflow";
+        /** MovementView */
+        MovementView: {
+            movement: components["schemas"]["StatementMovement"];
+            result: components["schemas"]["MovementResult"];
+            /** Needs Review */
+            needs_review: boolean;
+            review?: components["schemas"]["Review"] | null;
+            /** Acta Url */
+            acta_url?: string | null;
+            /** External Id */
+            external_id?: string | null;
+            /** Dashboard Url */
+            dashboard_url?: string | null;
         };
         /** Narrative */
         Narrative: {
@@ -1057,6 +1415,90 @@ export interface components {
             /** Document Text */
             document_text?: string | null;
         };
+        /** PaymentResult */
+        PaymentResult: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Invoice Number */
+            invoice_number: string | null;
+            /** Supplier Name */
+            supplier_name: string | null;
+            /**
+             * Paid On
+             * Format: date
+             */
+            paid_on: string;
+            /** Expected */
+            expected: number | null;
+            /** Currency */
+            currency: string;
+            status: components["schemas"]["PaymentStatus"];
+            level?: components["schemas"]["MatchLevel"] | null;
+            /** Movement Ids */
+            movement_ids?: string[];
+            /** Difference */
+            difference?: number | null;
+            /** External Id */
+            external_id?: string | null;
+            /** Dashboard Url */
+            dashboard_url?: string | null;
+            /** Acta Url */
+            acta_url: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * PaymentStatus
+         * @enum {string}
+         */
+        PaymentStatus: "confirmed" | "pending";
+        /** PeriodClose */
+        PeriodClose: {
+            /** Period */
+            period: string;
+            /**
+             * Closed At
+             * Format: date-time
+             */
+            closed_at: string;
+            /** Closed By */
+            closed_by: string;
+            /** Reconciliation Id */
+            reconciliation_id: string;
+            /** Ledger Seq */
+            ledger_seq: number;
+            /** Ledger Hash */
+            ledger_hash: string;
+        };
+        /** PeriodCloseView */
+        PeriodCloseView: {
+            close: components["schemas"]["PeriodClose"];
+            summary: components["schemas"]["PeriodSummary"];
+            /** Evidence Path */
+            evidence_path: string;
+        };
+        /**
+         * PeriodSummary
+         * @description The month in figures, in the account's currency. `alerts_open` must be zero to close it.
+         */
+        PeriodSummary: {
+            /** Currency */
+            currency: string;
+            paid: components["schemas"]["Tally"];
+            held: components["schemas"]["Tally"];
+            rejected: components["schemas"]["Tally"];
+            pending_approval: components["schemas"]["Tally"];
+            reconciled: components["schemas"]["Tally"];
+            differences: components["schemas"]["Tally"];
+            fees: components["schemas"]["Tally"];
+            inflows: components["schemas"]["Tally"];
+            unexplained: components["schemas"]["Tally"];
+            pending_in_bank: components["schemas"]["Tally"];
+            /** Alerts */
+            alerts: number;
+            /** Alerts Open */
+            alerts_open: number;
+        };
         /**
          * Policy
          * @description Everything a company decides. Amount thresholds are expressed in `base_currency`.
@@ -1133,6 +1575,13 @@ export interface components {
              * @default []
              */
             approvers: components["schemas"]["Approver"][];
+            /**
+             * @default {
+             *       "floor": 0,
+             *       "hard_ceiling": false
+             *     }
+             */
+            trust: components["schemas"]["TrustPolicy-Input"];
         };
         /**
          * Policy
@@ -1210,6 +1659,13 @@ export interface components {
              * @default []
              */
             approvers: components["schemas"]["Approver"][];
+            /**
+             * @default {
+             *       "floor": 0,
+             *       "hard_ceiling": false
+             *     }
+             */
+            trust: components["schemas"]["TrustPolicy-Output"];
         };
         /** PolicyChange */
         PolicyChange: {
@@ -1254,6 +1710,61 @@ export interface components {
                 [key: string]: string;
             };
         };
+        /** ReconciliationItem */
+        ReconciliationItem: {
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Period */
+            period: string;
+            source: components["schemas"]["StatementSource"];
+            /** Filename */
+            filename: string;
+            /** Movements */
+            movements: number;
+            /** Alerts Open */
+            alerts_open: number;
+            /** Period Closed */
+            period_closed: boolean;
+        };
+        /** ReconciliationView */
+        ReconciliationView: {
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Period */
+            period: string;
+            source: components["schemas"]["StatementSource"];
+            /** Filename */
+            filename: string;
+            /** Reader */
+            reader: string;
+            /** Currency */
+            currency: string;
+            /** Warnings */
+            warnings: string[];
+            /** Demo Shift Days */
+            demo_shift_days: number | null;
+            settings: components["schemas"]["MatchSettings"];
+            /** Movements */
+            movements: components["schemas"]["MovementView"][];
+            /** Payments */
+            payments: components["schemas"]["PaymentResult"][];
+            summary: components["schemas"]["PeriodSummary"];
+            /** Can Close */
+            can_close: boolean;
+            period_closed: components["schemas"]["PeriodClose"] | null;
+            /** Ledger Seq */
+            ledger_seq: number;
+        };
         /** RedTeamEvent */
         RedTeamEvent: {
             /**
@@ -1269,6 +1780,34 @@ export interface components {
             caught?: boolean | null;
             /** Message */
             message?: string | null;
+        };
+        /** ResolveBody */
+        ResolveBody: {
+            /** Movement Id */
+            movement_id: string;
+            /** Reviewer */
+            reviewer: string;
+            /** Note */
+            note: string;
+        };
+        /**
+         * Review
+         * @description A person looked at a movement that needed it and wrote down what it is. Stays in the ledger.
+         */
+        Review: {
+            /** Movement Id */
+            movement_id: string;
+            /** Reviewer */
+            reviewer: string;
+            /** Note */
+            note: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Ledger Seq */
+            ledger_seq: number;
         };
         /**
          * RuleOutcome
@@ -1294,6 +1833,12 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** RunDue */
+        RunDue: {
+            /** Executed */
+            executed: components["schemas"]["Decision"][];
+            schedule: components["schemas"]["ScheduleView"];
+        };
         /** RunRequest */
         RunRequest: {
             /**
@@ -1301,6 +1846,67 @@ export interface components {
              * @default 6
              */
             rounds: number;
+        };
+        /** ScheduleView */
+        ScheduleView: {
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            /** Horizon Days */
+            horizon_days: number;
+            /** Base Currency */
+            base_currency: string;
+            /** Rail */
+            rail: string;
+            /** Cash */
+            cash: number;
+            /** Committed Balance */
+            committed_balance: number;
+            /** Reserve */
+            reserve: number;
+            /** Apy */
+            apy: number;
+            /** Apy Note */
+            apy_note: string;
+            /** Items */
+            items: components["schemas"]["ScheduledItem"][];
+            /** Waiting */
+            waiting: components["schemas"]["ScheduledItem"][];
+            /** Balance */
+            balance: components["schemas"]["BalanceDay"][];
+            captured: components["schemas"]["CapturedThisMonth"];
+        };
+        /** ScheduledItem */
+        ScheduledItem: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Beneficiary Id */
+            beneficiary_id: string | null;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Amount */
+            amount: number | null;
+            /** Currency */
+            currency: string | null;
+            /** Amount Base */
+            amount_base: number;
+            /** Due Date */
+            due_date: string | null;
+            /** Pay On */
+            pay_on: string | null;
+            timing: components["schemas"]["Timing"];
+            /** Reason */
+            reason: string;
+            /** Rail */
+            rail: string;
+            /** Discount Base */
+            discount_base: number;
+            /** Late Fee Avoided Base */
+            late_fee_avoided_base: number;
+            /** Yield Base */
+            yield_base: number;
         };
         /** SimulatedChange */
         SimulatedChange: {
@@ -1320,6 +1926,53 @@ export interface components {
             /** Changed */
             changed: components["schemas"]["SimulatedChange"][];
         };
+        /** SimulationResult */
+        SimulationResult: {
+            /** Created */
+            created: boolean;
+            /** Seed */
+            seed: number;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /** Days */
+            days: number;
+            /** Invoices */
+            invoices: number;
+            /** Inflow Base */
+            inflow_base: number;
+            trust: components["schemas"]["TrustOverview"];
+        };
+        /** StatementMovement */
+        StatementMovement: {
+            /** Id */
+            id: string;
+            /** Row */
+            row: number;
+            /** Booked On */
+            booked_on: string | null;
+            /** Description */
+            description: string;
+            /** Amount */
+            amount: number | null;
+            /** Currency */
+            currency: string | null;
+            /** Reference */
+            reference?: string | null;
+            /** Quote */
+            quote: string;
+            /** Read */
+            read: boolean;
+            /** Unread Reason */
+            unread_reason?: string | null;
+        };
+        /**
+         * StatementSource
+         * @enum {string}
+         */
+        StatementSource: "csv" | "document" | "demo";
         /** SupplierImport */
         SupplierImport: {
             /** Beneficiaries */
@@ -1329,6 +1982,43 @@ export interface components {
              * @default []
              */
             warnings: string[];
+        };
+        /** SupplierTrust */
+        SupplierTrust: {
+            /** Beneficiary Id */
+            beneficiary_id: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Has History */
+            has_history: boolean;
+            /** Cap */
+            cap: number;
+            /** Clean Streak */
+            clean_streak: number;
+            /** Supervised */
+            supervised: boolean;
+            /** Reason */
+            reason: string;
+            /** Clean Needed */
+            clean_needed: number;
+            /** Next Cap */
+            next_cap: number | null;
+            last_incident: components["schemas"]["TrustStep"] | null;
+            /** Timeline */
+            timeline: components["schemas"]["TrustStep"][];
+        };
+        /** Tally */
+        Tally: {
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
         };
         /** TamperDemo */
         TamperDemo: {
@@ -1343,6 +2033,114 @@ export interface components {
         TamperRequest: {
             /** Seq */
             seq?: number | null;
+        };
+        /**
+         * Timing
+         * @enum {string}
+         */
+        Timing: "discount" | "on_due" | "overdue" | "no_due_date" | "short_of_cash";
+        /**
+         * TrustCap
+         * @description The auto-approval cap (R9) one supplier has earned, folded from its trust entries in the ledger.
+         */
+        TrustCap: {
+            /** Beneficiary Id */
+            beneficiary_id: string;
+            /** Cap */
+            cap: number;
+            /** Clean Streak */
+            clean_streak: number;
+            /** Supervised */
+            supervised: boolean;
+            /** Reason */
+            reason: string;
+        };
+        /** TrustOverview */
+        TrustOverview: {
+            /** Base Currency */
+            base_currency: string;
+            /** Autonomy Rate */
+            autonomy_rate: number;
+            /** Floor */
+            floor: number;
+            /** Ceiling */
+            ceiling: number;
+            /** Policy Threshold */
+            policy_threshold: number;
+            /** Hard Ceiling */
+            hard_ceiling: boolean;
+            /** Clean Payments To Earn */
+            clean_payments_to_earn: number;
+            /** Suppliers */
+            suppliers: components["schemas"]["SupplierTrust"][];
+            /** Autonomy */
+            autonomy: components["schemas"]["AutonomyDay"][];
+        };
+        /**
+         * TrustPolicy
+         * @description How a supplier earns a higher auto-approval cap (R9). See custodio.engine.trust for the formula.
+         */
+        "TrustPolicy-Input": {
+            /**
+             * Floor
+             * @default 0
+             */
+            floor: number | string;
+            /**
+             * Hard Ceiling
+             * @default false
+             */
+            hard_ceiling: boolean;
+        };
+        /**
+         * TrustPolicy
+         * @description How a supplier earns a higher auto-approval cap (R9). See custodio.engine.trust for the formula.
+         */
+        "TrustPolicy-Output": {
+            /**
+             * Floor
+             * @default 0
+             */
+            floor: number;
+            /**
+             * Hard Ceiling
+             * @default false
+             */
+            hard_ceiling: boolean;
+        };
+        /**
+         * TrustStep
+         * @description One entry of a supplier's trust history, as the ledger holds it.
+         */
+        TrustStep: {
+            /** Seq */
+            seq: number;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "trust_raised" | "trust_revoked";
+            /** Invoice Id */
+            invoice_id: string;
+            /** Rule Id */
+            rule_id: string | null;
+            /** Reason */
+            reason: string;
+            /** Summary */
+            summary: string;
+            /** Cap Before */
+            cap_before: number | null;
+            /** Cap After */
+            cap_after: number | null;
+            /** Clean Streak */
+            clean_streak: number | null;
+            /** Hash */
+            hash: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -2054,6 +2852,372 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TamperDemo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_trust_api_v1_trust_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrustOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simulate_month_api_v1_trust_simulate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_schedule_api_v1_schedule_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_due_api_v1_schedule_run_due_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunDue"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_reconciliations_api_v1_reconciliations_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_reconciliation_api_v1_reconciliations_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_create_reconciliation_api_v1_reconciliations_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    download_demo_statement_api_v1_reconciliations_demo_statement_get: {
+        parameters: {
+            query?: {
+                format?: "csv" | "pdf";
+            };
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": unknown;
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_reconciliation_api_v1_reconciliations__reconciliation_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                reconciliation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resolve_movement_api_v1_reconciliations__reconciliation_id__resolve_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                reconciliation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolveBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    close_period_api_v1_periods__period__close_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                /** @description yyyy-mm */
+                period: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CloseBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeriodCloseView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    download_evidence_api_v1_periods__period__evidence_zip_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                /** @description yyyy-mm */
+                period: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/zip": unknown;
                 };
             };
             /** @description Validation Error */

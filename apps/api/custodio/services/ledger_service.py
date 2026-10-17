@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 from pydantic import BaseModel
@@ -44,10 +45,17 @@ def append(
     return entry
 
 
-def entries(ctx: ServiceContext, workspace_id: str, subject_id: str | None = None) -> list[LedgerEntry]:
+def entries(
+    ctx: ServiceContext,
+    workspace_id: str,
+    subject_id: str | None = None,
+    kinds: Sequence[LedgerKind] | None = None,
+) -> list[LedgerEntry]:
     query = select(LedgerEntryRow).where(LedgerEntryRow.workspace_id == workspace_id)
     if subject_id is not None:
         query = query.where(LedgerEntryRow.subject_id == subject_id)
+    if kinds is not None:
+        query = query.where(LedgerEntryRow.kind.in_([kind.value for kind in kinds]))
     rows = ctx.session.scalars(query.order_by(LedgerEntryRow.seq))
     return [_entry(row) for row in rows]
 

@@ -20,9 +20,18 @@ from custodio import __version__
 from custodio.api.deps import bearer_token, client_ip
 from custodio.contracts import Decision, IntentVerdict, PaymentIntent, Policy
 from custodio.db.models import WorkspaceRow
-from custodio.services import firewall_service, policy_service, rate_limits, records, workspace_service
+from custodio.reconciliation.models import MatchSettings
+from custodio.services import (
+    firewall_service,
+    policy_service,
+    rate_limits,
+    reconciliation_service,
+    records,
+    workspace_service,
+)
 from custodio.services.context import Runtime, ServiceContext
-from custodio.services.errors import InvalidApiKey, ServiceError
+from custodio.services.errors import InvalidApiKey, ServiceError, StatementInputMissing
+from custodio.services.reconciliation_service import ReconciliationView, Upload
 
 PATH = "/api/v1/mcp"
 # Served behind Vercel on the public domain and authenticated by API key, so Host-header pinning (meant for local
@@ -31,7 +40,8 @@ TRANSPORT_SECURITY = TransportSecuritySettings(enable_dns_rebinding_protection=F
 INSTRUCTIONS = (
     "Custodio es un firewall de pagos. Antes de pagar una factura, envía la intención de pago con "
     "submit_payment_intent: Custodio la decide con las reglas de la empresa y responde pagar, retener o escalar a una "
-    "persona, con el acta y el hash en su registro. Nunca pagues algo que Custodio retuvo o escaló."
+    "persona, con el acta y el hash en su registro. Nunca pagues algo que Custodio retuvo o escaló. Para conciliar "
+    "el extracto del banco con lo pagado, usa reconcile_statement."
 )
 
 
@@ -54,6 +64,24 @@ def build(runtime: Runtime) -> MCPServer:
     def get_policy(ctx: Context) -> Policy:
         with _workspace(runtime, _http_request(ctx)) as (services, workspace):
             return policy_service.current(services, workspace.id)
+
+    @server.tool(
+        description=(
+            "Concilia un extracto bancario en CSV (o el extracto de demo) con los pagos de este espacio. Cada "
+            "movimiento sale conciliado, con diferencia, comisión, duplicado o como salida sin factura (alerta roja), "
+            "con su razón. Las alertas las revisa una persona en la web; esta herramienta no cierra el mes."
+        )
+    )
+    def reconcile_statement(
+        ctx: Context, statement_csv: str | None = None, use_demo: bool = False
+    ) -> ReconciliationView:
+        with _workspace(runtime, _http_request(ctx)) as (services, workspace):
+            if use_demo:
+                return reconciliation_service.reconcile_demo(services, workspace, MatchSettings())
+            if not statement_csv:
+                raise StatementInputMissing()
+            upload = Upload(data=statement_csv.encode(), filename="extracto.csv", media_type="text/csv")
+            return reconciliation_service.reconcile_upload(services, workspace, upload, MatchSettings())
 
     return server
 

@@ -9,7 +9,7 @@ import { watch } from "./problems";
 
 const PAGE_CODE_LATE_MS = 1_500;
 const PAGES: { path: string; heading: string | RegExp; sentence: string }[] = [
-  { path: "/", heading: "El agente de pagos que no se deja engañar.", sentence: "El modelo lee, el código decide" },
+  { path: "/", heading: "El agente de cuentas por pagar de código abierto", sentence: "El modelo lee, el código decide" },
   { path: "/reto", heading: "Róbale a Custodio", sentence: "Intenta que pague algo indebido" },
   { path: "/panel", heading: "Panel", sentence: "Lo que Custodio decidió este mes" },
   { path: "/reglas", heading: "Reglas", sentence: "Tú pones los límites" },
@@ -120,7 +120,7 @@ test.describe("cold loads in Bogotá with the server in UTC", () => {
         await expect(page).toHaveURL(new RegExp(`/panel\\?acta=${id}$`));
         const acta = page.getByRole("dialog");
         await expect(acta.getByText(`Acta de decisión · ${id}`)).toBeVisible();
-        await expect(acta.getByRole("list", { name: "Reglas evaluadas" }).getByRole("listitem")).toHaveCount(12);
+        await expect(acta.getByRole("list", { name: "Reglas evaluadas" }).getByRole("listitem")).toHaveCount(15);
         // Under the modal acta the panel is aria-hidden, so it is looked up including hidden elements.
         await expect(page.getByRole("heading", { level: 1, name: "Panel", includeHidden: true })).toBeAttached();
         await expect(page.getByRole("region", { name: "Facturas", includeHidden: true })).toBeAttached();

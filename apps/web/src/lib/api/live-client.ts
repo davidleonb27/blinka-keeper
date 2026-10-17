@@ -1,6 +1,7 @@
 import type {
   ApiPath,
   ChallengeForm,
+  ReconciliationForm,
   CustodioApi,
   FormOf,
   JsonBodyOf,
@@ -26,6 +27,7 @@ export interface LiveClientOptions {
 
 interface CallOptions<P extends ApiPath, M extends Method> {
   params?: PathParamsOf<P, M>;
+  query?: Record<string, string>;
   json?: JsonBodyOf<P, M>;
   form?: FormData;
   scoped?: boolean;
@@ -54,9 +56,10 @@ async function readError(response: Response): Promise<ErrorBody> {
   return { detail: null, code: null };
 }
 
-function urlFor(path: string, params: unknown): string {
+function urlFor(path: string, params: unknown, query?: Record<string, string>): string {
   const values = (params ?? {}) as Record<string, string>;
-  return path.replace(PATH_PARAM, (_, name: string) => encodeURIComponent(values[name] ?? ""));
+  const url = path.replace(PATH_PARAM, (_, name: string) => encodeURIComponent(values[name] ?? ""));
+  return query ? `${url}?${new URLSearchParams(query).toString()}` : url;
 }
 
 /** Multipart fields named after the route's OpenAPI body, so a renamed field fails tsc. */
@@ -95,12 +98,12 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
     workspace: string | null,
     method: M,
     path: P,
-    { params, json, form, signal }: CallOptions<P, M>,
+    { params, query, json, form, signal }: CallOptions<P, M>,
   ): Promise<Response> {
     const headers = headersFor(json !== undefined, workspace);
     let response: Response;
     try {
-      response = await fetchImpl(urlFor(path, params), {
+      response = await fetchImpl(urlFor(path, params, query), {
         method: method.toUpperCase(),
         headers,
         body: json !== undefined ? JSON.stringify(json) : form,
@@ -156,6 +159,28 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
       call("post", "/api/v1/onboarding/suppliers", {
         form: formOf<FormOf<"/api/v1/onboarding/suppliers", "post">>({ file }),
       }),
+    getTrust: () => call("get", "/api/v1/trust"),
+    simulateMonth: () => call("post", "/api/v1/trust/simulate"),
+    getSchedule: () => call("get", "/api/v1/schedule"),
+    runDuePayments: () => call("post", "/api/v1/schedule/run-due"),
+    listReconciliations: () => call("get", "/api/v1/reconciliations"),
+    getReconciliation: (id) =>
+      call("get", "/api/v1/reconciliations/{reconciliation_id}", { params: { reconciliation_id: id } }),
+    reconcileStatement: ({ file, demo }) =>
+      call("post", "/api/v1/reconciliations", {
+        form: formOf<ReconciliationForm>(file ? { file } : { demo: demo ? "true" : null }),
+      }),
+    resolveMovement: (id, input) =>
+      call("post", "/api/v1/reconciliations/{reconciliation_id}/resolve", {
+        params: { reconciliation_id: id },
+        json: input,
+      }),
+    closePeriod: (period, closedBy) =>
+      call("post", "/api/v1/periods/{period}/close", { params: { period }, json: { closed_by: closedBy } }),
+    downloadEvidence: async (period) =>
+      (await send("get", "/api/v1/periods/{period}/evidence.zip", { params: { period } })).blob(),
+    downloadDemoStatement: async (format) =>
+      (await send("get", "/api/v1/reconciliations/demo-statement", { query: { format } })).blob(),
     runRedTeam: async (input, onEvent, signal) => {
       const response = await send("post", "/api/v1/redteam/runs", { json: input, signal });
       if (!response.body) throw new UnexpectedResponseError(response.status);

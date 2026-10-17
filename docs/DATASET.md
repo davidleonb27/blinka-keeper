@@ -55,6 +55,26 @@ cambió el dígito verificador) y el IBAN de Letterwerk quedó completo.
 
 Las reglas, sus umbrales y su efecto están en [`DESIGN.md`](DESIGN.md) §5.
 
+## Extracto bancario de demo
+
+`statement_demo.csv` y `statement_demo.pdf` (dibujado con reportlab desde las mismas filas) son el octubre de Cobalto
+Labs en su banco, en USD, coherente con el lote de demo decidido el día de la empresa (16 de octubre). Al usarlo desde
+un espacio, sus fechas se mueven al día en que ese espacio pagó su lote. Lo que trae:
+
+| Caso | Movimiento | Qué debe pasar |
+|---|---|---|
+| Pagos que Custodio hizo | 16 pagos con su referencia | conciliado (exacto o por monto y fecha) |
+| Pago partido en dos | Andes Code: USD 3.000 + USD 1.800 | conciliado como partido (suma exacta de USD 4.800) |
+| Diferencias de céntimos por cambio | Kora, Caju, María Fernanda Ríos, Sofía Herrera | conciliado con diferencia, dentro de ±0,5 % |
+| Número de factura mal escrito | «PN-1201» en vez de PN-1021 | conciliado por monto, fecha y beneficiario, diciendo el error |
+| Duplicado del banco | Cumulus Hosting listado dos veces | el segundo, duplicado (alerta) |
+| Cargos del banco | comisión SWIFT y cuota de manejo | comisión bancaria |
+| Salida sin factura | transferencia a Orbit Growth Partners, cuya factura esperaba aprobación | alerta roja |
+| Pago que no está en el extracto | Café Origen (CO-1016) | pendiente de aparecer |
+| Ingreso | abono de un cliente | fuera de cuentas por pagar |
+
+`tests/reconciliation/test_demo_statement.py` comprueba cada fila contra el lote real del motor.
+
 ## Cómo reproducir los resultados
 
 Desde la raíz del repo, con Python 3.12 y [uv](https://docs.astral.sh/uv/):

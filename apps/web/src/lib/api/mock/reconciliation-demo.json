@@ -1,0 +1,1011 @@
+{
+  "id": "454b0027f0b74f38bf73e4ff9822208a",
+  "created_at": "2026-10-16T15:00:00Z",
+  "period": "2026-10",
+  "source": "demo",
+  "filename": "extracto-demo.csv",
+  "reader": "csv",
+  "currency": "USD",
+  "warnings": [],
+  "demo_shift_days": 0,
+  "settings": {
+    "date_window_days": 3,
+    "fx_tolerance_pct": 0.5,
+    "max_split_parts": 4
+  },
+  "movements": [
+    {
+      "movement": {
+        "id": "m001",
+        "row": 7,
+        "booked_on": "2026-10-14",
+        "description": "ABONO CLIENTE NORTHWIND FACT C-2210",
+        "amount": 18500.0,
+        "currency": "USD",
+        "reference": "C-2210",
+        "quote": "14/10/2026;ABONO CLIENTE NORTHWIND FACT C-2210;C-2210;18.500,00;USD;113.000,00",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m001",
+        "status": "inflow",
+        "level": null,
+        "invoice_id": null,
+        "allocated": 0.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Entrada de USD 18.500: fuera de cuentas por pagar."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": null,
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m002",
+        "row": 8,
+        "booked_on": "2026-10-16",
+        "description": "TRANSF INTERNACIONAL KORA TRADUCCIONES",
+        "amount": -634.02,
+        "currency": "USD",
+        "reference": "KT-0921",
+        "quote": "16/10/2026;TRANSF INTERNACIONAL KORA TRADUCCIONES;KT-0921;-634,02;USD;112.365,98",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m002",
+        "status": "reconciled_with_difference",
+        "level": "tolerance",
+        "invoice_id": "F-001",
+        "allocated": 634.02,
+        "difference": -0.13,
+        "duplicate_of": null,
+        "reason": "Pago en COP convertido: el banco debitó USD 634,02 y Custodio calculó USD 634,15; la diferencia de USD -0,13 cabe en la tolerancia de cambio de ±0,5 % (la factura KT-0921 (F-001))."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-001",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m003",
+        "row": 9,
+        "booked_on": "2026-10-16",
+        "description": "TRANSF DISTRITO NORTE COWORKING",
+        "amount": -926.83,
+        "currency": "USD",
+        "reference": "DN-2209",
+        "quote": "16/10/2026;TRANSF DISTRITO NORTE COWORKING;DN-2209;-926,83;USD;111.439,15",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m003",
+        "status": "reconciled",
+        "level": "exact",
+        "invoice_id": "F-002",
+        "allocated": 926.83,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Referencia exacta a la factura DN-2209 y el mismo monto: USD 926,83."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-002",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m004",
+        "row": 10,
+        "booked_on": "2026-10-16",
+        "description": "PAGO ANDES CODE 1/2",
+        "amount": -3000.0,
+        "currency": "USD",
+        "reference": "AC-2026-10",
+        "quote": "16/10/2026;PAGO ANDES CODE 1/2;AC-2026-10;-3.000,00;USD;108.439,15",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m004",
+        "status": "reconciled",
+        "level": "split",
+        "invoice_id": "F-004",
+        "allocated": 3000.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Pago partido: 2 movimientos (USD 3.000 + USD 1.800) suman exactamente USD 4.800 de la factura AC-2026-10 (F-004)."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-004",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m005",
+        "row": 11,
+        "booked_on": "2026-10-16",
+        "description": "PAGO PULSO SOFTWARE",
+        "amount": -840.0,
+        "currency": "USD",
+        "reference": "PS-88412",
+        "quote": "16/10/2026;PAGO PULSO SOFTWARE;PS-88412;-840,00;USD;107.599,15",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m005",
+        "status": "reconciled",
+        "level": "exact",
+        "invoice_id": "F-005",
+        "allocated": 840.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Referencia exacta a la factura PS-88412 y el mismo monto: USD 840."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-005",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m006",
+        "row": 12,
+        "booked_on": "2026-10-16",
+        "description": "PAGO TRAZO FIRMAS",
+        "amount": -290.0,
+        "currency": "USD",
+        "reference": "TZ-50017",
+        "quote": "16/10/2026;PAGO TRAZO FIRMAS;TZ-50017;-290,00;USD;107.309,15",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m006",
+        "status": "reconciled",
+        "level": "exact",
+        "invoice_id": "F-006",
+        "allocated": 290.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Referencia exacta a la factura TZ-50017 y el mismo monto: USD 290."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-006",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m007",
+        "row": 13,
+        "booked_on": "2026-10-16",
+        "description": "TRANSF PIXEL NORTE SA DE CV",
+        "amount": -3152.17,
+        "currency": "USD",
+        "reference": "PN-1201",
+        "quote": "16/10/2026;TRANSF PIXEL NORTE SA DE CV;PN-1201;-3.152,17;USD;104.156,98",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m007",
+        "status": "reconciled",
+        "level": "amount_date",
+        "invoice_id": "F-007",
+        "allocated": 3152.17,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Mismo monto (USD 3.152,17), Pixel Norte S.A. de C.V. en la descripción y el mismo día del pago del 16 de octubre. La referencia «PN-1201» se parece a PN-1021 pero no es igual; se emparejó sin ella."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-007",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m008",
+        "row": 14,
+        "booked_on": "2026-10-16",
+        "description": "PAGO TANGO DATA",
+        "amount": -3200.0,
+        "currency": "USD",
+        "reference": "TD-0459",
+        "quote": "16/10/2026;PAGO TANGO DATA;TD-0459;-3.200,00;USD;100.956,98",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m008",
+        "status": "reconciled",
+        "level": "exact",
+        "invoice_id": "F-008",
+        "allocated": 3200.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Referencia exacta a la factura TD-0459 y el mismo monto: USD 3.200."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-008",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m009",
+        "row": 15,
+        "booked_on": "2026-10-16",
+        "description": "PAGO VALENTINA ORTIZ",
+        "amount": -1938.0,
+        "currency": "USD",
+        "reference": "VO-10",
+        "quote": "16/10/2026;PAGO VALENTINA ORTIZ;VO-10;-1.938,00;USD;99.018,98",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m009",
+        "status": "reconciled",
+        "level": "exact",
+        "invoice_id": "F-009",
+        "allocated": 1938.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Referencia exacta a la factura VO-10 y el mismo monto: USD 1.938."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-009",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m010",
+        "row": 16,
+        "booked_on": "2026-10-16",
+        "description": "PAGO LUCIA BENITEZ",
+        "amount": -1350.0,
+        "currency": "USD",
+        "reference": "LB-10",
+        "quote": "16/10/2026;PAGO LUCIA BENITEZ;LB-10;-1.350,00;USD;97.668,98",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m010",
+        "status": "reconciled",
+        "level": "exact",
+        "invoice_id": "F-024",
+        "allocated": 1350.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Referencia exacta a la factura LB-10 y el mismo monto: USD 1.350."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-024",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m011",
+        "row": 17,
+        "booked_on": "2026-10-19",
+        "description": "PAGO ANDES CODE 2/2",
+        "amount": -1800.0,
+        "currency": "USD",
+        "reference": "AC-2026-10",
+        "quote": "19/10/2026;PAGO ANDES CODE 2/2;AC-2026-10;-1.800,00;USD;95.868,98",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m011",
+        "status": "reconciled",
+        "level": "split",
+        "invoice_id": "F-004",
+        "allocated": 1800.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Pago partido: 2 movimientos (USD 3.000 + USD 1.800) suman exactamente USD 4.800 de la factura AC-2026-10 (F-004)."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-004",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m012",
+        "row": 18,
+        "booked_on": "2026-10-19",
+        "description": "TRANSF CAJU CLOUD",
+        "amount": -1814.66,
+        "currency": "USD",
+        "reference": "CJ-3390",
+        "quote": "19/10/2026;TRANSF CAJU CLOUD;CJ-3390;-1.814,66;USD;94.054,32",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m012",
+        "status": "reconciled_with_difference",
+        "level": "tolerance",
+        "invoice_id": "F-011",
+        "allocated": 1814.66,
+        "difference": -0.15,
+        "duplicate_of": null,
+        "reason": "Pago en BRL convertido: el banco debitó USD 1.814,66 y Custodio calculó USD 1.814,81; la diferencia de USD -0,15 cabe en la tolerancia de cambio de ±0,5 % (la factura CJ-3390 (F-011))."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-011",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m013",
+        "row": 19,
+        "booked_on": "2026-10-19",
+        "description": "TRANSF MARIA FERNANDA RIOS",
+        "amount": -2244.12,
+        "currency": "USD",
+        "reference": "MFR-031",
+        "quote": "19/10/2026;TRANSF MARIA FERNANDA RIOS;MFR-031;-2.244,12;USD;91.810,20",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m013",
+        "status": "reconciled_with_difference",
+        "level": "tolerance",
+        "invoice_id": "F-012",
+        "allocated": 2243.9,
+        "difference": 0.22,
+        "duplicate_of": null,
+        "reason": "Pago en COP convertido: el banco debitó USD 2.244,12 y Custodio calculó USD 2.243,90; la diferencia de USD 0,22 cabe en la tolerancia de cambio de ±0,5 % (la factura MFR-031 (F-012))."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-012",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m014",
+        "row": 20,
+        "booked_on": "2026-10-19",
+        "description": "PAGO CUMULUS HOSTING",
+        "amount": -1400.0,
+        "currency": "USD",
+        "reference": "CH-2026-1003",
+        "quote": "19/10/2026;PAGO CUMULUS HOSTING;CH-2026-1003;-1.400,00;USD;90.410,20",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m014",
+        "status": "duplicate",
+        "level": null,
+        "invoice_id": null,
+        "allocated": 0.0,
+        "difference": null,
+        "duplicate_of": "m015",
+        "reason": "Igual al movimiento de la fila 21 (misma fecha, monto y descripción): el banco lo lista otra vez o lo cobró dos veces. Confírmalo con el banco."
+      },
+      "needs_review": true,
+      "review": null,
+      "acta_url": null,
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m015",
+        "row": 21,
+        "booked_on": "2026-10-19",
+        "description": "PAGO CUMULUS HOSTING",
+        "amount": -1400.0,
+        "currency": "USD",
+        "reference": "CH-2026-1003",
+        "quote": "19/10/2026;PAGO CUMULUS HOSTING;CH-2026-1003;-1.400,00;USD;89.010,20",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m015",
+        "status": "reconciled",
+        "level": "exact",
+        "invoice_id": "F-014",
+        "allocated": 1400.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Referencia exacta a la factura CH-2026-1003 y el mismo monto: USD 1.400."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-014",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m016",
+        "row": 22,
+        "booked_on": "2026-10-19",
+        "description": "TRANSFERENCIA DIEGO SALAZAR",
+        "amount": -1600.0,
+        "currency": "USD",
+        "reference": null,
+        "quote": "19/10/2026;TRANSFERENCIA DIEGO SALAZAR;;-1.600,00;USD;87.410,20",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m016",
+        "status": "reconciled",
+        "level": "amount_date",
+        "invoice_id": "F-015",
+        "allocated": 1600.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Mismo monto (USD 1.600), Diego Salazar en la descripción y 3 días después del pago del 16 de octubre."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-015",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m017",
+        "row": 23,
+        "booked_on": "2026-10-19",
+        "description": "TRANSF BRUNO ALMEIDA",
+        "amount": -2685.19,
+        "currency": "USD",
+        "reference": "BA-1010",
+        "quote": "19/10/2026;TRANSF BRUNO ALMEIDA;BA-1010;-2.685,19;USD;84.725,01",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m017",
+        "status": "reconciled",
+        "level": "exact",
+        "invoice_id": "F-017",
+        "allocated": 2685.19,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Referencia exacta a la factura BA-1010 y el mismo monto: USD 2.685,19."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-017",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m018",
+        "row": 24,
+        "booked_on": "2026-10-19",
+        "description": "TRANSF SOFIA HERRERA",
+        "amount": -2825.87,
+        "currency": "USD",
+        "reference": "SH-0010",
+        "quote": "19/10/2026;TRANSF SOFIA HERRERA;SH-0010;-2.825,87;USD;81.899,14",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m018",
+        "status": "reconciled_with_difference",
+        "level": "tolerance",
+        "invoice_id": "F-019",
+        "allocated": 2825.87,
+        "difference": -0.22,
+        "duplicate_of": null,
+        "reason": "Pago en MXN convertido: el banco debitó USD 2.825,87 y Custodio calculó USD 2.826,09; la diferencia de USD -0,22 cabe en la tolerancia de cambio de ±0,5 % (la factura SH-0010 (F-019))."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-019",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m019",
+        "row": 25,
+        "booked_on": "2026-10-19",
+        "description": "TRANSF OFICINAS CHAPINERO",
+        "amount": -2317.07,
+        "currency": "USD",
+        "reference": "OC-1010",
+        "quote": "19/10/2026;TRANSF OFICINAS CHAPINERO;OC-1010;-2.317,07;USD;79.582,07",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m019",
+        "status": "reconciled",
+        "level": "exact",
+        "invoice_id": "F-027",
+        "allocated": 2317.07,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Referencia exacta a la factura OC-1010 y el mismo monto: USD 2.317,07."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-027",
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m020",
+        "row": 26,
+        "booked_on": "2026-10-19",
+        "description": "TRANSFERENCIA ORBIT GROWTH PARTNERS",
+        "amount": -2900.0,
+        "currency": "USD",
+        "reference": "OGP-17",
+        "quote": "19/10/2026;TRANSFERENCIA ORBIT GROWTH PARTNERS;OGP-17;-2.900,00;USD;76.682,07",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m020",
+        "status": "unmatched_outflow",
+        "level": null,
+        "invoice_id": null,
+        "allocated": 0.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Salió USD 2.900 el 19 de octubre y ninguna factura pagada por Custodio lo explica. Coincide con la factura OGP-17 (F-018), que esperaba aprobación: Custodio no la pagó. Revisa quién hizo este pago."
+      },
+      "needs_review": true,
+      "review": null,
+      "acta_url": null,
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m021",
+        "row": 27,
+        "booked_on": "2026-10-19",
+        "description": "COMISION ENVIO SWIFT",
+        "amount": -18.0,
+        "currency": "USD",
+        "reference": null,
+        "quote": "19/10/2026;COMISION ENVIO SWIFT;;-18,00;USD;76.664,07",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m021",
+        "status": "bank_fee",
+        "level": null,
+        "invoice_id": null,
+        "allocated": 0.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Cargo del banco de USD 18: comisión o impuesto, no un pago a un proveedor."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": null,
+      "external_id": null,
+      "dashboard_url": null
+    },
+    {
+      "movement": {
+        "id": "m022",
+        "row": 28,
+        "booked_on": "2026-10-19",
+        "description": "CUOTA DE MANEJO OCTUBRE",
+        "amount": -12.0,
+        "currency": "USD",
+        "reference": null,
+        "quote": "19/10/2026;CUOTA DE MANEJO OCTUBRE;;-12,00;USD;76.652,07",
+        "read": true,
+        "unread_reason": null
+      },
+      "result": {
+        "movement_id": "m022",
+        "status": "bank_fee",
+        "level": null,
+        "invoice_id": null,
+        "allocated": 0.0,
+        "difference": null,
+        "duplicate_of": null,
+        "reason": "Cargo del banco de USD 12: comisión o impuesto, no un pago a un proveedor."
+      },
+      "needs_review": false,
+      "review": null,
+      "acta_url": null,
+      "external_id": null,
+      "dashboard_url": null
+    }
+  ],
+  "payments": [
+    {
+      "invoice_id": "F-001",
+      "invoice_number": "KT-0921",
+      "supplier_name": "Kora Traducciones SAS",
+      "paid_on": "2026-10-16",
+      "expected": 634.15,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "tolerance",
+      "movement_ids": [
+        "m002"
+      ],
+      "difference": -0.13,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-001",
+      "reason": "Pago en COP convertido: el banco debitó USD 634,02 y Custodio calculó USD 634,15; la diferencia de USD -0,13 cabe en la tolerancia de cambio de ±0,5 % (la factura KT-0921 (F-001))."
+    },
+    {
+      "invoice_id": "F-002",
+      "invoice_number": "DN-2209",
+      "supplier_name": "Distrito Norte Coworking SAS",
+      "paid_on": "2026-10-16",
+      "expected": 926.83,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "exact",
+      "movement_ids": [
+        "m003"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-002",
+      "reason": "Referencia exacta a la factura DN-2209 y el mismo monto: USD 926,83."
+    },
+    {
+      "invoice_id": "F-004",
+      "invoice_number": "AC-2026-10",
+      "supplier_name": "Andes Code SAS",
+      "paid_on": "2026-10-16",
+      "expected": 4800.0,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "split",
+      "movement_ids": [
+        "m004",
+        "m011"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-004",
+      "reason": "Pago partido: 2 movimientos (USD 3.000 + USD 1.800) suman exactamente USD 4.800 de la factura AC-2026-10 (F-004)."
+    },
+    {
+      "invoice_id": "F-005",
+      "invoice_number": "PS-88412",
+      "supplier_name": "Pulso Software Inc.",
+      "paid_on": "2026-10-16",
+      "expected": 840.0,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "exact",
+      "movement_ids": [
+        "m005"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-005",
+      "reason": "Referencia exacta a la factura PS-88412 y el mismo monto: USD 840."
+    },
+    {
+      "invoice_id": "F-006",
+      "invoice_number": "TZ-50017",
+      "supplier_name": "Trazo Firmas Inc.",
+      "paid_on": "2026-10-16",
+      "expected": 290.0,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "exact",
+      "movement_ids": [
+        "m006"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-006",
+      "reason": "Referencia exacta a la factura TZ-50017 y el mismo monto: USD 290."
+    },
+    {
+      "invoice_id": "F-007",
+      "invoice_number": "PN-1021",
+      "supplier_name": "Pixel Norte S.A. de C.V.",
+      "paid_on": "2026-10-16",
+      "expected": 3152.17,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "amount_date",
+      "movement_ids": [
+        "m007"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-007",
+      "reason": "Mismo monto (USD 3.152,17), Pixel Norte S.A. de C.V. en la descripción y el mismo día del pago del 16 de octubre. La referencia «PN-1201» se parece a PN-1021 pero no es igual; se emparejó sin ella."
+    },
+    {
+      "invoice_id": "F-008",
+      "invoice_number": "TD-0459",
+      "supplier_name": "Tango Data SRL",
+      "paid_on": "2026-10-16",
+      "expected": 3200.0,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "exact",
+      "movement_ids": [
+        "m008"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-008",
+      "reason": "Referencia exacta a la factura TD-0459 y el mismo monto: USD 3.200."
+    },
+    {
+      "invoice_id": "F-009",
+      "invoice_number": "VO-10",
+      "supplier_name": "Valentina Ortiz",
+      "paid_on": "2026-10-16",
+      "expected": 1938.0,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "exact",
+      "movement_ids": [
+        "m009"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-009",
+      "reason": "Referencia exacta a la factura VO-10 y el mismo monto: USD 1.938."
+    },
+    {
+      "invoice_id": "F-011",
+      "invoice_number": "CJ-3390",
+      "supplier_name": "Caju Cloud Ltda",
+      "paid_on": "2026-10-16",
+      "expected": 1814.81,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "tolerance",
+      "movement_ids": [
+        "m012"
+      ],
+      "difference": -0.15,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-011",
+      "reason": "Pago en BRL convertido: el banco debitó USD 1.814,66 y Custodio calculó USD 1.814,81; la diferencia de USD -0,15 cabe en la tolerancia de cambio de ±0,5 % (la factura CJ-3390 (F-011))."
+    },
+    {
+      "invoice_id": "F-012",
+      "invoice_number": "MFR-031",
+      "supplier_name": "María Fernanda Ríos",
+      "paid_on": "2026-10-16",
+      "expected": 2243.9,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "tolerance",
+      "movement_ids": [
+        "m013"
+      ],
+      "difference": 0.22,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-012",
+      "reason": "Pago en COP convertido: el banco debitó USD 2.244,12 y Custodio calculó USD 2.243,90; la diferencia de USD 0,22 cabe en la tolerancia de cambio de ±0,5 % (la factura MFR-031 (F-012))."
+    },
+    {
+      "invoice_id": "F-014",
+      "invoice_number": "CH-2026-1003",
+      "supplier_name": "Cumulus Hosting LLC",
+      "paid_on": "2026-10-16",
+      "expected": 1400.0,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "exact",
+      "movement_ids": [
+        "m015"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-014",
+      "reason": "Referencia exacta a la factura CH-2026-1003 y el mismo monto: USD 1.400."
+    },
+    {
+      "invoice_id": "F-015",
+      "invoice_number": "DS-10",
+      "supplier_name": "Diego Salazar",
+      "paid_on": "2026-10-16",
+      "expected": 1600.0,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "amount_date",
+      "movement_ids": [
+        "m016"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-015",
+      "reason": "Mismo monto (USD 1.600), Diego Salazar en la descripción y 3 días después del pago del 16 de octubre."
+    },
+    {
+      "invoice_id": "F-017",
+      "invoice_number": "BA-1010",
+      "supplier_name": "Bruno Almeida",
+      "paid_on": "2026-10-16",
+      "expected": 2685.19,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "exact",
+      "movement_ids": [
+        "m017"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-017",
+      "reason": "Referencia exacta a la factura BA-1010 y el mismo monto: USD 2.685,19."
+    },
+    {
+      "invoice_id": "F-019",
+      "invoice_number": "SH-0010",
+      "supplier_name": "Sofía Herrera",
+      "paid_on": "2026-10-16",
+      "expected": 2826.09,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "tolerance",
+      "movement_ids": [
+        "m018"
+      ],
+      "difference": -0.22,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-019",
+      "reason": "Pago en MXN convertido: el banco debitó USD 2.825,87 y Custodio calculó USD 2.826,09; la diferencia de USD -0,22 cabe en la tolerancia de cambio de ±0,5 % (la factura SH-0010 (F-019))."
+    },
+    {
+      "invoice_id": "F-024",
+      "invoice_number": "LB-10",
+      "supplier_name": "Lucía Benítez",
+      "paid_on": "2026-10-16",
+      "expected": 1350.0,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "exact",
+      "movement_ids": [
+        "m010"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-024",
+      "reason": "Referencia exacta a la factura LB-10 y el mismo monto: USD 1.350."
+    },
+    {
+      "invoice_id": "F-027",
+      "invoice_number": "OC-1010",
+      "supplier_name": "Oficinas Chapinero SAS",
+      "paid_on": "2026-10-16",
+      "expected": 2317.07,
+      "currency": "USD",
+      "status": "confirmed",
+      "level": "exact",
+      "movement_ids": [
+        "m019"
+      ],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-027",
+      "reason": "Referencia exacta a la factura OC-1010 y el mismo monto: USD 2.317,07."
+    },
+    {
+      "invoice_id": "F-036",
+      "invoice_number": "CO-1016",
+      "supplier_name": "Café Origen SAS",
+      "paid_on": "2026-10-16",
+      "expected": 109.76,
+      "currency": "USD",
+      "status": "pending",
+      "level": null,
+      "movement_ids": [],
+      "difference": null,
+      "external_id": null,
+      "dashboard_url": null,
+      "acta_url": "https://custodio-blinka-green.vercel.app/acta/F-036",
+      "reason": "Custodio pagó USD 109,76 el 16 de octubre y todavía no aparece en este extracto."
+    }
+  ],
+  "summary": {
+    "currency": "USD",
+    "paid": {
+      "count": 17,
+      "total": 32127.97
+    },
+    "held": {
+      "count": 5,
+      "total": 10649.6
+    },
+    "rejected": {
+      "count": 0,
+      "total": 0.0
+    },
+    "pending_approval": {
+      "count": 14,
+      "total": 44787.09
+    },
+    "reconciled": {
+      "count": 17,
+      "total": 32017.71
+    },
+    "differences": {
+      "count": 4,
+      "total": -0.28
+    },
+    "fees": {
+      "count": 2,
+      "total": 30.0
+    },
+    "inflows": {
+      "count": 1,
+      "total": 18500.0
+    },
+    "unexplained": {
+      "count": 2,
+      "total": 4300.0
+    },
+    "pending_in_bank": {
+      "count": 1,
+      "total": 109.76
+    },
+    "alerts": 2,
+    "alerts_open": 2
+  },
+  "can_close": false,
+  "period_closed": null,
+  "ledger_seq": 91
+}

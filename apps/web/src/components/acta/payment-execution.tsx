@@ -1,6 +1,7 @@
 "use client";
 
-import { ExternalLink, RotateCcw, ShieldAlert } from "lucide-react";
+import { CalendarClock, ExternalLink, RotateCcw, ShieldAlert } from "lucide-react";
+import Link from "next/link";
 import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import type { Decision, PaymentExecution, PaymentInstruction } from "@/lib/api/contracts";
@@ -13,6 +14,8 @@ const ACCOUNT_DIGITS_SHOWN = 4;
 
 interface PaymentExecutionBlockProps {
   decision: Decision;
+  /** An intent from another agent is paid by that agent, so Custodio never schedules it. */
+  paidByItsAgent?: boolean;
   onRetry: () => void;
   retrying: boolean;
 }
@@ -27,7 +30,11 @@ function InstructionSummary({ instruction }: { instruction: PaymentInstruction }
   );
 }
 
-function Outcome({ execution, onRetry, retrying }: { execution: PaymentExecution } & Omit<PaymentExecutionBlockProps, "decision">) {
+function Outcome({
+  execution,
+  onRetry,
+  retrying,
+}: { execution: PaymentExecution } & Omit<PaymentExecutionBlockProps, "decision" | "paidByItsAgent">) {
   if (execution.status === "failed") {
     return (
       <div className="flex flex-col items-start gap-2.5">
@@ -64,10 +71,32 @@ function Outcome({ execution, onRetry, retrying }: { execution: PaymentExecution
   );
 }
 
-export function PaymentExecutionBlock({ decision, onRetry, retrying }: PaymentExecutionBlockProps) {
+const PAID: ReadonlySet<Decision["status"]> = new Set(["paid_auto", "paid_human"]);
+
+function Scheduled({ titleId, decision }: { titleId: string; decision: Decision }) {
+  return (
+    <section aria-labelledby={titleId}>
+      <h3 id={titleId} className="eyebrow mb-2.5">
+        Ejecución del pago
+      </h3>
+      <p className="flex flex-wrap items-center gap-1.5 rounded-xl border border-line px-3.5 py-3 text-[14px] text-ink-2">
+        <CalendarClock aria-hidden className="size-4 text-brand" />
+        Programado: {formatMoney(decision.amount_base, SENT_CURRENCY)} salen el día que corresponde, no antes.
+        <Link href="/calendario" className="font-semibold text-brand hover:underline">
+          Ver en el calendario
+        </Link>
+      </p>
+    </section>
+  );
+}
+
+export function PaymentExecutionBlock({ decision, paidByItsAgent = false, onRetry, retrying }: PaymentExecutionBlockProps) {
   const titleId = useId();
   const { execution } = decision;
-  if (!execution) return null;
+  if (!execution) {
+    const scheduled = PAID.has(decision.status) && !paidByItsAgent;
+    return scheduled ? <Scheduled titleId={titleId} decision={decision} /> : null;
+  }
   const amount = execution.instruction
     ? formatMoney(execution.instruction.amount, execution.instruction.currency)
     : formatMoney(decision.amount_base, SENT_CURRENCY);

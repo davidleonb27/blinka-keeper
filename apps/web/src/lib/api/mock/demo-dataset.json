@@ -48,7 +48,10 @@
           "amount": 4800,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Equipo de desarrollo"
+          "source": "Acuerdo: Equipo de desarrollo",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -67,7 +70,10 @@
           "amount": 840,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Licencias de software"
+          "source": "Acuerdo: Licencias de software",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -86,7 +92,10 @@
           "amount": 58000,
           "currency": "MXN",
           "tolerance_pct": null,
-          "source": "Acuerdo: Diseño y frontend"
+          "source": "Acuerdo: Diseño y frontend",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -105,7 +114,10 @@
           "amount": 3200,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Ingeniería de datos"
+          "source": "Acuerdo: Ingeniería de datos",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -124,7 +136,10 @@
           "amount": 9800,
           "currency": "BRL",
           "tolerance_pct": null,
-          "source": "Acuerdo: Infraestructura gestionada"
+          "source": "Acuerdo: Infraestructura gestionada",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -143,7 +158,10 @@
           "amount": 9200000,
           "currency": "COP",
           "tolerance_pct": null,
-          "source": "Acuerdo: Diseño de producto"
+          "source": "Acuerdo: Diseño de producto",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -162,7 +180,10 @@
           "amount": 1600,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Soporte nivel 2"
+          "source": "Acuerdo: Soporte nivel 2",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -181,7 +202,10 @@
           "amount": 2150,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Hosting"
+          "source": "Acuerdo: Hosting",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -200,7 +224,10 @@
           "amount": 60000000,
           "currency": "COP",
           "tolerance_pct": null,
-          "source": "Acuerdo: Honorarios por caso"
+          "source": "Acuerdo: Honorarios por caso",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -219,7 +246,10 @@
           "amount": 2500,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Nube por consumo"
+          "source": "Acuerdo: Nube por consumo",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -238,7 +268,10 @@
           "amount": 1900,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Pruebas de calidad"
+          "source": "Acuerdo: Pruebas de calidad",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -257,7 +290,10 @@
           "amount": 3600,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Backend"
+          "source": "Acuerdo: Backend",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -276,7 +312,10 @@
           "amount": 2800,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Análisis de datos"
+          "source": "Acuerdo: Análisis de datos",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -295,7 +334,10 @@
           "amount": 14500,
           "currency": "BRL",
           "tolerance_pct": null,
-          "source": "Acuerdo: Desarrollo móvil"
+          "source": "Acuerdo: Desarrollo móvil",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -314,7 +356,10 @@
           "amount": 52000,
           "currency": "MXN",
           "tolerance_pct": null,
-          "source": "Acuerdo: Gestión de producto"
+          "source": "Acuerdo: Gestión de producto",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -333,7 +378,10 @@
           "amount": 2400,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: DevOps"
+          "source": "Acuerdo: DevOps",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -352,7 +400,10 @@
           "amount": 1350,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Contenido"
+          "source": "Acuerdo: Contenido",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -371,7 +422,10 @@
           "amount": 3800000,
           "currency": "COP",
           "tolerance_pct": null,
-          "source": "Acuerdo: Coworking en Bogotá"
+          "source": "Acuerdo: Coworking en Bogotá",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -390,7 +444,10 @@
           "amount": 290,
           "currency": "USD",
           "tolerance_pct": null,
-          "source": "Acuerdo: Firma electrónica"
+          "source": "Acuerdo: Firma electrónica",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -409,7 +466,10 @@
           "amount": 2600000,
           "currency": "COP",
           "tolerance_pct": null,
-          "source": "Acuerdo: Traducción y localización"
+          "source": "Acuerdo: Traducción y localización",
+          "early_payment_discount": null,
+          "late_fee_pct": null,
+          "critical": false
         },
         "allowed": true,
         "approver_contact": null
@@ -426,7 +486,11 @@
         "role": "Controller",
         "email": "tomas@cobalto.example"
       }
-    ]
+    ],
+    "trust": {
+      "floor": 0,
+      "hard_ceiling": false
+    }
   },
   "metrics": {
     "total": 27,
