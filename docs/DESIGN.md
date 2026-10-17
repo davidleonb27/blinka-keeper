@@ -249,7 +249,7 @@ defecto, `stripe_test` o `blinka_simulated`) y `STRIPE_SECRET_KEY` (sólo `sk_te
 
 - **Tope por proveedor (R9).** `engine/trust.py` pliega los asientos `trust_raised` y `trust_revoked` del ledger de cada
   proveedor en su tope; no hay contador aparte. Sin historial, el tope es `approval_threshold` (el banco de casos no
-  cambia). Una señal de riesgo (R2, R4, R5, R6 o un rechazo) lo deja en `Policy.trust.floor` (0 por defecto). Tras 3
+  cambia). Una señal de riesgo (R2, R4, R5, R6, R13, una coincidencia OFAC en R14, R15 o un rechazo) lo deja en `Policy.trust.floor` (0 por defecto). Tras 3
   pagos limpios aprobados por una persona el tope es la mediana aprobada; cada pago limpio más suma 25 %, hasta el
   doble; nunca baja por un pago limpio ni pasa del techo (`per_payment_limit`, o `approval_threshold` si
   `Policy.trust.hard_ceiling`). El auditor aplica el mismo tope por su propia identificación del proveedor.
