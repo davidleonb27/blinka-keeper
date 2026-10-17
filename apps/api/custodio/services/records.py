@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from decimal import Decimal
 
-from sqlalchemy import Select, select
+from sqlalchemy import Select, select, update
 
 from custodio.contracts import (
     AgentVerdict,
@@ -83,6 +83,24 @@ def save_decision(ctx: ServiceContext, workspace_id: str, decision: Decision, *,
     row.audit_blocked = audit_blocked or bool(row.audit_blocked)
     row.decided_at = ctx.now()
     ctx.session.flush()
+
+
+def claim_pending(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> bool:
+    """Takes the write lock on a pending decision for this unit of work.
+
+    A concurrent approval of the same decision waits here until this one commits, then finds it no longer pending.
+    Reading the status and deciding afterwards would let both approvals pay.
+    """
+    claimed = ctx.session.connection().execute(
+        update(DecisionRow)
+        .where(
+            DecisionRow.workspace_id == workspace_id,
+            DecisionRow.invoice_id == invoice_id,
+            DecisionRow.status == DecisionStatus.PENDING_APPROVAL.value,
+        )
+        .values(status=DecisionRow.status)
+    )
+    return claimed.rowcount == 1
 
 
 def decision(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> Decision:

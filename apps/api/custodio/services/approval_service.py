@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Final, Literal
 
-from custodio.contracts import Approval, Decision, DecisionStatus
+from custodio.contracts import Approval, Decision
 from custodio.db.models import ApprovalRow, WorkspaceRow
 from custodio.services import invoice_service, records
 from custodio.services.context import ServiceContext
@@ -24,7 +24,8 @@ def decide(
     approver: str,
     note: str | None = None,
 ) -> Decision:
-    if records.decision(ctx, workspace.id, invoice_id).status is not DecisionStatus.PENDING_APPROVAL:
+    records.decision(ctx, workspace.id, invoice_id)  # 404 when this workspace has no such decision
+    if not records.claim_pending(ctx, workspace.id, invoice_id):
         raise DecisionNotPending()
     approval = Approval(
         invoice_id=invoice_id, decision=verdict, approver=approver, channel=CHANNEL, at=ctx.now(), note=note
