@@ -9,9 +9,12 @@ from custodio.contracts import LedgerKind
 from custodio.services import ledger_service
 from custodio.services.context import Runtime
 
-from .helpers import assert_ledger_valid, new_workspace
+from .doubles import invoice_text
+from .helpers import assert_ledger_valid, new_workspace, upload_text
 
 WAIT_SECONDS = 10
+UPLOADERS = 8
+UPLOADS_EACH = 3
 HEAD_READ_GRACE_SECONDS = 0.3
 
 
@@ -49,4 +52,31 @@ def test_a_writer_that_read_a_stale_head_still_appends_after_the_other_commits(
     assert errors == []
     entries = client.get("/api/v1/ledger", headers=workspace.headers).json()
     assert [entry["subject_id"] for entry in entries[-2:]] == ["early", "late"]
+    assert_ledger_valid(client, workspace)
+
+
+def test_simultaneous_uploads_on_one_workspace_all_land_on_one_valid_chain(client: TestClient) -> None:
+    workspace = new_workspace(client)
+    before = len(client.get("/api/v1/ledger", headers=workspace.headers).json())
+    start = threading.Barrier(UPLOADERS)
+    errors: list[BaseException] = []
+
+    def uploader(n: int) -> None:
+        try:
+            start.wait(WAIT_SECONDS)
+            for i in range(UPLOADS_EACH):
+                upload_text(client, workspace, invoice_text(number=f"C-{n}-{i}"))
+        except BaseException as error:  # the thread's failure must reach the test
+            errors.append(error)
+
+    threads = [threading.Thread(target=uploader, args=(n,)) for n in range(UPLOADERS)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(WAIT_SECONDS * 3)
+
+    assert errors == []
+    seqs = [entry["seq"] for entry in client.get("/api/v1/ledger", headers=workspace.headers).json()]
+    assert len(seqs) == before + UPLOADERS * UPLOADS_EACH
+    assert seqs == list(range(seqs[0], seqs[0] + len(seqs)))
     assert_ledger_valid(client, workspace)
