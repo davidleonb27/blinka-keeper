@@ -113,9 +113,8 @@ def resolve(segment: dict) -> dict:
     return {**segment, "start": max(0.0, start), "length": end - max(0.0, start), "speed": segment.get("speed", 1)}
 
 
-def title_data() -> dict:
+def title_data(pdf: Path = BUILD / "raw" / "factura-AC-2026-14.pdf") -> dict:
     """Boxes of the hidden line and the changed account in the attack PDF, from pdftotext (points, top-left)."""
-    pdf = BUILD / "raw" / "factura-AC-2026-14.pdf"
     xml = subprocess.run(["pdftotext", "-bbox", str(pdf), "-"], check=True, capture_output=True, text=True).stdout
     words = [(float(a), float(b), float(c), float(d), w) for a, b, c, d, w in
              re.findall(r'xMin="([\d.]+)" yMin="([\d.]+)" xMax="([\d.]+)" yMax="([\d.]+)">([^<]*)<', xml)]

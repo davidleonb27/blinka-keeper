@@ -224,3 +224,100 @@ export function union(...boxes) {
   const bottom = Math.max(...boxes.map((b) => b.y + b.height));
   return { x, y, width: right - x, height: bottom - y };
 }
+
+// ── «Mouse real» mode: human pace, curved paths, a pause on hover before each click, key-by-key typing. ──
+
+// Deterministic jitter, so a take re-recorded with the same script moves the same way.
+let seed = 7;
+function jitter() {
+  seed = (seed * 16807) % 2147483647;
+  return seed / 2147483647;
+}
+
+/** Moves along a cubic Bézier that bows to one side, slower for longer trips (roughly Fitts' law). */
+export async function humanMove(page, x, y) {
+  const from = { ...page.__cursor };
+  const dx = x - from.x;
+  const dy = y - from.y;
+  const distance = Math.hypot(dx, dy);
+  if (distance < 2) return;
+  const ms = 380 + distance * 0.42;
+  const bow = (jitter() - 0.5) * 0.35 * distance;
+  const nx = -dy / distance;
+  const ny = dx / distance;
+  const c1 = { x: from.x + dx * 0.3 + nx * bow, y: from.y + dy * 0.3 + ny * bow };
+  const c2 = { x: from.x + dx * 0.75 + nx * bow * 0.6, y: from.y + dy * 0.75 + ny * bow * 0.6 };
+  const steps = Math.max(12, Math.round(ms / 16));
+  for (let i = 1; i <= steps; i++) {
+    const t = ease(i / steps);
+    const u = 1 - t;
+    const px = u ** 3 * from.x + 3 * u * u * t * c1.x + 3 * u * t * t * c2.x + t ** 3 * x;
+    const py = u ** 3 * from.y + 3 * u * u * t * c1.y + 3 * u * t * t * c2.y + t ** 3 * y;
+    await page.mouse.move(px, py);
+    await page.evaluate(([a, b]) => window.__pitchMove?.(a, b), [px, py]);
+    await page.waitForTimeout(16);
+  }
+  page.__cursor = { x, y };
+}
+
+/** A point inside the element, a little off its center the way a hand aims. */
+async function aim(locator) {
+  await locator.scrollIntoViewIfNeeded();
+  const box = await locator.boundingBox();
+  return {
+    x: box.x + box.width * (0.42 + jitter() * 0.16),
+    y: box.y + box.height * (0.4 + jitter() * 0.2),
+  };
+}
+
+export async function humanHover(page, locator, ms = 700) {
+  const point = await aim(locator);
+  await humanMove(page, point.x, point.y);
+  await page.waitForTimeout(ms);
+}
+
+export async function humanClick(page, locator, hover = 380) {
+  const point = await aim(locator);
+  await humanMove(page, point.x, point.y);
+  await page.waitForTimeout(hover + jitter() * 200);
+  await page.evaluate(([a, b]) => window.__pitchClick?.(a, b), [point.x, point.y]);
+  await page.mouse.down();
+  await page.waitForTimeout(70 + jitter() * 40);
+  await page.mouse.up();
+}
+
+/** Types key by key at a typing pace, with a longer beat after spaces and punctuation. */
+export async function humanType(page, text) {
+  for (const char of text) {
+    await page.keyboard.type(char);
+    const pause = /[\s,.:;]/.test(char) ? 120 + jitter() * 90 : 55 + jitter() * 70;
+    await page.waitForTimeout(pause);
+  }
+}
+
+/** Scrolls with the wheel in small notches, so the motion reads as a hand on a mouse. */
+export async function humanScroll(page, dy) {
+  const notches = Math.max(1, Math.round(Math.abs(dy) / 60));
+  const step = dy / notches;
+  for (let i = 0; i < notches; i++) {
+    await page.mouse.wheel(0, step);
+    await page.waitForTimeout(28 + jitter() * 20);
+  }
+  await page.waitForTimeout(250);
+}
+
+/** Scrolls until the element sits about `top` px below the viewport top. */
+export async function humanScrollTo(page, locator, top = 160) {
+  const box = await locator.boundingBox();
+  if (box) await humanScroll(page, box.y - top);
+}
+
+/** Holds still with a faint drift of the hand, for the idle tail every take ends with. */
+export async function idle(page, ms) {
+  const start = Date.now();
+  while (Date.now() - start < ms) {
+    const { x, y } = page.__cursor;
+    await humanMove(page, x + (jitter() - 0.5) * 18, y + (jitter() - 0.5) * 12);
+    await page.waitForTimeout(500 + jitter() * 400);
+  }
+}

@@ -1,5 +1,6 @@
 // Records the pitch's product takes on the deployed demo, in a brand-new demo workspace.
 // Usage: node record.mjs [outDir] [take ...]   (default outDir: build/raw; default: every take, in order)
+//        node record.mjs --real [outDir] [block ...]   «mouse real» takes for GUION-VOZ.md (default outDir: build/real)
 // Each take writes build/raw/<take>.mp4 (30 fps) and <take>.marks.json; edl.json cuts the pitch from those marks.
 import { execFileSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
@@ -10,11 +11,14 @@ import {
   SCALE, VIEWPORT, clickLocator, moveTo, moveToLocator, preparePage, restoreCursor, smoothScroll, smoothScrollInto,
   startRecording, union, zoomOut, zoomTo,
 } from "./lib.mjs";
+import { BLOCKS as REAL_BLOCKS, ORDER as REAL_ORDER } from "./real.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const BASE = process.env.CUSTODIO_URL ?? "https://custodio-blinka-green.vercel.app";
-const OUT = path.resolve(process.argv[2] ?? path.join(HERE, "build", "raw"));
-const ONLY = process.argv.slice(3);
+const REAL = process.argv[2] === "--real";
+const ARGS = process.argv.slice(REAL ? 3 : 2);
+const OUT = path.resolve(ARGS[0] ?? path.join(HERE, "build", REAL ? "real" : "raw"));
+const ONLY = ARGS.slice(1);
 const ATTACK_PDF = path.join(OUT, "factura-AC-2026-14.pdf");
 const RULE = "Nada sobre 1.000 USD sin que lo apruebe Ana";
 const LONG = { timeout: 240_000 };
@@ -397,6 +401,42 @@ const TAKES = {
 // transfer of an invoice paid on its own (paid). The deployment caps Stripe test transfers per day; when the cap is hit,
 // paid fails loudly and build.py falls back to a paid_stripe take recorded earlier, if there is one.
 const ORDER = ["landing", "held", "paid", "ledger", "rules", "reconcile", "calendar", "autonomy", "attack", "arena", "stage", "docs"];
+
+if (REAL) {
+  await recordReal();
+  process.exit(0);
+}
+
+async function recordReal() {
+  mkdirSync(OUT, { recursive: true });
+  const attack = path.join(OUT, "factura-AC-2026-14.pdf");
+  execFileSync("uv", ["run", "--directory", path.join(HERE, "../../apps/api"), "python", path.join(HERE, "make_attack_pdf.py"), attack], {
+    env: { ...process.env, PYTHONPATH: path.join(HERE, "../../apps/api") },
+    stdio: "inherit",
+  });
+  mkdirSync(path.join(OUT, "..", "assets"), { recursive: true });
+  execFileSync("pdftoppm", ["-r", "200", "-png", "-singlefile", attack, path.join(OUT, "..", "assets", "attack")]);
+  const state = path.join(OUT, "state.json");
+  const reuse = ONLY.length > 0 && !ONLY.includes("b03");
+  const browser = await chromium.launch();
+  const context = await browser.newContext({
+    viewport: VIEWPORT, deviceScaleFactor: SCALE, locale: "es-CO", timezoneId: "America/Bogota", colorScheme: "light",
+    ...(reuse ? { storageState: state } : {}),
+  });
+  const page = await preparePage(context);
+  page.on("pageerror", (error) => console.log("pageerror", error.message));
+  for (const block of REAL_ORDER.filter((name) => ONLY.length === 0 || ONLY.includes(name))) {
+    const act = await REAL_BLOCKS[block](page, { base: BASE, here: HERE, out: OUT });
+    const rec = await startRecording(page, OUT, block);
+    await act(rec);
+    const { list, frames, end } = await rec.stop();
+    if (block === "b03") await context.storageState({ path: state });
+    console.log(`${block}: ${frames} cuadros en ${end.toFixed(1)} s`);
+    execFileSync("ffmpeg", ["-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", list, "-vf", "fps=30,format=yuv420p",
+      "-c:v", "libx264", "-preset", "medium", "-crf", "16", path.join(OUT, `${block}.mp4`)]);
+  }
+  await browser.close();
+}
 
 // Without the landing take, reuse the demo workspace the last full run created (handy to re-record one take).
 const STATE = path.join(OUT, "state.json");
