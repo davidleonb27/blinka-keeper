@@ -27,7 +27,8 @@ class PaymentOrder:
 const RAILS: [string, string, string][] = [
   ["simulated", "por defecto", "No mueve dinero ni usa la red; el recibo dice que fue simulado."],
   ["stripe_test", "STRIPE_SECRET_KEY=sk_test_…", "Transferencias reales de Stripe en modo prueba a cuentas conectadas de prueba."],
-  ["el de tu empresa", "tu implementación", "Por ejemplo Blinka (ACH, wire, Bre-B, SPEI, Pix), con sus beneficiarios ya verificados."],
+  ["blinka_simulated", "sin clave ni red", "Arma la instrucción exacta para Blinka (ACH, wire, Bre-B, SPEI o Pix) y no la envía: Blinka aún no tiene API pública."],
+  ["el de tu empresa", "tu implementación", "Por ejemplo Blinka en producción, con sus beneficiarios ya verificados."],
 ];
 
 export default function RailsPage() {

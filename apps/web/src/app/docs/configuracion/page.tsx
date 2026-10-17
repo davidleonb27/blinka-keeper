@@ -24,7 +24,7 @@ const VARIABLES: readonly Variable[] = [
   {
     name: "CUSTODIO_PAYMENT_RAIL",
     fallback: "simulated",
-    text: "Riel que ejecuta lo aprobado: simulated (no mueve dinero) o stripe_test (Stripe en modo prueba).",
+    text: "Riel que ejecuta lo aprobado: simulated (no mueve dinero), stripe_test (Stripe en modo prueba) o blinka_simulated (arma la instrucción para Blinka sin enviarla).",
   },
   {
     name: "STRIPE_SECRET_KEY",
