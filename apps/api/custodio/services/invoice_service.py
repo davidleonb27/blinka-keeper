@@ -38,6 +38,8 @@ MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
 DOCUMENT_MEDIA_TYPES = frozenset({"application/pdf", "image/png", "image/jpeg", "image/webp"})
 TEXT_MEDIA_TYPE = "text/plain"
 UNREAD_READER = "sin-lectura"
+AUDITOR_STOP = "El auditor independiente no confirmó este pago y no se hizo"
+HOLD_RULE_STOP = "Una regla de retención falló, así que este pago no se hizo"
 FIELD_NAMES = tuple(name for name, info in ExtractedInvoice.model_fields.items() if info.annotation is ExtractedField)
 
 
@@ -53,7 +55,7 @@ class InvoiceView(BaseModel):
 class Outcome(BaseModel):
     batch: BatchResult
     audit: AuditReport
-    vetoed: list[str]  # invoices the engine would have paid and the independent auditor stopped
+    vetoed: list[str]  # payments the engine wanted that did not go out (auditor rejection or failing hold rule)
 
 
 def receive_document(
@@ -103,13 +105,13 @@ def decide(
     policy = policy_service.current(ctx, workspace.id)
     batch = ctx.lanes.decide_all(cases, state, policy, approvals)
     report = ctx.lanes.audit(batch, cases, state, policy)
-    blocked = _vetoed_invoices(batch, report)
-    final = _attach_approvals(_apply_veto(batch, report, blocked), approvals or {})
+    stopped = _stopped_payments(batch, report)
+    final = _attach_approvals(_apply_stops(batch, stopped), approvals or {})
     for decision in final.decisions:
-        _record(ctx, workspace.id, decision, (approvals or {}).get(decision.invoice_id), decision.invoice_id in blocked)
+        _record(ctx, workspace.id, decision, (approvals or {}).get(decision.invoice_id), decision.invoice_id in stopped)
     pending = [d for d in final.decisions if d.status is DecisionStatus.PENDING_APPROVAL]
     approval_tokens.request_approvals(ctx, workspace, policy, pending)
-    return Outcome(batch=final, audit=report, vetoed=sorted(blocked))
+    return Outcome(batch=final, audit=report, vetoed=sorted(stopped))
 
 
 def narrate(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> str:
@@ -179,30 +181,38 @@ def _unread(document_id: str, source: InvoiceSource, visible_text: str) -> Extra
     )
 
 
-def _vetoed_invoices(batch: BatchResult, report: AuditReport) -> set[str]:
-    """Payments the auditor does not confirm. If it cannot say which, none of the batch's payments go out."""
-    paid = {d.invoice_id for d in batch.decisions if d.status in records.PAID}
-    named = {f.invoice_id for f in report.findings if f.severity == "critical"} & paid
-    return paid if report.improper_payments > len(named) else named
+def _stopped_payments(batch: BatchResult, report: AuditReport) -> dict[str, str]:
+    """Payments that do not go out, with the reason the acta shows.
+
+    The auditor's rejections win; if it cannot say which payment it rejects, none of the batch's payments go out. As a
+    last guard of the invariant, a payment whose own acta shows a failing hold rule never goes out either.
+    """
+    paid = [d for d in batch.decisions if d.status in records.PAID]
+    findings = {f.invoice_id: f.message for f in report.findings if f.severity == "critical"}
+    unattributed = report.improper_payments > sum(d.invoice_id in findings for d in paid)
+    stopped: dict[str, str] = {}
+    for decision in paid:
+        failing_holds = [r.label for r in decision.rules if r.outcome is RuleOutcome.HOLD]
+        if decision.invoice_id in findings:
+            stopped[decision.invoice_id] = f"{AUDITOR_STOP}: {findings[decision.invoice_id]}"
+        elif unattributed:
+            stopped[decision.invoice_id] = f"{AUDITOR_STOP}."
+        elif failing_holds:
+            stopped[decision.invoice_id] = f"{HOLD_RULE_STOP}: {', '.join(failing_holds)}."
+    return stopped
 
 
-def _apply_veto(batch: BatchResult, report: AuditReport, blocked: set[str]) -> BatchResult:
-    if not blocked:
+def _apply_stops(batch: BatchResult, stopped: Mapping[str, str]) -> BatchResult:
+    if not stopped:
         return batch
-    reasons = {f.invoice_id: f.message for f in report.findings if f.severity == "critical"}
-    decisions = [
-        _held_by_auditor(d, reasons.get(d.invoice_id)) if d.invoice_id in blocked else d for d in batch.decisions
-    ]
-    released = _total(d for d in batch.decisions if d.invoice_id in blocked)
-    released_auto = _total(
-        d for d in batch.decisions if d.invoice_id in blocked and d.status is DecisionStatus.PAID_AUTO
-    )
+    held = [d for d in batch.decisions if d.invoice_id in stopped]
+    decisions = [_held(d, stopped[d.invoice_id]) if d.invoice_id in stopped else d for d in batch.decisions]
     return batch.model_copy(
         update={
             "decisions": decisions,
-            "balance_end": batch.balance_end + released,
-            "spent_auto_base": batch.spent_auto_base - released_auto,
-            "metrics": records.count_metrics(decisions, improper_payments=len(blocked)),
+            "balance_end": batch.balance_end + _total(held),
+            "spent_auto_base": batch.spent_auto_base - _total(d for d in held if d.status is DecisionStatus.PAID_AUTO),
+            "metrics": records.count_metrics(decisions, improper_payments=len(stopped)),
         }
     )
 
@@ -225,14 +235,9 @@ def _with_approval(decision: Decision, approval: Approval) -> Decision:
     return decision.model_copy(update=update)
 
 
-def _held_by_auditor(decision: Decision, finding: str | None) -> Decision:
-    reason = "El auditor independiente no confirmó este pago y no se hizo"
+def _held(decision: Decision, reason: str) -> Decision:
     return decision.model_copy(
-        update={
-            "status": DecisionStatus.HOLD,
-            "balance_after": decision.balance_before,
-            "blocked_reason": f"{reason}: {finding}" if finding else f"{reason}.",
-        }
+        update={"status": DecisionStatus.HOLD, "balance_after": decision.balance_before, "blocked_reason": reason}
     )
 
 
