@@ -33,6 +33,8 @@ _BALANCE_ROW = re.compile(r"^(saldo|total|balance|opening balance|closing balanc
 _ISO_DATE = re.compile(r"^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$")
 _NUMERIC_DATE = re.compile(r"^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4}|\d{2})$")
 _CURRENCY_CODE = re.compile(r"^[A-Z]{3}$")
+_CURRENCY_SYMBOLS = re.compile(r"US\$|R\$")
+_WORD = re.compile(r"[^\W\d_]+")
 
 
 class Role(StrEnum):
@@ -199,7 +201,7 @@ def _movement(
 def _amount(cells: Sequence[str], header: Header) -> tuple[Decimal | None, str | None]:
     if Role.AMOUNT in header.columns:
         return _signed(_cell(cells, header, Role.AMOUNT))
-    debit, credit = _cell(cells, header, Role.DEBIT), _cell(cells, header, Role.CREDIT)
+    debit, credit = (_nonzero(_cell(cells, header, role)) for role in (Role.DEBIT, Role.CREDIT))
     if debit and credit:
         return None, f"La fila trae cargo «{debit}» y abono «{credit}» a la vez; no se elige uno."
     if not debit and not credit:
@@ -210,7 +212,16 @@ def _amount(cells: Sequence[str], header: Header) -> tuple[Decimal | None, str |
     return (-abs(amount) if debit else abs(amount)), None
 
 
+def _nonzero(cell: str) -> str:
+    """A debit or credit cell, empty when it reads as zero: banks write «0,00» in the column that does not apply."""
+    amount, _ = _signed(cell)
+    return "" if amount == 0 else cell
+
+
 def _signed(cell: str) -> tuple[Decimal | None, str | None]:
+    words = [word for word in _WORD.findall(_CURRENCY_SYMBOLS.sub("", cell)) if not _CURRENCY_CODE.match(word)]
+    if words:  # «50,00 DB» is an outflow: a marker the code does not read never leaves a positive amount behind
+        return None, f"El monto «{cell}» trae «{' '.join(words)}» junto al número; no se adivina su signo."
     try:
         return parse_signed_amount(cell), None
     except AmountFormatError:
