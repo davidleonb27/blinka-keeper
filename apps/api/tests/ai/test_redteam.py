@@ -29,13 +29,18 @@ ESCALATED = make_decision(failing={"R2": (RuleOutcome.ESCALATE, "El documento tr
 
 
 class Judge:
-    def __init__(self, *decisions: Decision) -> None:
+    """Plays back decisions, or raises an exception queued in their place."""
+
+    def __init__(self, *decisions: Decision | Exception) -> None:
         self.decisions = list(decisions)
         self.seen: list[AttackSpec] = []
 
     def __call__(self, spec: AttackSpec) -> Decision:
         self.seen.append(spec)
-        return self.decisions.pop(0)
+        decision = self.decisions.pop(0)
+        if isinstance(decision, Exception):
+            raise decision
+        return decision
 
 
 def run(fake_llm: FakeLLM, judge: Judge, rounds: int) -> list[Any]:
@@ -250,3 +255,32 @@ def test_an_exhausted_budget_stops_the_run_instead_of_retrying_every_round(fake_
     assert summary.round == 2
     assert "1 de 1" in (summary.message or "")
     assert "detenida en la ronda 2 de 4" in (summary.message or "")
+
+
+def test_a_model_failure_inside_the_judge_is_an_error_and_never_counts_as_caught(fake_llm: FakeLLM) -> None:
+    # The real pipeline reads the invoice with Claude, so the judge can fail with the same typed errors.
+    fake_llm.reply(attack("Cuenta cambiada"), attack("Proveedor parecido"))
+
+    events = run(fake_llm, Judge(llm.LLMTruncated("la lectura se cortó"), HELD), rounds=2)
+
+    assert [e.type for e in events if e.round == 1] == ["round_started", "attack_generated", "error", "round_finished"]
+    assert "no cuenta como atrapado" in (events[2].message or "")
+    assert "1 de 1" in (events[-1].message or "")
+    assert "sin veredicto: 1" in (events[-1].message or "")
+
+
+def test_a_spent_budget_inside_the_judge_also_stops_the_run(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(attack("Cuenta cambiada"))
+
+    events = run(fake_llm, Judge(llm.LLMBudgetExceeded("Límite diario de gasto en modelos alcanzado.")), rounds=3)
+
+    assert len(fake_llm.calls) == 1
+    assert events[-1].type == "summary"
+    assert events[-1].caught is None
+
+
+def test_a_bug_in_the_judge_is_not_swallowed(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(attack("Cuenta cambiada"))
+
+    with pytest.raises(KeyError):
+        run(fake_llm, Judge(KeyError("R4")), rounds=1)
