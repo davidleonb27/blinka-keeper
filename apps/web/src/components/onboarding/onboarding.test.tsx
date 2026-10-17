@@ -65,7 +65,8 @@ describe("Onboarding", () => {
     await pressEnter();
     expect(screen.getByRole("alert")).toHaveTextContent("Agrega al menos una persona que apruebe.");
     await userEvent.type(screen.getByLabelText("Nombre de quien aprueba"), "Ana Gómez");
-    await userEvent.type(screen.getByLabelText(/Usuario de Telegram/), "@ana");
+    expect(screen.queryByLabelText(/Telegram/)).not.toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText(/Correo de quien aprueba/), "ana@cafelamontana.co");
     await pressEnter();
 
     await screen.findByRole("heading", { name: "Tus reglas, en tus palabras" });
