@@ -13,6 +13,7 @@ from custodio.dataset.demo import DemoCase, to_case
 from custodio.engine import audit, decide_all
 from custodio.engine.bank_details import account_checks, tax_id_check
 from custodio.engine.sanctions import SanctionsList
+from custodio.engine.text import fold, name_tokens
 
 FIXTURES = Path(__file__).parents[1] / "fixtures" / "sanctions"
 FICTITIOUS = SanctionsList.from_json((FIXTURES / "fictitious_sdn.json").read_text(encoding="utf-8"))
@@ -44,8 +45,8 @@ def test_every_registered_tax_id_and_account_of_the_demo_passes_its_check() -> N
 
 def test_the_demo_registers_a_domain_for_every_company_and_a_contact_for_the_suppliers_it_verifies() -> None:
     _, policy = demo_company()
-    companies = [b for b in policy.beneficiaries if b.tax_id[0] in "89" or b.country in ("US", "DE")]
-    assert companies and all(b.email_domain for b in companies if b.allowed)
+    companies = [b for b in policy.beneficiaries if name_tokens(b.name) != fold(b.name).replace(".", "").split()]
+    assert len(companies) >= 15 and all(b.email_domain for b in companies)
     assert {"b12", "b16", "b29"} <= {b.id for b in policy.beneficiaries if b.approver_contact}
 
 
@@ -102,7 +103,7 @@ def test_a_supplier_on_the_fictitious_list_is_escalated_by_r14_alone_and_the_res
     decision = next(d for d in batch.decisions if d.invoice_id == listed.id)
     assert decision.agent_verdict is AgentVerdict.ESCALATE
     assert [r.rule_id for r in decision.rules if r.outcome is not RuleOutcome.PASS] == ["R14"]
-    r14, reason = outcome(decision, "R14")
+    _, reason = outcome(decision, "R14")
     assert "QUIMERA FICTICIA TRADING LLC" in reason and "lista ficticia de prueba" in reason
     assert batch.metrics.accuracy == 1.0 and batch.metrics.improper_payments == 0
     assert audit(batch, cases, state, policy, sanctions=FICTITIOUS).agrees
