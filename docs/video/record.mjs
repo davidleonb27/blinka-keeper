@@ -22,6 +22,7 @@ const LONG = { timeout: 240_000 };
 const hold = (page, ms) => page.waitForTimeout(ms);
 
 async function open(page, url) {
+  page.__camera = null;
   await page.goto(BASE + url);
   await page.waitForLoadState("networkidle");
   await restoreCursor(page);
@@ -90,46 +91,131 @@ const TAKES = {
     rec.mark("end");
   },
 
-  // A held invoice: why, the rule, and what would have to change.
+  // A held invoice with a changed account sent from a look-alike domain: why, who to call (the contact on file), the
+  // OFAC check and the out-of-band rule.
   async held(page, rec) {
     await open(page, "/panel");
     await clickLocator(page, page.getByRole("button", { name: /^Retenidas/ }));
-    await search(page, "Andrés Paredes");
-    const acta = await openRow(page, "Andrés Paredes");
+    await search(page, "Joaquín Méndez");
+    const acta = await openRow(page, "Joaquín Méndez");
     rec.mark("acta");
     await hold(page, 900);
     const why = acta.getByText("Por qué", { exact: true });
-    const change = acta.getByText("Qué tendría que cambiar", { exact: true });
-    const changeText = change.locator("xpath=following-sibling::*[1]");
-    await zoomTo(page, union(await why.boundingBox(), await changeText.boundingBox()), 1.5);
+    const changeText = acta.getByText("Qué tendría que cambiar", { exact: true }).locator("xpath=following-sibling::*[1]");
+    await zoomTo(page, union(await why.boundingBox(), await changeText.boundingBox()), 1.35);
     rec.mark("zoom_why");
-    await hold(page, 4200);
+    await hold(page, 5200);
     await zoomOut(page);
-    const r4 = acta.getByRole("listitem").filter({ hasText: "Cuenta registrada" });
-    await smoothScrollInto(page, r4, 260);
+    const r14 = acta.getByRole("listitem").filter({ hasText: "Sin coincidencia en la lista OFAC" });
+    const r15 = acta.getByRole("listitem").filter({ hasText: "Verificación fuera de banda" });
+    await smoothScrollInto(page, r14, 160);
     await hold(page, 400);
-    await zoomTo(page, await r4.boundingBox(), 1.6);
-    rec.mark("zoom_r4");
-    await hold(page, 3200);
+    await zoomTo(page, union(await r14.boundingBox(), await r15.boundingBox()), 1.45);
+    rec.mark("zoom_controls");
+    await hold(page, 4600);
     await zoomOut(page);
     await closeActa(page);
     rec.mark("end");
   },
 
-  // A paid invoice: the Stripe test-mode transfer id in the acta.
+  // A paid invoice whose transfer already went out: the Stripe test-mode id in the acta. Payments not yet due wait for
+  // their day (the scheduler), so the take asks the API which one carries a tr_ id.
   async paid(page, rec) {
+    const workspace = (await page.context().cookies()).find((c) => c.name === "custodio_ws")?.value ?? "";
+    const response = await page.request.get(`${BASE}/api/v1/decisions`, { headers: { "X-Custodio-Workspace": workspace } });
+    const body = await response.json();
+    const sent = (body.items ?? body).find((item) => /^tr_/.test(JSON.stringify(item).match(/"external_id":"([^"]*)"/)?.[1] ?? ""));
+    const supplier = sent.decision.supplier_name;
+    console.log(`[paid] con transferencia: ${sent.decision.invoice_id} ${supplier}`);
     await open(page, "/panel");
     await clickLocator(page, page.getByRole("button", { name: /^Pagadas/ }));
-    await hold(page, 600);
-    const acta = await openRow(page, "Pagada sola");
+    await search(page, supplier);
+    const acta = await openRow(page, supplier);
     rec.mark("acta");
     const payment = acta.getByRole("region", { name: "Ejecución del pago" });
+    await smoothScrollInto(page, payment, 200, 600);
     await moveToLocator(page, payment.getByText(/tr_/), 900);
     await zoomTo(page, await payment.boundingBox(), 1.8);
     rec.mark("zoom_tr");
     await hold(page, 3800);
     await zoomOut(page);
     await closeActa(page);
+    rec.mark("end");
+  },
+
+  // The scheduler: approved payments go out on their due date, never under the reserve, with the value it captures.
+  async calendar(page, rec) {
+    await open(page, "/calendario");
+    await page.getByText("Valor capturado este mes").waitFor(LONG);
+    rec.mark("start");
+    await hold(page, 1500);
+    const value = page.getByText("Valor capturado este mes").locator("xpath=ancestor::*[contains(@class,'card-surface')][1]");
+    await zoomTo(page, await value.boundingBox(), 1.5);
+    rec.mark("zoom_value");
+    await hold(page, 2800);
+    await zoomOut(page);
+    const next = page.getByRole("region", { name: "Próximos 45 días" });
+    const box = await next.boundingBox();
+    await zoomTo(page, { ...box, height: Math.min(box.height, 330) }, 1.45);
+    rec.mark("zoom_next");
+    await hold(page, 3000);
+    await zoomOut(page);
+    rec.mark("end");
+  },
+
+  // Bank reconciliation with the demo statement. The camera frames the page below the upload hint (which names the
+  // model that reads PDF statements) from the first cut frame on.
+  async reconcile(page, rec) {
+    await open(page, "/conciliacion");
+    const button = page.getByRole("button", { name: /Usar extracto de demo/ });
+    await button.waitFor(LONG);
+    const hint = await page.getByText(/CSV: lo lee el código/).boundingBox();
+    const top = hint.y + hint.height + 6;
+    await moveToLocator(page, button, 600);
+    await zoomTo(page, { x: 0, y: top, width: 1920, height: 1080 - top }, 1080 / (1080 - top), 700);
+    rec.mark("framed");
+    await hold(page, 600);
+    await clickLocator(page, button);
+    rec.mark("demo_click");
+    const heading = page.getByText(/Extracto de \w+ de \d{4}/);
+    await heading.waitFor(LONG);
+    rec.mark("reconciled");
+    await hold(page, 900);
+    const summary = union(await heading.boundingBox(), await page.getByText("Aún no en el banco").first().boundingBox());
+    await zoomTo(page, { ...summary, x: summary.x - 20, width: summary.width + 900, height: summary.height + 80 }, 1.35);
+    rec.mark("zoom_summary");
+    await hold(page, 3400);
+    const alerts = page.getByText("Sin factura", { exact: true }).first();
+    await zoomTo(page, { ...(await alerts.boundingBox()), width: 420, height: 160 }, 1.9);
+    rec.mark("zoom_unbilled");
+    await hold(page, 2400);
+    rec.mark("end");
+    await zoomOut(page);
+  },
+
+  // Earned autonomy: «Simular 30 días» plays a seeded month; a single risk signal sends a supplier back to supervision.
+  async autonomy(page, rec) {
+    await open(page, "/autonomia");
+    const simulate = page.getByRole("button", { name: /Simular 30 días/ });
+    await simulate.waitFor(LONG);
+    rec.mark("start");
+    await hold(page, 900);
+    await clickLocator(page, simulate);
+    rec.mark("simulate_click");
+    const done = page.getByText(/^Simulado: 30 días/);
+    await done.waitFor(LONG);
+    rec.mark("simulated");
+    await hold(page, 900);
+    await zoomTo(page, union(await done.boundingBox(), await page.getByText("Tasa de autonomía").boundingBox()), 1.35);
+    rec.mark("zoom_simulated");
+    await hold(page, 3000);
+    await zoomOut(page);
+    const card = page.getByText("Confianza revocada", { exact: false }).first().locator("xpath=ancestor::*[contains(@class,'card-surface')][1]");
+    await card.scrollIntoViewIfNeeded();
+    await zoomTo(page, await card.boundingBox(), 1.6);
+    rec.mark("zoom_revoked");
+    await hold(page, 3200);
+    await zoomOut(page);
     rec.mark("end");
   },
 
@@ -269,27 +355,46 @@ const TAKES = {
     rec.mark("done");
     await hold(page, 800);
     const stats = page.getByText("Pagos indebidos", { exact: true }).locator("xpath=ancestor::div[contains(@class,'grid-cols-3')][1]");
-    const box = await stats.boundingBox();
-    await zoomTo(page, { x: box.x, y: Math.max(box.y, top), width: box.width, height: box.height }, 1.25);
+    await zoomTo(page, await stats.boundingBox(), 1.3);
     rec.mark("zoom_stats");
     await hold(page, 3000);
     rec.mark("end");
     await zoomOut(page);
   },
 
-  // The open API documentation the deployment serves.
-  async docs(page, rec) {
-    await open(page, "/api/v1/docs");
-    await page.getByText(/firewall/i).first().waitFor(LONG);
+  // The public challenge on a stage: a QR to /reto and the improper-payments counter, live.
+  async stage(page, rec) {
+    await open(page, "/reto?escenario=1");
+    const counter = page.getByRole("region", { name: "Contador en vivo" });
+    await counter.waitFor(LONG);
     rec.mark("start");
-    await hold(page, 1500);
-    await smoothScroll(page, 700, 2600);
+    await hold(page, 2200);
+    await zoomTo(page, await counter.boundingBox(), 1.35);
+    rec.mark("zoom_counter");
+    await hold(page, 2600);
+    await zoomOut(page);
+    rec.mark("end");
+  },
+
+  // Self-hosting in one command, as the open-source site documents it.
+  async docs(page, rec) {
+    await open(page, "/docs/inicio-rapido");
+    const command = page.getByText("docker compose up --build").first();
+    await command.waitFor(LONG);
+    rec.mark("start");
     await hold(page, 1200);
+    const block = command.locator("xpath=ancestor::*[self::pre or contains(@class,'rounded')][1]");
+    await zoomTo(page, await block.boundingBox(), 1.6);
+    rec.mark("zoom_docker");
+    await hold(page, 3200);
+    await zoomOut(page);
     rec.mark("end");
   },
 };
 
-const ORDER = ["landing", "held", "paid", "approve", "ledger", "rules", "attack", "arena", "docs"];
+// approve and paid stay available (`node record.mjs build/raw paid`). Since the scheduler (L13) an approved payment waits for
+// its due date, and the deployment caps Stripe test transfers per day, so the cut takes the payment from its own take.
+const ORDER = ["landing", "held", "ledger", "rules", "reconcile", "calendar", "autonomy", "attack", "arena", "stage", "docs"];
 
 // Without the landing take, reuse the demo workspace the last full run created (handy to re-record one take).
 const STATE = path.join(OUT, "state.json");

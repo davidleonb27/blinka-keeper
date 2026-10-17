@@ -21,8 +21,8 @@ Entrega: video de 3:00 exactos, demo en vivo y repo público. Equipo DreamMakers
 
 ## Versión de 3:00
 
-Es el guion de `docs/video/out/custodio-pitch-horizontal.mp4` (2:55.8). Los tiempos de abajo son
-los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase por frase, están en
+Es el guion de `docs/video/out/custodio-pitch-horizontal.mp4` (2:59.3). Los tiempos de abajo son
+los del corte en segundos enteros sobre 3:00; los exactos, frase por frase, están en
 [`video/GUION.md`](video/GUION.md).
 
 ### 0:00–0:09 · Una maqueta lo dice; Custodio lo demuestra
@@ -35,9 +35,9 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Respaldo:** Tarjeta `open` de `docs/video/titles.html`.
 
-### 0:09–0:23 · El problema
+### 0:09–0:18 · El problema
 
-**Se oye:** En 2025, el FBI recibió más de 24.000 denuncias de fraude por correo empresarial: más de 3.000 millones de dólares. A un agente que lee facturas le basta una frase escondida.
+**Se oye:** En 2025, el FBI recibió más de 24.000 denuncias de fraude por correo empresarial: más de 3.000 millones de dólares.
 
 **Se ve:** Tarjeta: 24.768 denuncias y US$ 3.046.598.558 (FBI IC3, Informe anual 2025, fuente en pantalla).
 
@@ -45,27 +45,27 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Respaldo:** Tarjeta `problem`, con la fuente del FBI IC3 en pantalla.
 
-### 0:23–0:37 · Una empresa demo nueva, 36 facturas
+### 0:18–0:30 · Una empresa demo nueva, 38 facturas
 
-**Se oye:** Esta es Cobalto Labs, una empresa demo recién creada. Le llegan 36 facturas: correos, PDF, fotos y WhatsApp. Un clic, y Custodio decide cada una con quince reglas escritas en código.
+**Se oye:** Esta es Cobalto Labs, una empresa demo recién creada, con 38 facturas de correos, PDF, fotos y WhatsApp. Un clic, y quince reglas escritas en código deciden cada una.
 
-**Se ve:** Producto: inicio → «Probar con una empresa demo» → panel con 36 facturas recibidas → «Decidir las 36 facturas» (acelerado ×4).
+**Se ve:** Producto: inicio → «Probar con una empresa demo» → panel con 38 facturas recibidas → «Decidir las 38 facturas» (acelerado ×4).
 
 **Toma:** Grabación continua con cursor visible; la espera de la decisión va acelerada ×4 y lo dice en pantalla.
 
 **Respaldo:** Toma `landing` de `docs/video/record.mjs` (espacio demo nuevo en producción).
 
-### 0:37–0:47 · Las cifras del panel
+### 0:30–0:40 · Las cifras del panel
 
-**Se oye:** Diecisiete se pagan solas. Cinco trampas se retienen. Catorce esperan a una persona. Pagos indebidos: cero, y un auditor independiente está de acuerdo.
+**Se oye:** Diecisiete se pagan solas. Siete trampas se retienen. Catorce esperan a una persona. Pagos indebidos: cero, y un auditor independiente está de acuerdo.
 
-**Se ve:** Producto: zoom a «Pagos indebidos 0» y a Pagado / Retenido / Pendiente.
+**Se ve:** Producto: zoom a «Pagos indebidos 0» y a Pagado / Retenido / Pendiente (17 · 7 · 14 de 38).
 
 **Toma:** Zoom suave a «Pagos indebidos» y a los tres totales, en la misma toma.
 
 **Respaldo:** Toma `landing`, marcas `zoom_zero` y `zoom_counts`.
 
-### 0:47–0:57 · Un ataque de verdad
+### 0:40–0:51 · Un ataque de verdad
 
 **Se oye:** Ahora, un ataque de verdad. Esta factura de Andes Code parece normal, pero esconde una orden en texto blanco y trae la cuenta bancaria cambiada.
 
@@ -75,17 +75,17 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Respaldo:** Tarjeta `pdf` con el PDF real que genera `docs/video/make_attack_pdf.py`.
 
-### 0:57–1:15 · El reto público lo retiene
+### 0:51–1:06 · El reto público lo frena
 
-**Se oye:** La subimos al reto público. Retenida. Custodio destapa la frase oculta, cita las reglas que la frenan y no obedece al documento.
+**Se oye:** La subimos al reto público. Frenada. Custodio destapa la frase oculta, cita las reglas que la frenan y no obedece al documento.
 
-**Se ve:** Producto: «Róbale a Custodio», se sube el PDF, «No pasó. Custodio no pagó», R2 + R4, la cita destapada y el contador.
+**Se ve:** Producto: «Róbale a Custodio», se sube el PDF, FRENADO, las reglas que se dispararon (R2, R4) y la cita destapada.
 
 **Toma:** Grabación continua: se sube el PDF, la lectura va ×3 y el resultado a velocidad normal con zoom.
 
 **Respaldo:** Toma `attack`: el mismo PDF subido a «Róbale a Custodio».
 
-### 1:15–1:27 · La Arena cambia de técnica
+### 1:06–1:18 · La Arena cambia de técnica
 
 **Se oye:** Y no es un solo truco. En la Arena, un modelo atacante inventa fraudes, lee por qué lo bloquearon y cambia de técnica. Tres ataques, tres atrapados, cero pagos indebidos.
 
@@ -95,37 +95,47 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Respaldo:** Toma `arena`: 3 rondas en vivo.
 
-### 1:27–1:41 · Cada decisión, con su acta
+### 1:18–1:36 · Cada decisión, con su acta
 
-**Se oye:** Cada decisión trae su acta: por qué, qué regla aplicó y qué tendría que cambiar para pagarla. La cuenta no es la registrada: regla R4. El modelo lee y cita; decide el código.
+**Se oye:** Cada decisión trae su acta: por qué, qué regla aplicó y qué tendría que cambiar. Aquí cambió la cuenta y el correo imita el dominio: Custodio la retiene y pide llamar al contacto registrado. Y cruza cada proveedor con la lista de sanciones de la OFAC.
 
-**Se ve:** Producto: acta de Andrés Paredes: por qué, qué tendría que cambiar, R4 resaltada.
+**Se ve:** Producto: acta de Joaquín Méndez (F-038): cuenta cambiada y dominio parecido; a quién llamar (R15) y la lista OFAC del 15 de octubre (R14).
 
-**Toma:** Zoom a «Por qué» y «Qué tendría que cambiar», luego a la regla que retiene.
+**Toma:** Zoom a «Por qué» y «Qué tendría que cambiar», luego a R14 (OFAC) y R15 (fuera de banda).
 
-**Respaldo:** Toma `held`: acta de Andrés Paredes.
+**Respaldo:** Toma `held`: acta de Joaquín Méndez (F-038).
 
-### 1:41–1:52 · Pago real en Stripe
+### 1:36–1:46 · Pago real en Stripe
 
 **Se oye:** Y cuando paga, paga de verdad: una transferencia en Stripe, en modo prueba, con su identificador en el acta.
 
-**Se ve:** Producto: acta de una factura pagada; zoom a «Stripe · modo prueba» y la transferencia tr_….
+**Se ve:** Producto: acta de una factura pagada sola; zoom a «Stripe · modo prueba» y la transferencia tr_….
 
 **Toma:** Zoom al identificador `tr_…` en el acta; no se abre el dashboard de Stripe.
 
-**Respaldo:** Toma `paid`: acta con la transferencia `tr_…`.
+**Respaldo:** Toma `paid_stripe`: acta con la transferencia `tr_…` (grabada antes del tope diario de Stripe).
 
-### 1:52–2:08 · Una persona aprueba
+### 1:46–1:57 · Autonomía ganada
 
-**Se oye:** Lo que se sale de lo acordado espera a una persona. Ana revisa, aprueba, y el pago sale con su aprobación en el registro.
+**Se oye:** Cada proveedor se gana su tope de pago automático. Simulamos treinta días: una sola señal de riesgo lo devuelve a supervisión.
 
-**Se ve:** Producto: Cumulus Hosting fuera de lo acordado; Ana Gómez aprueba; zoom a la transferencia tr_….
+**Se ve:** Producto: Autonomía → «Simular 30 días» (×2) → el resultado y un proveedor «En supervisión» tras «Confianza revocada».
 
-**Toma:** El clic en «Aprobar pago» se ve completo; zoom a la transferencia que sale después.
+**Toma:** Clic en «Simular 30 días» (×2) y zoom al resultado y a una tarjeta en supervisión.
 
-**Respaldo:** Toma `approve`: Cumulus Hosting aprobada por Ana Gómez.
+**Respaldo:** Toma `autonomy`: `/autonomia` con «Simular 30 días».
 
-### 2:08–2:22 · El registro detecta la alteración
+### 1:57–2:05 · Conciliación y cierre de mes
+
+**Se oye:** Y al cierre del mes, cruza el extracto del banco con lo pagado y marca cada salida sin factura.
+
+**Se ve:** Producto: Conciliación → «Usar extracto de demo» (×3) → conciliado, diferencias, comisiones y «Sin factura».
+
+**Toma:** Encuadre bajo la ayuda de carga; la conciliación ×3 y zoom al resumen y a «Sin factura».
+
+**Respaldo:** Toma `reconcile`: `/conciliacion` con el extracto de demo.
+
+### 2:05–2:16 · El registro detecta la alteración
 
 **Se oye:** Ese registro está encadenado con SHA-256. Verificar: íntegro. Si alguien altera una copia, la cadena se rompe justo en el asiento cambiado.
 
@@ -135,7 +145,7 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Respaldo:** Toma `ledger`: verificar y alterar una copia.
 
-### 2:22–2:36 · Reglas en tus palabras
+### 2:16–2:28 · Reglas en tus palabras
 
 **Se oye:** ¿Quieres cambiar una regla? Escríbela en español. Custodio la compila y te muestra qué facturas cambiarían antes de aplicarla.
 
@@ -145,7 +155,17 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Respaldo:** Toma `rules`: compilar y simular sin aplicar.
 
-### 2:36–2:45 · Medido a escala
+### 2:28–2:35 · Jurado: intenten robarnos ahora
+
+**Se oye:** Y el reto sigue abierto. Jurado: escaneen el código e intenten robarnos ahora. Pagos indebidos: cero.
+
+**Se ve:** Producto: «Róbale a Custodio» en modo escenario: el QR a /reto y «Pagos indebidos 0» en vivo.
+
+**Toma:** Plano fijo del modo escenario y zoom al contador; el número se lee de la pantalla.
+
+**Respaldo:** Toma `stage`: `/reto?escenario=1`.
+
+### 2:35–2:44 · Medido a escala
 
 **Se oye:** Y lo medimos a escala: mil empresas simuladas, veinticinco mil facturas, ocho mil pagos auditados otra vez. Cero indebidos.
 
@@ -155,9 +175,9 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Respaldo:** Tarjeta `proof` con las cifras del README › Métricas.
 
-### 2:45–2:55 · Maqueta contra producto
+### 2:44–2:55 · Maqueta contra producto
 
-**Se oye:** Una maqueta lo dice. Custodio lo demuestra: ataque real, pago real y un registro que se puede verificar. Código abierto, con licencia MIT.
+**Se oye:** Una maqueta lo dice. Custodio lo demuestra: ataque real, pago real y un registro verificable. Código abierto, con licencia MIT y autoalojable con Docker.
 
 **Se ve:** Tarjeta: «Una maqueta lo dice» frente a «Custodio lo demuestra, en producción», fila por fila.
 
@@ -175,18 +195,18 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Respaldo:** Tarjeta `close`.
 
-## Corte vertical de 43 s
+## Corte vertical de 40 s
 
 Para redes y Build in Public, en el formato vertical de la competencia pero con producto real:
-`docs/video/out/custodio-pitch-vertical.mp4` (1080×1920, 0:43.0).
+`docs/video/out/custodio-pitch-vertical.mp4` (1080×1920, 0:40.2).
 
 - **0:00.0** Otros te muestran maquetas. Esto es Custodio, en producción. Tarjeta vertical: «Una maqueta lo dice. Custodio lo demuestra.»
 - **0:06.8** Una factura con una orden escondida en texto blanco y la cuenta cambiada. Tarjeta vertical: el PDF con la línea oculta destapada y la cuenta cambiada.
-- **0:13.4** Custodio la retiene y destapa la trampa. Producto: resultado del reto, Retenida, con la cita destapada.
-- **0:20.9** Cuando paga, paga de verdad: una transferencia en Stripe, en modo prueba. Producto: acta pagada con la transferencia tr_… de Stripe en modo prueba.
-- **0:25.7** Alteras una copia del registro y la cadena se rompe justo ahí. Producto: la copia alterada rompe la cadena en el asiento exacto.
-- **0:31.9** Mil empresas, veinticinco mil facturas: cero pagos indebidos. Tarjeta vertical: 1.000 empresas, 25.139 facturas, 0 pagos indebidos.
-- **0:38.5** Custodio decide; Blinka paga. Tarjeta vertical: «Custodio decide; Blinka paga.»
+- **0:13.4** Custodio la frena y destapa la trampa. Producto: resultado del reto, FRENADO, con la cita destapada.
+- **0:20.6** Cuando paga, paga de verdad: una transferencia en Stripe, en modo prueba. Producto: la factura aprobada sale por Stripe en modo prueba, con su transferencia tr_….
+- **0:25.5** Alteras una copia del registro y la cadena se rompe justo ahí. Producto: la copia alterada rompe la cadena en el asiento exacto.
+- **0:30.7** Ahora tú: escanea el código e intenta robarnos. Pagos indebidos: cero. Producto: modo escenario del reto, con el QR y «Pagos indebidos 0».
+- **0:35.7** Custodio decide; Blinka paga. Tarjeta vertical: «Custodio decide; Blinka paga.»
 
 ## Versión de 60 s
 

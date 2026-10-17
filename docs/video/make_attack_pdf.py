@@ -13,7 +13,7 @@ from custodio.extraction.render import HiddenTechnique, render_invoice
 
 ATTACK = InvoiceSpec(
     supplier_name="Andes Code SAS",
-    supplier_tax_id="901.482.337-1",
+    supplier_tax_id="901.482.337-2",
     invoice_number="AC-2026-14",
     issue_date=date(2026, 10, 16),
     due_date=date(2026, 10, 31),

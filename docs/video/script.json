@@ -1,6 +1,6 @@
 {
   "voice": "es_ES-sharvard-medium",
-  "notes": "Each scene: a narration (caption text, with an optional `say` for the voice when digits or acronyms read badly) and a visual: a title card from titles.html or product segments cut from the recorded takes by their marks. Speeds above 1 are shown with an «acelerado ×N» badge.",
+  "notes": "Each scene: a narration (caption text, with an optional `say` for the voice when digits or acronyms read badly) and a visual: a title card from titles.html or product segments cut from the recorded takes by their marks. Speeds above 1 are shown with an «acelerado ×N» badge. `spare` keeps scenes recorded and ready that do not fit the 3:00 cut (move one into `horizontal` to use it).",
   "horizontal": [
     {
       "id": "open",
@@ -17,20 +17,18 @@
         {
           "text": "En 2025, el FBI recibió más de 24.000 denuncias de fraude por correo empresarial: más de 3.000 millones de dólares.",
           "say": "En dos mil veinticinco, el FBI recibió más de veinticuatro mil denuncias de fraude por correo empresarial: más de tres mil millones de dólares."
-        },
-        "A un agente que lee facturas le basta una frase escondida."
+        }
       ]
     },
     {
       "id": "demo",
       "label": "Producto real · empresa demo nueva",
       "lines": [
-        "Esta es Cobalto Labs, una empresa demo recién creada.",
         {
-          "text": "Le llegan 36 facturas: correos, PDF, fotos y WhatsApp.",
-          "say": "Le llegan treinta y seis facturas: correos, pe de efe, fotos y guatsap."
+          "text": "Esta es Cobalto Labs, una empresa demo recién creada, con 38 facturas de correos, PDF, fotos y WhatsApp.",
+          "say": "Esta es Cobalto Labs, una empresa demo recién creada, con treinta y ocho facturas de correos, pe de efe, fotos y guatsap."
         },
-        "Un clic, y Custodio decide cada una con quince reglas escritas en código."
+        "Un clic, y quince reglas escritas en código deciden cada una."
       ],
       "segments": [
         {
@@ -61,7 +59,7 @@
       "id": "results",
       "label": "Producto real · cifras del panel",
       "lines": [
-        "Diecisiete se pagan solas. Cinco trampas se retienen. Catorce esperan a una persona.",
+        "Diecisiete se pagan solas. Siete trampas se retienen. Catorce esperan a una persona.",
         "Pagos indebidos: cero, y un auditor independiente está de acuerdo."
       ],
       "segments": [
@@ -86,14 +84,14 @@
       "id": "attack",
       "label": "Producto real · Róbale a Custodio",
       "lines": [
-        "La subimos al reto público. Retenida.",
+        "La subimos al reto público. Frenada.",
         "Custodio destapa la frase oculta, cita las reglas que la frenan y no obedece al documento."
       ],
       "segments": [
         {
           "take": "attack",
-          "from": "file",
-          "fromOffset": -0.4,
+          "from": "submit",
+          "fromOffset": -1.6,
           "to": "submit",
           "toOffset": 0.4
         },
@@ -134,20 +132,19 @@
           "take": "arena",
           "from": "done",
           "fromOffset": 0,
-          "to": "end",
-          "toOffset": 0
+          "to": "done",
+          "toOffset": 0.75
         }
-      ]
+      ],
+      "note": "Ends before the stats zoom: that zoom would bring the page heading back into frame."
     },
     {
       "id": "acta",
       "label": "Producto real · acta de decisión",
       "lines": [
-        "Cada decisión trae su acta: por qué, qué regla aplicó y qué tendría que cambiar para pagarla.",
-        {
-          "text": "La cuenta no es la registrada: regla R4. El modelo lee y cita; decide el código.",
-          "say": "La cuenta no es la registrada: regla erre cuatro. El modelo lee y cita; decide el código."
-        }
+        "Cada decisión trae su acta: por qué, qué regla aplicó y qué tendría que cambiar.",
+        "Aquí cambió la cuenta y el correo imita el dominio: Custodio la retiene y pide llamar al contacto registrado.",
+        "Y cruza cada proveedor con la lista de sanciones de la OFAC."
       ],
       "segments": [
         {
@@ -167,7 +164,7 @@
       ],
       "segments": [
         {
-          "take": "paid",
+          "take": "paid_stripe",
           "from": "acta",
           "fromOffset": -1.2,
           "to": "end",
@@ -176,28 +173,68 @@
       ]
     },
     {
-      "id": "approve",
-      "label": "Producto real · una persona aprueba",
+      "id": "autonomy",
+      "label": "Producto real · autonomía ganada",
       "lines": [
-        "Lo que se sale de lo acordado espera a una persona.",
-        "Ana revisa, aprueba, y el pago sale con su aprobación en el registro."
+        "Cada proveedor se gana su tope de pago automático.",
+        "Simulamos treinta días: una sola señal de riesgo lo devuelve a supervisión."
       ],
       "segments": [
         {
-          "take": "approve",
-          "from": "zoom_why",
-          "fromOffset": -0.4,
-          "to": "zoom_why",
-          "toOffset": 4.4
+          "take": "autonomy",
+          "from": "simulate_click",
+          "fromOffset": -1.0,
+          "to": "simulated",
+          "toOffset": 0.3,
+          "speed": 2
         },
         {
-          "take": "approve",
-          "from": "zoom_approve",
-          "fromOffset": -0.9,
+          "take": "autonomy",
+          "from": "simulated",
+          "fromOffset": 0.3,
           "to": "end",
-          "toOffset": -0.4
+          "toOffset": 0
         }
       ]
+    },
+    {
+      "id": "reconcile",
+      "label": "Producto real · conciliación bancaria",
+      "lines": [
+        "Y al cierre del mes, cruza el extracto del banco con lo pagado y marca cada salida sin factura."
+      ],
+      "segments": [
+        {
+          "take": "reconcile",
+          "from": "framed",
+          "fromOffset": 0.1,
+          "to": "demo_click",
+          "toOffset": 0.2
+        },
+        {
+          "take": "reconcile",
+          "from": "demo_click",
+          "fromOffset": 0.2,
+          "to": "reconciled",
+          "toOffset": 0.2,
+          "speed": 3
+        },
+        {
+          "take": "reconcile",
+          "from": "reconciled",
+          "fromOffset": 0.2,
+          "to": "zoom_summary",
+          "toOffset": -1.2
+        },
+        {
+          "take": "reconcile",
+          "from": "zoom_unbilled",
+          "fromOffset": -0.1,
+          "to": "end",
+          "toOffset": 0
+        }
+      ],
+      "note": "Skips the zoom to the summary, which would bring the upload hint back into frame."
     },
     {
       "id": "ledger",
@@ -252,6 +289,23 @@
       ]
     },
     {
+      "id": "stage",
+      "label": "Producto real · reto en vivo",
+      "lines": [
+        "Y el reto sigue abierto. Jurado: escaneen el código e intenten robarnos ahora.",
+        "Pagos indebidos: cero."
+      ],
+      "segments": [
+        {
+          "take": "stage",
+          "from": "start",
+          "fromOffset": -0.2,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
       "id": "proof",
       "title": "proof",
       "lines": [
@@ -263,10 +317,10 @@
       "id": "compare",
       "title": "compare",
       "lines": [
-        "Una maqueta lo dice. Custodio lo demuestra: ataque real, pago real y un registro que se puede verificar.",
+        "Una maqueta lo dice. Custodio lo demuestra: ataque real, pago real y un registro verificable.",
         {
-          "text": "Código abierto, con licencia MIT.",
-          "say": "Código abierto, con licencia eme i te."
+          "text": "Código abierto, con licencia MIT y autoalojable con Docker.",
+          "say": "Código abierto, con licencia eme i te y autoalojable con dóquer."
         }
       ]
     },
@@ -302,14 +356,14 @@
     },
     {
       "id": "v-attack",
-      "headline": "Ataque real. Retenida.",
+      "headline": "Ataque real. Frenado.",
       "crop": {
         "x": 470,
         "y": 0,
         "w": 960
       },
       "lines": [
-        "Custodio la retiene y destapa la trampa."
+        "Custodio la frena y destapa la trampa."
       ],
       "segments": [
         {
@@ -342,7 +396,7 @@
       ],
       "segments": [
         {
-          "take": "paid",
+          "take": "paid_stripe",
           "from": "zoom_tr",
           "fromOffset": -1.4,
           "to": "end",
@@ -372,10 +426,24 @@
       ]
     },
     {
-      "id": "v-proof",
-      "title": "v-proof",
+      "id": "v-stage",
+      "headline": "Ahora tú: intenta robarnos.",
+      "crop": {
+        "x": 360,
+        "y": 0,
+        "w": 1200
+      },
       "lines": [
-        "Mil empresas, veinticinco mil facturas: cero pagos indebidos."
+        "Ahora tú: escanea el código e intenta robarnos. Pagos indebidos: cero."
+      ],
+      "segments": [
+        {
+          "take": "stage",
+          "from": "start",
+          "fromOffset": -0.2,
+          "to": "end",
+          "toOffset": 0
+        }
       ]
     },
     {
@@ -389,5 +457,42 @@
       ]
     }
   ],
-  "speaker": "0"
+  "speaker": "0",
+  "spare": [
+    {
+      "id": "calendar",
+      "label": "Producto real · calendario de pagos",
+      "lines": [
+        "Lo aprobado sale el día que vence, no antes, y nunca toca la reserva de caja."
+      ],
+      "segments": [
+        {
+          "take": "calendar",
+          "from": "start",
+          "fromOffset": -0.3,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    },
+    {
+      "id": "docs",
+      "label": "Producto real · documentación pública",
+      "lines": [
+        {
+          "text": "Es código abierto, con licencia MIT, y se autoaloja con un solo comando de Docker.",
+          "say": "Es código abierto, con licencia eme i te, y se autoaloja con un solo comando de dóquer."
+        }
+      ],
+      "segments": [
+        {
+          "take": "docs",
+          "from": "start",
+          "fromOffset": -0.3,
+          "to": "end",
+          "toOffset": 0
+        }
+      ]
+    }
+  ]
 }

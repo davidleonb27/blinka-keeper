@@ -12,9 +12,9 @@ VOICE_URL=https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/shar
 npm ci --silent
 mkdir -p build/fonts build/tts build/assets out
 
-# Fonts of the web (Bricolage Grotesque for display, Geist for text), as TTF for the cards and libass.
-if [ ! -f build/fonts/Geist-600.ttf ]; then
-  for family in "Geist:wght@400;500;600;700" "Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700" "Geist+Mono:wght@500"; do
+# Fonts of the web (Source Serif 4 for titles, Inter for text), as TTF for the cards and libass.
+if [ ! -f build/fonts/Inter-600.ttf ]; then
+  for family in "Inter:wght@400;500;600;700" "Source+Serif+4:opsz,wght@8..60,600;8..60,700"; do
     curl -fsS -A "Mozilla/4.0" "https://fonts.googleapis.com/css2?family=$family"
   done > build/fonts/fonts.css
   python3 - <<'EOF'

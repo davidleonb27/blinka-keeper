@@ -115,6 +115,7 @@ export async function moveToLocator(page, locator, ms = 700) {
 }
 
 export async function clickLocator(page, locator, ms = 700) {
+  if (page.__camera) return locator.click(); // zoomed: the cursor is hidden, so click without moving it
   await moveToLocator(page, locator, ms);
   await page.waitForTimeout(180);
   await page.evaluate(([a, b]) => window.__pitchClick?.(a, b), [page.__cursor.x, page.__cursor.y]);
@@ -128,11 +129,15 @@ export async function restoreCursor(page) {
   await page.evaluate(([a, b]) => window.__pitchMove?.(a, b), [page.__cursor.x, page.__cursor.y]);
 }
 
-/** Smoothly zooms the page around a box (CSS px); `zoomOut` returns to 1. */
+/** Smoothly zooms the page around a box (viewport px, as measured now); `zoomOut` returns to 1. While zoomed the
+ * cursor fades out: its overlay lives inside the transformed page, so it would no longer sit where the mouse is. */
 export async function zoomTo(page, box, scale = 1.6, ms = 1100) {
-  const cx = box.x + box.width / 2;
-  const cy = box.y + box.height / 2;
-  await page.evaluate(
+  const cam = page.__camera;
+  // A box measured on an already zoomed page is mapped back to the untransformed page first.
+  const b = cam ? { x: (box.x - cam.tx) / cam.s, y: (box.y - cam.ty) / cam.s, width: box.width / cam.s, height: box.height / cam.s } : box;
+  const cx = b.x + b.width / 2;
+  const cy = b.y + b.height / 2;
+  page.__camera = await page.evaluate(
     ([cx, cy, s, ms, w, h, z]) => {
       const root = document.documentElement;
       // Translate so the box center lands at the viewport center, clamped so no edge leaves the frame.
@@ -143,6 +148,9 @@ export async function zoomTo(page, box, scale = 1.6, ms = 1100) {
       // it sits above the viewport: put the origin at the viewport top, in the root's unzoomed units.
       root.style.transformOrigin = `0 ${scrollY / z}px`;
       root.style.transform = `translate(${tx / z}px, ${ty / z}px) scale(${s})`;
+      const cursor = document.getElementById("pitch-cursor");
+      if (cursor) { cursor.style.transition = "opacity 200ms"; cursor.style.opacity = "0"; }
+      return { tx, ty, s };
     },
     [cx, cy, scale, ms, VIEWPORT.width, VIEWPORT.height, ZOOM],
   );
@@ -154,7 +162,10 @@ export async function zoomOut(page, ms = 900) {
     const root = document.documentElement;
     root.style.transition = `transform ${ms}ms cubic-bezier(.65,0,.35,1)`;
     root.style.transform = "none";
+    const cursor = document.getElementById("pitch-cursor");
+    if (cursor) setTimeout(() => { cursor.style.opacity = "1"; }, ms);
   }, ms);
+  page.__camera = null;
   await page.waitForTimeout(ms + 50);
 }
 

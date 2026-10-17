@@ -23,11 +23,12 @@ FADE = 0.4  # cross-fade between scenes
 LEAD = 0.35  # silence before a scene's first line
 GAP = 0.25  # silence between lines
 TAIL = 0.5  # silence after a scene's last line
-MAX_FIT_SPEED = 1.15  # a product scene may play this much faster to fit its narration
+WORDS_PER_SECOND = 2.5  # under the 2,6 the delivery documents allow
+MAX_FIT_SPEED = 1.35  # a product scene may play this much faster to fit its narration
 LENGTH_SCALE = "1.1"  # piper, a little slower than its own pace
 BG = "0xEDF2F2"
 SIZES = {"horizontal": (1920, 1080), "vertical": (1080, 1920)}
-TITLE_MIN = {"open": 7.2, "pdf": 7.0, "problem": 8.0, "proof": 7.0, "compare": 7.5, "close": 4.5}
+TITLE_MIN = {"open": 7.2, "pdf": 7.0, "problem": 8.0, "proof": 6.5, "compare": 7.5, "close": 4.5}
 # Vertical footage window: the take is cropped to HOLE's aspect, scaled into it, and framed by titles' vframe.
 HOLE = {"x": 40, "y": 600, "w": 1000, "h": 900}
 
@@ -75,11 +76,16 @@ def speak(script: dict, scene: dict) -> list[Line]:
     lines = []
     for i, raw in enumerate(scene["lines"]):
         text, say = (raw["text"], raw.get("say", raw["text"])) if isinstance(raw, dict) else (raw, raw)
+        say = say.replace("regla", "reggla")  # the voice swallows the g of «regla»; doubled, it says it
         wav = BUILD / "tts" / f"{scene['id']}-{i}.wav"
         subprocess.run([str(piper), "-m", str(voice), "-s", script.get("speaker", "0"), "--length-scale", LENGTH_SCALE, "--sentence-silence", "0.25",
                         "-f", str(wav)], input=say.encode(), check=True, capture_output=True)
         lines.append(Line(text, say, wav, wav_seconds(wav)))
     return lines
+
+
+def spoken_words(text: str) -> int:
+    return len(re.findall(r"[\wáéíóúüñÁÉÍÓÚÜÑ$]+", text))
 
 
 def narration_length(lines: list[Line]) -> float:
@@ -132,6 +138,10 @@ def plan(script: dict, cut: str) -> list[Scene]:
             scene.fit = max(1.0, visual / scene.duration)
         else:
             scene.duration = max(voice + 0.3, TITLE_MIN.get(spec["title"].removeprefix("v-"), 4.0))
+        # The voice can outrun the script's own limit; never give a scene less time than its words need at 2,5 per second.
+        scene.duration = max(scene.duration, sum(spoken_words(line.text) for line in lines) / WORDS_PER_SECOND)
+        if scene.segments:
+            scene.fit = max(1.0, sum(s["length"] / s["speed"] for s in scene.segments) / scene.duration)
         at = LEAD
         for line in lines:
             line.start = at
@@ -277,7 +287,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Cap,Geist SemiBold,{size},&H00FFFFFF,&H00FFFFFF,&H28181610,&H28181610,0,0,0,0,100,100,0,0,3,14,0,2,80,80,{margin},1
+Style: Cap,Inter SemiBold,{size},&H00FFFFFF,&H00FFFFFF,&H28181610,&H28181610,0,0,0,0,100,100,0,0,3,14,0,2,80,80,{margin},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text

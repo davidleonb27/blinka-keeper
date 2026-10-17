@@ -7,42 +7,45 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Cap,Geist SemiBold,46,&H00FFFFFF,&H00FFFFFF,&H28181610,&H28181610,0,0,0,0,100,100,0,0,3,14,0,2,80,80,50,1
+Style: Cap,Inter SemiBold,46,&H00FFFFFF,&H00FFFFFF,&H28181610,&H28181610,0,0,0,0,100,100,0,0,3,14,0,2,80,80,50,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.35,0:00:02.74,Cap,,0,0,0,,Cualquiera puede hacer una maqueta bonita.
-Dialogue: 0,0:00:02.84,0:00:08.51,Cap,,0,0,0,,Esto es Custodio funcionando de verdad: en\Nproducción, con pagos reales y bajo ataque.
-Dialogue: 0,0:00:09.11,0:00:15.38,Cap,,0,0,0,,En 2025, el FBI recibió más de 24.000\Ndenuncias de fraude por correo empresarial:
-Dialogue: 0,0:00:15.23,0:00:17.87,Cap,,0,0,0,,más de 3.000 millones de dólares.
-Dialogue: 0,0:00:17.97,0:00:21.53,Cap,,0,0,0,,A un agente que lee facturas\Nle basta una frase escondida.
-Dialogue: 0,0:00:22.13,0:00:25.49,Cap,,0,0,0,,Esta es Cobalto Labs, una\Nempresa demo recién creada.
-Dialogue: 0,0:00:25.59,0:00:30.80,Cap,,0,0,0,,Le llegan 36 facturas:\Ncorreos, PDF, fotos y WhatsApp.
-Dialogue: 0,0:00:30.90,0:00:35.58,Cap,,0,0,0,,Un clic, y Custodio decide cada una\Ncon doce reglas escritas en código.
-Dialogue: 0,0:00:35.88,0:00:42.10,Cap,,0,0,0,,Diecisiete se pagan solas. Cinco trampas\Nse retienen. Catorce esperan a una persona.
-Dialogue: 0,0:00:42.20,0:00:46.20,Cap,,0,0,0,,Pagos indebidos: cero, y un auditor\Nindependiente está de acuerdo.
-Dialogue: 0,0:00:46.50,0:00:48.29,Cap,,0,0,0,,Ahora, un ataque de verdad.
-Dialogue: 0,0:00:48.39,0:00:54.44,Cap,,0,0,0,,Esta factura de Andes Code parece normal, pero\Nesconde una orden en texto blanco y trae la cuenta
-Dialogue: 0,0:00:54.29,0:00:55.53,Cap,,0,0,0,,bancaria cambiada.
-Dialogue: 0,0:00:56.13,0:00:59.14,Cap,,0,0,0,,La subimos al reto público. Retenida.
-Dialogue: 0,0:00:59.24,0:01:04.77,Cap,,0,0,0,,Custodio destapa la frase oculta, cita las\Nreglas que la frenan y no obedece al documento.
-Dialogue: 0,0:01:13.81,0:01:15.38,Cap,,0,0,0,,Y no es un solo truco.
-Dialogue: 0,0:01:15.23,0:01:21.49,Cap,,0,0,0,,En la Arena, un modelo atacante inventa fraudes,\Nlee por qué lo bloquearon y cambia de técnica.
-Dialogue: 0,0:01:21.59,0:01:24.91,Cap,,0,0,0,,Tres ataques, tres atrapados, cero pagos indebidos.
-Dialogue: 0,0:01:25.21,0:01:30.91,Cap,,0,0,0,,Cada decisión trae su acta: por qué, qué regla\Naplicó y qué tendría que cambiar para pagarla.
-Dialogue: 0,0:01:31.01,0:01:37.33,Cap,,0,0,0,,La cuenta no es la registrada: regla R4.\NEl modelo lee y cita; decide el código.
-Dialogue: 0,0:01:38.81,0:01:40.80,Cap,,0,0,0,,Y cuando paga, paga de verdad:
-Dialogue: 0,0:01:40.65,0:01:45.51,Cap,,0,0,0,,una transferencia en Stripe, en modo\Nprueba, con su identificador en el acta.
-Dialogue: 0,0:01:49.52,0:01:52.59,Cap,,0,0,0,,Lo que se sale de lo acordado espera a una persona.
-Dialogue: 0,0:01:52.69,0:01:57.36,Cap,,0,0,0,,Ana revisa, aprueba, y el pago sale\Ncon su aprobación en el registro.
-Dialogue: 0,0:02:05.24,0:02:11.31,Cap,,0,0,0,,Ese registro está encadenado\Ncon SHA-256. Verificar: íntegro.
-Dialogue: 0,0:02:11.41,0:02:16.32,Cap,,0,0,0,,Si alguien altera una copia, la cadena\Nse rompe justo en el asiento cambiado.
-Dialogue: 0,0:02:18.45,0:02:21.73,Cap,,0,0,0,,¿Quieres cambiar una regla? Escríbela en español.
-Dialogue: 0,0:02:21.83,0:02:26.66,Cap,,0,0,0,,Custodio la compila y te muestra qué\Nfacturas cambiarían antes de aplicarla.
-Dialogue: 0,0:02:32.67,0:02:34.24,Cap,,0,0,0,,Y lo medimos a escala:
-Dialogue: 0,0:02:34.09,0:02:39.64,Cap,,0,0,0,,mil empresas simuladas, veinticinco mil\Nfacturas, ocho mil pagos auditados otra vez.
-Dialogue: 0,0:02:39.74,0:02:40.91,Cap,,0,0,0,,Cero indebidos.
-Dialogue: 0,0:02:41.51,0:02:48.24,Cap,,0,0,0,,Una maqueta lo dice. Custodio lo demuestra: ataque\Nreal, pago real y un registro que se puede verificar.
-Dialogue: 0,0:02:48.34,0:02:50.78,Cap,,0,0,0,,Código abierto, con licencia MIT.
-Dialogue: 0,0:02:51.38,0:02:53.61,Cap,,0,0,0,,Custodio decide; Blinka paga.
-Dialogue: 0,0:02:53.71,0:02:55.17,Cap,,0,0,0,,Somos DreamMakers.
+Dialogue: 0,0:00:00.35,0:00:02.73,Cap,,0,0,0,,Cualquiera puede hacer una maqueta bonita.
+Dialogue: 0,0:00:02.83,0:00:08.56,Cap,,0,0,0,,Esto es Custodio funcionando de verdad: en\Nproducción, con pagos reales y bajo ataque.
+Dialogue: 0,0:00:09.16,0:00:15.59,Cap,,0,0,0,,En 2025, el FBI recibió más de 24.000\Ndenuncias de fraude por correo empresarial:
+Dialogue: 0,0:00:15.44,0:00:18.15,Cap,,0,0,0,,más de 3.000 millones de dólares.
+Dialogue: 0,0:00:18.75,0:00:26.85,Cap,,0,0,0,,Esta es Cobalto Labs, una empresa demo recién creada,\Ncon 38 facturas de correos, PDF, fotos y WhatsApp.
+Dialogue: 0,0:00:26.95,0:00:31.05,Cap,,0,0,0,,Un clic, y quince reglas escritas\Nen código deciden cada una.
+Dialogue: 0,0:00:31.35,0:00:37.53,Cap,,0,0,0,,Diecisiete se pagan solas. Siete trampas\Nse retienen. Catorce esperan a una persona.
+Dialogue: 0,0:00:37.63,0:00:41.64,Cap,,0,0,0,,Pagos indebidos: cero, y un auditor\Nindependiente está de acuerdo.
+Dialogue: 0,0:00:41.94,0:00:43.73,Cap,,0,0,0,,Ahora, un ataque de verdad.
+Dialogue: 0,0:00:43.83,0:00:49.86,Cap,,0,0,0,,Esta factura de Andes Code parece normal, pero\Nesconde una orden en texto blanco y trae la cuenta
+Dialogue: 0,0:00:49.71,0:00:50.96,Cap,,0,0,0,,bancaria cambiada.
+Dialogue: 0,0:00:51.56,0:00:54.56,Cap,,0,0,0,,La subimos al reto público. Frenada.
+Dialogue: 0,0:00:54.66,0:01:00.39,Cap,,0,0,0,,Custodio destapa la frase oculta, cita las\Nreglas que la frenan y no obedece al documento.
+Dialogue: 0,0:01:06.16,0:01:07.73,Cap,,0,0,0,,Y no es un solo truco.
+Dialogue: 0,0:01:07.58,0:01:13.86,Cap,,0,0,0,,En la Arena, un modelo atacante inventa fraudes,\Nlee por qué lo bloquearon y cambia de técnica.
+Dialogue: 0,0:01:13.96,0:01:17.19,Cap,,0,0,0,,Tres ataques, tres atrapados, cero pagos indebidos.
+Dialogue: 0,0:01:17.76,0:01:22.95,Cap,,0,0,0,,Cada decisión trae su acta: por qué, qué\Nregla aplicó y qué tendría que cambiar.
+Dialogue: 0,0:01:23.05,0:01:26.64,Cap,,0,0,0,,Aquí cambió la cuenta y el correo imita el dominio:
+Dialogue: 0,0:01:26.49,0:01:30.49,Cap,,0,0,0,,Custodio la retiene y pide\Nllamar al contacto registrado.
+Dialogue: 0,0:01:30.59,0:01:34.18,Cap,,0,0,0,,Y cruza cada proveedor con la\Nlista de sanciones de la OFAC.
+Dialogue: 0,0:01:35.76,0:01:37.72,Cap,,0,0,0,,Y cuando paga, paga de verdad:
+Dialogue: 0,0:01:37.57,0:01:42.35,Cap,,0,0,0,,una transferencia en Stripe, en modo\Nprueba, con su identificador en el acta.
+Dialogue: 0,0:01:45.57,0:01:48.75,Cap,,0,0,0,,Cada proveedor se gana su tope de pago automático.
+Dialogue: 0,0:01:48.85,0:01:53.66,Cap,,0,0,0,,Simulamos treinta días: una sola señal\Nde riesgo lo devuelve a supervisión.
+Dialogue: 0,0:01:56.31,0:02:02.57,Cap,,0,0,0,,Y al cierre del mes, cruza el extracto del banco\Ncon lo pagado y marca cada salida sin factura.
+Dialogue: 0,0:02:03.51,0:02:09.58,Cap,,0,0,0,,Ese registro está encadenado\Ncon SHA-256. Verificar: íntegro.
+Dialogue: 0,0:02:09.68,0:02:14.42,Cap,,0,0,0,,Si alguien altera una copia, la cadena\Nse rompe justo en el asiento cambiado.
+Dialogue: 0,0:02:15.06,0:02:18.30,Cap,,0,0,0,,¿Quieres cambiar una regla? Escríbela en español.
+Dialogue: 0,0:02:18.40,0:02:23.07,Cap,,0,0,0,,Custodio la compila y te muestra qué\Nfacturas cambiarían antes de aplicarla.
+Dialogue: 0,0:02:27.31,0:02:32.75,Cap,,0,0,0,,Y el reto sigue abierto. Jurado: escaneen\Nel código e intenten robarnos ahora.
+Dialogue: 0,0:02:32.85,0:02:34.22,Cap,,0,0,0,,Pagos indebidos: cero.
+Dialogue: 0,0:02:34.52,0:02:36.13,Cap,,0,0,0,,Y lo medimos a escala:
+Dialogue: 0,0:02:35.98,0:02:41.70,Cap,,0,0,0,,mil empresas simuladas, veinticinco mil\Nfacturas, ocho mil pagos auditados otra vez.
+Dialogue: 0,0:02:41.80,0:02:42.98,Cap,,0,0,0,,Cero indebidos.
+Dialogue: 0,0:02:43.58,0:02:50.07,Cap,,0,0,0,,Una maqueta lo dice. Custodio lo demuestra:\Nataque real, pago real y un registro verificable.
+Dialogue: 0,0:02:50.17,0:02:54.19,Cap,,0,0,0,,Código abierto, con licencia\NMIT y autoalojable con Docker.
+Dialogue: 0,0:02:54.79,0:02:57.09,Cap,,0,0,0,,Custodio decide; Blinka paga.
+Dialogue: 0,0:02:57.19,0:02:58.65,Cap,,0,0,0,,Somos DreamMakers.

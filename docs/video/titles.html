@@ -8,13 +8,12 @@
   and calls window.frame(t) for each frame, so every animation is a pure function of time.
 -->
 <style>
-  @font-face { font-family: "Bricolage"; src: url("build/fonts/BricolageGrotesque-600.ttf"); font-weight: 600; }
-  @font-face { font-family: "Bricolage"; src: url("build/fonts/BricolageGrotesque-700.ttf"); font-weight: 700; }
-  @font-face { font-family: "Geist"; src: url("build/fonts/Geist-400.ttf"); font-weight: 400; }
-  @font-face { font-family: "Geist"; src: url("build/fonts/Geist-500.ttf"); font-weight: 500; }
-  @font-face { font-family: "Geist"; src: url("build/fonts/Geist-600.ttf"); font-weight: 600; }
-  @font-face { font-family: "Geist"; src: url("build/fonts/Geist-700.ttf"); font-weight: 700; }
-  @font-face { font-family: "GeistMono"; src: url("build/fonts/GeistMono-500.ttf"); font-weight: 500; }
+  @font-face { font-family: "SourceSerif"; src: url("build/fonts/SourceSerif4-600.ttf"); font-weight: 600; }
+  @font-face { font-family: "SourceSerif"; src: url("build/fonts/SourceSerif4-700.ttf"); font-weight: 700; }
+  @font-face { font-family: "Inter"; src: url("build/fonts/Inter-400.ttf"); font-weight: 400; }
+  @font-face { font-family: "Inter"; src: url("build/fonts/Inter-500.ttf"); font-weight: 500; }
+  @font-face { font-family: "Inter"; src: url("build/fonts/Inter-600.ttf"); font-weight: 600; }
+  @font-face { font-family: "Inter"; src: url("build/fonts/Inter-700.ttf"); font-weight: 700; }
   :root {
     --bg: #edf2f2; --surface: #ffffff; --surface-2: #f3f7f7; --line: rgb(12 48 54 / 0.1); --line-2: rgb(12 48 54 / 0.18);
     --ink: #0b1618; --ink-2: #3b4c4f; --ink-3: #56696c; --brand: #08707e; --brand-weak: rgb(10 132 148 / 0.1);
@@ -24,15 +23,15 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: var(--w); height: var(--h); overflow: hidden; }
-  body { font-family: "Geist", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+  body { font-family: "Inter", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
   body.card { background: var(--bg); }
   body.overlay { background: transparent; }
   .stage { position: absolute; inset: 0; }
   .grid { position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
     background-size: 64px 64px; mask-image: radial-gradient(ellipse at 50% 40%, black 0%, transparent 75%); opacity: .55; }
-  .display { font-family: "Bricolage", sans-serif; font-weight: 700; letter-spacing: -0.035em; line-height: 0.98; }
+  .display { font-family: "SourceSerif", serif; font-weight: 600; letter-spacing: -0.02em; line-height: 1.02; }
   .eyebrow { font-size: 22px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brand); }
-  .mono { font-family: "GeistMono", monospace; }
+  .mono { font-family: ui-monospace, "DejaVu Sans Mono", monospace; }
   .brand { position: absolute; display: flex; align-items: center; gap: 14px; font-weight: 600; font-size: 30px; }
   .chip { display: inline-flex; align-items: center; gap: 12px; padding: 14px 24px; border-radius: 999px; background: var(--surface);
     box-shadow: var(--shadow); border: 1px solid var(--line); font-size: 30px; font-weight: 500; }
@@ -208,11 +207,11 @@ const SCENES = {
   compare() {
     stage.appendChild(el(`<div class="grid"></div>`));
     const rows = [
-      ["Un solo caso: un cobro duplicado", "36 facturas en el panel y un PDF con texto oculto, atrapado"],
+      ["Un solo caso: un cobro duplicado", "38 facturas en el panel y un PDF con texto oculto, frenado"],
       ["Un pago que sólo se anuncia", "Pago real en Stripe, modo prueba, con su id tr_ en el acta"],
       ["Sin cifras", "0 pagos indebidos en 25.139 facturas del estrés"],
       ["Una cadena dibujada", "Cadena SHA-256 que detecta la alteración en vivo"],
-      ["No muestra el producto funcionando", "Código abierto MIT · API documentada en /api/v1/docs"],
+      ["No muestra el producto funcionando", "Código abierto MIT · Docker · documentación en /docs"],
     ];
     const head = put(el(`<div style="display:grid;grid-template-columns:620px 1060px;gap:40px;font-size:30px;font-weight:600">
       <div style="color:var(--ink-3)">Una maqueta lo dice</div><div style="color:var(--brand)">Custodio lo demuestra, en producción</div></div>`),
