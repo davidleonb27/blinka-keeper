@@ -185,3 +185,15 @@ def test_the_attacker_sees_what_was_paid_before_but_not_the_balance(fake_llm: Fa
 )
 def test_redaction_finds_the_account_next_to_other_numbers(reason: str, expected: str) -> None:
     assert redact_accounts(reason, make_policy()) == expected
+
+
+def test_a_run_where_no_attack_reached_the_judge_is_not_measured_not_caught(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(llm.LLMRefused("no"), recorded("redteam_bad_attack"))
+
+    events = run(fake_llm, Judge(), rounds=2)
+
+    summary = events[-1]
+    assert summary.type == "summary"
+    assert summary.caught is None
+    assert "NO MEDIDO" in (summary.message or "")
+    assert "sin veredicto: 2" in (summary.message or "")
