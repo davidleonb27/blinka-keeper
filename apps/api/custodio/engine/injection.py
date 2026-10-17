@@ -8,6 +8,7 @@ document are never obeyed. The patterns run over folded text (lowercase, no acce
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 
 from custodio.engine.text import fold
 
@@ -45,10 +46,16 @@ INSTRUCTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 )
 
 
-def find_instruction(text: str) -> str | None:
-    """The first line of `text` that addresses the agent, as written; None when there is none."""
-    for line in text.splitlines():
+@dataclass(frozen=True)
+class InstructionLine:
+    number: int  # 1-based line number in the text that was searched
+    text: str  # the line as written, without surrounding spaces
+
+
+def find_instruction(text: str) -> InstructionLine | None:
+    """The first line of `text` that addresses the agent; None when there is none."""
+    for number, line in enumerate(text.splitlines(), start=1):
         folded = fold(line)
         if any(pattern.search(folded) for pattern in INSTRUCTION_PATTERNS):
-            return line.strip()
+            return InstructionLine(number=number, text=line.strip())
     return None

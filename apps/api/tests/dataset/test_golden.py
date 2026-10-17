@@ -100,18 +100,15 @@ def test_the_golden_dataset_is_decided_at_100_percent_with_no_improper_payment()
     state, policy = demo_company()
     cases = demo_cases()
     batch = decide_all(cases, state, policy)
+    labels = {case.id: case.expected for case in cases}
     wrong = [
-        (d.invoice_id, d.agent_verdict.value) for d in batch.decisions if d.agent_verdict.value != _label(d, cases)
+        (d.invoice_id, d.agent_verdict.value) for d in batch.decisions if d.agent_verdict.value != labels[d.invoice_id]
     ]
     assert wrong == []
     assert batch.metrics.accuracy == 1.0
     assert batch.metrics.improper_payments == 0
     assert audit(batch, cases, state, policy).agrees
     assert batch.balance_end >= policy.reserve
-
-
-def _label(decision: Decision, cases: list[InvoiceCase]) -> str | None:
-    return next(case.expected for case in cases if case.id == decision.invoice_id)
 
 
 @pytest.mark.parametrize("trap", sorted(TRAPS))

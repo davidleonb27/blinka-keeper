@@ -21,7 +21,7 @@ MONTHS = (
     "noviembre",
     "diciembre",
 )
-QUOTE_LIMIT = 90
+QUOTE_LIMIT = 120
 
 
 def money(amount: Decimal, currency: str) -> str:

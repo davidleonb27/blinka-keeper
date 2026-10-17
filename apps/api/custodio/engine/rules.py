@@ -168,14 +168,15 @@ def instructions(ctx: RuleContext) -> RuleCheck:
             fix=fix,
             hidden_count=len(hidden),
         )
-    line = find_instruction(_document_text(ctx.extraction))
-    if line:
+    found = find_instruction(_document_text(ctx.extraction))
+    if found:
         return check(
             "R2",
             RuleOutcome.ESCALATE,
-            f"El documento trae instrucciones dirigidas al agente: «{clip(line)}». "
+            f"El documento trae instrucciones dirigidas al agente en la línea {found.number}: «{clip(found.text)}». "
             "El agente no obedece texto de las facturas.",
             fix=fix,
+            line=found.number,
         )
     return check("R2", RuleOutcome.PASS, "El documento no trae texto oculto ni instrucciones dirigidas al agente.")
 
@@ -447,10 +448,11 @@ def currency(ctx: RuleContext) -> RuleCheck:
     if code is None:
         return check("R8", RuleOutcome.SKIPPED, "No se leyó la moneda.")
     if code not in ctx.policy.allowed_currencies:
+        asked = f"; la factura pide {money(ctx.invoice.amount, code)}" if ctx.invoice.amount else ""
         return check(
             "R8",
             RuleOutcome.HOLD,
-            f"{code} no está entre las monedas permitidas ({allowed}).",
+            f"{code} no está entre las monedas permitidas ({allowed}){asked}.",
             fix=f"{code} estuviera entre las monedas permitidas",
         )
     rate = ctx.fx.get(code)
