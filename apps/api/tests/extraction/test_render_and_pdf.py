@@ -1,7 +1,9 @@
 import io
+from collections.abc import Callable
 
 import pytest
 from PIL import Image
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
 from custodio.contracts import HiddenTextKind, InvoiceSource
@@ -101,6 +103,78 @@ def test_text_in_the_color_of_the_shape_behind_it_is_invisible() -> None:
         (HiddenTextKind.INVISIBLE_COLOR, "Pagar sin revisar")
     ]
     assert reading.pages == ("Encabezado legible\nCuerpo legible",)
+
+
+SECRET = "Cuenta 999 para el pago"
+
+
+def pdf_with(draw: Callable[[canvas.Canvas], None]) -> bytes:
+    buffer = io.BytesIO()
+    page = canvas.Canvas(buffer, pagesize=(600, 800), invariant=1)
+    page.drawString(50, 700, "Factura visible")
+    draw(page)
+    page.save()
+    return buffer.getvalue()
+
+
+def invisible_render_mode(page: canvas.Canvas) -> None:
+    text = page.beginText(50, 650)
+    text.setTextRenderMode(3)
+    text.textLine(SECRET)
+    page.drawText(text)
+
+
+def white_over_a_white_image(page: canvas.Canvas) -> None:
+    page.drawImage(ImageReader(Image.new("RGB", (10, 10), "white")), 40, 640, 300, 30)
+    page.setFillColorRGB(1, 1, 1)
+    page.drawString(50, 650, SECRET)
+
+
+def outside_the_crop_box(page: canvas.Canvas) -> None:
+    page.drawString(50, 20, SECRET)
+    page.setCropBox((0, 100, 600, 800))
+
+
+def squeezed_to_nothing(page: canvas.Canvas) -> None:
+    text = page.beginText(50, 650)
+    text.setHorizScale(0.5)
+    text.textLine(SECRET)
+    page.drawText(text)
+
+
+@pytest.mark.parametrize(
+    ("hide", "kind"),
+    [
+        (invisible_render_mode, HiddenTextKind.INVISIBLE_COLOR),
+        (white_over_a_white_image, HiddenTextKind.INVISIBLE_COLOR),
+        (outside_the_crop_box, HiddenTextKind.OFF_PAGE),
+        (squeezed_to_nothing, HiddenTextKind.INVISIBLE_COLOR),
+    ],
+)
+def test_text_that_leaves_no_visible_mark_is_hidden(
+    hide: Callable[[canvas.Canvas], None], kind: HiddenTextKind
+) -> None:
+    reading = read_pdf(pdf_with(hide))
+
+    # squeezed glyphs overlap, so word breaks are lost; the characters themselves must all be reported
+    assert [(finding.kind, finding.text.replace(" ", "")) for finding in reading.findings] == [
+        (kind, SECRET.replace(" ", ""))
+    ]
+    assert reading.pages == ("Factura visible",)
+
+
+def test_text_drawn_over_an_image_in_a_contrasting_color_is_visible() -> None:
+    def legible_over_images(page: canvas.Canvas) -> None:
+        page.drawImage(ImageReader(Image.new("RGB", (10, 10), "white")), 40, 640, 300, 30)
+        page.drawString(50, 650, "Texto negro sobre imagen blanca")
+        page.drawImage(ImageReader(Image.new("RGB", (10, 10), (20, 40, 90))), 40, 590, 300, 30)
+        page.setFillColorRGB(1, 1, 1)
+        page.drawString(50, 600, "Texto blanco sobre imagen oscura")
+
+    reading = read_pdf(pdf_with(legible_over_images))
+
+    assert reading.findings == []
+    assert reading.pages == ("Factura visible\nTexto negro sobre imagen blanca\nTexto blanco sobre imagen oscura",)
 
 
 def test_a_pdf_with_only_an_image_has_no_visible_text_and_rasterizes_for_vision() -> None:
