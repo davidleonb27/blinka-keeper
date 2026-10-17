@@ -323,7 +323,8 @@ def _human_problems(
     totals: _Totals,
 ) -> list[str]:
     problems = []
-    if decision.approval is None or decision.approval.decision != "approved":
+    given = decision.approval
+    if given is None or given.decision != "approved" or given.invoice_id != decision.invoice_id:
         problems.append("sin aprobación de una persona")
     if invoice.payee is not None:
         problems += _account_problems(invoice, invoice.payee)

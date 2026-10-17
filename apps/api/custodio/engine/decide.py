@@ -266,7 +266,11 @@ def _apply_approvals(
 ) -> tuple[list[Draft], Decimal]:
     index = {draft.facts.case_id: n for n, draft in enumerate(drafts)}
     in_order = sorted(
-        ((invoice_id, given) for invoice_id, given in approvals.items() if invoice_id in index),
+        (
+            (invoice_id, given)
+            for invoice_id, given in approvals.items()
+            if invoice_id in index and given.invoice_id == invoice_id
+        ),
         key=lambda item: (as_utc(item[1].at), index[item[0]]),
     )
     result = list(drafts)
