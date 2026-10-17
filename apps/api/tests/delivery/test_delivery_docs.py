@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parents[4]
-OWNED_DOCS = ("PITCH", "DATASET", "BUSINESS", "BUILD_IN_PUBLIC", "COPY", "ARCHITECTURE")
+OWNED_DOCS = ("PITCH", "DATASET", "BUSINESS", "BUILD_IN_PUBLIC", "COPY", "ARCHITECTURE", "MEASUREMENTS")
 MAX_SPOKEN_WORDS_PER_SECOND = 2.6
 X_MAX_CHARS = 280
 X_LINK_CHARS = 23
@@ -259,3 +259,10 @@ def test_readme_names_the_team_the_license_and_ends_in_english() -> None:
 def test_documents_do_not_present_out_of_scope_services_as_existing(path: str) -> None:
     text = read(path).lower()
     assert [name for name in OUT_OF_SCOPE_SERVICES if name in text] == []
+
+
+def test_reading_measurement_gives_exact_counts_and_how_to_repeat_it() -> None:
+    text = read("docs/MEASUREMENTS.md")
+    assert "scripts/measure_reading.py --base-url" in text
+    assert MEASURED_ON in text
+    assert "](MEASUREMENTS.md)" in read("docs/DATASET.md")
