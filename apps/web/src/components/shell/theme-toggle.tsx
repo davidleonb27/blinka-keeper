@@ -2,15 +2,8 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
-
-const noop = () => () => {};
-
-/** True only after hydration: the resolved theme is unknown on the server. */
-function useHydrated(): boolean {
-  return useSyncExternalStore(noop, () => true, () => false);
-}
+import { useHydrated } from "@/lib/hydration";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();

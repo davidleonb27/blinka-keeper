@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from custodio.contracts import AgentVerdict, DecisionStatus, RuleOutcome
+from collections.abc import Sequence
+
+from custodio.contracts import AgentVerdict, DecisionStatus, RuleOutcome, RuleResult
 from custodio.engine.draft import Draft
 from custodio.engine.formatting import day_month, join_es
 from custodio.engine.units import as_utc
@@ -10,6 +12,16 @@ from custodio.engine.units import as_utc
 COUNTERFACTUAL = "Se habría pagado sola si {conditions}."
 PAID_HIGHLIGHTS = ("R3", "R4", "R9", "R12", "R11")
 UNEXPLAINED_CONDITION = "todas las reglas se pudieran comprobar y el auditor independiente estuviera de acuerdo"
+
+
+def rules_met(results: Sequence[RuleResult]) -> str:
+    """`se cumplen las 15 reglas`, or how many applied when a payment control had nothing to check."""
+    skipped = [result.rule_id for result in results if result.outcome is RuleOutcome.SKIPPED]
+    if not skipped:
+        return f"se cumplen las {len(results)} reglas"
+    verb = "tenía" if len(skipped) == 1 else "tenían"
+    applied = len(results) - len(skipped)
+    return f"se cumplen las {applied} reglas que aplican ({join_es(skipped)} no {verb} nada que comprobar)"
 
 
 def explanation(draft: Draft) -> str:
@@ -40,7 +52,7 @@ def _paid_alone(draft: Draft) -> str:
     """Every rule passed; the reasons that matter most to a reader already carry the numbers."""
     reasons = {check.result.rule_id: check.result.reason for check in draft.checks}
     highlights = " ".join(reasons[rule_id] for rule_id in PAID_HIGHLIGHTS)
-    return f"Se paga sola: se cumplen las {len(draft.checks)} reglas. {highlights}"
+    return f"Se paga sola: {rules_met([check.result for check in draft.checks])}. {highlights}"
 
 
 def _what_the_person_did(draft: Draft) -> str | None:

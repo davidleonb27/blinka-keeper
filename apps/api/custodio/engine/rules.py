@@ -1,4 +1,4 @@
-"""The twelve rules. Each one reads a RuleContext and returns its result with a Spanish reason and concrete numbers.
+"""The fifteen rules. Each one reads a RuleContext and returns its result with a Spanish reason and concrete numbers.
 
 A rule never decides the verdict alone and never pays; it only says pass, hold, escalate or skipped, and, when it
 fails, the change that would have made it pass (used by the counterfactual).
@@ -21,22 +21,28 @@ from custodio.contracts import (
     RuleOutcome,
     RuleResult,
 )
+from custodio.engine.bank_details import Check, account_checks, tax_id_check
 from custodio.engine.beneficiaries import BeneficiaryMatch
+from custodio.engine.domains import DomainLikeness, compare_domains, email_domain
 from custodio.engine.facts import Charge, InvoiceFacts
 from custodio.engine.formatting import (
     clip,
     counted,
     day_month,
     join_es,
+    long_date,
     money,
     money_with_base,
     month_name,
     percent,
     plus_minus_percent,
     signed_percent,
+    thousands,
+    two_decimals,
 )
 from custodio.engine.injection import find_instruction
-from custodio.engine.text import normalize_code
+from custodio.engine.sanctions import SIMILARITY_THRESHOLD, SanctionsHit, SanctionsList
+from custodio.engine.text import normalize_code, normalize_name
 from custodio.engine.units import same_month
 
 DUPLICATE_AMOUNT_TOLERANCE = Decimal("0.005")  # R5: "the same amount" means within ±0.5 %
@@ -58,6 +64,9 @@ TEXT_FIELDS = (
 # A dollar sign names a currency only next to the ISO code that was read or that code's national prefix.
 DOLLAR_PREFIXES = {"US": "USD", "R": "BRL", "MX": "MXN", "COL": "COP", "CLP": "CLP"}
 DOLLAR_PREFIX = re.compile(r"(?<![A-Z])(US|R|MX|COL|CLP)\$")
+# R13: where a supplier is not registered, its currency is the only hint of the country whose tax id it carries.
+CURRENCY_COUNTRY = {"COP": "CO", "MXN": "MX", "BRL": "BR"}
+LAST_DIGITS = 4  # R15: what a person confirms of the new account with the registered contact
 
 _SPECS = {spec.id: spec for spec in RULES}
 
@@ -73,6 +82,7 @@ class RuleContext:
     nearby: tuple[Charge, ...]  # this supplier's charges inside the split window, this invoice included
     spent_auto: Decimal  # what the agent paid alone in the invoice's month, before it
     balance: Decimal  # available balance before this invoice
+    sanctions: SanctionsList  # the dated OFAC copy R14 screens against
 
     @property
     def supplier(self) -> str:
@@ -576,6 +586,223 @@ def _skipped_without_base(rule_id: str, base: str) -> RuleCheck:
     return check(rule_id, RuleOutcome.SKIPPED, f"No aplica: no hay un monto confiable en {base}.")
 
 
+# R13 · Datos bancarios válidos para el riel ---------------------------------------------------------------------
+
+
+def bank_details(ctx: RuleContext) -> RuleCheck:
+    read = ctx.invoice.account_number
+    if read is None:
+        return check("R13", RuleOutcome.SKIPPED, "No se leyó la cuenta; no hay datos bancarios que validar.")
+    accounts = account_checks(read, currency=ctx.invoice.currency, country=_country(ctx))
+    checks = [*accounts, *_registered_account_checks(ctx), *_tax_id_checks(ctx)]
+    problems = [c.problem for c in checks if c.problem is not None]
+    schemes = [c.scheme for c in checks]
+    if problems:
+        return check(
+            "R13",
+            RuleOutcome.ESCALATE,
+            f"{_sentence(problems)} Un error de digitación manda el pago a otra cuenta o lo devuelve.",
+            fix="la cuenta y la identificación fiscal pasaran sus dígitos de control",
+            schemes=schemes,
+        )
+    valid = join_es([f"{c.scheme} {c.written}" for c in checks]) if checks else ""
+    if not accounts:
+        rail = f" en {ctx.invoice.currency}" if ctx.invoice.currency else ""
+        also = f"; {valid} pasa su verificación" if valid else ""
+        return check(
+            "R13",
+            RuleOutcome.SKIPPED,
+            f"La cuenta {read}{rail} no sigue un esquema con dígito de control público (CLABE, IBAN, ruta ABA, "
+            f"cuenta ACH, llave Pix o Bre-B){also}.",
+            schemes=schemes,
+        )
+    return check("R13", RuleOutcome.PASS, f"Datos válidos para el riel: {valid}.", schemes=schemes)
+
+
+def _country(ctx: RuleContext) -> str | None:
+    known = ctx.match.beneficiary
+    if known is not None:
+        return known.country
+    return CURRENCY_COUNTRY.get(ctx.invoice.currency or "")
+
+
+def _registered_account_checks(ctx: RuleContext) -> list[Check]:
+    known, read = ctx.match.beneficiary, ctx.invoice.account_number or ""
+    if known is None or normalize_code(known.account_number) == normalize_code(read):
+        return []
+    return [
+        _registered(c, known.name)
+        for c in account_checks(known.account_number, currency=known.currency, country=known.country)
+    ]
+
+
+def _tax_id_checks(ctx: RuleContext) -> list[Check]:
+    country, known, read = _country(ctx), ctx.match.beneficiary, ctx.invoice.supplier_tax_id or ""
+    checks = [found for found in (tax_id_check(read, country=country),) if read and found]
+    if known is not None and normalize_code(known.tax_id) != normalize_code(read):
+        checks += [_registered(c, known.name) for c in (tax_id_check(known.tax_id, country=country),) if c]
+    return checks
+
+
+def _registered(found: Check, name: str) -> Check:
+    problem = f"{found.problem} (dato registrado de {name})" if found.problem else None
+    return Check(found.scheme, found.written, problem)
+
+
+def _sentence(clauses: list[str]) -> str:
+    text = "; ".join(clauses)
+    return text[0].upper() + text[1:] + "."
+
+
+# R14 · Sin coincidencia en la lista OFAC -------------------------------------------------------------------------
+
+
+def sanctions(ctx: RuleContext) -> RuleCheck:
+    names, listed = _screened_names(ctx), ctx.sanctions
+    if not names:
+        return check(
+            "R14", RuleOutcome.SKIPPED, "No se leyó el nombre del proveedor; no hay a quién revisar en la lista."
+        )
+    if listed.size == 0:
+        # Fail closed: an empty list means the screening did not happen, not that there was nothing to screen.
+        return check(
+            "R14",
+            RuleOutcome.ESCALATE,
+            "No hay una copia de la lista OFAC cargada (0 entradas); el proveedor no se revisó y no se paga solo.",
+            fix="se revisara el nombre del proveedor contra una copia cargada de la lista OFAC",
+        )
+    copy = _copy_text(listed)
+    hit = next((found for name in names if (found := listed.screen(name)) is not None), None)
+    if hit is not None:
+        return check(
+            "R14",
+            RuleOutcome.ESCALATE,
+            f"{_hit_text(hit)}; {copy}. Una persona confirma o descarta la coincidencia antes de pagar.",
+            fix=f"una persona descartara la coincidencia con {hit.entry.name} de la lista OFAC",
+            uid=hit.entry.uid,
+            score=round(hit.score, 3),
+        )
+    return check(
+        "R14",
+        RuleOutcome.PASS,
+        f"Ningún nombre del proveedor coincide con la lista OFAC SDN: {join_es([f'«{name}»' for name in names])} "
+        f"({copy}; similitud mínima para avisar {two_decimals(SIMILARITY_THRESHOLD)}).",
+    )
+
+
+def _screened_names(ctx: RuleContext) -> list[str]:
+    """The name read on the invoice, the registered name and its aliases, each once."""
+    known = ctx.match.beneficiary
+    candidates = [ctx.invoice.supplier_name, *((known.name, *known.aliases) if known else ())]
+    unique: dict[str, str] = {}
+    for name in candidates:
+        if name and (key := normalize_name(name)):
+            unique.setdefault(key, name)
+    return list(unique.values())
+
+
+def _copy_text(listed: SanctionsList) -> str:
+    kind = "lista ficticia de prueba" if listed.fictitious else "copia OFAC"
+    when = f"del {long_date(listed.published_on)}" if listed.published_on else "sin fecha"
+    return f"{kind} {when}, {thousands(listed.size)} entradas"
+
+
+def _hit_text(hit: SanctionsHit) -> str:
+    entry = hit.entry
+    how = "coincide con" if hit.score >= 1 else f"se parece (similitud {two_decimals(hit.score)}) a"
+    programs = f"programa {', '.join(entry.programs)}" if entry.programs else "sin programa"
+    countries = f", {', '.join(entry.countries)}" if entry.countries else ""
+    return (
+        f"El nombre «{hit.queried}» {how} «{hit.matched_name}» de la lista OFAC SDN (entrada {entry.uid}, "
+        f"{programs}{countries})"
+    )
+
+
+# R15 · Verificación fuera de banda -------------------------------------------------------------------------------
+
+
+def out_of_band(ctx: RuleContext) -> RuleCheck:
+    known, read = ctx.match.beneficiary, ctx.invoice.account_number
+    if known is None:
+        return check(
+            "R15",
+            RuleOutcome.SKIPPED,
+            "No aplica: sin beneficiario de la lista no hay contacto ni dominio registrados con qué verificar.",
+        )
+    new_digits = _last_digits(read) if read and normalize_code(read) != normalize_code(known.account_number) else None
+    sender, registered = ctx.extraction.sender_email, known.email_domain
+    likeness = compare_domains(email_domain(sender), registered) if sender and registered else None
+    if new_digits is not None or (likeness and likeness.likeness is DomainLikeness.LOOKALIKE):
+        found = []
+        if likeness and likeness.why:
+            found.append(
+                f"El correo {sender} trae un dominio parecido: {email_domain(sender or '')} no es {registered} "
+                f"({likeness.why})."
+            )
+        if new_digits is not None:
+            found.append(f"La factura cambia la cuenta de {known.name} por una que termina en {new_digits}.")
+        return check(
+            "R15",
+            RuleOutcome.ESCALATE,
+            " ".join([*found, _verification(known, new_digits, ctx.invoice.invoice_number)]),
+            fix=_verification_fix(known, new_digits),
+            account_changed=new_digits is not None,
+        )
+    if likeness and likeness.likeness is DomainLikeness.SAME:
+        return check(
+            "R15",
+            RuleOutcome.PASS,
+            f"El correo {sender} es del dominio registrado de {known.name} ({registered}) y la cuenta es la "
+            "registrada.",
+        )
+    if likeness:
+        return check(
+            "R15",
+            RuleOutcome.SKIPPED,
+            f"El correo {sender} no es del dominio registrado de {known.name} ({registered}) ni se le parece; "
+            "la cuenta es la registrada, así que no hay un cambio que verificar fuera de banda.",
+        )
+    return check(
+        "R15",
+        RuleOutcome.PASS,
+        f"La cuenta es la registrada de {known.name}; no hay un cambio que verificar fuera de banda.",
+    )
+
+
+def _verification(known: Beneficiary, new_digits: str | None, invoice_number: str | None) -> str:
+    what = (
+        f"los últimos {LAST_DIGITS} dígitos de la cuenta nueva (…{new_digits})"
+        if new_digits is not None
+        else f"que la factura {invoice_number or 'recibida'} es suya"
+    )
+    never = "No use ningún teléfono, correo ni enlace de la factura ni del correo que la envió."
+    if known.approver_contact:
+        return (
+            f"Verificación fuera de banda: comuníquese con el contacto registrado de {known.name} "
+            f"({known.approver_contact}) y pídale que confirme {what}. {never}"
+        )
+    return (
+        f"{known.name} no tiene un contacto registrado: consiga uno por un canal ya conocido (contrato o pagos "
+        f"anteriores) y confirme con él {what}. {never}"
+    )
+
+
+def _verification_fix(known: Beneficiary, new_digits: str | None) -> str:
+    who = (
+        f"el contacto registrado de {known.name}"
+        if known.approver_contact
+        else f"un contacto ya conocido de {known.name}"
+    )
+    if new_digits is not None:
+        return f"{who} confirmara los últimos {LAST_DIGITS} dígitos de la cuenta nueva"
+    return f"{who} confirmara que la factura es suya"
+
+
+def _last_digits(account: str) -> str:
+    digits = "".join(char for char in account if char.isdigit())
+    return (digits or normalize_code(account))[-LAST_DIGITS:]
+
+
 EVALUATORS: Mapping[str, Callable[[RuleContext], RuleCheck]] = {
     "R1": reading,
     "R2": instructions,
@@ -589,4 +816,7 @@ EVALUATORS: Mapping[str, Callable[[RuleContext], RuleCheck]] = {
     "R10": limit,
     "R11": budget,
     "R12": reserve,
+    "R13": bank_details,
+    "R14": sanctions,
+    "R15": out_of_band,
 }

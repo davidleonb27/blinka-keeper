@@ -5,6 +5,8 @@ The HTTP layer maps them to status codes; the services never know about HTTP.
 
 from __future__ import annotations
 
+from custodio.llm import LLMError, LLMNotConfigured
+
 
 class ServiceError(Exception):
     code = "service_error"
@@ -81,6 +83,19 @@ class RateLimited(ServiceError):
 class ModelUnavailable(ServiceError):
     code = "model_unavailable"
     message = "El modelo no está disponible ahora. No se tomó ninguna decisión; inténtalo de nuevo en un momento."
+
+
+class ModelNotConfigured(ModelUnavailable):
+    code = "model_not_configured"
+    message = (
+        "Esta función requiere ANTHROPIC_API_KEY y este servidor no la tiene. Lo demás (reglas, auditor, registro, "
+        "firewall y lectura de texto) funciona sin ella. No se tomó ninguna decisión."
+    )
+
+
+def model_failure(error: LLMError) -> ModelUnavailable:
+    """The service error for a model failure: a missing key is said as such, anything else as unavailable."""
+    return ModelNotConfigured() if isinstance(error, LLMNotConfigured) else ModelUnavailable()
 
 
 class ReadingUnavailable(ServiceError):

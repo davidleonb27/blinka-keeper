@@ -14,6 +14,23 @@ TITLES = {
     "approve": "Una persona aprueba", "ledger": "El registro detecta la alteración", "rules": "Reglas en tus palabras",
     "proof": "Medido a escala", "compare": "Maqueta contra producto", "close": "Cierre",
 }
+TAKE = {
+    "open": "Tarjeta animada, sin producto.",
+    "problem": "Tarjeta animada; las cifras cuentan hasta su valor y la fuente queda fija al pie.",
+    "demo": "Grabación continua con cursor visible; la espera de la decisión va acelerada ×4 y lo dice en pantalla.",
+    "results": "Zoom suave a «Pagos indebidos» y a los tres totales, en la misma toma.",
+    "pdf": "Tarjeta animada sobre el PDF real; un barrido destapa la línea oculta.",
+    "attack": "Grabación continua: se sube el PDF, la lectura va ×3 y el resultado a velocidad normal con zoom.",
+    "arena": "Encuadre fijo bajo el título de la página; las rondas ×6 y el marcador final a velocidad normal.",
+    "acta": "Zoom a «Por qué» y «Qué tendría que cambiar», luego a la regla que retiene.",
+    "paid": "Zoom al identificador `tr_…` en el acta; no se abre el dashboard de Stripe.",
+    "approve": "El clic en «Aprobar pago» se ve completo; zoom a la transferencia que sale después.",
+    "ledger": "Zoom al verde de la verificación y al rojo de la copia alterada.",
+    "rules": "Se teclea la regla en cámara; la compilación va ×3 y la simulación con zoom.",
+    "proof": "Tarjeta animada.",
+    "compare": "Tarjeta animada, fila por fila.",
+    "close": "Plano fijo.",
+}
 BACKUP = {
     "open": "Tarjeta `open` de `docs/video/titles.html`.",
     "problem": "Tarjeta `problem`, con la fuente del FBI IC3 en pantalla.",
@@ -49,7 +66,8 @@ def main() -> None:
         said = " ".join(line["text"] for line in s["lines"])
         assert guion.words(said) <= guion.MAX_WPS * (b - a), (s["id"], guion.words(said), b - a)
         out += [f"### {a // 60}:{a % 60:02d}–{b // 60}:{b % 60:02d} · {TITLES[s['id']]}", "", f"**Se oye:** {said}", "",
-                f"**Se ve:** {guion.SHOTS[s['id']]}", "", f"**Respaldo:** {BACKUP[s['id']]}", ""]
+                f"**Se ve:** {guion.SHOTS[s['id']]}", "", f"**Toma:** {TAKE[s['id']]}", "",
+                f"**Respaldo:** {BACKUP[s['id']]}", ""]
     out += [f"## Corte vertical de {round(v['total'])} s", "",
             "Para redes y Build in Public, en el formato vertical de la competencia pero con producto real:",
             f"`docs/video/out/custodio-pitch-vertical.mp4` (1080×1920, {guion.clock(v['total'])}).", ""]

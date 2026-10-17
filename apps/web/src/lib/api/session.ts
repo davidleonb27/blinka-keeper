@@ -1,7 +1,7 @@
 import type { CustodioApi } from "./client";
 import { createLiveClient } from "./live-client";
 import { createMockClient } from "./mock/mock-client";
-import { browserWorkspaceStore, ensureWorkspace } from "./workspace";
+import { browserWorkspaceStore, ensureWorkspace, renewWorkspace } from "./workspace";
 
 export type ApiMode = "mock" | "live";
 
@@ -11,19 +11,17 @@ function apiModeFrom(value: string | undefined): ApiMode {
 
 export const API_MODE: ApiMode = apiModeFrom(process.env.NEXT_PUBLIC_API_MODE);
 
+/** The page's queries run in parallel: they share one creation of the visitor's workspace instead of racing. */
 function createBrowserLiveClient(): CustodioApi {
   let pending: Promise<string> | null = null;
+  const once = (create: () => Promise<string>): Promise<string> =>
+    (pending ??= create().finally(() => {
+      pending = null;
+    }));
   const client: CustodioApi = createLiveClient({
     fetch: (...args) => fetch(...args),
-    workspaceId: () => {
-      const stored = browserWorkspaceStore.read();
-      if (stored) return stored;
-      pending ??= ensureWorkspace(client, browserWorkspaceStore).catch((error: unknown) => {
-        pending = null;
-        throw error;
-      });
-      return pending;
-    },
+    workspaceId: () => browserWorkspaceStore.read() ?? once(() => ensureWorkspace(client, browserWorkspaceStore)),
+    replaceWorkspace: (stale) => once(() => renewWorkspace(client, browserWorkspaceStore, stale)),
   });
   return client;
 }

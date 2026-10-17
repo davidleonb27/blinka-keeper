@@ -19,6 +19,7 @@ from custodio.contracts import (
     InvoiceSource,
     InvoiceSpec,
 )
+from custodio.engine.domains import first_email
 
 READER = "dataset"
 HIDDEN_DETAIL = "Texto blanco sobre fondo blanco, invisible para una persona"
@@ -93,6 +94,7 @@ def read_spec(
         document_id=document_id,
         source=spec.channel,
         visible_text=text,
+        sender_email=first_email(text),
         hidden_findings=_hidden(spec),
         reader=READER,
         overall_confidence=min(f.confidence for f in fields.values() if f.value is not None),

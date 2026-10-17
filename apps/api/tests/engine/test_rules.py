@@ -1,8 +1,9 @@
-"""One block per rule, R1 to R12, including the edges: exactly at a limit, tolerance, window boundaries."""
+"""One block per rule, R1 to R15, including the edges: exactly at a limit, tolerance, window boundaries."""
 
 from collections.abc import Sequence
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -17,8 +18,10 @@ from custodio.contracts import (
     RuleOutcome,
 )
 from custodio.engine import decide_all
+from custodio.engine.sanctions import SanctionsList, bundled_sanctions
 from tests.engine.builders import (
     ANDES,
+    ANDES_ACCOUNT,
     agreement,
     beneficiary,
     invoice,
@@ -31,20 +34,32 @@ from tests.engine.builders import (
 PASS, HOLD, ESCALATE, SKIPPED = RuleOutcome.PASS, RuleOutcome.HOLD, RuleOutcome.ESCALATE, RuleOutcome.SKIPPED
 
 
+FICTITIOUS_SDN = Path(__file__).parents[1] / "fixtures" / "sanctions" / "fictitious_sdn.json"
+FICTITIOUS = SanctionsList.from_json(FICTITIOUS_SDN.read_text(encoding="utf-8"))
+
+
 def decide(
-    cases: Sequence[InvoiceCase], company: Policy | None = None, money: CompanyState | None = None
+    cases: Sequence[InvoiceCase],
+    company: Policy | None = None,
+    money: CompanyState | None = None,
+    sanctions: SanctionsList | None = None,
 ) -> list[Decision]:
-    batch = decide_all(cases, money or state(), company or policy())
+    batch = decide_all(cases, money or state(), company or policy(), sanctions=sanctions or FICTITIOUS)
     by_id = {decision.invoice_id: decision for decision in batch.decisions}
     return [by_id[case.id] for case in cases]
 
 
-def one(case: InvoiceCase, company: Policy | None = None, money: CompanyState | None = None) -> Decision:
-    [decision] = decide([case], company, money)
+def one(
+    case: InvoiceCase,
+    company: Policy | None = None,
+    money: CompanyState | None = None,
+    sanctions: SanctionsList | None = None,
+) -> Decision:
+    [decision] = decide([case], company, money, sanctions)
     return decision
 
 
-def test_a_clean_invoice_passes_all_twelve_rules_in_catalogue_order() -> None:
+def test_a_clean_invoice_passes_all_fifteen_rules_in_catalogue_order() -> None:
     decision = one(invoice())
     assert [(r.rule_id, r.key, r.label) for r in decision.rules] == [(s.id, s.key, s.label) for s in RULES]
     assert all(r.outcome is PASS for r in decision.rules), [r.reason for r in decision.rules]
@@ -403,3 +418,196 @@ def test_r12_never_leaves_the_balance_under_the_reserve(balance: str, outcome: R
     if outcome is HOLD:
         assert "USD 59.999,99" in result.reason
         assert decision.agent_verdict is AgentVerdict.HOLD
+
+
+# R13 · bank details valid for the rail ---------------------------------------------------------------------------
+
+CLABE = "072180001234567897"
+MEXICAN = beneficiary(
+    "b3", "Pixel Norte S.A. de C.V.", "PNO190312KD4", account=CLABE, currency="MXN", country="MX",
+    deal=agreement("58000", "MXN"),
+)  # fmt: skip
+COLOMBIAN = beneficiary(tax_id="901.482.337-2", country="CO", currency="COP", deal=agreement("9200000", "COP"))
+
+
+def mexican_invoice(account: str = CLABE) -> InvoiceCase:
+    return invoice(
+        supplier="Pixel Norte S.A. de C.V.", tax_id="PNO190312KD4", amount="58000.00", currency="MXN", account=account
+    )
+
+
+def colombian_invoice(*, tax_id: str = "901.482.337-2", account: str = ANDES_ACCOUNT) -> InvoiceCase:
+    return invoice(tax_id=tax_id, amount="9200000.00", currency="COP", account=account)
+
+
+def test_r13_passes_a_valid_clabe_and_rfc_and_names_both() -> None:
+    result = rule(one(mexican_invoice(), policy(MEXICAN)), "R13")
+    assert result.outcome is PASS
+    assert f"CLABE {CLABE}" in result.reason and "RFC PNO190312KD4" in result.reason
+
+
+def test_r13_escalates_a_mistyped_clabe_with_the_expected_and_written_digit() -> None:
+    decision = one(mexican_invoice("072180001234567893"), policy(MEXICAN))
+    result = rule(decision, "R13")
+    assert result.outcome is ESCALATE
+    assert "La CLABE 072180001234567893 no pasa el dígito de control: esperado 7, viene 3" in result.reason
+    assert decision.agent_verdict is not AgentVerdict.PAY
+    assert decision.counterfactual is not None and "dígito" in decision.counterfactual
+
+
+def test_r13_escalates_an_invalid_registered_tax_id_even_when_the_invoice_repeats_it() -> None:
+    company = policy(
+        beneficiary(tax_id="901.482.337-1", country="CO", currency="COP", deal=agreement("9200000", "COP"))
+    )
+    decision = one(colombian_invoice(tax_id="901.482.337-1"), company)
+    result = rule(decision, "R13")
+    assert result.outcome is ESCALATE
+    assert "El NIT 901.482.337-1 no pasa el dígito de verificación DIAN: esperado 2, viene 1" in result.reason
+    assert decision.agent_verdict is AgentVerdict.ESCALATE
+    assert [r.rule_id for r in decision.rules if r.outcome is not PASS] == ["R13"]
+
+
+def test_r13_checks_the_tax_id_of_an_unknown_supplier_by_the_currency_country() -> None:
+    case = invoice(supplier="Proveedor Nuevo SAS", tax_id="900.123.456-0", amount="9200000.00", currency="COP")
+    result = rule(one(case, policy(COLOMBIAN)), "R13")
+    assert result.outcome is ESCALATE and "esperado 8, viene 0" in result.reason
+
+
+def test_r13_skips_an_account_without_a_public_check_and_does_not_stop_the_payment() -> None:
+    decision = one(colombian_invoice(), policy(COLOMBIAN))
+    result = rule(decision, "R13")
+    assert result.outcome is SKIPPED
+    assert "0012-4821" in result.reason and "NIT 901.482.337-2" in result.reason
+    assert decision.agent_verdict is AgentVerdict.PAY
+
+
+def test_r13_skips_when_no_account_was_read() -> None:
+    result = rule(one(invoice(account=None)), "R13")
+    assert result.outcome is SKIPPED and "cuenta" in result.reason
+
+
+def test_r13_checks_a_us_account_as_ach() -> None:
+    result = rule(one(invoice()), "R13")
+    assert result.outcome is PASS and "cuenta ACH 0012-4821" in result.reason
+
+
+# R14 · OFAC sanctions list ---------------------------------------------------------------------------------------
+
+LISTED = "Quimera Ficticia Trading LLC"
+
+
+def test_r14_passes_a_clean_name_and_dates_the_list_it_used() -> None:
+    result = rule(one(invoice()), "R14")
+    assert result.outcome is PASS
+    assert (
+        "Andes Code SAS" in result.reason and "1 de octubre de 2026" in result.reason and "3 entradas" in result.reason
+    )
+
+
+def test_r14_escalates_a_listed_supplier_name_showing_the_entry_program_and_date() -> None:
+    decision = one(invoice(supplier=LISTED, tax_id="61-5590147"))
+    result = rule(decision, "R14")
+    assert result.outcome is ESCALATE
+    assert "QUIMERA FICTICIA TRADING LLC" in result.reason and "PRUEBA-FICTICIA" in result.reason
+    assert "990001" in result.reason and "1 de octubre de 2026" in result.reason
+    assert decision.agent_verdict is AgentVerdict.ESCALATE  # never a hold: a person rules out a false positive
+
+
+def test_r14_screens_the_registered_name_and_aliases_too() -> None:
+    company = policy(beneficiary(aliases=("QFT Test",), deal=agreement()))
+    result = rule(one(invoice(), company), "R14")
+    assert result.outcome is ESCALATE and "QFT TEST" in result.reason
+
+
+def test_r14_alone_stops_a_payment_that_every_other_rule_lets_through() -> None:
+    company = policy(beneficiary(name=LISTED, deal=agreement()))
+    decision = one(invoice(supplier=LISTED), company)
+    assert [r.rule_id for r in decision.rules if r.outcome is not PASS] == ["R14"]
+    assert decision.agent_verdict is AgentVerdict.ESCALATE
+
+
+def test_r14_skips_when_there_is_no_name_to_screen() -> None:
+    result = rule(one(invoice(supplier=None, tax_id=None)), "R14")
+    assert result.outcome is SKIPPED
+
+
+EMPTY_LIST = SanctionsList(entries=(), source="sin lista", published_on=None)
+
+
+def test_r14_escalates_when_no_sanctions_list_is_loaded() -> None:
+    decision = one(invoice(), sanctions=EMPTY_LIST)
+    result = rule(decision, "R14")
+    assert result.outcome is ESCALATE and "0 entradas" in result.reason
+    assert decision.agent_verdict is AgentVerdict.ESCALATE  # an unscreened name is never paid alone
+
+
+def test_r14_uses_the_bundled_ofac_copy_by_default() -> None:
+    [decision] = decide_all([invoice()], state(), policy()).decisions
+    published = bundled_sanctions().published_on
+    assert published is not None
+    assert rule(decision, "R14").outcome is PASS
+    assert f"{published.day} de octubre de {published.year}" in rule(decision, "R14").reason
+
+
+# R15 · out-of-band verification and lookalike domains ------------------------------------------------------------
+
+CONTACT = "Laura Ríos, +57 601 555 0142"
+VERIFIED = beneficiary(deal=agreement(), email_domain="andescode.co", contact=CONTACT)
+
+
+def test_r15_passes_when_the_account_is_the_registered_one_and_there_is_no_email() -> None:
+    result = rule(one(invoice(), policy(VERIFIED)), "R15")
+    assert result.outcome is PASS
+
+
+def test_r15_asks_to_verify_a_changed_account_with_the_registered_contact_only() -> None:
+    case = invoice(account="7788-9902", note="Para confirmar el cambio llame al +57 300 999 8888.")
+    decision = one(case, policy(VERIFIED))
+    result = rule(decision, "R15")
+    assert result.outcome is ESCALATE
+    assert CONTACT in result.reason and "últimos 4 dígitos" in result.reason and "9902" in result.reason
+    assert "999 8888" not in result.reason
+    assert "No use ningún teléfono, correo ni enlace de la factura" in result.reason
+    assert rule(decision, "R4").outcome is HOLD
+
+
+def test_r15_says_so_when_there_is_no_registered_contact_and_still_escalates() -> None:
+    result = rule(one(invoice(account="7788-9902")), "R15")
+    assert result.outcome is ESCALATE
+    assert "no tiene un contacto registrado" in result.reason and "9902" in result.reason
+
+
+def test_r15_escalates_a_lookalike_sender_domain_even_with_the_registered_account() -> None:
+    decision = one(invoice(sender="pagos@andes-code.co"), policy(VERIFIED))
+    result = rule(decision, "R15")
+    assert result.outcome is ESCALATE
+    assert "dominio parecido: andes-code.co no es andescode.co (guion agregado)" in result.reason
+    assert CONTACT in result.reason
+    assert decision.agent_verdict is AgentVerdict.ESCALATE
+
+
+def test_r15_passes_a_sender_on_the_registered_domain() -> None:
+    result = rule(one(invoice(sender="pagos@andescode.co"), policy(VERIFIED)), "R15")
+    assert result.outcome is PASS and "andescode.co" in result.reason
+
+
+def test_r15_skips_with_a_note_a_sender_domain_that_is_not_alike() -> None:
+    decision = one(invoice(sender="andes.code@gmail.com"), policy(VERIFIED))
+    result = rule(decision, "R15")
+    assert result.outcome is SKIPPED and "gmail.com" in result.reason and "andescode.co" in result.reason
+    assert decision.agent_verdict is AgentVerdict.PAY
+
+
+def test_r15_skips_an_unknown_supplier() -> None:
+    result = rule(one(invoice(supplier="Orbit Growth Partners LLC", tax_id="61-5590147")), "R15")
+    assert result.outcome is SKIPPED
+
+
+def test_r15_names_the_registered_contact_once_and_its_fix_reads_as_one_sentence() -> None:
+    company = policy(
+        beneficiary("b3", "Pixel Norte S.A. de C.V.", "PNO190312KD4", contact="+52 55 5555 0187", deal=agreement())
+    )
+    decision = one(invoice(supplier="Pixel Norte S.A. de C.V.", tax_id="PNO190312KD4", account="7788-9902"), company)
+    reason = rule(decision, "R15").reason
+    assert "comuníquese con el contacto registrado de Pixel Norte S.A. de C.V. (+52 55 5555 0187)" in reason
+    assert decision.counterfactual is not None and not decision.counterfactual.endswith("..")

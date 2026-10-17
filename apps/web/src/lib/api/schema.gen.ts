@@ -569,6 +569,8 @@ export interface components {
             allowed: boolean;
             /** Approver Contact */
             approver_contact?: string | null;
+            /** Email Domain */
+            email_domain?: string | null;
         };
         /** Beneficiary */
         "Beneficiary-Output": {
@@ -599,6 +601,8 @@ export interface components {
             allowed: boolean;
             /** Approver Contact */
             approver_contact?: string | null;
+            /** Email Domain */
+            email_domain?: string | null;
         };
         /** Body_import_suppliers_api_v1_onboarding_suppliers_post */
         Body_import_suppliers_api_v1_onboarding_suppliers_post: {
@@ -794,6 +798,8 @@ export interface components {
             description: components["schemas"]["ExtractedField"];
             /** Visible Text */
             visible_text: string;
+            /** Sender Email */
+            sender_email?: string | null;
             /**
              * Hidden Findings
              * @default []
@@ -821,7 +827,9 @@ export interface components {
              * Payment Rail
              * @enum {string}
              */
-            payment_rail: "simulated" | "stripe_test";
+            payment_rail: "simulated" | "stripe_test" | "blinka_simulated";
+            /** Sanctions List Date */
+            sanctions_list_date?: string | null;
         };
         /** HiddenTextFinding */
         HiddenTextFinding: {
@@ -973,7 +981,7 @@ export interface components {
              * Rail
              * @enum {string}
              */
-            rail: "simulated" | "stripe_test";
+            rail: "simulated" | "stripe_test" | "blinka_simulated";
             /**
              * Status
              * @enum {string}
@@ -990,6 +998,36 @@ export interface components {
             executed_at: string;
             /** Error */
             error?: string | null;
+            instruction?: components["schemas"]["PaymentInstruction"] | null;
+        };
+        /**
+         * PaymentInstruction
+         * @description Exactly what Custodio hands a bank partner (Blinka) to pay one invoice: original amount and currency.
+         */
+        PaymentInstruction: {
+            /**
+             * Network
+             * @enum {string}
+             */
+            network: "ach" | "wire" | "bre_b" | "spei" | "pix";
+            /** Amount */
+            amount: number;
+            /** Currency */
+            currency: string;
+            /** Beneficiary Name */
+            beneficiary_name: string;
+            /** Beneficiary Tax Id */
+            beneficiary_tax_id: string;
+            /** Beneficiary Country */
+            beneficiary_country: string | null;
+            /** Bank Name */
+            bank_name: string;
+            /** Account Number */
+            account_number: string;
+            /** Reference */
+            reference: string;
+            /** Idempotency Key */
+            idempotency_key: string;
         };
         /** PaymentIntent */
         PaymentIntent: {

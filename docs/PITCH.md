@@ -14,6 +14,10 @@ Entrega: video de 3:00 exactos, demo en vivo y repo público. Equipo DreamMakers
 - Antes de grabar: abrir un espacio nuevo y correr el lote. `docs/video/render.sh` lo hace solo: crea un espacio demo
   nuevo en producción, graba las tomas con Playwright y monta los dos cortes con ffmpeg (ver
   [`lanes/reports/L16.md`](lanes/reports/L16.md)).
+- La escena del pago (1:42) necesita el despliegue con `CUSTODIO_PAYMENT_RAIL=stripe_test` y una clave `sk_test_`: `GET
+  /api/v1/health` debe decir `"payment_rail": "stripe_test"`. Si no, esa escena se graba con el respaldo y se dice
+  «simulado» en pantalla.
+- **Toma** dice cómo se filma cada escena; **Respaldo**, qué se usa si la toma en vivo falla.
 
 ## Versión de 3:00
 
@@ -27,6 +31,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Se ve:** Tarjeta: «Una maqueta lo dice» se tacha; «Custodio lo demuestra». En producción · pagos reales · bajo ataque.
 
+**Toma:** Tarjeta animada, sin producto.
+
 **Respaldo:** Tarjeta `open` de `docs/video/titles.html`.
 
 ### 0:09–0:23 · El problema
@@ -35,13 +41,17 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Se ve:** Tarjeta: 24.768 denuncias y US$ 3.046.598.558 (FBI IC3, Informe anual 2025, fuente en pantalla).
 
+**Toma:** Tarjeta animada; las cifras cuentan hasta su valor y la fuente queda fija al pie.
+
 **Respaldo:** Tarjeta `problem`, con la fuente del FBI IC3 en pantalla.
 
 ### 0:23–0:37 · Una empresa demo nueva, 36 facturas
 
-**Se oye:** Esta es Cobalto Labs, una empresa demo recién creada. Le llegan 36 facturas: correos, PDF, fotos y WhatsApp. Un clic, y Custodio decide cada una con doce reglas escritas en código.
+**Se oye:** Esta es Cobalto Labs, una empresa demo recién creada. Le llegan 36 facturas: correos, PDF, fotos y WhatsApp. Un clic, y Custodio decide cada una con quince reglas escritas en código.
 
 **Se ve:** Producto: inicio → «Probar con una empresa demo» → panel con 36 facturas recibidas → «Decidir las 36 facturas» (acelerado ×4).
+
+**Toma:** Grabación continua con cursor visible; la espera de la decisión va acelerada ×4 y lo dice en pantalla.
 
 **Respaldo:** Toma `landing` de `docs/video/record.mjs` (espacio demo nuevo en producción).
 
@@ -51,6 +61,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Se ve:** Producto: zoom a «Pagos indebidos 0» y a Pagado / Retenido / Pendiente.
 
+**Toma:** Zoom suave a «Pagos indebidos» y a los tres totales, en la misma toma.
+
 **Respaldo:** Toma `landing`, marcas `zoom_zero` y `zoom_counts`.
 
 ### 0:47–0:57 · Un ataque de verdad
@@ -58,6 +70,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 **Se oye:** Ahora, un ataque de verdad. Esta factura de Andes Code parece normal, pero esconde una orden en texto blanco y trae la cuenta bancaria cambiada.
 
 **Se ve:** Tarjeta: el PDF real que se sube; un barrido destapa la línea en blanco y marca la cuenta cambiada.
+
+**Toma:** Tarjeta animada sobre el PDF real; un barrido destapa la línea oculta.
 
 **Respaldo:** Tarjeta `pdf` con el PDF real que genera `docs/video/make_attack_pdf.py`.
 
@@ -67,6 +81,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Se ve:** Producto: «Róbale a Custodio», se sube el PDF, «No pasó. Custodio no pagó», R2 + R4, la cita destapada y el contador.
 
+**Toma:** Grabación continua: se sube el PDF, la lectura va ×3 y el resultado a velocidad normal con zoom.
+
 **Respaldo:** Toma `attack`: el mismo PDF subido a «Róbale a Custodio».
 
 ### 1:15–1:27 · La Arena cambia de técnica
@@ -74,6 +90,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 **Se oye:** Y no es un solo truco. En la Arena, un modelo atacante inventa fraudes, lee por qué lo bloquearon y cambia de técnica. Tres ataques, tres atrapados, cero pagos indebidos.
 
 **Se ve:** Producto: Arena, 3 rondas en vivo (acelerado ×6) y el marcador final.
+
+**Toma:** Encuadre fijo bajo el título de la página; las rondas ×6 y el marcador final a velocidad normal.
 
 **Respaldo:** Toma `arena`: 3 rondas en vivo.
 
@@ -83,6 +101,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Se ve:** Producto: acta de Andrés Paredes: por qué, qué tendría que cambiar, R4 resaltada.
 
+**Toma:** Zoom a «Por qué» y «Qué tendría que cambiar», luego a la regla que retiene.
+
 **Respaldo:** Toma `held`: acta de Andrés Paredes.
 
 ### 1:41–1:52 · Pago real en Stripe
@@ -90,6 +110,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 **Se oye:** Y cuando paga, paga de verdad: una transferencia en Stripe, en modo prueba, con su identificador en el acta.
 
 **Se ve:** Producto: acta de una factura pagada; zoom a «Stripe · modo prueba» y la transferencia tr_….
+
+**Toma:** Zoom al identificador `tr_…` en el acta; no se abre el dashboard de Stripe.
 
 **Respaldo:** Toma `paid`: acta con la transferencia `tr_…`.
 
@@ -99,6 +121,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Se ve:** Producto: Cumulus Hosting fuera de lo acordado; Ana Gómez aprueba; zoom a la transferencia tr_….
 
+**Toma:** El clic en «Aprobar pago» se ve completo; zoom a la transferencia que sale después.
+
 **Respaldo:** Toma `approve`: Cumulus Hosting aprobada por Ana Gómez.
 
 ### 2:08–2:22 · El registro detecta la alteración
@@ -106,6 +130,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 **Se oye:** Ese registro está encadenado con SHA-256. Verificar: íntegro. Si alguien altera una copia, la cadena se rompe justo en el asiento cambiado.
 
 **Se ve:** Producto: Registro → «Verificar la cadena» (verde) → «Alterar una copia» (rojo en el asiento exacto).
+
+**Toma:** Zoom al verde de la verificación y al rojo de la copia alterada.
 
 **Respaldo:** Toma `ledger`: verificar y alterar una copia.
 
@@ -115,6 +141,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Se ve:** Producto: Reglas: se escribe «Nada sobre 1.000 USD sin que lo apruebe Ana» → compilar y simular (acelerado ×3).
 
+**Toma:** Se teclea la regla en cámara; la compilación va ×3 y la simulación con zoom.
+
 **Respaldo:** Toma `rules`: compilar y simular sin aplicar.
 
 ### 2:36–2:45 · Medido a escala
@@ -122,6 +150,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 **Se oye:** Y lo medimos a escala: mil empresas simuladas, veinticinco mil facturas, ocho mil pagos auditados otra vez. Cero indebidos.
 
 **Se ve:** Tarjeta: 1.000 empresas · 25.139 facturas · 8.136 pagos re-auditados · 0 pagos indebidos (README › Métricas).
+
+**Toma:** Tarjeta animada.
 
 **Respaldo:** Tarjeta `proof` con las cifras del README › Métricas.
 
@@ -131,6 +161,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 
 **Se ve:** Tarjeta: «Una maqueta lo dice» frente a «Custodio lo demuestra, en producción», fila por fila.
 
+**Toma:** Tarjeta animada, fila por fila.
+
 **Respaldo:** Tarjeta `compare`.
 
 ### 2:55–3:00 · Cierre
@@ -138,6 +170,8 @@ los del corte repartidos sobre 3:00 y redondeados al segundo; los exactos, frase
 **Se oye:** Custodio decide; Blinka paga. Somos DreamMakers.
 
 **Se ve:** Tarjeta: «Custodio decide; Blinka paga.», enlace de la demo, repo, MIT y el equipo.
+
+**Toma:** Plano fijo.
 
 **Respaldo:** Tarjeta `close`.
 
@@ -172,7 +206,7 @@ Para redes y Build in Public, en el formato vertical de la competencia pero con 
 
 **Se oye:** En Custodio el modelo lee y cita. Doce reglas en código pagan, retienen o preguntan a una persona. Cada decisión trae su acta y queda en un registro que no se puede alterar.
 
-**Se ve:** El panel con pagado, retenido y pendiente; un acta abierta con las doce reglas.
+**Se ve:** El panel con pagado, retenido y pendiente; un acta abierta con las quince reglas.
 
 ### 0:36–0:50 · Claude contra Claude
 

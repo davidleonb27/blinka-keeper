@@ -8,8 +8,20 @@ from pathlib import Path
 
 import pytest
 
+from custodio.contracts import RULES
+
 REPO = Path(__file__).resolve().parents[4]
-OWNED_DOCS = ("PITCH", "DATASET", "BUSINESS", "BUILD_IN_PUBLIC", "COPY", "ARCHITECTURE", "MEASUREMENTS")
+OWNED_DOCS = (
+    "PITCH",
+    "DATASET",
+    "BUSINESS",
+    "BUILD_IN_PUBLIC",
+    "COPY",
+    "ARCHITECTURE",
+    "MEASUREMENTS",
+    "BLINKA",
+    "PAYMENTS",
+)
 MAX_SPOKEN_WORDS_PER_SECOND = 2.6
 X_MAX_CHARS = 280
 X_LINK_CHARS = 23
@@ -36,6 +48,19 @@ INFLATED_WORDS = (
 )
 OUT_OF_SCOPE_SERVICES = ("telegram", "gemini", "celular")
 FORBIDDEN_TRAILERS = ("Co-Authored-By", "Generated with")
+BLINKA_SECTIONS = (
+    "El problema de sus clientes",
+    "Dónde va Custodio",
+    "Qué gana Blinka",
+    "Lo que ya está medido",
+    "Integración en 2 semanas",
+    "Precio propuesto",
+    "Seguridad",
+    "Lo que falta para producción",
+)
+MEASURED_SOURCES = ("README.md", "docs/DATASET.md", "docs/MEASUREMENTS.md", "docs/PAYMENTS.md")
+CLOSING_LINE = "Custodio decide; Blinka paga"
+NUMBER = re.compile(r"\d[\d.,]*\d|\d")
 WRITTEN_SEGMENT = re.compile(r"^### (\d+):(\d\d)–(\d+):(\d\d) · .+$", re.MULTILINE)
 
 
@@ -123,7 +148,7 @@ def test_no_inflated_marketing_words(path: str) -> None:
 @pytest.mark.parametrize("path", owned_markdown())
 def test_rule_references_exist_in_the_catalogue(path: str) -> None:
     numbers = {int(n) for n in re.findall(r"\bR(\d+)\b", read(path))}
-    assert numbers <= set(range(1, 13))
+    assert numbers <= {int(rule.id[1:]) for rule in RULES}
 
 
 @pytest.mark.parametrize("path", owned_markdown())
@@ -252,7 +277,34 @@ def test_readme_names_the_team_the_license_and_ends_in_english() -> None:
         assert name in text
     assert "MIT" in text
     assert re.findall(r"^## (.+)$", text, re.MULTILINE)[-1] == "English summary"
-    assert (REPO / "LICENSE").read_text(encoding="utf-8").startswith("MIT License")
+    license_text = (REPO / "LICENSE").read_text(encoding="utf-8")
+    assert license_text.startswith("MIT License")
+    assert "Copyright (c) 2026 DreamMakers (Adriano Joao Souza Reyna, Juan David Leon, Leober Ramos)" in license_text
+
+
+def test_every_license_field_and_the_contributing_guide_say_mit() -> None:
+    assert re.search(r'^license = "MIT"$', read("apps/api/pyproject.toml"), re.MULTILINE)
+    assert '"license": "MIT"' in read("apps/web/package.json")
+    assert "bajo la licencia MIT" in read("CONTRIBUTING.md")
+    assert "Apache" not in read("README.md") + read("CONTRIBUTING.md") + read("docs/SELF_HOSTING.md")
+
+
+@pytest.mark.parametrize(
+    "path", ["CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md", ".github/PULL_REQUEST_TEMPLATE.md"]
+)
+def test_community_files_exist(path: str) -> None:
+    assert read(path).strip()
+
+
+def test_security_policy_reports_privately_and_covers_any_improper_payment() -> None:
+    text = read("SECURITY.md")
+    assert "security/advisories/new" in text
+    assert "pague algo indebido" in text
+
+
+def test_issue_templates_cover_bugs_new_rules_and_payment_rails() -> None:
+    templates = {path.name for path in (REPO / ".github" / "ISSUE_TEMPLATE").glob("*.yml")}
+    assert {"bug.yml", "rule.yml", "payment-rail.yml"} <= templates
 
 
 @pytest.mark.parametrize("path", owned_markdown())
@@ -266,3 +318,62 @@ def test_reading_measurement_gives_exact_counts_and_how_to_repeat_it() -> None:
     assert "scripts/measure_reading.py --base-url" in text
     assert MEASURED_ON in text
     assert "](MEASUREMENTS.md)" in read("docs/DATASET.md")
+
+
+def test_the_blinka_page_covers_what_the_blinka_team_needs() -> None:
+    text = read("docs/BLINKA.md")
+    for heading in BLINKA_SECTIONS:
+        assert section(text, heading).strip()
+
+
+def test_every_figure_on_the_blinka_page_is_already_published_as_measured() -> None:
+    measured = section(read("docs/BLINKA.md"), "Lo que ya está medido")
+    published = "\n".join(read(path) for path in MEASURED_SOURCES)
+    missing = [number for number in NUMBER.findall(measured) if number not in published]
+    assert missing == []
+
+
+def test_the_blinka_price_is_presented_as_a_proposal() -> None:
+    price = section(read("docs/BLINKA.md"), "Precio propuesto").lower()
+    assert "propuesta" in price
+    assert "por decisión" in price
+    assert "volumen" in price
+
+
+def test_the_blinka_page_names_what_is_missing_for_production() -> None:
+    missing = section(read("docs/BLINKA.md"), "Lo que falta para producción")
+    for item in ("API", "KYC", "SOC 2"):
+        assert item in missing
+
+
+def test_the_pitch_shows_the_real_test_payment_and_closes_on_the_rail_split() -> None:
+    parts = segments(section(read("docs/PITCH.md"), "Versión de 3:00"))
+    assert any("Stripe" in part.body and "tr_" in part.body for part in parts)
+    assert CLOSING_LINE in labelled_line(parts[-1].body, "Se oye")
+
+
+def test_readme_links_the_blinka_page_and_the_rails_section() -> None:
+    text = read("README.md")
+    assert "](docs/BLINKA.md)" in text
+    assert "](docs/PAYMENTS.md#los-rieles)" in text
+    assert "## Los rieles" in read("docs/PAYMENTS.md")
+
+
+@pytest.mark.parametrize("path", owned_markdown())
+def test_documents_count_the_rules_of_the_catalogue(path: str) -> None:
+    text = read(path)
+    assert re.findall(r"\b(?:12|doce) reglas\b", text) == []
+
+
+def test_readme_opens_in_spanish_and_english_with_the_demo_self_hosting_and_license() -> None:
+    first_screen = "\n".join(read("README.md").splitlines()[:25])
+    for phrase in (
+        "El agente de cuentas por pagar de código abierto",
+        "The open-source accounts-payable agent",
+        "https://custodio-blinka-green.vercel.app",
+        "docker compose up --build",
+        "vercel.com/new/clone",
+        "actions/workflows/ci.yml/badge.svg",
+        "license-MIT",
+    ):
+        assert phrase in first_screen, phrase

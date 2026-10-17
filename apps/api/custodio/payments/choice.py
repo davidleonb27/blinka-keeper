@@ -1,4 +1,7 @@
-"""Which rail this deployment pays with. Stripe only in test mode: a live key is refused, never used."""
+"""Which rail this deployment pays with. Stripe only in test mode: a live key is refused, never used.
+
+Blinka has no public API yet, so its rail only builds the instruction it would send (see `custodio.payments.blinka`).
+"""
 
 from __future__ import annotations
 
@@ -8,7 +11,8 @@ import stripe
 from sqlalchemy.orm import Session
 
 from custodio.payments.accounts import StripeAccountTable
-from custodio.payments.port import SIMULATED, STRIPE_TEST, Clock, PaymentRail, RailChoice
+from custodio.payments.blinka import BlinkaRail
+from custodio.payments.port import BLINKA_SIMULATED, SIMULATED, STRIPE_TEST, Clock, PaymentRail, RailChoice
 from custodio.payments.simulated import SimulatedRail
 from custodio.payments.stripe_rail import StripeTestRail
 
@@ -25,7 +29,10 @@ def simulated_choice() -> RailChoice:
 
 def choose_rail(requested: str, secret_key: str | None) -> RailChoice:
     """`requested` is CUSTODIO_PAYMENT_RAIL and `secret_key` is STRIPE_SECRET_KEY; neither is ever logged."""
-    if requested.strip().lower() != STRIPE_TEST:
+    rail = requested.strip().lower()
+    if rail == BLINKA_SIMULATED:
+        return RailChoice(name=BLINKA_SIMULATED, build=_blinka)
+    if rail != STRIPE_TEST:
         return simulated_choice()
     key = (secret_key or "").strip()
     if key.startswith(LIVE_KEY_PREFIXES):
@@ -44,3 +51,7 @@ def choose_rail(requested: str, secret_key: str | None) -> RailChoice:
 
 def _simulated(_: Session, clock: Clock) -> PaymentRail:
     return SimulatedRail(clock)
+
+
+def _blinka(_: Session, clock: Clock) -> PaymentRail:
+    return BlinkaRail(clock)

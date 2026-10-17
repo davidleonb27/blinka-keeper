@@ -12,9 +12,9 @@ Hackathon 30X, Reto Blinka. Entrega: domingo 18 de octubre de 2026, 11:59 a. m. 
 
 | Criterio de Blinka | Cómo lo cumple Custodio | Métrica visible en el panel |
 |---|---|---|
-| **Autonomía**: facturas decididas bien sin una persona | 12 reglas deterministas deciden pagar o retener solas | `autonomy_rate` = (pagadas solas + retenidas) / total; `accuracy` contra el dataset etiquetado |
+| **Autonomía**: facturas decididas bien sin una persona | 15 reglas deterministas deciden pagar o retener solas | `autonomy_rate` = (pagadas solas + retenidas) / total; `accuracy` contra el dataset etiquetado |
 | **Seguridad**: cero pagos indebidos (uno descalifica) | el modelo nunca decide; auditor independiente recalcula cada pago; red team y reto público | `improper_payments` = 0, con el número de ataques probados |
-| **Explicabilidad**: cualquiera entiende cada decisión | acta con las 12 reglas, contrafactual («se habría pagado si…») y narración verificada | 100 % de decisiones con acta; cadena de hashes verificable |
+| **Explicabilidad**: cualquiera entiende cada decisión | acta con las 15 reglas, contrafactual («se habría pagado si…») y narración verificada | 100 % de decisiones con acta; cadena de hashes verificable |
 
 Alcance del reto: leer la factura (quién, cuánto, moneda, cuándo), reglas configurables (límites por pago y por periodo,
 beneficiarios permitidos, aprobación humana sobre un monto), registrar cada decisión, dataset propio con trampas
@@ -41,7 +41,8 @@ KYC, cumplimiento, decisiones de fraude como servicio y el diseño de la app de 
 
 ## 3. Invariantes (los hace cumplir un test)
 
-- El motor es puro: sin I/O, sin reloj, sin azar, sin modelo. Mismo input, mismo output.
+- El motor es puro: sin I/O, sin reloj, sin azar, sin modelo. Mismo input, mismo output. La copia OFAC que usa R14 es
+  un dato fechado que viaja con el código (`custodio/dataset/ofac/sdn.json`): se lee una vez por proceso y no cambia.
 - Ningún pago ocurre si una regla de retención falla, ni deja el saldo bajo la reserva, ni siquiera con aprobación humana.
 - El motor nunca lee `InvoiceCase.expected` ni `InvoiceCase.trap`.
 - Ningún texto de un documento cambia una regla ni autoriza nada. El texto dirigido al agente escala (R2).
@@ -71,7 +72,7 @@ Backend `apps/api/custodio/`:
 |---|---|---|
 | `contracts.py` | modelos compartidos (Pydantic v2). Cambiarlos requiere al coordinador | base |
 | `config.py`, `llm.py` | ajustes y la única puerta a Claude (salida estructurada, caché, fallback, tope de gasto) | base |
-| `engine/` | reglas R1–R12, `decide_all`, `audit`, `simulate`, contrafactual, explicación, `ledger` | L1 |
+| `engine/` | reglas R1–R15, `decide_all`, `audit`, `simulate`, contrafactual, explicación, `ledger` | L1 |
 | `dataset/` | empresa demo y casos trampa etiquetados (`cases.json`) | L1 |
 | `extraction/` | PDF (pdfplumber + detección de texto oculto), imágenes y PDFs escaneados (Claude con visión), estructuración (Claude), verificación de citas, `render_invoice` | L2 |
 | `ai/` | compilador de reglas, narración, perfil de empresa, importación de proveedores, red team | L3 |
@@ -99,11 +100,22 @@ Se porta la semántica de `prototype/engine.js` (`decideAll` desde la línea 289
 | R10 Límite por pago | escalar | monto base > `per_payment_limit` |
 | R11 Cupo de pago automático | escalar | lo pagado solo en el mes + este pago > `period_budget` |
 | R12 Saldo y reserva | retener | saldo − pago < `reserve` |
+| R13 Datos bancarios válidos para el riel | escalar | la cuenta leída (o la registrada) no pasa el control de su esquema: ruta ABA (3-7-1) y cuenta ACH (4–17 dígitos) en USD dentro de EE. UU., CLABE (3-7-1 módulo 10) en MXN, IBAN (largo del país y mod 97 = 1), llave Pix en BRL (correo, celular +55, CPF/CNPJ con dígitos, aleatoria UUID), llave Bre-B en COP (correo, celular, NIT con dígito DIAN); o la identificación fiscal no pasa el suyo (NIT, CPF/CNPJ, RFC y EIN por forma). El riel sale de la moneda y el país del beneficiario registrado |
+| R14 Sin coincidencia en la lista OFAC | escalar | el nombre leído, el registrado o un alias coincide con la copia fechada de la lista SDN (`custodio/dataset/ofac/sdn.json`): tokens sin tildes, sufijos societarios ni conectores, ordenados; similitud por palabra con Jaro-Winkler, umbral 0,92. Sin lista cargada (0 entradas) también escala: un nombre sin revisar no se paga solo. Nunca retiene sola: una persona descarta el falso positivo |
+| R15 Verificación fuera de banda | escalar | la cuenta leída no es la registrada (el acta dice a qué contacto **registrado** llamar y que confirme los últimos 4 dígitos, nunca a un dato de la factura), o el correo del documento viene de un dominio parecido al registrado (edición ≤ 2, homóglifos, guion, otra terminación) |
 
 Veredicto: alguna regla de retención falla → `hold`; si no, alguna de escalar falla → `escalate` (`pending_approval`);
-si no, `pay` (`paid_auto`) y se descuenta del saldo y del cupo. Las aprobaciones se aplican **después** del lote, en el
+si no, `pay` (`paid_auto`) y se descuenta del saldo y del cupo. Una regla `skipped` de R1 a R12 escala (sin el dato no
+se paga); en los controles de pago R13–R15 (`RuleSpec.neutral_when_skipped`) `skipped` significa que no había nada que
+comprobar (una cuenta sin esquema con dígito de control público, un correo de un dominio ajeno pero no parecido) y deja
+la decisión a las demás reglas. El auditor independiente recalcula R13–R15 por su cuenta. Las aprobaciones se aplican **después** del lote, en el
 momento de aprobar: un aprobado sólo se paga si R12 sigue cumpliéndose (si no, `hold` con `blocked_reason`); un
 rechazo queda `rejected`. Aprobar una factura nunca cambia las decisiones de las otras.
+
+Contratos que agregó L12 (todos opcionales, sin romper a nadie): `RuleSpec.neutral_when_skipped`,
+`Beneficiary.email_domain` (el dominio registrado que compara R15; `approver_contact` es el contacto al que R15 manda a
+verificar), `ExtractedInvoice.sender_email` (primer correo del documento, encontrado por código, no por el modelo) y
+`Health.sanctions_list_date` (fecha de publicación de la copia OFAC en uso).
 
 Cada `RuleResult` trae una razón en español con las cifras concretas. `explanation` resume el veredicto; el
 `counterfactual` dice el cambio mínimo que la habría hecho pagable.
@@ -181,7 +193,7 @@ shadcn/ui, tema claro y oscuro, móvil primero.
    cargo y correo) → reglas en tus palabras (compiladas en vivo) → proveedores (subir lista, contrato o facturas) → simulación
    de la primera semana → «Custodio está listo».
 3. **Panel**: pagado / retenido / pendiente con razón en una línea, filtros, métricas, saldo y cupo.
-4. **Acta** (drawer): las 12 reglas con su resultado, contrafactual, documento con las citas resaltadas, texto oculto
+4. **Acta** (drawer): las 15 reglas con su resultado, contrafactual, documento con las citas resaltadas, texto oculto
    destapado, aprobar / rechazar, hash en el ledger.
 5. **Reglas**: editor en español con diff y simulación antes de aplicar; formulario clásico como alternativa.
 6. **Arena**: Claude contra Claude en vivo (rondas, técnica, veredicto, marcador).
@@ -213,7 +225,7 @@ shadcn/ui, tema claro y oscuro, móvil primero.
 `ANTHROPIC_API_KEY`, `DATABASE_URL` (Neon; normalizar `postgresql://` a `postgresql+psycopg://`),
 `CUSTODIO_PUBLIC_BASE_URL`, `CUSTODIO_LLM_DAILY_BUDGET_USD`, `CUSTODIO_MODEL_FAST`,
 `CUSTODIO_MODEL_SMART`, `CUSTODIO_MODEL_CHEAP`, `CUSTODIO_LIVE_TESTS`, `CUSTODIO_PAYMENT_RAIL` (`simulated` por
-defecto o `stripe_test`) y `STRIPE_SECRET_KEY` (sólo `sk_test_…`; una clave `live` se rechaza). `Decision.execution`
+defecto, `stripe_test` o `blinka_simulated`) y `STRIPE_SECRET_KEY` (sólo `sk_test_…`; una clave `live` se rechaza). `Decision.execution`
 (`PaymentExecution`) dice cómo salió cada pago: ver `docs/PAYMENTS.md`.
 
 ## 12. Guion de la demo (3 minutos)

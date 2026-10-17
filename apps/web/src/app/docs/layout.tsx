@@ -1,0 +1,26 @@
+import type { Metadata } from "next";
+import { DocsSidebar } from "@/components/site/docs-sidebar";
+import { SiteFooter } from "@/components/site/site-footer";
+import { SiteHeader } from "@/components/site/site-header";
+
+export const metadata: Metadata = {
+  title: { default: "Documentación", template: "%s · Documentación de Custodio" },
+  description: "Cómo usar, autoalojar, configurar e integrar Custodio, el agente de cuentas por pagar de código abierto.",
+};
+
+export default function DocsLayout({ children }: LayoutProps<"/docs">) {
+  return (
+    <div className="site min-h-dvh">
+      <SiteHeader />
+      <div className="mx-auto max-w-6xl px-4 lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12">
+        <aside className="min-w-0">
+          <DocsSidebar />
+        </aside>
+        <main id="contenido" className="min-w-0 pt-8 lg:pt-10">
+          {children}
+        </main>
+      </div>
+      <SiteFooter />
+    </div>
+  );
+}

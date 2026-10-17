@@ -1,12 +1,14 @@
 import json
 from pathlib import Path
 
+import pytest
 from alembic.config import Config
 from sqlalchemy import create_engine, inspect, text
 
 from alembic import command
+from custodio.config import get_settings
 from custodio.contracts import Policy
-from custodio.db import Database
+from custodio.db import Database, migrate
 from custodio.db.database import MIGRATIONS
 
 TABLES = {
@@ -72,3 +74,16 @@ def test_neon_urls_use_the_psycopg_driver() -> None:
 def test_the_engine_talks_to_neon_through_psycopg() -> None:
     for url in ("postgres://u:p@host/db", "postgresql://u:p@host/db"):
         assert Database(url).engine.dialect.driver == "psycopg"
+
+
+def test_the_container_entrypoint_migrates_the_configured_database(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    url = f"sqlite:///{tmp_path / 'container.db'}"
+    monkeypatch.setenv("DATABASE_URL", url)
+    get_settings.cache_clear()
+
+    migrate.main()
+
+    get_settings.cache_clear()
+    assert TABLES <= set(inspect(create_engine(url)).get_table_names())
