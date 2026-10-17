@@ -85,7 +85,9 @@ def random_batch(rng: random.Random, state: CompanyState, policy: Policy, *, siz
     specs: list[tuple[str, InvoiceSpec, dict[str, float]]] = []
     while len(specs) < size:
         trap = _pick_trap(rng)
-        specs.extend(_specs_for(trap, rng, policy, specs)[: size - len(specs)])
+        if trap == "split" and size - len(specs) < 2:
+            trap = "normal"  # a split needs room for both of its pieces
+        specs.extend(_specs_for(trap, rng, policy, specs))
     return [_case(f"S{n:04d}", trap, spec, confidence, state, rng) for n, (trap, spec, confidence) in enumerate(specs)]
 
 
@@ -117,11 +119,11 @@ def _random_policy(rng: random.Random) -> Policy:
         duplicate_window_days=rng.choice((7, 20, 30)),
         split_window_days=rng.choice((1, 2, 5)),
         min_confidence=Decimal(rng.choice(("0.8", "0.9", "0.95"))),
-        beneficiaries=[_random_beneficiary(rng, index) for index in range(rng.randint(3, 12))],
+        beneficiaries=[_random_beneficiary(rng, index, threshold) for index in range(rng.randint(3, 12))],
     )
 
 
-def _random_beneficiary(rng: random.Random, index: int) -> Beneficiary:
+def _random_beneficiary(rng: random.Random, index: int, threshold: Decimal) -> Beneficiary:
     currency = rng.choice(PAYABLE_CURRENCIES)
     return Beneficiary(
         id=f"b{index}",
@@ -130,17 +132,19 @@ def _random_beneficiary(rng: random.Random, index: int) -> Beneficiary:
         bank_name=rng.choice(("Bancolombia", "Davivienda", "Mercury", "Itaú", "BBVA")),
         account_number=f"{rng.randrange(10000):04d}-{index:04d}",
         currency=currency,
-        agreement=_random_agreement(rng, currency),
+        agreement=_random_agreement(rng, currency, threshold),
         allowed=rng.random() >= 0.1,
     )
 
 
-def _random_agreement(rng: random.Random, currency: str) -> Agreement | None:
+def _random_agreement(rng: random.Random, currency: str, threshold: Decimal) -> Agreement | None:
+    """Sized against the company's approval threshold, so most agreed amounts are payable alone."""
     roll = rng.random()
     if roll < 0.1:
         return None
     kind = AgreementKind.FIXED if roll < 0.75 else AgreementKind.MONTHLY_CAP
-    base = rng.uniform(200, 9000) if kind is AgreementKind.FIXED else rng.uniform(1000, 30000)
+    scale = rng.uniform(0.1, 1.1) if kind is AgreementKind.FIXED else rng.uniform(1, 6)
+    base = float(threshold) * scale
     return Agreement(kind=kind, amount=_in_currency(base, currency), currency=currency)
 
 
