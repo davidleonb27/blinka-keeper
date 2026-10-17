@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { CodeBlock } from "@/components/developers/code-block";
 import { ActaPreview } from "@/components/landing/acta-preview";
+import { UseCompanyButton } from "@/components/landing/use-company-button";
 import { GitHubLink } from "@/components/site/github-link";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
@@ -158,12 +159,13 @@ function Hero() {
             Paga sólo lo que cabe en tus reglas, retiene lo indebido y cada decisión queda en un acta.{" "}
             <b className="font-semibold text-ink">El modelo lee, el código decide, la persona autoriza.</b>
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button asChild size="lg">
               <Link href="/panel">
                 Probar la demo <ArrowRight aria-hidden />
               </Link>
             </Button>
+            <UseCompanyButton />
           </div>
           <p className="mt-4 text-[13px] text-ink-3">
             La demo no pide registro ni mueve dinero real.{" "}

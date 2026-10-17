@@ -29,6 +29,7 @@ class DecisionItem(BaseModel):
     decision: Decision
     received_at: datetime
     source: InvoiceSource
+    invoice_number: str | None  # as read from the invoice, for the panel's search and its CSV export
 
 
 class Acta(BaseModel):
@@ -42,7 +43,12 @@ def list_decisions(
     ctx: Services, workspace: CurrentWorkspace, status: Annotated[DecisionStatus | None, Query()] = None
 ) -> list[DecisionItem]:
     return [
-        DecisionItem(decision=decision, received_at=row.received_at, source=row.extraction["source"])
+        DecisionItem(
+            decision=decision,
+            received_at=row.received_at,
+            source=row.extraction["source"],
+            invoice_number=row.extraction["invoice_number"]["value"],
+        )
         for decision, row in records.decisions(ctx, workspace.id, status)
     ]
 

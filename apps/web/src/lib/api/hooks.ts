@@ -6,13 +6,14 @@ import { useHydrated } from "@/lib/hydration";
 import type {
   ApprovalInput,
   ChallengeInput,
+  InvoiceInput,
   OnboardingRequest,
   ProfileRequest,
   ReconciliationView,
   ResolveInput,
   StatementInput,
 } from "./client";
-import type { Policy } from "./contracts";
+import type { Beneficiary, Policy } from "./contracts";
 import { markTourStep } from "@/lib/tour";
 import { browserWorkspaceStore, type WorkspaceStore } from "./workspace";
 
@@ -168,6 +169,12 @@ export function useApplyPolicy() {
   });
 }
 
+export function useAddSuppliers() {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({ mutationFn: (beneficiaries: Beneficiary[]) => api.addSuppliers(beneficiaries), onSuccess: invalidate });
+}
+
 export function useVerifyLedger() {
   const api = useApi();
   return useMutation({ mutationFn: () => api.verifyLedger(), onSuccess: () => markTourStep("verify") });
@@ -220,6 +227,16 @@ export function useCompleteOnboarding(store: WorkspaceStore = browserWorkspaceSt
       }
     },
     onSuccess: invalidate,
+  });
+}
+
+/** Receives one invoice; the summary refreshes so the panel counts it among those waiting to be decided. */
+export function useUploadInvoice() {
+  const api = useApi();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: InvoiceInput) => api.uploadInvoice(input),
+    onSuccess: () => client.invalidateQueries({ queryKey: queryKeys.workspace }),
   });
 }
 

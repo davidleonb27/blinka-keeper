@@ -11,6 +11,7 @@ import { amountText, baseAmountText, supplierText } from "@/lib/presentation";
 import { ExtractedFields } from "./extracted-fields";
 import { OriginalDocument } from "./original-document";
 import { PaymentExecutionBlock } from "./payment-execution";
+import { UnknownSupplierHint } from "@/components/suppliers/unknown-supplier-hint";
 import { RuleList } from "./rule-list";
 
 export interface ActaProps {
@@ -119,6 +120,7 @@ export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retry
       ) : null}
 
       <Section title="Reglas evaluadas">
+        <UnknownSupplierHint decision={decision} />
         <RuleList rules={decision.rules} />
       </Section>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Building2,
   CalendarClock,
   Code2,
   Landmark,
@@ -9,11 +10,14 @@ import {
   Link2,
   ShieldCheck,
   SlidersHorizontal,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Wordmark } from "@/components/brand/seal";
+import { SETUP_LABEL, SETUP_PATH } from "@/components/landing/use-company-button";
+import { SUPPLIERS_PATH } from "@/components/suppliers/unknown-supplier-hint";
 import { useWorkspaceSummary } from "@/lib/api/hooks";
 import { cn } from "@/lib/utils";
 import { ModeBadge } from "./mode-badge";
@@ -31,8 +35,10 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/calendario", label: "Calendario", icon: CalendarClock },
   { href: "/conciliacion", label: "Conciliación", icon: Landmark },
   { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
+  { href: SUPPLIERS_PATH, label: "Proveedores", icon: Users },
   { href: "/registro", label: "Registro", icon: Link2 },
   { href: "/desarrolladores", label: "Desarrolladores", icon: Code2 },
+  { href: SETUP_PATH, label: SETUP_LABEL, icon: Building2 },
   { href: "/reto", label: "Seguridad", icon: ShieldCheck },
 ];
 
