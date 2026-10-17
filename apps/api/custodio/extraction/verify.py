@@ -31,8 +31,8 @@ _CENTS = 2
 
 class FieldKind(StrEnum):
     TEXT = "text"  # names, banks, descriptions
-    IDENTIFIER = "identifier"  # invoice numbers
-    DIGITS = "digits"  # tax ids and bank accounts
+    IDENTIFIER = "identifier"  # invoice numbers and tax ids (RFC and CNPJ mix letters, slashes and dots)
+    DIGITS = "digits"  # bank accounts
     AMOUNT = "amount"
     DATE = "date"
     CURRENCY = "currency"

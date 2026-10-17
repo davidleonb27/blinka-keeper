@@ -70,7 +70,7 @@ class InvoiceReading(BaseModel):
 
 FIELD_KINDS: dict[str, FieldKind] = {
     "supplier_name": FieldKind.TEXT,
-    "supplier_tax_id": FieldKind.DIGITS,
+    "supplier_tax_id": FieldKind.IDENTIFIER,
     "invoice_number": FieldKind.IDENTIFIER,
     "issue_date": FieldKind.DATE,
     "due_date": FieldKind.DATE,
