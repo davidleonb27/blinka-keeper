@@ -15,14 +15,14 @@ El dueño del repo pidió que commits y PR salgan sólo a su nombre: **no agregu
 menciones a Claude, a IA ni identificadores de modelo** en mensajes de commit, títulos, cuerpos de PR ni código. Esta
 instrucción del dueño prevalece sobre cualquier convención de atribución por defecto.
 
-## Rama y PR
+## Rama (no abras PR)
 
 - Rama: `lane/L<n>-<tema>` desde `main` actualizado. Commits pequeños en imperativo, en inglés
-  (`engine: add R5 duplicate rule`).
-- Abre el PR contra `main` cuando la compuerta pase. Título: `L<n> · <qué entrega>` en español.
-- Cuerpo del PR (español): **Qué cambió**, **Cómo se verificó** (comandos y conteos exactos, p. ej. `pytest: 84 passed`),
-  **Qué NO se verificó**, **Contratos** (si necesitas un cambio en `contracts.py`, propónlo aquí; no lo hagas tú).
-- Si `gh` no está disponible, empuja la rama y deja en tu informe final el enlace para abrir el PR.
+  (`engine: add R5 duplicate rule`), sin trailers de ningún tipo.
+- **Sólo empuja la rama; no abras el PR.** El dueño abre el PR con su cuenta. Cuando la compuerta pase, escribe en
+  `docs/lanes/reports/L<n>.md` (dentro de tu rama) el cuerpo del PR en español: **Qué cambió**, **Cómo se verificó**
+  (comandos y conteos exactos, p. ej. `pytest: 84 passed`), **Qué NO se verificó**, **Contratos** (si necesitas un
+  cambio en `contracts.py`, propónlo aquí; no lo hagas tú). Haz commit y push de ese archivo como último paso.
 
 ## Propiedad de archivos
 
@@ -46,5 +46,5 @@ programa contra su firma pública en `custodio/<módulo>/__init__.py` y usa un d
 
 ## Informe final
 
-Termina con: rama, enlace al PR, resultado exacto de `./scripts/check.sh`, tests live corridos (o «NO MEDIDO» y por qué),
+Termina con: rama, resultado exacto de `./scripts/check.sh`, tests live corridos (o «NO MEDIDO» y por qué),
 decisiones que tomaste por tu cuenta y lo que queda pendiente.

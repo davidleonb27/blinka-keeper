@@ -1,6 +1,6 @@
 # Revisión de un PR (la hace una sesión distinta de la que lo escribió)
 
-1. `git fetch && git checkout <rama>`; lee el brief del carril y el cuerpo del PR.
+1. `git fetch && git checkout <rama>`; lee el brief del carril y `docs/lanes/reports/L<n>.md`.
 2. Corre `./scripts/check.sh` y anota el resultado exacto.
 3. Revisa, en este orden:
    - **Corrección**: ¿hace lo que pide el brief? ¿los bordes (topes exactos, ventanas, monedas, vacíos, `null`)?
