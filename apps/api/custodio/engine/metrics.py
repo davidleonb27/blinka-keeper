@@ -5,13 +5,14 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Sequence
 
-from custodio.contracts import Decision, DecisionStatus, InvoiceCase, Metrics
+from custodio.contracts import AgentVerdict, Decision, DecisionStatus, InvoiceCase, Metrics
 
 
 def compute_metrics(decisions: Sequence[Decision], cases: Sequence[InvoiceCase], *, improper_payments: int) -> Metrics:
     counts = Counter(decision.status for decision in decisions)
     total = len(decisions)
-    decided_alone = counts[DecisionStatus.PAID_AUTO] + counts[DecisionStatus.HOLD]
+    # By the agent's own verdict: an approval the reserve then blocks also ends in `hold`, but a person decided it.
+    decided_alone = sum(1 for d in decisions if d.agent_verdict in (AgentVerdict.PAY, AgentVerdict.HOLD))
     return Metrics(
         total=total,
         paid_auto=counts[DecisionStatus.PAID_AUTO],
