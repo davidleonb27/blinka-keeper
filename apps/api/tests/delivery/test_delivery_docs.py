@@ -12,6 +12,7 @@ REPO = Path(__file__).resolve().parents[4]
 OWNED_DOCS = ("PITCH", "DATASET", "BUSINESS", "BUILD_IN_PUBLIC", "COPY", "ARCHITECTURE")
 MAX_SPOKEN_WORDS_PER_SECOND = 2.6
 X_MAX_CHARS = 280
+X_LINK_CHARS = 23
 POST_INTERVAL = timedelta(hours=4)
 DEADLINE = datetime(2026, 10, 18, 11, 59)
 LAUNCH = datetime(2026, 10, 17, 12, 0)
@@ -179,7 +180,8 @@ def test_the_public_challenge_launches_saturday_at_noon() -> None:
 
 def test_every_post_fits_x_and_names_the_hackathon_and_blinka() -> None:
     for post in posts(read("docs/BUILD_IN_PUBLIC.md")):
-        assert len(post.x) <= X_MAX_CHARS, f"{post.when}: {len(post.x)} chars"
+        length = len(post.x.replace("{{DEMO_URL}}", "x" * X_LINK_CHARS))
+        assert length <= X_MAX_CHARS, f"{post.when}: {length} chars"
         for text in (post.x, post.linkedin):
             assert "30X" in text
             assert "Blinka" in text
