@@ -1,6 +1,8 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { toast } from "sonner";
 import { describe, expect, it, vi } from "vitest";
+import { Toaster } from "@/components/ui/sonner";
 import { createMockClient } from "@/lib/api/mock/mock-client";
 import { renderWithApi } from "@/test/render";
 import { ReceivedInvoices } from "./received-invoices";
@@ -15,6 +17,26 @@ describe("ReceivedInvoices", () => {
     await userEvent.click(screen.getByRole("button", { name: /Decidir las 27 facturas/ }));
 
     expect(process).toHaveBeenCalledOnce();
+  });
+
+  it("still confirms what was decided after the banner goes away", async () => {
+    const api = createMockClient({ latencyMs: 0 });
+    const { unmount } = renderWithApi(
+      <>
+        <ReceivedInvoices count={27} />
+        <Toaster />
+      </>,
+      api,
+    );
+    vi.spyOn(api, "processInvoices").mockImplementation(async () => {
+      unmount();
+      return createMockClient({ latencyMs: 0 }).processInvoices();
+    });
+    const success = vi.spyOn(toast, "success");
+
+    await userEvent.click(screen.getByRole("button", { name: /Decidir las 27 facturas/ }));
+
+    await vi.waitFor(() => expect(success).toHaveBeenCalledWith(expect.stringMatching(/Custodio decidió \d+ facturas/)));
   });
 
   it("speaks of a single invoice in singular", () => {
