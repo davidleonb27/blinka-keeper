@@ -7,8 +7,9 @@ from typing import Any
 
 from sqlalchemy import select
 
-from custodio.contracts import CompanyState, LedgerKind, Policy, PolicyProposal
+from custodio.contracts import Beneficiary, CompanyState, LedgerKind, Policy, PolicyProposal
 from custodio.db.models import PolicyRow, WorkspaceRow
+from custodio.engine.text import normalize_code, normalize_name
 from custodio.llm import LLMError
 from custodio.services import ledger_service, records
 from custodio.services.context import ServiceContext
@@ -30,6 +31,30 @@ def apply(ctx: ServiceContext, workspace_id: str, policy: Policy, context: dict[
     _validate(policy)
     previous = current(ctx, workspace_id)
     return store(ctx, workspace_id, policy.model_copy(update={"version": previous.version + 1}), previous, context)
+
+
+def add_beneficiaries(ctx: ServiceContext, workspace_id: str, added: list[Beneficiary]) -> Policy:
+    """A new version with `added` appended and nothing else changed. A supplier that shares an id, a tax id or a name
+    (or alias) with a registered one, or with another in `added`, is refused: a change of bank details arrives on an
+    invoice and goes through R4, R13 and R15, never through here."""
+    policy = current(ctx, workspace_id)
+    taken: set[str] = set()
+    for beneficiary in policy.beneficiaries:
+        taken |= _identity_keys(beneficiary)
+    for beneficiary in added:
+        keys = _identity_keys(beneficiary)
+        if not normalize_code(beneficiary.tax_id) or not normalize_name(beneficiary.name):
+            raise PolicyInvalid(f"Faltan el nombre o la identificación tributaria de «{beneficiary.name}».")
+        if keys & taken:
+            raise PolicyInvalid(f"«{beneficiary.name}» ya está registrado; sus datos no se cambian desde aquí.")
+        taken |= keys
+    return apply(ctx, workspace_id, policy.model_copy(update={"beneficiaries": [*policy.beneficiaries, *added]}))
+
+
+def _identity_keys(beneficiary: Beneficiary) -> set[str]:
+    names = {f"name:{normalize_name(n)}" for n in (beneficiary.name, *beneficiary.aliases) if normalize_name(n)}
+    tax_id = normalize_code(beneficiary.tax_id)
+    return {f"id:{beneficiary.id}", *names, *([f"tax:{tax_id}"] if tax_id else [])}
 
 
 def store(
