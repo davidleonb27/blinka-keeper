@@ -8,9 +8,9 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"], weight: ["500", "600", "700"] });
 
 export const metadata: Metadata = {
-  title: { default: "Custodio · el agente de pagos que no se deja engañar", template: "%s · Custodio" },
+  title: { default: "Custodio · el agente de cuentas por pagar de código abierto", template: "%s · Custodio" },
   description:
-    "Custodio revisa las facturas de tu empresa: el modelo lee, el código decide y una persona autoriza. Cada decisión queda en un acta y en un registro encadenado.",
+    "Custodio revisa las facturas de tu empresa: el modelo lee, el código decide y una persona autoriza. Código abierto bajo Apache 2.0: úsalo en la demo o autoalójalo con un comando.",
 };
 
 export const viewport: Viewport = {
