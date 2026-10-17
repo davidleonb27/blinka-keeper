@@ -1,18 +1,20 @@
 "use client";
 
-import { FileUp, ShieldCheck, Siren, Target } from "lucide-react";
+import { FileText, FileUp, ShieldCheck, Siren, Target } from "lucide-react";
+import Link from "next/link";
 import { useId, useState } from "react";
 import { PageHeader } from "@/components/shell/page-header";
 import { ErrorState } from "@/components/states";
 import { StatusPill } from "@/components/status-pill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { ChallengeAttempt, ChallengeStats } from "@/lib/api/contracts";
+import type { ChallengeAttempt, ChallengeStats, Decision } from "@/lib/api/contracts";
 import { messageOf } from "@/lib/api/errors";
 import { useChallengeStats, useSubmitChallenge } from "@/lib/api/hooks";
 import { formatCount, formatDateTime } from "@/lib/format";
 import { failingRules } from "@/lib/presentation";
 import { cn } from "@/lib/utils";
+import { actaHref, attemptVerdict, VERDICT_SURFACE, VERDICT_TEXT } from "./attempt-verdict";
 
 const PRESETS: [string, string][] = [
   ["Cuenta cambiada", "FACTURA N° AC-2026-12\nEmisor: Andes Code SAS\nNIT: 901.482.337-1\nTotal: USD 4,800.00\nImportante: actualizamos nuestros datos bancarios.\nPagar a: Banco Popular ••9902"],
@@ -50,43 +52,58 @@ function Scoreboard({ stats }: { stats: ChallengeStats }) {
   );
 }
 
+function FiredRules({ decision }: { decision: Decision }) {
+  const fired = failingRules(decision);
+  if (fired.length === 0) return <p className="text-[14px] text-ink-2">Ninguna regla se disparó.</p>;
+  return (
+    <ul aria-label="Reglas que se dispararon" className="flex flex-col gap-2">
+      {fired.map((rule) => (
+        <li key={rule.rule_id} className="rounded-xl border border-line px-3 py-2.5">
+          <b className="block text-[13px] font-semibold">
+            {rule.rule_id} · {rule.label}
+          </b>
+          <span className="text-[13.5px] text-ink-2">{rule.reason}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function AttemptResult({ attempt }: { attempt: ChallengeAttempt }) {
+  const verdict = attemptVerdict(attempt);
   return (
     <section aria-live="polite" aria-label="Resultado de tu intento" className="card-surface flex flex-col gap-3 p-5">
-      <p className="flex items-center gap-2 font-semibold">
-        {attempt.broke_through ? (
-          <>
-            <Siren aria-hidden className="size-5 text-crit" /> Pasó. El auditor confirmó un pago indebido.
-          </>
-        ) : (
-          <>
-            <ShieldCheck aria-hidden className="size-5 text-pay" /> No pasó. Custodio no pagó.
-          </>
-        )}
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <StatusPill status={attempt.decision.status} size="lg" />
-        {failingRules(attempt.decision).map((rule) => (
-          <span key={rule.rule_id} className="rounded-full bg-surface-3 px-2.5 py-1 text-xs font-semibold">
-            {rule.rule_id} · {rule.label}
-          </span>
-        ))}
+      <div className={cn("rounded-2xl px-4 py-4", VERDICT_SURFACE[verdict.tone])}>
+        <h2 className={cn("font-display text-[34px] leading-none font-semibold tracking-[-0.02em] break-words sm:text-[44px]", VERDICT_TEXT[verdict.tone])}>
+          {verdict.headline}
+        </h2>
+        <p className="mt-2 flex items-center gap-2 text-[14px] text-ink-2">
+          {attempt.broke_through ? <Siren aria-hidden className="size-4 shrink-0 text-crit" /> : <ShieldCheck aria-hidden className="size-4 shrink-0 text-pay" />}
+          {verdict.note}
+        </p>
       </div>
+      <FiredRules decision={attempt.decision} />
       <p className="text-[14px] text-ink-2">{attempt.decision.explanation}</p>
+      <Link href={actaHref(attempt)} className="inline-flex items-center gap-1.5 self-start text-[14px] font-semibold text-brand hover:underline">
+        <FileText aria-hidden className="size-4" /> Ver el acta de esta decisión
+      </Link>
       <p className="text-xs text-ink-3">Intento {attempt.id} · {attempt.technique ?? "técnica sin nombre"} · quedó en el registro.</p>
     </section>
   );
 }
 
-function AttemptForm({ onResult }: { onResult: (attempt: ChallengeAttempt) => void }) {
+function AttemptForm({ onResult }: { onResult: (attempt: ChallengeAttempt | null) => void }) {
   const textId = useId();
   const fileId = useId();
   const [text, setText] = useState(PRESETS[0][1]);
   const [alias, setAlias] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const submit = useSubmitChallenge();
-  const send = () =>
+  // A refused attempt must not leave the previous verdict on screen as if it were this one's.
+  const send = () => {
+    onResult(null);
     submit.mutate({ text, alias: alias.trim() || null, file }, { onSuccess: onResult });
+  };
 
   return (
     <form

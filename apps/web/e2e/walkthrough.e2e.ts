@@ -156,6 +156,14 @@ test("every page and the whole demo work against the real API without a single e
     await expectNoErrorScreen(page);
   });
 
+  await test.step("reto en escenario: QR y contador en vivo", async () => {
+    await visit(page, "/reto?escenario=1", "Róbale a Custodio");
+    await expect(page.getByRole("img", { name: /Código QR a http.*\/reto$/ })).toBeVisible();
+    await expect(page.getByRole("status", { name: "Pagos indebidos" })).toContainText("0");
+    await expect(page.getByRole("region", { name: "Último intento" })).toBeVisible();
+    await expectNoErrorScreen(page);
+  });
+
   await test.step("desarrolladores", async () => {
     await visit(page, "/desarrolladores", "Desarrolladores");
   });

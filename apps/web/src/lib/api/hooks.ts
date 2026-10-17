@@ -51,12 +51,12 @@ export function useLedger() {
   return useQuery({ queryKey: queryKeys.ledger, queryFn: () => api.getLedger() });
 }
 
-export function useChallengeStats() {
+export function useChallengeStats(pollMs = CHALLENGE_POLL_MS) {
   const api = useApi();
   return useQuery({
     queryKey: queryKeys.challenge,
     queryFn: () => api.getChallengeStats(),
-    refetchInterval: CHALLENGE_POLL_MS,
+    refetchInterval: pollMs,
   });
 }
 
