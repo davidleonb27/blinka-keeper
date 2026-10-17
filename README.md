@@ -44,7 +44,7 @@ convencerlo. Por eso en Custodio el modelo sólo lee y cita; quien decide es có
 ## Métricas
 
 Sólo se publican cifras medidas, todas el 2026-10-17. Lo que no se midió dice NO MEDIDO. El detalle y los comandos están
-en [`docs/DATASET.md`](docs/DATASET.md).
+en [`docs/DATASET.md`](docs/DATASET.md) y [`docs/MEASUREMENTS.md`](docs/MEASUREMENTS.md).
 
 | Métrica | Valor | Cómo se midió (2026-10-17) |
 |---|---|---|
@@ -55,7 +55,7 @@ en [`docs/DATASET.md`](docs/DATASET.md).
 | Pagos indebidos en el estrés | 0 (8.136 pagos re-auditados) | `scripts/stress.py --companies 1000 --seed 7`: 1.000 empresas simuladas, 25.139 facturas |
 | Latencia del narrador | 4,2 s (N=1, sin intervalo) | una llamada real a Claude en producción |
 | Latencia del compilador de políticas | 6,0 s (N=1, sin intervalo) | una llamada real a Claude en producción |
-| Lectura de facturas con el modelo real | NO MEDIDO | `apps/api/scripts/measure_reading.py` contra producción |
+| Lectura de facturas con el modelo real | 36 de 36 con proveedor, monto, moneda y cuenta correctos; 0 rechazos | `apps/api/scripts/measure_reading.py` contra producción, una corrida ([detalle](docs/MEASUREMENTS.md)) |
 | Ataques probados del red team | NO MEDIDO | rondas de Claude contra las reglas |
 | Intentos del reto público | NO MEDIDO | contador en vivo de «Róbale a Custodio» |
 | Decisiones con acta | NO MEDIDO | actas / decisiones |

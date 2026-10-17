@@ -66,8 +66,10 @@ tiempo. Con la misma semilla los conteos son los mismos; el tiempo cambia. Sale 
 
 Todo se midió el 2026-10-17. Lo que no aparece aquí no se midió.
 
-**Dataset dorado en producción.** Se creó un espacio demo en https://custodio-blinka-green.vercel.app
-(`POST /api/v1/workspaces` con `{"mode": "demo"}`) y se leyeron sus métricas (`GET /api/v1/workspaces/current`).
+**Dataset dorado en producción.** Un espacio demo en https://custodio-blinka-green.vercel.app
+(`POST /api/v1/workspaces` con `{"mode": "demo"}`) nace con las 36 facturas del dataset sembradas como pendientes; las
+cifras son las métricas del lote una vez decidido por la API desplegada. El mismo resultado sale en local con
+`decide_all(demo_cases(), *demo_company())` y `audit` (17 pagos re-auditados, 0 indebidos).
 
 | Dato | Valor |
 |---|---|
@@ -97,7 +99,9 @@ observación, no un promedio.
 | Narrador | 4,2 s |
 | Compilador de políticas | 6,0 s |
 
-Lectura de PDF e imagen sobre estas facturas, ataques del red team e intentos del reto público: NO MEDIDO.
+**Lectura con el modelo real en producción:** las 36 facturas, convertidas en PDF, texto e imágenes, se leyeron con
+proveedor, monto, moneda y cuenta correctos en 36 de 36, sin rechazos; detalle y método en
+[`MEASUREMENTS.md`](MEASUREMENTS.md). Ataques del red team e intentos del reto público: NO MEDIDO.
 
 ## Límites
 
