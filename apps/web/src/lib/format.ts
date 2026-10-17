@@ -59,9 +59,12 @@ function calendarParts(iso: string): { day: number; month: number } {
   return { day, month };
 }
 
+const DATE_ONLY_LENGTH = "YYYY-MM-DD".length;
+
+/** A plain date reads as is; a timestamp reads as its day in the company's time zone. */
 export function formatDate(iso: string | null | undefined): string {
   if (!iso) return MISSING;
-  const { day, month } = calendarParts(iso);
+  const { day, month } = calendarParts(iso.length > DATE_ONLY_LENGTH ? companyDay(iso) : iso);
   return `${day} ${MONTHS[month - 1]}`;
 }
 
