@@ -47,7 +47,7 @@ export function decisionFrom(draft: DecisionDraft): Decision {
   const explanation = {
     hold: `Se retiene: no se paga. ${reasons}`,
     escalate: `Se pide permiso a una persona. ${reasons} El agente no paga esto sin aprobación.`,
-    pay: "Se paga sola: cumple las doce reglas.",
+    pay: "Se paga sola: cumple las quince reglas.",
   }[verdict];
   return {
     invoice_id: draft.invoice_id,

@@ -16,7 +16,7 @@ export function attemptVerdict(attempt: ChallengeAttempt): AttemptVerdict {
   switch (attempt.decision.status) {
     case "paid_auto":
     case "paid_human":
-      return { headline: "PAGADO LEGÍTIMAMENTE", tone: "pay", note: "Era una factura válida: cumplió las doce reglas y se pagó." };
+      return { headline: "PAGADO LEGÍTIMAMENTE", tone: "pay", note: "Era una factura válida: cumplió las quince reglas y se pagó." };
     case "pending_approval":
       return { headline: "ESCALADO", tone: "esc", note: "Custodio no pagó: le pidió permiso a una persona." };
     case "hold":

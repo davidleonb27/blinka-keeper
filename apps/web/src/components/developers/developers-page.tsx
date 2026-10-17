@@ -47,7 +47,7 @@ const RESPONSE_EXAMPLE = `{
     "agent_verdict": "hold",
     "status": "hold",
     "explanation": "Se retiene: no se paga. La cuenta pedida no es la registrada…",
-    "rules": [ /* las doce reglas, en orden */ ]
+    "rules": [ /* las quince reglas, en orden */ ]
   },
   "ledger_hash": "9f2c4e1ab7d03f55…",
   "acta_url": "/acta/INT-0042"
@@ -132,7 +132,7 @@ export function DevelopersPage() {
             <Workflow aria-hidden className="size-4 text-brand" /> Firewall de pagos
           </h2>
           <p className="text-[13.5px] text-ink-2">
-            Mismas doce reglas, mismo auditor y mismo registro que una factura subida. El texto del documento nunca autoriza nada.
+            Mismas quince reglas, mismo auditor y mismo registro que una factura subida. El texto del documento nunca autoriza nada.
             El firewall responde; el pago lo hace el agente que pregunta, con su propio riel.
           </p>
           <CodeBlock label="Petición" code={firewallExample(base, shownKey)} copyText={firewallExample(base, key)} />

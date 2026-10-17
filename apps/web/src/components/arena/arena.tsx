@@ -181,7 +181,7 @@ export function Arena() {
         <div className="card-surface flex flex-col items-center gap-3 px-6 py-14 text-center">
           <Swords aria-hidden className="size-9 text-brand" />
           <p className="max-w-[46ch] text-ink-2">
-            Cada ataque se lee, se decide con las mismas doce reglas y queda en el{" "}
+            Cada ataque se lee, se decide con las mismas quince reglas y queda en el{" "}
             <Link href="/registro" className="font-semibold text-brand underline-offset-4 hover:underline">registro</Link>.
           </p>
         </div>

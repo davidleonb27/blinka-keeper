@@ -4,7 +4,7 @@ import { DocPage, DocTable } from "@/components/site/doc-page";
 import { RULES } from "@/lib/api/contracts";
 import { repoFile } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Reglas R1–R12" };
+export const metadata: Metadata = { title: "Reglas R1–R15" };
 
 const FAILS_WHEN: Record<string, string> = {
   R1: "Proveedor, monto, moneda o cuenta se leyeron con poca confianza o sin una cita verificada; o la moneda es ambigua («$» sin código).",
@@ -27,7 +27,7 @@ export default function RulesPage() {
   return (
     <DocPage
       href="/docs/reglas"
-      lead="Doce reglas puras deciden cada factura. No llaman al modelo, no leen el reloj ni usan azar: con los mismos datos, la misma decisión."
+      lead="Quince reglas puras deciden cada factura. No llaman al modelo, no leen el reloj ni usan azar: con los mismos datos, la misma decisión."
     >
       <p>
         Viven en <a href={repoFile("apps/api/custodio/engine/rules.py")}>engine/rules.py</a>. Cada una devuelve pasa,
@@ -73,7 +73,7 @@ export default function RulesPage() {
 
       <h2 id="acta">Lo que explica el acta</h2>
       <ul>
-        <li>Las doce reglas con su resultado y su razón con cifras.</li>
+        <li>Las quince reglas con su resultado y su razón con cifras.</li>
         <li>
           Un <strong>contrafactual</strong>: el cambio mínimo con el que se habría pagado («se habría pagado si la cuenta
           fuera la registrada»).

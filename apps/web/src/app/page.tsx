@@ -83,7 +83,7 @@ const FEATURES: { title: string; text: string; icon: LucideIcon; href: string }[
 
 const FLOW: { title: string; tag: string; text: string; icon: LucideIcon }[] = [
   { title: "Lee", tag: "Modelo", icon: FileSearch, text: "Quién cobra, cuánto, en qué moneda y a qué cuenta, con la cita de dónde lo leyó." },
-  { title: "Decide", tag: "Código", icon: Scale, text: "Doce reglas revisan cada factura. El modelo no decide ni hace cuentas." },
+  { title: "Decide", tag: "Código", icon: Scale, text: "Quince reglas revisan cada factura. El modelo no decide ni hace cuentas." },
   { title: "Explica", tag: "Acta", icon: BookOpenCheck, text: "Cada decisión queda en un acta que se entiende sin abrir el código." },
   { title: "Pide permiso", tag: "Persona", icon: UserCheck, text: "Lo que se sale de las reglas espera el sí de una persona." },
 ];

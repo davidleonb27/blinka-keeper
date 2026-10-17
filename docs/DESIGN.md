@@ -72,7 +72,7 @@ Backend `apps/api/custodio/`:
 |---|---|---|
 | `contracts.py` | modelos compartidos (Pydantic v2). Cambiarlos requiere al coordinador | base |
 | `config.py`, `llm.py` | ajustes y la única puerta a Claude (salida estructurada, caché, fallback, tope de gasto) | base |
-| `engine/` | reglas R1–R12, `decide_all`, `audit`, `simulate`, contrafactual, explicación, `ledger` | L1 |
+| `engine/` | reglas R1–R15, `decide_all`, `audit`, `simulate`, contrafactual, explicación, `ledger` | L1 |
 | `dataset/` | empresa demo y casos trampa etiquetados (`cases.json`) | L1 |
 | `extraction/` | PDF (pdfplumber + detección de texto oculto), imágenes y PDFs escaneados (Claude con visión), estructuración (Claude), verificación de citas, `render_invoice` | L2 |
 | `ai/` | compilador de reglas, narración, perfil de empresa, importación de proveedores, red team | L3 |

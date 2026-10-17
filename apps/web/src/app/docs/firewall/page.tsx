@@ -27,7 +27,7 @@ const RESPONSE = `{
     "status": "paid_auto",
     "explanation": "Se paga: cumple las 12 reglas…",
     "counterfactual": null,
-    "rules": [ /* las doce reglas, en orden, con su razón */ ]
+    "rules": [ /* las quince reglas, en orden, con su razón */ ]
   },
   "ledger_hash": "fc3d4706f54c89ba…",
   "acta_url": "https://tu-dominio/acta/INV-A152B2C4C65D"
@@ -98,7 +98,7 @@ export default function FirewallPage() {
           indebido) o <code>escalate</code> (no pagues todavía: una persona debe revisarlo en el acta).
         </li>
         <li>
-          <code>rules</code>: las doce reglas con su resultado y su razón; <code>counterfactual</code> dice qué faltó.
+          <code>rules</code>: las quince reglas con su resultado y su razón; <code>counterfactual</code> dice qué faltó.
         </li>
         <li>
           <code>ledger_hash</code>: el hash de la decisión en el registro encadenado; <code>acta_url</code>, el acta para

@@ -30,11 +30,11 @@ export default function IntroductionPage() {
           documento. El código verifica cada cita; lo que no se verifica cuenta como no leído.
         </li>
         <li>
-          <strong>Decide.</strong> Doce reglas puras (<Link href="/docs/reglas">R1–R12</Link>) dicen pagar, retener o
+          <strong>Decide.</strong> Quince reglas puras (<Link href="/docs/reglas">R1–R15</Link>) dicen pagar, retener o
           escalar. Un auditor independiente recalcula cada pago por otro camino de código.
         </li>
         <li>
-          <strong>Explica.</strong> Cada decisión trae las doce reglas con sus cifras, un contrafactual («se habría
+          <strong>Explica.</strong> Cada decisión trae las quince reglas con sus cifras, un contrafactual («se habría
           pagado si…») y su posición en el registro encadenado.
         </li>
         <li>

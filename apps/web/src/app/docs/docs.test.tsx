@@ -80,6 +80,6 @@ describe("DocsSidebar", () => {
 
     const nav = screen.getByRole("navigation", { name: "Documentación" });
     expect(within(nav).getAllByRole("link")).toHaveLength(DOCS_PAGES.length);
-    expect(within(nav).getByRole("link", { name: "Reglas R1–R12" })).toHaveAttribute("aria-current", "page");
+    expect(within(nav).getByRole("link", { name: "Reglas R1–R15" })).toHaveAttribute("aria-current", "page");
   });
 });

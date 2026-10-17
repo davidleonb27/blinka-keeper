@@ -41,7 +41,7 @@ reloj ni modelos.
 |---|---|---|
 | Contratos | modelos compartidos entre piezas (Pydantic) | `apps/api/custodio/contracts.py` |
 | Puerta al modelo | única vía a Claude: salida estructurada, caché, tope diario de gasto | `apps/api/custodio/llm.py` |
-| Motor | reglas R1–R12, decisión por lote, simulación, contrafactual, explicación | `apps/api/custodio/engine/` |
+| Motor | reglas R1–R15, decisión por lote, simulación, contrafactual, explicación | `apps/api/custodio/engine/` |
 | Auditor | recalcula cada pago por otro camino de código; si discrepa, gana él | `apps/api/custodio/engine/audit.py` |
 | Registro | cadena SHA-256; `verify()` dice en qué entrada se rompió | `apps/api/custodio/engine/ledger.py` |
 | Lectura | PDF, imágenes, texto oculto, estructuración y verificación de citas | `apps/api/custodio/extraction/` |

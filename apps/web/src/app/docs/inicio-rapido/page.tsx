@@ -38,7 +38,7 @@ export default function QuickstartPage() {
           tu propio espacio, sin registro.
         </li>
         <li>En el panel, decide las facturas recibidas: verás lo pagado, lo retenido y lo pendiente, cada uno con su razón.</li>
-        <li>Abre una fila para ver el acta con las doce reglas, y aprueba o rechaza lo pendiente.</li>
+        <li>Abre una fila para ver el acta con las quince reglas, y aprueba o rechaza lo pendiente.</li>
         <li>
           En <Link href="/desarrolladores">Desarrolladores</Link> está tu API key para el firewall y la configuración MCP.
         </li>

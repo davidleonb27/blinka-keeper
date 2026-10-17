@@ -7,7 +7,7 @@ describe("DOCS_PAGES", () => {
       "Introducción",
       "Inicio rápido",
       "Configuración",
-      "Reglas R1–R12",
+      "Reglas R1–R15",
       "Modelo de seguridad",
       "Firewall por API",
       "MCP",

@@ -8,7 +8,7 @@ export const DOCS_PAGES: readonly DocsPage[] = [
   { href: "/docs", title: "Introducción", group: "Empezar" },
   { href: "/docs/inicio-rapido", title: "Inicio rápido", group: "Empezar" },
   { href: "/docs/configuracion", title: "Configuración", group: "Empezar" },
-  { href: "/docs/reglas", title: "Reglas R1–R12", group: "Cómo decide" },
+  { href: "/docs/reglas", title: "Reglas R1–R15", group: "Cómo decide" },
   { href: "/docs/seguridad", title: "Modelo de seguridad", group: "Cómo decide" },
   { href: "/docs/firewall", title: "Firewall por API", group: "Integrar" },
   { href: "/docs/mcp", title: "MCP", group: "Integrar" },

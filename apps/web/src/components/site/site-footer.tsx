@@ -22,7 +22,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     title: "Documentación",
     links: [
       { label: "Inicio rápido", href: "/docs/inicio-rapido" },
-      { label: "Reglas R1–R12", href: "/docs/reglas" },
+      { label: "Reglas R1–R15", href: "/docs/reglas" },
       { label: "Firewall y MCP", href: "/docs/firewall" },
       { label: "Rieles de pago", href: "/docs/rieles" },
     ],
