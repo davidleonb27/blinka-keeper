@@ -344,6 +344,8 @@ def _details_problems(invoice: _Invoice) -> list[str]:
 
 
 def _sanctions_problems(invoice: _Invoice, sanctions: SanctionsList) -> list[str]:
+    if sanctions.size == 0:
+        return ["no se revisó contra la lista OFAC (0 entradas)"]
     payee = invoice.payee
     names = [invoice.case.extraction.supplier_name.value, *((payee.name, *payee.aliases) if payee else ())]
     if any(name and sanctions.screen(name) is not None for name in names):

@@ -664,8 +664,12 @@ def sanctions(ctx: RuleContext) -> RuleCheck:
             "R14", RuleOutcome.SKIPPED, "No se leyó el nombre del proveedor; no hay a quién revisar en la lista."
         )
     if listed.size == 0:
+        # Fail closed: an empty list means the screening did not happen, not that there was nothing to screen.
         return check(
-            "R14", RuleOutcome.SKIPPED, "No hay una copia de la lista OFAC cargada (0 entradas); no se revisó."
+            "R14",
+            RuleOutcome.ESCALATE,
+            "No hay una copia de la lista OFAC cargada (0 entradas); el proveedor no se revisó y no se paga solo.",
+            fix="se revisara el nombre del proveedor contra una copia cargada de la lista OFAC",
         )
     copy = _copy_text(listed)
     hit = next((found for name in names if (found := listed.screen(name)) is not None), None)
