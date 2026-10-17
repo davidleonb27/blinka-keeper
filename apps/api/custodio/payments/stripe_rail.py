@@ -10,6 +10,8 @@ from __future__ import annotations
 import hashlib
 import logging
 import re
+import time
+from collections.abc import Callable
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Protocol
 
@@ -28,6 +30,9 @@ TOP_UP_CARD = "pm_card_bypassPending"  # Stripe's test card whose funds are avai
 BALANCE_INSUFFICIENT = "balance_insufficient"
 RETRY_SUFFIX = "tras-recarga"
 TOP_UP_SUFFIX = "recarga"
+FIRST_FUNDS_WAIT_SECONDS = 0.5
+FUNDS_WAIT_GROWTH = 2
+MAX_FUNDS_WAIT_SECONDS = 15.0  # the person is waiting on this request; past that, a retry from the acta is safe
 DASHBOARD_TRANSFER_URL = "https://dashboard.stripe.com/test/connect/transfers/{}"
 NAME_KEY_LENGTH = 200
 
@@ -44,11 +49,19 @@ SOFTWARE_MCC = "5734"
 NO_BENEFICIARY = "El pago no tiene un beneficiario registrado; no se envió nada a Stripe."
 NO_AMOUNT = "El monto a transferir no es válido; no se envió nada a Stripe."
 NO_TEST_FUNDS = "El saldo de prueba de Stripe no alcanzó ni después de recargarlo; no se transfirió dinero."
+FUNDS_NOT_AVAILABLE = (
+    f"Recargamos el saldo de prueba, pero Stripe no dejó los fondos disponibles en {MAX_FUNDS_WAIT_SECONDS:g} s; "
+    "no se transfirió dinero. Reintentar es seguro."
+)
 UNCONFIRMED = "No pudimos confirmar el pago con Stripe. Reintentar es seguro: Stripe no repite una transferencia."
 KEY_REJECTED = "Stripe rechazó la clave de prueba configurada; no se transfirió dinero."
 BUSY = "Stripe pidió esperar un momento; no se transfirió dinero. Reintenta el pago."
 REJECTED = "Stripe rechazó el pago; no se transfirió dinero."
 REJECTED_WITH_CODE = "Stripe rechazó el pago (código {}); no se transfirió dinero."
+
+
+class FundsNotAvailableError(Exception):
+    """The top-up went through but Stripe had not released its funds when the wait ran out."""
 
 
 class AccountDirectory(Protocol):
@@ -64,10 +77,18 @@ class AccountDirectory(Protocol):
 class StripeTestRail:
     name = STRIPE_TEST
 
-    def __init__(self, client: stripe.StripeClient, accounts: AccountDirectory, *, clock: Clock) -> None:
+    def __init__(
+        self,
+        client: stripe.StripeClient,
+        accounts: AccountDirectory,
+        *,
+        clock: Clock,
+        sleep: Callable[[float], None] = time.sleep,
+    ) -> None:
         self._client = client
         self._accounts = accounts
         self._clock = clock
+        self._sleep = sleep
 
     def execute(self, order: PaymentOrder) -> PaymentReceipt:
         cents = to_cents(order.amount_base)
@@ -80,6 +101,9 @@ class StripeTestRail:
         except stripe.StripeError as error:
             logger.warning("stripe refused a payment: %s %s", type(error).__name__, _safe_code(error))
             return self._failed(spanish_error(error))
+        except FundsNotAvailableError:
+            logger.warning("stripe test funds were still pending after the top-up wait")
+            return self._failed(FUNDS_NOT_AVAILABLE)
         return PaymentReceipt(
             rail=STRIPE_TEST,
             status="executed",
@@ -115,6 +139,8 @@ class StripeTestRail:
             if error.code != BALANCE_INSUFFICIENT:
                 raise
         self._top_up(cents, order.idempotency_key)
+        # A top-up answers before Stripe releases its funds; retrying at once failed 7 of 17 transfers in production.
+        self._wait_for_funds(cents)
         # Stripe replays the stored answer of a used idempotency key, errors included: the retry needs its own key.
         return self._transfer(order, account, cents, f"{order.idempotency_key}:{RETRY_SUFFIX}")
 
@@ -137,8 +163,7 @@ class StripeTestRail:
 
     def _top_up(self, transfer_cents: int, key: str) -> None:
         """Adds test money to the platform balance with Stripe's test card. Only ever runs with a test key."""
-        balance = self._client.v1.balance.retrieve()
-        available = sum(funds.amount for funds in balance.available if funds.currency == CURRENCY)
+        available = self._available_cents()
         self._client.v1.payment_intents.create(
             params={
                 "amount": max(transfer_cents - available, 0) + TOP_UP_MARGIN_CENTS,
@@ -150,6 +175,22 @@ class StripeTestRail:
             },
             options={"idempotency_key": f"{key}:{TOP_UP_SUFFIX}"},
         )
+
+    def _wait_for_funds(self, cents: int) -> None:
+        """Checks the available balance with growing waits until it covers the transfer, for at most the wait cap."""
+        waited = 0.0
+        wait = FIRST_FUNDS_WAIT_SECONDS
+        while self._available_cents() < cents:
+            if waited >= MAX_FUNDS_WAIT_SECONDS:
+                raise FundsNotAvailableError()
+            step = min(wait, MAX_FUNDS_WAIT_SECONDS - waited)
+            self._sleep(step)
+            waited += step
+            wait *= FUNDS_WAIT_GROWTH
+
+    def _available_cents(self) -> int:
+        balance = self._client.v1.balance.retrieve()
+        return sum(funds.amount for funds in balance.available if funds.currency == CURRENCY)
 
     def _failed(self, message: str) -> PaymentReceipt:
         return PaymentReceipt(rail=STRIPE_TEST, status="failed", executed_at=self._clock(), error=message)

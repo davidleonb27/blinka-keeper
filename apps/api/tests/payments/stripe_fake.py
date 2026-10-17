@@ -32,6 +32,7 @@ class FakeStripe(stripe.HTTPClient):
     name: ClassVar[str] = "fake"
 
     balance_cents: int = 100_000_000
+    pending_reads: int = 0  # balance reads after a top-up during which its funds are still pending, as in Stripe
     requests: list[StripeRequest] = field(default_factory=list)
     failures: dict[str, list[Response]] = field(default_factory=dict)  # path -> answers to the next POSTs
     unreachable: bool = False
@@ -39,6 +40,8 @@ class FakeStripe(stripe.HTTPClient):
     _replays: dict[str, Response] = field(default_factory=dict)
     _ids: int = 0
     _lost: set[str] = field(default_factory=set)
+    _pending_cents: int = 0
+    _reads_left: int = 0
 
     def __post_init__(self) -> None:
         super().__init__()
@@ -93,11 +96,13 @@ class FakeStripe(stripe.HTTPClient):
         if pending:
             return pending.pop(0)
         if request.path == "/v1/balance":
-            return 200, {"object": "balance", "available": [{"amount": self.balance_cents, "currency": "usd"}]}
+            return 200, self._balance()
         if request.path == "/v1/accounts":
             return 200, {"id": self._new_id("acct"), "object": "account"}
         if request.path == "/v1/payment_intents":
-            self.balance_cents += int(request.form["amount"])
+            self._pending_cents += int(request.form["amount"])
+            self._reads_left = self.pending_reads
+            self._settle_if_due()
             return 200, {"id": self._new_id("pi"), "object": "payment_intent", "status": "succeeded"}
         if request.path == "/v1/transfers" and request.method == "get":
             group = request.form.get("transfer_group")
@@ -106,6 +111,22 @@ class FakeStripe(stripe.HTTPClient):
         if request.path == "/v1/transfers":
             return self._transfer(int(request.form["amount"]), request.form.get("transfer_group"))
         return 404, {"error": {"type": "invalid_request_error", "message": f"Unknown path {request.path}"}}
+
+    def _balance(self) -> dict[str, Any]:
+        if self._reads_left > 0:
+            self._reads_left -= 1
+        else:
+            self._settle_if_due()
+        return {
+            "object": "balance",
+            "available": [{"amount": self.balance_cents, "currency": "usd"}],
+            "pending": [{"amount": self._pending_cents, "currency": "usd"}],
+        }
+
+    def _settle_if_due(self) -> None:
+        if self._reads_left == 0:
+            self.balance_cents += self._pending_cents
+            self._pending_cents = 0
 
     def _transfer(self, amount: int, group: str | None) -> Response:
         if amount > self.balance_cents:

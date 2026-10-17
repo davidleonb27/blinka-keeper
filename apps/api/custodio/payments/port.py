@@ -14,11 +14,13 @@ from typing import Final, Literal, Protocol
 
 from sqlalchemy.orm import Session
 
-from custodio.contracts import PaymentExecution
+from custodio.contracts import Beneficiary, PaymentExecution
 
-RailName = Literal["simulated", "stripe_test"]
+RailName = Literal["simulated", "stripe_test", "blinka_simulated"]
 SIMULATED: Final = "simulated"
 STRIPE_TEST: Final = "stripe_test"
+BLINKA_SIMULATED: Final = "blinka_simulated"
+MOVES_NO_MONEY: Final = frozenset({SIMULATED, BLINKA_SIMULATED})
 
 # The rail's answer is exactly what the acta shows, so the receipt and the contract are one model.
 PaymentReceipt = PaymentExecution
@@ -36,6 +38,7 @@ class PaymentOrder:
     currency: str  # as invoiced
     amount: Decimal  # as invoiced
     acta_url: str
+    beneficiary: Beneficiary | None = None  # the registered one: its bank details, never the invoice's
 
 
 class PaymentRail(Protocol):

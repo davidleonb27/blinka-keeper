@@ -278,15 +278,34 @@ class Approval(Model):
     note: str | None = None
 
 
+PaymentNetwork = Literal["ach", "wire", "bre_b", "spei", "pix"]
+
+
+class PaymentInstruction(Model):
+    """Exactly what Custodio hands a bank partner (Blinka) to pay one invoice: original amount and currency."""
+
+    network: PaymentNetwork
+    amount: Amount
+    currency: str  # ISO 4217, as invoiced
+    beneficiary_name: str
+    beneficiary_tax_id: str
+    beneficiary_country: str | None
+    bank_name: str
+    account_number: str
+    reference: str  # the acta URL, so whoever reads the bank statement can see why it was paid
+    idempotency_key: str
+
+
 class PaymentExecution(Model):
     """What the payment rail did with a payment the engine decided. The rail executes; it never decides."""
 
-    rail: Literal["simulated", "stripe_test"]
+    rail: Literal["simulated", "stripe_test", "blinka_simulated"]
     status: Literal["executed", "simulated", "failed"]
     external_id: str | None = None  # e.g. the Stripe transfer id
     dashboard_url: str | None = None
     executed_at: datetime
     error: str | None = None  # Spanish, never a secret
+    instruction: PaymentInstruction | None = None  # set by rails that hand the payment to a bank partner
 
 
 class Decision(Model):

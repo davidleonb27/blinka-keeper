@@ -32,8 +32,9 @@ class MemoryAccounts:
         return self.accounts.setdefault((beneficiary_id, name_key), account_id)
 
 
-def rail(fake: FakeStripe, accounts: MemoryAccounts | None = None) -> StripeTestRail:
-    return StripeTestRail(fake.client(), accounts or MemoryAccounts(), clock=lambda: NOW)
+def rail(fake: FakeStripe, accounts: MemoryAccounts | None = None, waits: list[float] | None = None) -> StripeTestRail:
+    sleep = (waits if waits is not None else []).append
+    return StripeTestRail(fake.client(), accounts or MemoryAccounts(), clock=lambda: NOW, sleep=sleep)
 
 
 def test_a_payment_goes_out_as_a_stripe_transfer_and_returns_its_receipt() -> None:
@@ -113,6 +114,39 @@ def test_an_empty_test_balance_is_topped_up_and_the_transfer_retried_once() -> N
     assert top_up.form["payment_method"] == "pm_card_bypassPending"
     assert top_up.form["confirm"] == "true"
     assert len(fake.posts("/v1/transfers")) == 2
+
+
+def test_after_a_top_up_the_retry_waits_until_stripe_makes_the_funds_available() -> None:
+    fake = FakeStripe(balance_cents=20_000, pending_reads=2)
+    waits: list[float] = []
+
+    receipt = rail(fake, waits=waits).execute(ORDER)
+
+    assert receipt.status == "executed"
+    assert len(fake.posts("/v1/transfers")) == 2
+    assert waits == [0.5, 1.0]
+
+
+def test_the_wait_for_topped_up_funds_grows_and_gives_up_after_fifteen_seconds() -> None:
+    fake = FakeStripe(balance_cents=20_000, pending_reads=1_000)
+    waits: list[float] = []
+
+    receipt = rail(fake, waits=waits).execute(ORDER)
+
+    assert receipt.status == "failed"
+    assert receipt.error is not None and "15 s" in receipt.error
+    assert len(fake.posts("/v1/transfers")) == 1
+    assert sum(waits) == 15
+    assert waits == sorted(waits) and waits[0] < waits[-2]
+
+
+def test_funds_already_available_after_a_top_up_need_no_wait() -> None:
+    fake = FakeStripe(balance_cents=20_000)
+    waits: list[float] = []
+
+    rail(fake, waits=waits).execute(ORDER)
+
+    assert waits == []
 
 
 def test_a_second_insufficient_balance_fails_cleanly() -> None:
