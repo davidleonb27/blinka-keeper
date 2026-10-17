@@ -13,7 +13,7 @@ import type { ChallengeStats, Decision, DecisionStatus, LedgerEntry, Metrics, Po
 import { InvalidRequestError, NotFoundError } from "../errors";
 import { formatMoney } from "../../format";
 import { initialChallengeStats, judgeAttempt, recordAttempt } from "./challenge";
-import { freshDemo, type DemoDataset, type DemoItem } from "./dataset";
+import { freshDemo, simulatedExecution, type DemoDataset, type DemoItem } from "./dataset";
 import { appendEntry, verifyChain } from "./ledger";
 import { importMockSuppliers, simulateFirstWeek } from "./onboarding";
 import { compilePolicyText } from "./policy-compiler";
@@ -118,7 +118,17 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
     decision.status = "paid_human";
     decision.balance_before = balance;
     decision.balance_after = balance - amount;
+    decision.execution = simulatedExecution(at);
     demo.company.balance_end = balance - amount;
+    return decision;
+  }
+
+  function executePayment(invoiceId: string): Decision {
+    const decision = findItem(invoiceId).decision;
+    if (!decision.execution) {
+      throw new InvalidRequestError("Esta decisión no tiene un pago fallido que reintentar.", CONFLICT);
+    }
+    if (decision.execution.status === "failed") decision.execution = simulatedExecution(nowIso());
     return decision;
   }
 
@@ -190,7 +200,7 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
   }
 
   return {
-    health: () => respond(() => ({ status: "ok", version: "mock", anthropic: false })),
+    health: () => respond(() => ({ status: "ok", version: "mock", anthropic: false, payment_rail: "simulated" as const })),
     createWorkspace: () => respond(() => ({ workspace_id: "ws_demo", api_key: MOCK_API_KEY })),
     getWorkspace: () => respond(summary),
     listDecisions: () =>
@@ -200,6 +210,7 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
     getDecision: (id) => respond(() => findItem(id)),
     approveDecision: (id, input) => respond(() => decide(id, input, true)),
     rejectDecision: (id, input) => respond(() => decide(id, input, false)),
+    executePayment: (id) => respond(() => executePayment(id)),
     getPolicy: () => respond(() => demo.policy),
     compilePolicy: (text, base) =>
       respond(() => (base ? compilePolicyText(text, base, []) : compilePolicyText(text, demo.policy, demo.items)), 2),

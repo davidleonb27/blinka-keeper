@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { ActaDrawer } from "@/components/acta/acta-drawer";
 import { Chip, PageHeader } from "@/components/shell/page-header";
+import { RailBadge } from "@/components/shell/rail-badge";
 import { ErrorState, LoadingBlock } from "@/components/states";
 import { useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -43,6 +44,7 @@ export function Dashboard() {
           <Chip>
             Saldo <b className="font-semibold text-ink tabular">{formatMoney(summary.data.balance, summary.data.base_currency)}</b>
           </Chip>
+          <RailBadge />
         </>
       ) : null}
     </PageHeader>

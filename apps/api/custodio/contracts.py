@@ -278,6 +278,17 @@ class Approval(Model):
     note: str | None = None
 
 
+class PaymentExecution(Model):
+    """What the payment rail did with a payment the engine decided. The rail executes; it never decides."""
+
+    rail: Literal["simulated", "stripe_test"]
+    status: Literal["executed", "simulated", "failed"]
+    external_id: str | None = None  # e.g. the Stripe transfer id
+    dashboard_url: str | None = None
+    executed_at: datetime
+    error: str | None = None  # Spanish, never a secret
+
+
 class Decision(Model):
     invoice_id: str
     beneficiary_id: str | None
@@ -295,6 +306,7 @@ class Decision(Model):
     balance_after: Amount | None = None
     approval: Approval | None = None
     blocked_reason: str | None = None  # e.g. approved by a person but paying would break the reserve
+    execution: PaymentExecution | None = None  # set only where money is meant to move: the panel, never a sandbox
 
 
 class Metrics(Model):

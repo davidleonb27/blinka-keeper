@@ -124,6 +124,15 @@ La respuesta trae `decision` (con `agent_verdict`: `pay`, `hold` o `escalate`, y
 Para Claude Desktop u otro cliente MCP, apunta al servidor `…/api/v1/mcp`. Herramientas: `submit_payment_intent`,
 `get_decision` y `get_policy`. Las dos entradas pasan por las mismas reglas que una factura subida a mano.
 
+## Cómo paga
+
+Custodio decide; el riel paga. Hoy: Stripe en modo prueba. En producción: el riel de la empresa, por ejemplo Blinka
+(ACH, wire, Bre-B, SPEI, Pix). Cuando una factura queda pagada desde el panel y el auditor no la vetó, el pago sale por
+el riel activo y su recibo queda en el acta y en el registro. Por defecto el riel es simulado; con
+`CUSTODIO_PAYMENT_RAIL=stripe_test` y una `STRIPE_SECRET_KEY` de prueba (`sk_test_…`) sale como una transferencia real
+de Stripe en modo prueba. Una clave `live` se rechaza. El firewall, el reto y el red team nunca pagan. Detalle, guardias
+e idempotencia en [`docs/PAYMENTS.md`](docs/PAYMENTS.md).
+
 ## Dataset
 
 Empresa demo y facturas con trampa etiquetadas, publicadas y reproducibles: [`docs/DATASET.md`](docs/DATASET.md).

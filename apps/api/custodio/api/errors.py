@@ -18,6 +18,7 @@ STATUS_BY_ERROR: dict[type[errors.ServiceError], int] = {
     errors.InvalidApiKey: 401,
     errors.NotFound: 404,
     errors.DecisionNotPending: 409,
+    errors.PaymentNotRetryable: 409,
     errors.PayloadTooLarge: 413,
     errors.UnsupportedMediaType: 415,
     errors.PolicyInvalid: 422,

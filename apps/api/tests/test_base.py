@@ -41,7 +41,8 @@ def test_health_answers_under_the_public_prefix() -> None:
 def test_health_reports_only_the_providers_in_use() -> None:
     body = TestClient(app).get("/api/v1/health").json()
 
-    assert set(body) == {"status", "version", "anthropic"}
+    assert set(body) == {"status", "version", "anthropic", "payment_rail"}
+    assert body["payment_rail"] == "simulated"  # Stripe only with CUSTODIO_PAYMENT_RAIL=stripe_test and a test key
 
 
 def test_settings_carry_no_retired_integrations() -> None:

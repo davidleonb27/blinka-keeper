@@ -21,6 +21,7 @@ import { LiveMetrics } from "@/components/landing/live-metrics";
 import { ModeBadge } from "@/components/shell/mode-badge";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { RAIL_PITCH } from "@/lib/presentation";
 
 const FLOW: { title: string; tag: string; text: string; icon: LucideIcon; person?: boolean }[] = [
   { title: "Lee", tag: "Modelo", icon: FileSearch, text: "Saca quién cobra, cuánto, en qué moneda y a qué cuenta, y cita de dónde lo leyó." },
@@ -121,6 +122,7 @@ export default function HomePage() {
               </li>
             ))}
           </ol>
+          <p className="mt-5 max-w-[70ch] text-[14px] text-ink-2">{RAIL_PITCH}</p>
         </section>
 
         <section aria-labelledby="distinto-title" className="mx-auto max-w-6xl px-4 pb-20">

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
 from custodio import __version__
 from custodio.config import get_settings
+from custodio.payments import RailName
+from custodio.services.context import Runtime
 
 router = APIRouter(tags=["system"])
 
@@ -13,13 +15,16 @@ class Health(BaseModel):
     status: str
     version: str
     anthropic: bool
+    payment_rail: RailName
 
 
 @router.get("/health", response_model=Health)
-def health() -> Health:
+def health(request: Request) -> Health:
+    runtime: Runtime = request.app.state.runtime
     settings = get_settings()
     return Health(
         status="ok",
         version=__version__,
         anthropic=settings.anthropic_configured,
+        payment_rail=runtime.payment_rail.name,
     )

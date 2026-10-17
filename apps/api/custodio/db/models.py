@@ -184,3 +184,32 @@ class RateCounterRow(Base):
     key: Mapped[str] = mapped_column(String(160), primary_key=True)
     window_start: Mapped[int] = mapped_column(Integer, primary_key=True)
     count: Mapped[int]
+
+
+class StripeAccountRow(Base):
+    """Global on purpose: every demo workspace pays the same suppliers, so each gets one Stripe test account."""
+
+    __tablename__ = "stripe_accounts"
+    __table_args__ = (UniqueConstraint("beneficiary_id", "name_key"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    beneficiary_id: Mapped[str] = mapped_column(ID)
+    name_key: Mapped[str] = mapped_column(String(200))
+    account_id: Mapped[str] = mapped_column(ID)
+    created_at: Mapped[datetime]
+
+
+class PaymentExecutionRow(Base):
+    __tablename__ = "payment_executions"
+    __table_args__ = (UniqueConstraint("workspace_id", "invoice_id"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"))
+    invoice_id: Mapped[str] = mapped_column(ID)
+    rail: Mapped[str] = mapped_column(String(16))
+    status: Mapped[str] = mapped_column(String(16))
+    external_id: Mapped[str | None] = mapped_column(ID)
+    dashboard_url: Mapped[str | None] = mapped_column(String(255))
+    error: Mapped[str | None] = mapped_column(String(500))
+    attempts: Mapped[int]
+    executed_at: Mapped[datetime] = mapped_column(index=True)

@@ -51,6 +51,15 @@ describe("live client", () => {
     expect(init?.method).toBe("POST");
   });
 
+  it("posts a payment retry to the decision's execute route", async () => {
+    const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(200, {}));
+    await clientWith(fetchMock).executePayment("F-001");
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("/api/v1/decisions/F-001/execute");
+    expect(init?.method).toBe("POST");
+  });
+
   it("turns a 429 into a Spanish rate-limit error", async () => {
     const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(429, { detail: "rate" }));
     const error = await clientWith(fetchMock).getWorkspace().catch((e: unknown) => e);

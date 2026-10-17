@@ -158,6 +158,7 @@ espacio.
 | `POST /invoices/process` | decidir lo pendiente → `BatchResult` + auditoría |
 | `GET /decisions` · `GET /decisions/{id}` | lista y acta |
 | `POST /decisions/{id}/approve` · `/reject` | aprobación humana |
+| `POST /decisions/{id}/execute` | reintenta un pago cuya ejecución falló (idempotente; ver `docs/PAYMENTS.md`) |
 | `GET /ledger` · `GET /ledger/verify` | registro y verificación |
 | `POST /ledger/tamper-demo` | altera una copia del registro y muestra dónde se rompe (nunca el real) |
 | `POST /redteam/runs` (SSE) | rondas del atacante en vivo |
@@ -208,7 +209,9 @@ shadcn/ui, tema claro y oscuro, móvil primero.
 
 `ANTHROPIC_API_KEY`, `DATABASE_URL` (Neon; normalizar `postgresql://` a `postgresql+psycopg://`),
 `CUSTODIO_PUBLIC_BASE_URL`, `CUSTODIO_LLM_DAILY_BUDGET_USD`, `CUSTODIO_MODEL_FAST`,
-`CUSTODIO_MODEL_SMART`, `CUSTODIO_MODEL_CHEAP`, `CUSTODIO_LIVE_TESTS`.
+`CUSTODIO_MODEL_SMART`, `CUSTODIO_MODEL_CHEAP`, `CUSTODIO_LIVE_TESTS`, `CUSTODIO_PAYMENT_RAIL` (`simulated` por
+defecto o `stripe_test`) y `STRIPE_SECRET_KEY` (sólo `sk_test_…`; una clave `live` se rechaza). `Decision.execution`
+(`PaymentExecution`) dice cómo salió cada pago: ver `docs/PAYMENTS.md`.
 
 ## 12. Guion de la demo (3 minutos)
 

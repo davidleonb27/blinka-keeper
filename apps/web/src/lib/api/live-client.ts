@@ -78,6 +78,7 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId }: LiveClientOp
     getDecision: (id) => get(`/decisions/${encodeURIComponent(id)}`),
     approveDecision: (id, input) => post(`/decisions/${encodeURIComponent(id)}/approve`, input),
     rejectDecision: (id, input) => post(`/decisions/${encodeURIComponent(id)}/reject`, input),
+    executePayment: (id) => post(`/decisions/${encodeURIComponent(id)}/execute`),
     getPolicy: () => get("/policy"),
     compilePolicy: (text, base) => post("/policy/compile", { text, base: base ?? null }),
     applyPolicy: (policy) => request("PUT", "/policy", { body: { json: policy } }),

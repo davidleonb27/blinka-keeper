@@ -161,6 +161,20 @@ export interface Approval {
   note?: string | null;
 }
 
+export type PaymentRailName = "simulated" | "stripe_test";
+
+export type ExecutionStatus = "executed" | "simulated" | "failed";
+
+/** How the rail carried out a payment the engine decided. The rail executes; it never decides. */
+export interface PaymentExecution {
+  rail: PaymentRailName;
+  status: ExecutionStatus;
+  external_id?: string | null;
+  dashboard_url?: string | null;
+  executed_at: ISODateTime;
+  error?: string | null;
+}
+
 export interface Decision {
   invoice_id: string;
   beneficiary_id: string | null;
@@ -178,6 +192,7 @@ export interface Decision {
   balance_after?: number | null;
   approval?: Approval | null;
   blocked_reason?: string | null;
+  execution?: PaymentExecution | null;
 }
 
 export interface Metrics {

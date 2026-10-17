@@ -1,5 +1,5 @@
 /** How API values read to a person. Display only: nothing here decides anything. */
-import type { Decision, DecisionStatus, InvoiceSource, RuleResult } from "./api/contracts";
+import type { Decision, DecisionStatus, InvoiceSource, PaymentRailName, RuleResult } from "./api/contracts";
 import { formatMoney } from "./format";
 
 export type Tone = "pay" | "hold" | "esc" | "muted";
@@ -24,6 +24,14 @@ export const SOURCE_LABEL: Record<InvoiceSource, string> = {
   text: "Texto",
   intent: "Otro agente",
 };
+
+export const RAIL_LABEL: Record<PaymentRailName, string> = {
+  simulated: "Simulado",
+  stripe_test: "Stripe · modo prueba",
+};
+
+export const RAIL_PITCH =
+  "Custodio decide; el riel paga. Hoy: Stripe en modo prueba. En producción: el riel de la empresa, por ejemplo Blinka (ACH, wire, Bre-B, SPEI, Pix).";
 
 export const COUNTRY_NAMES: Record<string, string> = {
   CO: "Colombia",

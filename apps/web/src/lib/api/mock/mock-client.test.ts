@@ -33,6 +33,25 @@ describe("mock client", () => {
     expect((await api.verifyLedger()).valid).toBe(true);
   });
 
+  it("pays on the simulated rail and says so in health", async () => {
+    const api = createMockClient(instant);
+
+    const approved = await api.approveDecision("F-015", { approver: "Ana Gómez" });
+    const paid = (await api.getDecision("F-001")).decision;
+
+    expect((await api.health()).payment_rail).toBe("simulated");
+    expect(approved.execution?.status).toBe("simulated");
+    expect(paid.execution?.rail).toBe("simulated");
+  });
+
+  it("returns an executed payment unchanged and refuses to execute an unpaid one", async () => {
+    const api = createMockClient(instant);
+    const paid = (await api.getDecision("F-001")).decision;
+
+    expect(await api.executePayment("F-001")).toEqual(paid);
+    await expect(api.executePayment("F-020")).rejects.toThrow();
+  });
+
   it("rejects without touching the balance", async () => {
     const api = createMockClient(instant);
     const { balance } = await api.getWorkspace();

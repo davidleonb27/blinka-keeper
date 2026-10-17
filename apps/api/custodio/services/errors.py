@@ -45,6 +45,11 @@ class DecisionNotPending(ServiceError):
     message = "Esta decisión ya no está esperando aprobación."
 
 
+class PaymentNotRetryable(ServiceError):
+    code = "payment_not_retryable"
+    message = "Esta decisión no tiene un pago fallido que reintentar."
+
+
 class PolicyInvalid(ServiceError):
     code = "policy_invalid"
 

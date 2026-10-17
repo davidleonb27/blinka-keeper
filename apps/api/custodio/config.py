@@ -31,6 +31,7 @@ class Settings(BaseSettings):
 
     llm_daily_budget_usd: float = 25.0  # hard stop for model spend per deployment per UTC day
     public_base_url: str = ""  # e.g. https://custodio-blinka.vercel.app, used to build acta links
+    payment_rail: str = "simulated"  # "stripe_test" pays through Stripe in test mode, with STRIPE_SECRET_KEY=sk_test_…
 
     @property
     def anthropic_configured(self) -> bool:

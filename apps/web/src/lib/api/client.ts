@@ -16,6 +16,7 @@ import type {
   LedgerEntry,
   LedgerVerification,
   Metrics,
+  PaymentRailName,
   Policy,
   PolicyProposal,
   RedTeamEvent,
@@ -24,7 +25,9 @@ import type {
 import type { components } from "./openapi";
 
 /** Only the fields the web reads, so it holds whether or not the API still reports retired providers. */
-export type Health = Pick<components["schemas"]["Health"], "status" | "version" | "anthropic">;
+export type Health = Pick<components["schemas"]["Health"], "status" | "version" | "anthropic"> & {
+  payment_rail: PaymentRailName;
+};
 
 export type WorkspaceMode = "demo" | "blank";
 
@@ -111,6 +114,8 @@ export interface CustodioApi {
   getDecision(invoiceId: string): Promise<DecisionDetail>;
   approveDecision(invoiceId: string, input: ApprovalInput): Promise<Decision>;
   rejectDecision(invoiceId: string, input: ApprovalInput): Promise<Decision>;
+  /** Retries a payment whose execution failed; a payment that already went out comes back unchanged. */
+  executePayment(invoiceId: string): Promise<Decision>;
   getPolicy(): Promise<Policy>;
   /** Compiles against `base` when given (onboarding draft), otherwise the workspace policy. */
   compilePolicy(text: string, base?: Policy): Promise<PolicyProposal>;

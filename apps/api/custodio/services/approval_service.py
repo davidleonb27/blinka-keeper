@@ -42,5 +42,5 @@ def decide(
         )
     )
     invoice = records.invoice(ctx, workspace.id, invoice_id)
-    outcome = invoice_service.decide(ctx, workspace, [invoice], approvals={invoice_id: approval})
+    outcome = invoice_service.decide(ctx, workspace, [invoice], approvals={invoice_id: approval}, execute_payments=True)
     return outcome.batch.decisions[0]

@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from custodio.api.deps import CurrentWorkspace, ModelCallLimit, Services
 from custodio.contracts import Decision, DecisionStatus, LedgerEntry
-from custodio.services import approval_service, invoice_service, ledger_service, records
+from custodio.services import approval_service, invoice_service, ledger_service, payment_service, records
 from custodio.services.invoice_service import InvoiceView
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
@@ -54,6 +54,12 @@ def approve(invoice_id: str, body: ApprovalBody, ctx: Services, workspace: Curre
 @router.post("/{invoice_id}/reject", response_model=Decision)
 def reject(invoice_id: str, body: ApprovalBody, ctx: Services, workspace: CurrentWorkspace) -> Decision:
     return approval_service.decide(ctx, workspace, invoice_id, "rejected", approver=body.approver, note=body.note)
+
+
+@router.post("/{invoice_id}/execute", response_model=Decision)
+def execute_payment(invoice_id: str, ctx: Services, workspace: CurrentWorkspace) -> Decision:
+    """Retries a payment whose execution failed. A payment that already went out is returned unchanged."""
+    return payment_service.retry(ctx, workspace, invoice_id)
 
 
 class Narrative(BaseModel):

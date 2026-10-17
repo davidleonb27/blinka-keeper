@@ -25,11 +25,12 @@ from custodio.contracts import (
     InvoiceCase,
     InvoiceSource,
     LedgerKind,
+    PaymentExecution,
     RuleOutcome,
 )
 from custodio.db.models import DocumentRow, InvoiceRow, WorkspaceRow
 from custodio.llm import LLMError
-from custodio.services import ledger_service, policy_service, records
+from custodio.services import ledger_service, payment_service, policy_service, records
 from custodio.services.context import ServiceContext
 from custodio.services.errors import ModelUnavailable, PayloadTooLarge, UnsupportedMediaType
 from custodio.services.workspace_service import new_id, received_payload
@@ -91,7 +92,7 @@ def receive_text(
 
 
 def process_pending(ctx: ServiceContext, workspace: WorkspaceRow) -> Outcome:
-    return decide(ctx, workspace, records.pending_invoices(ctx, workspace.id))
+    return decide(ctx, workspace, records.pending_invoices(ctx, workspace.id), execute_payments=True)
 
 
 def decide(
@@ -99,7 +100,10 @@ def decide(
     workspace: WorkspaceRow,
     invoices: Sequence[InvoiceRow],
     approvals: Mapping[str, Approval] | None = None,
+    *,
+    execute_payments: bool = False,
 ) -> Outcome:
+    """`execute_payments` is for the panel only: the firewall, the challenge and the red team decide, never pay."""
     cases = [records.as_case(row) for row in invoices]
     state = records.company_state(ctx, workspace)
     policy = policy_service.current(ctx, workspace.id)
@@ -107,9 +111,25 @@ def decide(
     report = ctx.lanes.audit(batch, cases, state, policy)
     stopped = _stopped_payments(batch, report)
     final = _attach_approvals(_apply_stops(batch, stopped), approvals or {})
-    for decision in final.decisions:
-        _record(ctx, workspace.id, decision, (approvals or {}).get(decision.invoice_id), decision.invoice_id in stopped)
-    return Outcome(batch=final, audit=report, vetoed=sorted(stopped))
+
+    def pay(decision: Decision) -> PaymentExecution:
+        return payment_service.execute(ctx, workspace.id, decision, policy)
+
+    payer = pay if execute_payments and payment_service.may_execute(workspace) else None
+    # An intent is paid by the agent that sent it, even after a person approves it here: paying it too pays it twice.
+    intents = {case.id for case in cases if case.extraction.source is InvoiceSource.INTENT}
+    recorded = [
+        _record(
+            ctx,
+            workspace.id,
+            d,
+            (approvals or {}).get(d.invoice_id),
+            d.invoice_id in stopped,
+            None if d.invoice_id in intents else payer,
+        )
+        for d in final.decisions
+    ]
+    return Outcome(batch=final.model_copy(update={"decisions": recorded}), audit=report, vetoed=sorted(stopped))
 
 
 def narrate(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> str:
@@ -244,8 +264,15 @@ def _held(decision: Decision, reason: str) -> Decision:
 
 
 def _record(
-    ctx: ServiceContext, workspace_id: str, decision: Decision, approval: Approval | None, audit_blocked: bool
-) -> None:
+    ctx: ServiceContext,
+    workspace_id: str,
+    decision: Decision,
+    approval: Approval | None,
+    audit_blocked: bool,
+    pay: Callable[[Decision], PaymentExecution] | None,
+) -> Decision:
+    if pay is not None and decision.status in records.PAID and not audit_blocked:
+        decision = decision.model_copy(update={"execution": pay(decision)})
     records.save_decision(ctx, workspace_id, decision, audit_blocked=audit_blocked)
     kind = LedgerKind.APPROVAL if approval else LedgerKind.DECISION
     payload = _decision_payload(decision, audit_blocked)
@@ -253,7 +280,9 @@ def _record(
         payload["approval"] = approval.model_dump(mode="json")
     ledger_service.append(ctx, workspace_id, kind, decision.invoice_id, payload)
     if decision.status in records.PAID:
-        ledger_service.append(ctx, workspace_id, LedgerKind.PAYMENT, decision.invoice_id, _payment_payload(decision))
+        payment = payment_service.payment_payload(decision)
+        ledger_service.append(ctx, workspace_id, LedgerKind.PAYMENT, decision.invoice_id, payment)
+    return decision
 
 
 def _decision_payload(decision: Decision, audit_blocked: bool) -> dict[str, Any]:
@@ -264,16 +293,6 @@ def _decision_payload(decision: Decision, audit_blocked: bool) -> dict[str, Any]
         "amount_base": _number(decision.amount_base),
         "failed_rules": failed,
         "audit_blocked": audit_blocked,
-    }
-
-
-def _payment_payload(decision: Decision) -> dict[str, Any]:
-    return {
-        "beneficiary_id": decision.beneficiary_id,
-        "amount": _number(decision.amount),
-        "currency": decision.currency,
-        "amount_base": _number(decision.amount_base),
-        "by": "person" if decision.status is DecisionStatus.PAID_HUMAN else "agent",
     }
 
 

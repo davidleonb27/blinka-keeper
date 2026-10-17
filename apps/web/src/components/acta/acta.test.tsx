@@ -1,12 +1,36 @@
 import { render as renderComponent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import type { PaymentExecution } from "@/lib/api/contracts";
 import { DEMO } from "@/lib/api/mock/dataset";
 import { Acta } from "./acta";
+
+const SENT: PaymentExecution = {
+  rail: "stripe_test",
+  status: "executed",
+  external_id: "tr_1Qx7Custodio",
+  dashboard_url: "https://dashboard.stripe.com/test/connect/transfers/tr_1Qx7Custodio",
+  executed_at: "2026-10-17T15:00:00Z",
+  error: null,
+};
+const FAILED: PaymentExecution = {
+  rail: "stripe_test",
+  status: "failed",
+  external_id: null,
+  dashboard_url: null,
+  executed_at: "2026-10-17T15:00:00Z",
+  error: "Stripe rechazó el pago (código transfers_not_allowed); no se transfirió dinero.",
+};
 
 function demoItem(id: string) {
   const item = DEMO.items.find((i) => i.decision.invoice_id === id);
   if (!item) throw new Error(`missing ${id}`);
+  return item;
+}
+
+function paidWith(execution: PaymentExecution) {
+  const item = structuredClone(demoItem("F-001"));
+  item.decision.execution = execution;
   return item;
 }
 
@@ -69,8 +93,53 @@ describe("Acta", () => {
     expect(screen.queryByRole("button", { name: /Aprobar pago/ })).not.toBeInTheDocument();
     expect(screen.getByText("Pagada sola")).toBeInTheDocument();
   });
+
+  it("shows the Stripe test transfer that paid it, linked to its dashboard", () => {
+    render(paidWith(SENT));
+
+    const payment = screen.getByRole("region", { name: "Ejecución del pago" });
+    expect(payment).toHaveTextContent("Stripe · modo prueba");
+    expect(payment).toHaveTextContent(/USD/);
+    expect(within(payment).getByRole("link", { name: /tr_1Qx7Custodio/ })).toHaveAttribute("href", SENT.dashboard_url);
+    expect(within(payment).queryByRole("button", { name: /Reintentar pago/ })).not.toBeInTheDocument();
+  });
+
+  it("shows a failed payment with its error and lets a person retry it", async () => {
+    const onRetryPayment = vi.fn();
+    render(paidWith(FAILED), vi.fn(), onRetryPayment);
+
+    const payment = screen.getByRole("region", { name: "Ejecución del pago" });
+    expect(payment).toHaveTextContent(/transfers_not_allowed/);
+    expect(payment).not.toHaveTextContent(/enviado/);
+    await userEvent.click(within(payment).getByRole("button", { name: /Reintentar pago/ }));
+    expect(onRetryPayment).toHaveBeenCalledOnce();
+  });
+
+  it("says a simulated payment moved no money", () => {
+    render(paidWith({ rail: "simulated", status: "simulated", executed_at: "2026-10-17T15:00:00Z" }));
+
+    const payment = screen.getByRole("region", { name: "Ejecución del pago" });
+    expect(payment).toHaveTextContent("Simulado");
+    expect(payment).toHaveTextContent(/no se movió dinero/);
+    expect(payment).not.toHaveTextContent(/enviado/);
+  });
+
+  it("shows no payment block for an invoice that was not paid", () => {
+    render(demoItem("F-020"));
+
+    expect(screen.queryByRole("region", { name: "Ejecución del pago" })).not.toBeInTheDocument();
+  });
 });
 
-function render(item: ReturnType<typeof demoItem>, onDecide = vi.fn()) {
-  return renderComponent(<Acta detail={item} policy={DEMO.policy} onDecide={onDecide} deciding={false} />);
+function render(item: ReturnType<typeof demoItem>, onDecide = vi.fn(), onRetryPayment = vi.fn()) {
+  return renderComponent(
+    <Acta
+      detail={item}
+      policy={DEMO.policy}
+      onDecide={onDecide}
+      deciding={false}
+      onRetryPayment={onRetryPayment}
+      retryingPayment={false}
+    />,
+  );
 }
