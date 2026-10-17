@@ -219,3 +219,28 @@ def test_a_broken_workbook_is_unreadable_not_a_crash(fake_llm: FakeLLM, part: st
 
     with pytest.raises(UnreadableSupplierFile):
         import_suppliers(broken, filename="p.xlsx", media_type=XLSX_MEDIA)
+
+
+def test_the_onboarding_template_without_a_currency_column_takes_the_company_currency(fake_llm: FakeLLM) -> None:
+    rows = [
+        ["nombre", "nit", "banco", "cuenta", "monto mensual"],
+        ["Papelería Central SAS", "900123456-1", "Bancolombia", "123-456789-01", "1200000"],
+    ]
+
+    result = import_suppliers(as_csv(rows), filename="proveedores.csv", media_type=CSV_MEDIA, default_currency="COP")
+
+    assert result.warnings == []
+    [papeleria] = result.beneficiaries
+    assert papeleria.currency == "COP"
+    assert papeleria.agreement is not None
+    assert papeleria.agreement.kind is AgreementKind.MONTHLY_CAP
+    assert papeleria.agreement.amount == Decimal("1200000")
+    assert papeleria.agreement.currency == "COP"
+
+
+def test_a_currency_column_still_wins_over_the_company_currency(fake_llm: FakeLLM) -> None:
+    rows = [["nombre", "nit", "banco", "cuenta", "moneda"], ["Nube SAS", "900111222", "Davivienda", "7781", "USD"]]
+
+    result = import_suppliers(as_csv(rows), filename="proveedores.csv", media_type=CSV_MEDIA, default_currency="COP")
+
+    assert [b.currency for b in result.beneficiaries] == ["USD"]
