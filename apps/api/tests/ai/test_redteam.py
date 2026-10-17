@@ -1,5 +1,7 @@
 from typing import Any
 
+import anthropic
+import httpx
 import pytest
 
 from custodio import llm
@@ -197,3 +199,54 @@ def test_a_run_where_no_attack_reached_the_judge_is_not_measured_not_caught(fake
     assert summary.caught is None
     assert "NO MEDIDO" in (summary.message or "")
     assert "sin veredicto: 2" in (summary.message or "")
+
+
+def api_down() -> anthropic.APIConnectionError:
+    return anthropic.APIConnectionError(request=httpx.Request("POST", "https://api.anthropic.com/v1/messages"))
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [llm.LLMRefused("se negó"), llm.LLMTruncated("se cortó"), llm.LLMError("objeto inválido"), api_down()],
+    ids=["refused", "truncated", "invalid", "api"],
+)
+def test_every_typed_model_failure_is_an_error_event(fake_llm: FakeLLM, failure: Exception) -> None:
+    fake_llm.reply(failure, attack("Cuenta cambiada"))
+
+    events = run(fake_llm, Judge(HELD), rounds=2)
+
+    assert [e.round for e in events if e.type == "error"] == [1]
+    assert [e.type for e in events][-2:] == ["round_finished", "summary"]
+
+
+def test_an_api_failure_is_told_in_spanish_without_the_raw_error(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(api_down())
+
+    events = run(fake_llm, Judge(), rounds=1)
+
+    [error] = [e for e in events if e.type == "error"]
+    assert "Connection error" not in (error.message or "")
+    assert "API de Claude" in (error.message or "")
+
+
+def test_an_exhausted_budget_stops_the_run_instead_of_retrying_every_round(fake_llm: FakeLLM) -> None:
+    fake_llm.reply(attack("Cuenta cambiada"), llm.LLMBudgetExceeded("Límite diario de gasto en modelos alcanzado."))
+
+    events = run(fake_llm, Judge(HELD), rounds=4)
+
+    assert len(fake_llm.calls) == 2
+    assert [e.type for e in events] == [
+        "round_started",
+        "attack_generated",
+        "verdict",
+        "round_finished",
+        "round_started",
+        "error",
+        "round_finished",
+        "summary",
+    ]
+    assert "Límite diario" in (events[5].message or "")
+    summary = events[-1]
+    assert summary.round == 2
+    assert "1 de 1" in (summary.message or "")
+    assert "detenida en la ronda 2 de 4" in (summary.message or "")
