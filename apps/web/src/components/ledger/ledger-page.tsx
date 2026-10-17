@@ -21,6 +21,9 @@ const KIND_LABEL: Record<LedgerKind, string> = {
   redteam_attack: "Ataque del red team",
   challenge_attempt: "Intento del reto",
   intent: "Intención de otro agente",
+  trust_raised: "Confianza ganada",
+  trust_revoked: "Confianza revocada",
+  simulation: "Simulación de 30 días",
 };
 
 function statusLabel(status: unknown): string | null {
