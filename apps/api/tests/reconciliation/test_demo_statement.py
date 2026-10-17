@@ -162,7 +162,7 @@ def test_the_pdf_lists_the_same_movements_as_the_csv_on_one_line_each() -> None:
 
 
 @pytest.mark.live
-def test_claude_reads_the_demo_pdf_like_the_csv() -> None:
+def test_the_model_reads_the_demo_pdf_like_the_csv() -> None:
     statement = read_statement_document(
         demo_statement_pdf(), filename="extracto.pdf", media_type="application/pdf", default_currency="USD"
     )
