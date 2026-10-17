@@ -273,9 +273,29 @@ def test_readme_names_the_team_the_license_and_ends_in_english() -> None:
     text = read("README.md")
     for name in ("Adriano Joao Souza Reyna", "Juan David Leon", "Leober Ramos"):
         assert name in text
-    assert "MIT" in text
+    assert "Apache 2.0" in text
     assert re.findall(r"^## (.+)$", text, re.MULTILINE)[-1] == "English summary"
-    assert (REPO / "LICENSE").read_text(encoding="utf-8").startswith("MIT License")
+    license_text = (REPO / "LICENSE").read_text(encoding="utf-8")
+    assert "Apache License" in license_text.splitlines()[1]
+    assert "Copyright 2026 Juan David Leon y colaboradores de Custodio" in license_text
+
+
+@pytest.mark.parametrize(
+    "path", ["CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md", ".github/PULL_REQUEST_TEMPLATE.md"]
+)
+def test_community_files_exist(path: str) -> None:
+    assert read(path).strip()
+
+
+def test_security_policy_reports_privately_and_covers_any_improper_payment() -> None:
+    text = read("SECURITY.md")
+    assert "security/advisories/new" in text
+    assert "pague algo indebido" in text
+
+
+def test_issue_templates_cover_bugs_new_rules_and_payment_rails() -> None:
+    templates = {path.name for path in (REPO / ".github" / "ISSUE_TEMPLATE").glob("*.yml")}
+    assert {"bug.yml", "rule.yml", "payment-rail.yml"} <= templates
 
 
 @pytest.mark.parametrize("path", owned_markdown())
