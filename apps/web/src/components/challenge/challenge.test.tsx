@@ -50,6 +50,29 @@ describe("Challenge", () => {
     expect(screen.queryByText(/Ninguno cobró/)).not.toBeInTheDocument();
   });
 
+  it("labels a stopped attempt on the wall by the rules that stopped it, never as free of fraud", async () => {
+    const mock = createMockClient({ latencyMs: 0 });
+    const stats = await mock.getChallengeStats();
+    const stopped = attemptWith({ account: "La cuenta no es la registrada.", duplicate: "Ya se pagó." });
+    const api = apiWith({
+      getChallengeStats: async () => ({
+        ...stats,
+        hall_of_fame: [
+          { ...stopped, id: "A-1", technique: "Sin fraude aparente" },
+          { ...stopped, id: "A-2", technique: "Ninguna detectada (factura legítima)" },
+          { ...attemptWith({}), id: "A-3", technique: "Ninguna detectada (factura legítima)" },
+        ],
+      }),
+    });
+
+    renderWithApi(<Challenge />, api);
+
+    const wall = await screen.findByRole("region", { name: "El muro" });
+    expect(within(wall).getAllByText(/^Frenado por R\d+ y R\d+$/)).toHaveLength(2);
+    expect(within(wall).queryByText("Sin fraude aparente")).not.toBeInTheDocument();
+    expect(within(wall).getByText("Ninguna detectada (factura legítima)")).toBeInTheDocument();
+  });
+
   it("shows the error instead of a silent gap when the counter cannot be read", async () => {
     renderWithApi(<Challenge />, apiWith({ getChallengeStats: () => Promise.reject(new NetworkError()) }));
 

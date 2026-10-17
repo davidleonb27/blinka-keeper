@@ -6,7 +6,7 @@ import type { ChallengeAttempt, ChallengeStats } from "@/lib/api/contracts";
 import { useChallengeStats } from "@/lib/api/hooks";
 import { formatCount, formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { attemptVerdict, latestAttempt, VERDICT_TEXT } from "./attempt-verdict";
+import { attemptVerdict, latestAttempt, VERDICT_TEXT, wallLabel } from "./attempt-verdict";
 import { QrCode } from "./qr-code";
 
 /** On stage the room watches the numbers move, so they refresh faster than on the attacker's page. */
@@ -75,7 +75,7 @@ function LatestAttempt({ attempt }: { attempt: ChallengeAttempt }) {
   return (
     <section aria-label="Último intento" className="card-surface flex flex-col gap-1 p-5">
       <span className="text-[13px] text-ink-3">Último intento en el muro</span>
-      <b className="text-[18px] font-semibold break-words">{attempt.technique ?? "Técnica sin nombre"}</b>
+      <b className="text-[18px] font-semibold break-words">{wallLabel(attempt)}</b>
       <span className="text-[13px] text-ink-3">
         {attempt.alias ?? "Anónimo"} · {formatDateTime(attempt.at)}
       </span>

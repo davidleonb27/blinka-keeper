@@ -25,6 +25,25 @@ export function attemptVerdict(attempt: ChallengeAttempt): AttemptVerdict {
   }
 }
 
+/** The model that names a technique never sees the decision, so it may call a stopped attack harmless. */
+const CLEARED_BY_MODEL = /sin fraude|ninguna detectada|ninguno detectado|leg[ií]tim|sin ataque|no se detect/i;
+
+/**
+ * The wall's label. A stopped attempt never reads as harmless: when the model's name contradicts the
+ * decision, the label names the rules that stopped it instead.
+ */
+export function wallLabel(attempt: ChallengeAttempt): string {
+  const stoppers = attempt.decision.rules.filter((rule) => rule.outcome === "hold" || rule.outcome === "escalate");
+  const technique = attempt.technique?.trim();
+  if (stoppers.length === 0 || attempt.broke_through) return technique || "Técnica sin nombre";
+  if (technique && !CLEARED_BY_MODEL.test(technique)) return technique;
+  return `Frenado por ${spanishList(stoppers.map((rule) => rule.rule_id))}`;
+}
+
+function spanishList(items: string[]): string {
+  return items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} y ${items[items.length - 1]}`;
+}
+
 export const VERDICT_TEXT: Record<VerdictTone, string> = {
   pay: "text-pay",
   hold: "text-hold",
