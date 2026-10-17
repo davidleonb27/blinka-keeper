@@ -20,6 +20,7 @@ from custodio.contracts import (
     Policy,
     RuleOutcome,
     RuleResult,
+    TrustCap,
 )
 from custodio.engine.beneficiaries import BeneficiaryMatch
 from custodio.engine.facts import Charge, InvoiceFacts
@@ -73,6 +74,7 @@ class RuleContext:
     nearby: tuple[Charge, ...]  # this supplier's charges inside the split window, this invoice included
     spent_auto: Decimal  # what the agent paid alone in the invoice's month, before it
     balance: Decimal  # available balance before this invoice
+    trust: TrustCap | None = None  # the supplier's earned R9 cap (custodio.engine.trust); None: the policy's
 
     @property
     def supplier(self) -> str:
@@ -491,24 +493,31 @@ def currency(ctx: RuleContext) -> RuleCheck:
 
 
 def approval(ctx: RuleContext) -> RuleCheck:
-    amount_base, threshold, base = ctx.invoice.amount_base, ctx.policy.approval_threshold, ctx.policy.base_currency
+    amount_base, base = ctx.invoice.amount_base, ctx.policy.base_currency
+    threshold = ctx.policy.approval_threshold if ctx.trust is None else ctx.trust.cap
     if amount_base is None:
         return _skipped_without_base("R9", base)
     shown = money_with_base(ctx.invoice.amount, ctx.invoice.currency, amount_base, base)
+    earned = "" if ctx.trust is None else f" que {ctx.supplier} se ha ganado"
     if amount_base > threshold:
+        fix = f"el monto fuera de {money(threshold, base)} o menos (la factura pide {money(amount_base, base)})"
         return check(
             "R9",
             RuleOutcome.ESCALATE,
-            f"{shown} supera el tope de aprobación automática de {money(threshold, base)}.",
-            fix=f"el monto fuera de {money(threshold, base)} o menos (la factura pide {money(amount_base, base)})",
+            f"{shown} supera el tope de aprobación automática de {money(threshold, base)}{earned}.",
+            fix=_supervised_fix(ctx) if ctx.trust is not None and ctx.trust.supervised else fix,
             amount_base=amount_base,
         )
     return check(
         "R9",
         RuleOutcome.PASS,
-        f"{shown} está dentro del tope de aprobación automática de {money(threshold, base)}.",
+        f"{shown} está dentro del tope de aprobación automática de {money(threshold, base)}{earned}.",
         amount_base=amount_base,
     )
+
+
+def _supervised_fix(ctx: RuleContext) -> str:
+    return f"{ctx.supplier} hubiera recuperado la confianza con pagos limpios aprobados por una persona"
 
 
 def limit(ctx: RuleContext) -> RuleCheck:

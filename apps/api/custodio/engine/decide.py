@@ -21,6 +21,7 @@ from custodio.contracts import (
     Policy,
     RuleOutcome,
     RuleResult,
+    TrustCap,
 )
 from custodio.engine.audit import audit
 from custodio.engine.beneficiaries import BeneficiaryMatch, match_beneficiary
@@ -157,6 +158,7 @@ def _decide_agent(
             nearby=_nearby(supplier, facts, policy, running.paid_ids),
             spent_auto=running.spent_by_month[_month(facts.received_on)],
             balance=running.balance,
+            trust=_trust_of(state, matches[facts.case_id]),
         )
         drafts.append(_decide_one(context, vetoes.get(facts.case_id), running))
     return drafts, running
@@ -181,7 +183,12 @@ def _decide_one(context: RuleContext, veto: str | None, running: _Running) -> Dr
         balance_after=running.balance,
         spent_after=running.spent_by_month[_month(context.invoice.received_on)],
         blocked_reason=AUDITOR_VETO.format(finding=veto) if vetoed else None,
+        trust=context.trust,
     )
+
+
+def _trust_of(state: CompanyState, match: BeneficiaryMatch) -> TrustCap | None:
+    return state.trust.get(match.beneficiary.id) if match.beneficiary else None
 
 
 def _ensure_unique_ids(cases: Sequence[InvoiceCase]) -> None:
@@ -337,4 +344,5 @@ def _finish(draft: Draft) -> Decision:
         balance_after=draft.balance_after,
         approval=draft.approval,
         blocked_reason=draft.blocked_reason,
+        trust=draft.trust,
     )
