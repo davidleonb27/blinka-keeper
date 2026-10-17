@@ -281,3 +281,19 @@ def test_a_clean_payment_never_lowers_the_cap(history: list[TrustEvent], bounds:
 @given(events, terms())
 def test_the_fold_is_deterministic(history: list[TrustEvent], bounds: TrustTerms) -> None:
     assert fold(history, bounds) == fold(list(history), bounds)
+
+
+def test_invalid_bank_details_and_an_out_of_band_check_are_risk_signals_too() -> None:
+    for rule_id in ("R13", "R15"):
+        event = classify(decision(failing={rule_id: RuleOutcome.ESCALATE}))
+        assert event is not None and event.kind is TrustEventKind.INCIDENT
+        assert event.rule_id == rule_id
+
+
+def test_a_sanctions_hit_is_an_incident_but_a_missing_sanctions_list_says_nothing_of_the_supplier() -> None:
+    hit = decision(failing={"R14": RuleOutcome.ESCALATE})
+    hit.rules[13] = hit.rules[13].model_copy(update={"facts": {"uid": "36", "score": 0.97}})
+    event = classify(hit)
+    assert event is not None and event.kind is TrustEventKind.INCIDENT and event.rule_id == "R14"
+    unscreened = classify(decision(failing={"R14": RuleOutcome.ESCALATE}))
+    assert unscreened is not None and unscreened.kind is TrustEventKind.CLEAN
