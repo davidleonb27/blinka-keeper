@@ -105,7 +105,7 @@ def test_the_pack_holds_summary_reconciliation_actas_and_the_ledger_with_its_ver
         "actas/F-001.json",
         "actas/F-036.json",
     } <= names
-    assert sum(name.startswith("actas/") for name in names) == 36
+    assert sum(name.startswith("actas/") for name in names) == len(decisions())
 
 
 def test_the_same_state_gives_the_same_bytes_and_only_the_generation_date_changes() -> None:
@@ -191,7 +191,7 @@ def test_the_summary_counts_the_period() -> None:
 
     paid_count = sum(d.status in (DecisionStatus.PAID_AUTO, DecisionStatus.PAID_HUMAN) for d in chosen)
     assert summary.paid.count == paid_count == 17
-    assert summary.held.count == 5
+    assert summary.held.count == sum(d.status is DecisionStatus.HOLD for d in chosen)
     assert summary.fees.count == 2 and summary.fees.total == Decimal("30.00")
     assert summary.reconciled.count == 17
     assert summary.differences.count == 4
