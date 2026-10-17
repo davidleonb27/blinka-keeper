@@ -123,7 +123,7 @@ function SectionTitle({ id, eyebrow, title, lead }: { id: string; eyebrow: strin
       <p id={`${id}-eyebrow`} className="eyebrow mb-3 text-brand">
         {eyebrow}
       </p>
-      <h2 id={id} className="font-display text-3xl font-semibold tracking-[-0.025em] text-ink sm:text-4xl">
+      <h2 id={id} className="font-serif text-3xl font-semibold tracking-[-0.015em] text-ink sm:text-4xl">
         {title}
       </h2>
       {lead ? <p className="mt-4 text-[17px] text-ink-2">{lead}</p> : null}
@@ -140,7 +140,7 @@ function Hero() {
           <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line-2 bg-surface px-3 py-1 text-[12.5px] font-medium text-ink-2">
             <span aria-hidden className="size-1.5 rounded-full bg-brand" /> Código abierto · {LICENSE_NAME}
           </p>
-          <h1 id="hero-title" className="font-display text-[40px] leading-[1.03] font-semibold tracking-[-0.035em] text-ink sm:text-[56px] lg:text-[62px]">
+          <h1 id="hero-title" className="font-serif text-[40px] leading-[1.03] font-semibold tracking-[-0.02em] text-ink sm:text-[56px] lg:text-[62px]">
             El agente de cuentas por pagar de código abierto
           </h1>
           <p className="mt-5 max-w-[50ch] text-lg text-ink-2">
@@ -181,7 +181,7 @@ function Metrics() {
           {MEASURED_FIGURES.map((figure) => (
             <div key={figure.label} className="flex flex-col gap-1.5">
               <dt className="order-2 text-[15px] font-semibold text-ink">{figure.label}</dt>
-              <dd className="order-1 font-display text-[48px] leading-none font-semibold tracking-[-0.03em] text-brand tabular">
+              <dd className="order-1 font-serif text-[48px] leading-none font-semibold tracking-[-0.02em] text-brand tabular">
                 {figure.value}
               </dd>
               <dd className="order-3 text-[13.5px] text-ink-3">{figure.detail}</dd>
@@ -325,7 +325,7 @@ function FinalCall() {
     <section aria-labelledby="final-title" className="mx-auto max-w-6xl px-4 pb-24">
       <div className="flex flex-col items-start gap-6 rounded-3xl border border-line bg-surface p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 id="final-title" className="font-display text-3xl font-semibold tracking-[-0.025em] text-ink">
+          <h2 id="final-title" className="font-serif text-3xl font-semibold tracking-[-0.015em] text-ink">
             Intenta que pague algo indebido
           </h2>
           <p className="mt-2 max-w-[52ch] text-ink-2">

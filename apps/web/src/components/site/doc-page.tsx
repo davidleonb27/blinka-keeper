@@ -10,7 +10,7 @@ export function DocPage({ href, lead, children }: { href: string; lead: string; 
   return (
     <article className="max-w-[72ch] pb-16">
       <p className="eyebrow text-brand">{page.group}</p>
-      <h1 className="font-display mt-2 text-[34px] leading-tight font-semibold tracking-[-0.025em] text-ink sm:text-[40px]">
+      <h1 className="font-serif mt-2 text-[34px] leading-tight font-semibold tracking-[-0.015em] text-ink sm:text-[40px]">
         {page.title}
       </h1>
       <p className="mt-3 text-[17px] text-ink-2">{lead}</p>

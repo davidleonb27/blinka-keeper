@@ -7,7 +7,7 @@
 
 /*
  * Custodio identity, ported from prototype/index.html: ledger teal on deep slate, security-print guilloche,
- * Bricolage Grotesque for display, Geist for text, tabular figures everywhere money appears.
+ * Inter for text, Source Serif 4 for large titles (tokens below), tabular figures everywhere money appears.
  * Light values are darkened from the prototype so every text pairing clears WCAG AA (4.5:1).
  */
 :root {
@@ -133,6 +133,17 @@
   --popover: var(--surface);
 }
 
+/*
+ * Typography, the single source of truth. layout.tsx loads Inter into --font-sans and Source Serif 4 into --font-serif
+ * on <html> with next/font, whose unlayered declarations win over these layered ones; the values here are what the
+ * page falls back to. Code and technical labels use the system monospace.
+ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Source Serif 4", ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -174,11 +185,6 @@
   --color-crit: var(--crit);
   --color-crit-weak: var(--crit-weak);
   --color-scrim: var(--scrim);
-
-  --font-sans: var(--font-geist), system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-display: var(--font-bricolage), var(--font-geist), system-ui, sans-serif;
-  --font-heading: var(--font-display);
 
   --shadow-card: var(--shadow-card);
 
@@ -257,7 +263,7 @@
 .doc-prose h2 {
   margin-top: 2.5rem;
   color: var(--ink);
-  font-family: var(--font-display);
+  font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.015em;
