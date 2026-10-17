@@ -123,3 +123,10 @@ def test_the_summary_audit_names_every_payment_the_auditor_stopped(client: TestC
     assert finding["invoice_id"] == "F01"
     assert finding["severity"] == "critical"
     assert "auditor" in finding["message"]
+
+
+def test_the_summary_says_whether_the_workspace_is_the_demo_or_a_company_of_its_own(client: TestClient) -> None:
+    demo, blank = new_workspace(client, mode="demo"), new_workspace(client, mode="blank")
+
+    assert client.get("/api/v1/workspaces/current", headers=demo.headers).json()["mode"] == "demo"
+    assert client.get("/api/v1/workspaces/current", headers=blank.headers).json()["mode"] == "blank"

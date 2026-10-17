@@ -1,4 +1,4 @@
-import type { CustodioApi, WorkspaceCreated } from "./client";
+import type { CustodioApi, WorkspaceCreated, WorkspaceMode } from "./client";
 
 export const WORKSPACE_COOKIE = "custodio_ws";
 const API_KEY_STORAGE = "custodio_api_key";
@@ -36,14 +36,29 @@ export const browserWorkspaceStore: WorkspaceStore = {
   },
 };
 
+// Blank workspaces this page made for a visitor who arrived to set up a company: the onboarding sets the company up
+// in it instead of making a second one.
+const freshBlank = new Set<string>();
+
+export function isFreshBlank(workspaceId: string): boolean {
+  return freshBlank.has(workspaceId);
+}
+
+/** Once the company is set up in a fresh blank workspace, a new onboarding gets a workspace of its own. */
+export function forgetFreshBlank(workspaceId: string): void {
+  freshBlank.delete(workspaceId);
+}
+
 export async function ensureWorkspace(
   api: Pick<CustodioApi, "createWorkspace">,
   store: WorkspaceStore,
+  mode: WorkspaceMode = "demo",
 ): Promise<string> {
   const existing = store.read();
   if (existing) return existing;
-  const created = await api.createWorkspace("demo");
+  const created = await api.createWorkspace(mode);
   store.write(created);
+  if (mode === "blank") freshBlank.add(created.workspace_id);
   return created.workspace_id;
 }
 

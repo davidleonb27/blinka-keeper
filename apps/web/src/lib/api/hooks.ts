@@ -15,7 +15,7 @@ import type {
 } from "./client";
 import type { Beneficiary, Policy } from "./contracts";
 import { markTourStep } from "@/lib/tour";
-import { browserWorkspaceStore, type WorkspaceStore } from "./workspace";
+import { browserWorkspaceStore, forgetFreshBlank, isFreshBlank, type WorkspaceStore } from "./workspace";
 
 const CHALLENGE_POLL_MS = 5_000;
 
@@ -211,7 +211,8 @@ export function useImportSuppliers() {
 
 /**
  * The new company gets a blank workspace of its own (the visitor's demo keeps its invoices out of it); the browser
- * switches to it before the API sets it up, and back to the one it had if the API refuses the company.
+ * switches to it before the API sets it up, and back to the one it had if the API refuses the company. A blank
+ * workspace this page already made for the onboarding (a visitor who came straight to /empezar) is used as is.
  */
 export function useCompleteOnboarding(store: WorkspaceStore = browserWorkspaceStore) {
   const api = useApi();
@@ -219,9 +220,12 @@ export function useCompleteOnboarding(store: WorkspaceStore = browserWorkspaceSt
   return useMutation({
     mutationFn: async (request: OnboardingRequest) => {
       const previous = { workspace_id: store.read(), api_key: store.readApiKey() };
-      store.write(await api.createWorkspace("blank"));
+      const fresh = previous.workspace_id !== null && isFreshBlank(previous.workspace_id);
+      if (!fresh) store.write(await api.createWorkspace("blank"));
       try {
-        return await api.completeOnboarding(request);
+        const result = await api.completeOnboarding(request);
+        forgetFreshBlank(result.workspace.workspace_id);
+        return result;
       } catch (error) {
         const { workspace_id, api_key } = previous;
         if (workspace_id && api_key) store.write({ workspace_id, api_key });
