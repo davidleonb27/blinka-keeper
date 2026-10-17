@@ -1,7 +1,8 @@
 # Revisión de L15 · Reto en vivo (PR #13)
 
-Rama `lane/L15-reto-vivo`, rebasada sobre `origin/main` (`bbb7eb0`, ya con L11). El rebase no tuvo conflictos: L15 sólo
-toca `apps/web` y su informe.
+Rama `lane/L15-reto-vivo`. Revisé y probé la rama rebasada sobre `origin/main` (`bbb7eb0`, ya con L11): el rebase no
+tuvo conflictos, porque L15 sólo toca `apps/web` y su informe. Para no reescribir historia, la rama pusheada conserva
+su base original (`d6fbeab`) y el merge con `main` lo resuelve el coordinador.
 
 ## Veredicto: LISTO PARA MERGE
 
@@ -9,7 +10,7 @@ No encontré nada bloqueante. No hice cambios de código; sólo agrego este info
 
 ## Compuerta
 
-`./scripts/check.sh` sobre la rama rebasada → `== gate passed`.
+`./scripts/check.sh` sobre la rama rebasada sobre `bbb7eb0` → `== gate passed`.
 
 - API: ruff `All checks passed!`, `162 files already formatted`, mypy `Success: no issues found in 92 source files`,
   pytest `804 passed, 22 skipped`.
