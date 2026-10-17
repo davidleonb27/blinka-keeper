@@ -42,7 +42,7 @@ def signed_percent(value: Decimal) -> str:
 
 
 def day_month(day: date) -> str:
-    return f"{day.day} de {MONTHS[day.month - 1]}"
+    return f"{day.day} de {month_name(day)}"
 
 
 def clip(text: str) -> str:
@@ -61,3 +61,27 @@ def _compact(value: Decimal) -> str:
 def _es_number(value: Decimal, places: int) -> str:
     english = f"{value:,.{places}f}"
     return english.replace(",", "\0").replace(".", ",").replace("\0", ".")
+
+
+def plus_minus_percent(points: Decimal) -> str:
+    return f"±{_compact(points)} %"
+
+
+def month_name(day: date) -> str:
+    return MONTHS[day.month - 1]
+
+
+def counted(count: int, singular: str, plural: str) -> str:
+    return f"{count} {singular if count == 1 else plural}"
+
+
+def join_es(parts: list[str]) -> str:
+    """`a`, `a y b`, `a, b y c`."""
+    return parts[0] if len(parts) == 1 else ", ".join(parts[:-1]) + " y " + parts[-1]
+
+
+def money_with_base(amount: Decimal | None, currency: str | None, amount_base: Decimal, base: str) -> str:
+    """`USD 4.800`, or `COP 26.650.000 (≈ USD 6.500)` when the invoice is in another currency."""
+    if currency == base or amount is None or currency is None:
+        return money(amount_base, base)
+    return f"{money(amount, currency)} (≈ {money(amount_base, base)})"

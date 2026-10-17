@@ -178,3 +178,10 @@ def approval(invoice_id: str, *, approved: bool = True, minute: int = 0, approve
 
 def rule(decision: Decision, rule_id: str) -> RuleResult:
     return next(result for result in decision.rules if result.rule_id == rule_id)
+
+
+def squeezed_by_a_later_payment() -> tuple[list[InvoiceCase], CompanyState]:
+    """F-001 (USD 6.500) escalates while the reserve still allows it; F-002 (USD 4.000) is then paid alone, so at
+    approval time paying F-001 would leave USD 59.500, under the USD 60.000 reserve."""
+    cases = [invoice("F-001", amount="6500.00"), invoice("F-002", day=5, number="AC-2026-10B", amount="4000.00")]
+    return cases, state(balance="70000")

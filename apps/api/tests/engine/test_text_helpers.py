@@ -4,9 +4,10 @@ from decimal import Decimal
 import pytest
 
 from custodio.contracts import Beneficiary, Policy
-from custodio.engine.beneficiaries import match_beneficiary, normalize_name, normalize_tax_id
+from custodio.engine.beneficiaries import match_beneficiary
 from custodio.engine.formatting import day_month, money, percent, signed_percent
 from custodio.engine.injection import find_instruction
+from custodio.engine.text import normalize_code, normalize_name
 
 
 @pytest.mark.parametrize(
@@ -56,9 +57,10 @@ def test_normalize_name_drops_accents_punctuation_and_company_suffixes(raw: str,
     assert normalize_name(raw) == normalized
 
 
-def test_normalize_tax_id_keeps_letters_and_digits() -> None:
-    assert normalize_tax_id("901.482.337-1") == "9014823371"
-    assert normalize_tax_id("pno190312kd4") == "PNO190312KD4"
+def test_normalize_code_keeps_letters_and_digits() -> None:
+    assert normalize_code("901.482.337-1") == "9014823371"
+    assert normalize_code("pno190312kd4") == "PNO190312KD4"
+    assert normalize_code("0012 4821") == normalize_code("0012-4821")
 
 
 def _beneficiary(bid: str, name: str, tax_id: str, *, aliases: list[str] | None = None) -> Beneficiary:

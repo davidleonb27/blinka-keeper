@@ -5,11 +5,11 @@ import inspect
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
+from decimal import Decimal
+
+import pytest
 
 import custodio.engine.audit as audit_module
-import pytest
-from custodio.engine.rules import EVALUATORS, RuleContext, check
-
 from custodio.contracts import (
     AgreementKind,
     Approval,
@@ -21,7 +21,17 @@ from custodio.contracts import (
     RuleOutcome,
 )
 from custodio.engine import audit, decide, decide_all
-from tests.engine.builders import agreement, approval, beneficiary, invoice, paid, policy, state
+from custodio.engine.rules import EVALUATORS, RuleContext, check
+from tests.engine.builders import (
+    agreement,
+    approval,
+    beneficiary,
+    invoice,
+    paid,
+    policy,
+    squeezed_by_a_later_payment,
+    state,
+)
 
 CAPPED = policy(beneficiary(deal=agreement("60000", kind=AgreementKind.MONTHLY_CAP)))
 
@@ -42,7 +52,7 @@ def test_the_auditor_never_imports_the_engine_it_audits() -> None:
 
 
 def test_the_auditor_agrees_with_an_honest_batch() -> None:
-    cases = [invoice("F-1", number="A-1"), invoice("F-2", number="A-2", account="7788-9902", day=2)]
+    cases = [invoice("F-1", number="A-1"), invoice("F-2", number="A-2", account="7788-9902", day=10)]
     batch = decide_all(cases, state(), policy())
     report = audit(batch, cases, state(), policy())
     assert report.agrees and report.improper_payments == 0 and report.checked == 1
@@ -84,11 +94,10 @@ def test_a_human_payment_that_breaks_a_hold_rule_is_improper() -> None:
 
 
 def test_a_human_payment_that_touches_the_reserve_is_improper() -> None:
-    case = invoice(amount="6500.00")
-    money = state(balance="66000")
-    batch = decide_all([case], money, CAPPED, {case.id: approval(case.id)})
-    forged = forge(batch, case.id, DecisionStatus.PAID_HUMAN, blocked_reason=None)
-    report = audit(forged, [case], money, CAPPED)
+    cases, money = squeezed_by_a_later_payment()
+    batch = decide_all(cases, money, CAPPED, {"F-001": approval("F-001")})
+    forged = forge(batch, "F-001", DecisionStatus.PAID_HUMAN, blocked_reason=None)
+    report = audit(forged, cases, money, CAPPED)
     assert report.improper_payments == 1 and "reserva" in report.findings[0].message
 
 
@@ -152,14 +161,13 @@ def test_the_auditor_catches_an_engine_that_ignores_a_rule(name: str, monkeypatc
 
 def test_the_auditor_catches_an_approval_path_that_ignores_the_reserve(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(decide, "balance_below_reserve", lambda balance, amount, policy: None)
-    case = invoice(amount="6500.00")
-    money = state(balance="66000")
-    approvals: dict[str, Approval] = {case.id: approval(case.id)}
+    cases, money = squeezed_by_a_later_payment()
+    approvals: dict[str, Approval] = {"F-001": approval("F-001")}
 
-    raw = decide.run_batch([case], money, CAPPED, approvals=approvals, vetoes={})
+    raw = decide.run_batch(cases, money, CAPPED, approvals=approvals, vetoes={})
     assert raw.decisions[0].status is DecisionStatus.PAID_HUMAN
-    assert audit(raw, [case], money, CAPPED).improper_payments == 1
+    assert audit(raw, cases, money, CAPPED).improper_payments == 1
 
-    final = decide_all([case], money, CAPPED, approvals)
+    final = decide_all(cases, money, CAPPED, approvals)
     assert final.decisions[0].status is DecisionStatus.HOLD
-    assert final.balance_end == money.opening_balance
+    assert final.balance_end == Decimal(66000)

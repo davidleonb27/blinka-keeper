@@ -2,7 +2,6 @@ from datetime import date
 from decimal import Decimal
 
 import pytest
-from custodio.engine.decide import verdict_of
 
 from custodio.contracts import (
     RULES,
@@ -13,6 +12,7 @@ from custodio.contracts import (
     RuleResult,
 )
 from custodio.engine import decide_all
+from custodio.engine.decide import verdict_of
 from custodio.engine.errors import DuplicateCaseIdError
 from tests.engine.builders import (
     ANDES,
@@ -23,6 +23,7 @@ from tests.engine.builders import (
     paid,
     policy,
     rule,
+    squeezed_by_a_later_payment,
     state,
 )
 
@@ -125,8 +126,10 @@ def test_a_rejected_escalation_is_rejected() -> None:
 
 
 def test_an_approval_never_breaks_the_reserve() -> None:
-    batch = decide_all([invoice(amount="6500.00")], state(balance="66000"), CAPPED, {"F-001": approval("F-001")})
-    [decision] = batch.decisions
+    cases, money = squeezed_by_a_later_payment()
+    batch = decide_all(cases, money, CAPPED, {"F-001": approval("F-001")})
+    decision = batch.decisions[0]
+    assert decision.agent_verdict is AgentVerdict.ESCALATE
     assert decision.status is DecisionStatus.HOLD
     assert decision.blocked_reason is not None
     assert "USD 59.500" in decision.blocked_reason and "USD 60.000" in decision.blocked_reason
@@ -166,11 +169,11 @@ def test_approving_one_invoice_does_not_change_the_others() -> None:
 
 def test_metrics_count_every_status() -> None:
     cases = [
-        invoice("F-pay", number="A-1", amount="1000.00"),
-        invoice("F-hold", number="A-2", account="7788-9902"),
-        invoice("F-ask", number="A-3", amount="6500.00"),
-        invoice("F-human", number="A-4", amount="7000.00"),
-        invoice("F-no", number="A-5", amount="8000.00"),
+        invoice("F-pay", day=1, number="A-1", amount="1000.00"),
+        invoice("F-hold", day=5, number="A-2", account="7788-9902"),
+        invoice("F-ask", day=9, number="A-3", amount="6500.00"),
+        invoice("F-human", day=13, number="A-4", amount="7000.00"),
+        invoice("F-no", day=17, number="A-5", amount="8000.00"),
     ]
     approvals = {"F-human": approval("F-human"), "F-no": approval("F-no", approved=False)}
     metrics = decide_all(cases, state(), CAPPED, approvals).metrics
@@ -183,8 +186,8 @@ def test_metrics_count_every_status() -> None:
 
 def test_accuracy_compares_the_agent_verdict_with_the_labels() -> None:
     right = invoice("F-1", number="A-1").model_copy(update={"expected": "pay"})
-    wrong = invoice("F-2", number="A-2", account="7788-9902").model_copy(update={"expected": "escalate"})
-    unlabelled = invoice("F-3", number="A-3", amount="900.00")
+    wrong = invoice("F-2", day=10, number="A-2", account="7788-9902").model_copy(update={"expected": "escalate"})
+    unlabelled = invoice("F-3", day=20, number="A-3", amount="900.00")
     assert decide_all([right, wrong, unlabelled], state(), CAPPED).metrics.accuracy == pytest.approx(0.5)
 
 
@@ -198,7 +201,7 @@ def test_an_empty_batch_has_zero_autonomy_and_no_accuracy() -> None:
 
 def test_a_payment_is_explained_with_its_numbers_and_has_no_counterfactual() -> None:
     [decision] = decide_all([invoice()], state(), policy()).decisions
-    assert decision.explanation.startswith("Se paga sola.")
+    assert decision.explanation.startswith("Se paga sola: se cumplen las 12 reglas.")
     for text in ("Andes Code SAS", "USD 4.800", "USD 5.000", "USD 135.200", "USD 60.000", "USD 37.000"):
         assert text in decision.explanation
     assert decision.counterfactual is None
@@ -239,7 +242,8 @@ def test_the_explanation_records_the_person_who_decided() -> None:
 
 
 def test_a_blocked_approval_is_explained() -> None:
-    batch = decide_all([invoice(amount="6500.00")], state(balance="66000"), CAPPED, {"F-001": approval("F-001")})
+    cases, money = squeezed_by_a_later_payment()
+    batch = decide_all(cases, money, CAPPED, {"F-001": approval("F-001")})
     assert "Ana Gómez lo aprobó, pero no se paga" in batch.decisions[0].explanation
 
 
