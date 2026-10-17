@@ -4,8 +4,9 @@ The history is the supplier's `trust_raised` and `trust_revoked` entries; there 
 the cap can always be recomputed from the chained ledger and checked. The fold, for one supplier:
 
 - Without history the cap is the policy's `approval_threshold` (`start`): what Custodio did before earned autonomy.
-- An incident (a risk signal: R2 hidden instructions, R4 changed account, R5 duplicate, R6 off the agreement, or a
-  person rejecting a charge) sends the supplier back to supervised: cap = `floor`, streak and amounts reset.
+- An incident (a risk signal: R2 hidden instructions, R4 changed account, R5 duplicate, R6 off the agreement, R13
+  invalid bank details, R14 a sanctions-list match, R15 an out-of-band check, or a person rejecting a charge) sends
+  the supplier back to supervised: cap = `floor`, streak and amounts reset.
 - A clean payment (a person approved it and no risk signal fired) adds one to the streak. While the streak is under
   CLEAN_PAYMENTS_TO_EARN the earned cap is the floor; from then on it is the median of the approved amounts since the
   last incident times 1 + GROWTH_PER_PAYMENT for every clean payment past that mark, at most MAX_MULTIPLIER times.
@@ -40,7 +41,9 @@ from custodio.engine.formatting import CENT, counted, money
 CLEAN_PAYMENTS_TO_EARN = 3
 GROWTH_PER_PAYMENT = Decimal("0.25")
 MAX_MULTIPLIER = Decimal(2)
-INCIDENT_RULES = ("R2", "R4", "R5", "R6")  # checked in this order; the first one failing names the incident
+INCIDENT_RULES = ("R2", "R4", "R5", "R6", "R13", "R14", "R15")  # in this order; the first failing names the incident
+SANCTIONS_RULE = "R14"
+SANCTIONS_HIT = "uid"  # R14 escalates on a list match (with the entry's uid) or because no list was loaded
 FAILED = (RuleOutcome.HOLD, RuleOutcome.ESCALATE)
 CLEAN_REASON = "{approver} aprobó el pago y ninguna señal de riesgo se activó."
 REJECTED_REASON = "{approver} rechazó el cobro {invoice_id}."
@@ -161,8 +164,13 @@ def classify(decision: Decision) -> TrustEvent | None:
 
 def risk_signal(results: Iterable[RuleResult]) -> RuleResult | None:
     """The first failing rule that says something is wrong with the supplier itself, in INCIDENT_RULES order."""
-    failing = {result.rule_id: result for result in results if result.outcome in FAILED}
+    failing = {result.rule_id: result for result in results if result.outcome in FAILED and _about_supplier(result)}
     return next((failing[rule_id] for rule_id in INCIDENT_RULES if rule_id in failing), None)
+
+
+def _about_supplier(result: RuleResult) -> bool:
+    """A missing sanctions list escalates every payment, but says nothing about the supplier itself."""
+    return result.rule_id != SANCTIONS_RULE or SANCTIONS_HIT in result.facts
 
 
 def events_from_ledger(entries: Sequence[LedgerEntry]) -> dict[str, list[TrustEvent]]:
