@@ -123,7 +123,9 @@ def test_a_nit_with_a_wrong_check_digit_names_the_expected_one() -> None:
 
 
 def test_a_nit_must_have_a_number_and_a_check_digit() -> None:
-    assert problem(nit("1234-5")) == "el NIT 1234-5 tiene 4 dígitos antes del dígito de verificación; deben ser de 5 a 15"
+    assert (
+        problem(nit("1234-5")) == "el NIT 1234-5 tiene 4 dígitos antes del dígito de verificación; deben ser de 5 a 15"
+    )
 
 
 # CPF and CNPJ (Brazil) -----------------------------------------------------------------------------------------
@@ -218,7 +220,9 @@ def test_a_pix_key_with_a_document_typo_is_invalid() -> None:
 
 
 def test_a_pix_phone_key_must_have_the_area_code_and_number() -> None:
-    assert problem(pix_key("+5511987654")) == "la llave Pix +5511987654 tiene 8 dígitos después de +55; deben ser 10 u 11"
+    assert (
+        problem(pix_key("+5511987654")) == "la llave Pix +5511987654 tiene 8 dígitos después de +55; deben ser 10 u 11"
+    )
 
 
 def test_a_bank_account_is_not_a_pix_key() -> None:
