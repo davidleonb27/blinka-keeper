@@ -20,9 +20,9 @@ describe("typography", () => {
     const layout = read("app/layout.tsx");
 
     expect(layout).toMatch(/import \{ Inter, Source_Serif_4 \} from "next\/font\/google";/);
-    expect(layout).toMatch(/Inter\(\{[^}]*subsets: \["latin"\][^}]*display: "swap"[^}]*variable: "--font-sans"/s);
+    expect(layout).toMatch(/Inter\(\{[^}]*subsets: \["latin"\][^}]*display: "swap"[^}]*variable: "--font-sans"/);
     expect(layout).toMatch(
-      /Source_Serif_4\(\{[^}]*subsets: \["latin"\][^}]*display: "swap"[^}]*variable: "--font-serif"[^}]*preload: true/s,
+      /Source_Serif_4\(\{[^}]*subsets: \["latin"\][^}]*display: "swap"[^}]*variable: "--font-serif"[^}]*preload: true/,
     );
   });
 
