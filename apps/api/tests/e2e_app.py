@@ -15,6 +15,7 @@ from custodio.config import get_settings
 from custodio.services.context import production_runtime
 
 from .api import doubles
+from .reconciliation.doubles import FakeStatementReader
 
 runtime = production_runtime(get_settings())
 model_free = replace(
@@ -27,5 +28,6 @@ model_free = replace(
     import_suppliers=doubles.import_suppliers,
     red_team=doubles.red_team,
     triage_attack=doubles.triage_attack,
+    read_statement=FakeStatementReader(),
 )
 app = create_app(replace(runtime, lanes=model_free))

@@ -3,6 +3,7 @@
 import {
   CalendarClock,
   Code2,
+  Landmark,
   Gauge,
   LayoutGrid,
   Link2,
@@ -29,6 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/panel", label: "Panel", icon: LayoutGrid },
   { href: "/autonomia", label: "Autonomía", icon: Gauge },
   { href: "/calendario", label: "Calendario", icon: CalendarClock },
+  { href: "/conciliacion", label: "Conciliación", icon: Landmark },
   { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
   { href: "/arena", label: "Arena", icon: Swords },
   { href: "/reto", label: "Róbale a Custodio", icon: Target },

@@ -50,12 +50,24 @@ export type SimulationResult = ResponseOf<"/api/v1/trust/simulate", "post">;
 export type ScheduleView = ResponseOf<"/api/v1/schedule", "get">;
 export type ScheduledItem = ScheduleView["items"][number];
 export type RunDueResult = ResponseOf<"/api/v1/schedule/run-due", "post">;
+export type ReconciliationForm = FormOf<"/api/v1/reconciliations", "post">;
+export type ReconciliationView = ResponseOf<"/api/v1/reconciliations/{reconciliation_id}", "get">;
+export type ReconciliationItem = ResponseOf<"/api/v1/reconciliations", "get">[number];
+export type ResolveInput = JsonBodyOf<"/api/v1/reconciliations/{reconciliation_id}/resolve", "post">;
+export type PeriodCloseView = ResponseOf<"/api/v1/periods/{period}/close", "post">;
+export type DemoStatementFormat = "csv" | "pdf";
 
 export interface ChallengeInput {
   text: string;
   alias: string | null;
   /** A PDF or image instead of text. */
   file?: File | null;
+}
+
+/** A bank statement to reconcile: a CSV, PDF or image the person dropped, or the demo statement. */
+export interface StatementInput {
+  file?: File | null;
+  demo?: boolean;
 }
 
 /** The ledger entry that sealed the decision of an acta: the last one about that invoice. */
@@ -98,4 +110,12 @@ export interface CustodioApi {
   getSchedule(): Promise<ScheduleView>;
   /** Pays what is due today or earlier through the configured rail. */
   runDuePayments(): Promise<RunDueResult>;
+  listReconciliations(): Promise<ReconciliationItem[]>;
+  getReconciliation(id: string): Promise<ReconciliationView>;
+  reconcileStatement(input: StatementInput): Promise<ReconciliationView>;
+  /** A person marks a movement that needed review as reviewed; the note stays in the ledger. */
+  resolveMovement(id: string, input: ResolveInput): Promise<ReconciliationView>;
+  closePeriod(period: string, closedBy: string): Promise<PeriodCloseView>;
+  downloadEvidence(period: string): Promise<Blob>;
+  downloadDemoStatement(format: DemoStatementFormat): Promise<Blob>;
 }

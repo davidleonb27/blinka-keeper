@@ -21,13 +21,13 @@ def call_tool(client: TestClient, workspace: Workspace, name: str, arguments: di
     return result
 
 
-def test_the_server_offers_the_three_tools(client: TestClient) -> None:
+def test_the_server_offers_its_four_tools(client: TestClient) -> None:
     workspace = new_workspace(client)
 
     response = rpc(client, workspace, "tools/list", {})
 
     names = {tool["name"] for tool in response.json()["result"]["tools"]}
-    assert names == {"submit_payment_intent", "get_decision", "get_policy"}
+    assert names == {"submit_payment_intent", "get_decision", "get_policy", "reconcile_statement"}
 
 
 def test_the_server_refuses_calls_without_an_api_key(client: TestClient) -> None:

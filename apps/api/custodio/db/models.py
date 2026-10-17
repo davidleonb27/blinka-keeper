@@ -214,3 +214,22 @@ class PaymentExecutionRow(Base):
     instruction: Mapped[dict[str, Any] | None]
     attempts: Mapped[int]
     executed_at: Mapped[datetime] = mapped_column(index=True)
+
+
+class ReconciliationRow(Base):
+    """A statement reconciled against the workspace's payments. The outcome is stored whole: it is the record."""
+
+    __tablename__ = "reconciliations"
+
+    id: Mapped[str] = mapped_column(ID, primary_key=True)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
+    period: Mapped[str] = mapped_column(String(7), index=True)
+    source: Mapped[str] = mapped_column(String(16))
+    filename: Mapped[str] = mapped_column(String(255))
+    document_id: Mapped[str | None] = mapped_column(ForeignKey("documents.id", ondelete="SET NULL"))
+    demo_shift_days: Mapped[int | None]
+    statement: Mapped[dict[str, Any]]
+    outcome: Mapped[dict[str, Any]]
+    reviews: Mapped[list[Any]]
+    ledger_seq: Mapped[int]
+    created_at: Mapped[datetime]

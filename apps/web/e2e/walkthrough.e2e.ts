@@ -97,6 +97,51 @@ test("every page and the whole demo work against the real API without a single e
     await page.keyboard.press("Escape");
   });
 
+  await test.step("conciliación: el extracto cruza lo pagado, una persona revisa las alertas y se cierra el mes", async () => {
+    await visit(page, "/conciliacion", "Conciliación");
+    const workspace = (await page.context().cookies()).find((cookie) => cookie.name === "custodio_ws")?.value ?? "";
+    const statement = await page.request.get("/api/v1/reconciliations/demo-statement?format=csv", {
+      headers: { "X-Custodio-Workspace": workspace },
+    });
+    await page.getByLabel(/Arrastra el extracto/).setInputFiles({
+      name: "extracto.csv",
+      mimeType: "text/csv",
+      buffer: await statement.body(),
+    });
+    await expect(page.getByRole("heading", { name: /Extracto de \w+ de \d{4}/ })).toBeVisible();
+    await expect(page.getByText(/extracto\.csv · leído por csv/)).toBeVisible();
+
+    await page.getByRole("button", { name: /Usar extracto de demo/ }).click();
+    await expect(page.getByText(/extracto-demo\.csv · leído por csv/)).toBeVisible();
+    const reconciled = page.getByRole("region", { name: "Conciliado" });
+    await expect(reconciled.getByRole("link", { name: "Acta F-005" })).toHaveAttribute("href", "/panel?acta=F-005");
+    await expect(reconciled.getByText("Partido", { exact: true })).toHaveCount(2);
+    await expect(page.getByRole("region", { name: "Con diferencia" })).toContainText("KORA TRADUCCIONES");
+    const alerts = page.getByRole("region", { name: "Alertas" });
+    await expect(alerts).toContainText("ORBIT GROWTH PARTNERS");
+    await expect(alerts).toContainText(/esperaba aprobación/);
+    const closing = page.getByRole("region", { name: "Cierre del mes" });
+    await expect(closing.getByRole("button", { name: /Cerrar \w+ de \d{4}/ })).toBeDisabled();
+
+    const forms = alerts.getByRole("form", { name: /Revisar fila/ });
+    for (let left = await forms.count(); left > 0; left -= 1) {
+      const form = forms.first();
+      await form.getByLabel("Nota de revisión").fill("Revisado con el banco: se pidió el reverso.");
+      await form.getByLabel("Quién revisa").fill("Ana Gómez");
+      await form.getByRole("button", { name: "Marcar como revisado" }).click();
+      await expect(forms).toHaveCount(left - 1);
+    }
+    await expect(alerts.getByText(/Revisó Ana Gómez/).first()).toBeVisible();
+
+    await closing.getByLabel("Quién cierra").fill("Ana Gómez");
+    await closing.getByRole("button", { name: /Cerrar \w+ de \d{4}/ }).click();
+    await expect(closing.getByText(/Mes cerrado por Ana Gómez/)).toBeVisible();
+    const download = page.waitForEvent("download");
+    await closing.getByRole("button", { name: /Descargar el paquete/ }).click();
+    expect((await download).suggestedFilename()).toMatch(/^custodio-cierre-\d{4}-\d{2}\.zip$/);
+    await expectNoErrorScreen(page);
+  });
+
   await test.step("reglas: compila una regla en español, la simula y la aplica", async () => {
     await visit(page, "/reglas", "Reglas");
     await page.getByLabel("Regla en español").fill("Nada sobre 3000 dólares sin aprobación");

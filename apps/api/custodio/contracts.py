@@ -428,6 +428,9 @@ class LedgerKind(StrEnum):
     TRUST_RAISED = "trust_raised"  # a payment a person approved without an incident: the supplier earns trust
     TRUST_REVOKED = "trust_revoked"  # a risk signal of the supplier: back to supervised
     SIMULATION = "simulation"  # the demo's simulated month, with the cash it adds
+    RECONCILIATION = "reconciliation"  # a statement reconciled, and each payment the bank confirmed
+    RECONCILIATION_REVIEW = "reconciliation_review"  # a person reviewed a movement that needed it
+    PERIOD_CLOSED = "period_closed"
 
 
 class LedgerEntry(Model):
