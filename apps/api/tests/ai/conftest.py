@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterator
 from dataclasses import dataclass, field
+from datetime import date
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -20,8 +21,10 @@ from custodio.contracts import (
     AgreementKind,
     Approver,
     Beneficiary,
+    CompanyState,
     Decision,
     DecisionStatus,
+    PaymentRecord,
     Policy,
     RuleOutcome,
     RuleResult,
@@ -135,6 +138,28 @@ def make_policy() -> Policy:
             ),
         ],
         approvers=[Approver(name="Ana Restrepo", role="Gerente financiera")],
+    )
+
+
+def make_state() -> CompanyState:
+    return CompanyState(
+        workspace_id="ws-test",
+        company_name="Demo Andina S.A.S.",
+        today=date(2026, 10, 16),
+        opening_balance=Decimal("98000"),
+        fx_units_per_base={"USD": Decimal("1"), "COP": Decimal("4000")},
+        history=[
+            PaymentRecord(
+                invoice_id="h-1",
+                beneficiary_id="nube",
+                invoice_number="NB-2201",
+                amount=Decimal("3100"),
+                currency="USD",
+                amount_base=Decimal("3100"),
+                paid_on=date(2026, 10, 2),
+                by="agent",
+            )
+        ],
     )
 
 
