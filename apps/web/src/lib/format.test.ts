@@ -51,6 +51,10 @@ describe("dates", () => {
     expect(formatDate("2026-01-03T10:00:00Z")).toBe("3 ene");
   });
 
+  it("dates a timestamp by its day in Colombia, like the daily chart does", () => {
+    expect(formatDate("2026-10-17T03:00:00Z")).toBe("16 oct");
+  });
+
   it("formats a timestamp in Colombia time", () => {
     expect(formatDateTime("2026-10-16T14:05:00Z")).toBe("16 oct · 09:05");
   });

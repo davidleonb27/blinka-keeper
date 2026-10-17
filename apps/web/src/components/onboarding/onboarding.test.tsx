@@ -52,6 +52,26 @@ describe("Onboarding", () => {
     expect(screen.getByLabelText("Nombre de la empresa")).toHaveValue("Café La Montaña");
   });
 
+  it("does not move past the rules until they are compiled, so typed rules are never dropped", async () => {
+    renderWithApi(<Onboarding />);
+    await fillCompany();
+    await pressEnter();
+    await screen.findByRole("heading", { name: "País, moneda y saldo" });
+    await pressEnter();
+    await screen.findByRole("heading", { name: "¿Quién aprueba lo que se sale de las reglas?" });
+    await userEvent.type(screen.getByLabelText("Nombre de quien aprueba"), "Ana Gómez");
+    await pressEnter();
+    await screen.findByRole("heading", { name: "Tus reglas, en tus palabras" });
+
+    await pressEnter();
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Custodio todavía está compilando tus reglas.");
+    expect(screen.getByRole("heading", { name: "Tus reglas, en tus palabras" })).toBeInTheDocument();
+    await screen.findByText("Tope de aprobación automática");
+    await userEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    await screen.findByRole("heading", { name: "¿A quién le pagas?" });
+  });
+
   it("runs the whole flow in mock mode until Custodio is ready", async () => {
     renderWithApi(<Onboarding />);
     await fillCompany();
