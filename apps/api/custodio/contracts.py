@@ -25,7 +25,7 @@ class Model(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Rules catalogue (fixed ids; the engine evaluates all twelve, in this order)
+# Rules catalogue (fixed ids; the engine evaluates all fifteen, in this order)
 # ---------------------------------------------------------------------------
 
 
@@ -39,6 +39,9 @@ class RuleSpec(Model):
     key: str
     label: str
     effect: RuleEffect
+    # True for the payment controls R13-R15: their SKIPPED means there was nothing to check (no account scheme with a
+    # public check digit, no name, no registered domain) and does not stop a payment that R1-R12 allow.
+    neutral_when_skipped: bool = False
 
 
 RULES: tuple[RuleSpec, ...] = (
@@ -54,6 +57,27 @@ RULES: tuple[RuleSpec, ...] = (
     RuleSpec(id="R10", key="limit", label="Límite por pago", effect=RuleEffect.ESCALATE),
     RuleSpec(id="R11", key="budget", label="Cupo de pago automático", effect=RuleEffect.ESCALATE),
     RuleSpec(id="R12", key="reserve", label="Saldo y reserva", effect=RuleEffect.HOLD),
+    RuleSpec(
+        id="R13",
+        key="bank_details",
+        label="Datos bancarios válidos para el riel",
+        effect=RuleEffect.ESCALATE,
+        neutral_when_skipped=True,
+    ),
+    RuleSpec(
+        id="R14",
+        key="sanctions",
+        label="Sin coincidencia en la lista OFAC",
+        effect=RuleEffect.ESCALATE,
+        neutral_when_skipped=True,
+    ),
+    RuleSpec(
+        id="R15",
+        key="out_of_band",
+        label="Verificación fuera de banda",
+        effect=RuleEffect.ESCALATE,
+        neutral_when_skipped=True,
+    ),
 )
 
 
@@ -96,7 +120,8 @@ class Beneficiary(Model):
     currency: str  # ISO 4217
     agreement: Agreement | None = None
     allowed: bool = True  # False = blocked beneficiary (R3 escalates)
-    approver_contact: str | None = None
+    approver_contact: str | None = None  # the known phone or email R15 tells a person to verify a change with
+    email_domain: str | None = None  # e.g. "andescode.co"; R15 compares it with the sender's
 
 
 class Approver(Model):
@@ -222,6 +247,7 @@ class ExtractedInvoice(Model):
     account_number: ExtractedField
     description: ExtractedField
     visible_text: str
+    sender_email: str | None = None  # first email address in the document, found by code (R15)
     hidden_findings: list[HiddenTextFinding] = []
     reader: str  # pipeline that produced it, e.g. "pdfplumber+claude-sonnet-5-5"
     overall_confidence: float = Field(ge=0, le=1)
@@ -346,7 +372,7 @@ class Decision(Model):
     amount_base: Amount | None
     agent_verdict: AgentVerdict
     status: DecisionStatus
-    rules: list[RuleResult]  # always the twelve rules, in catalogue order
+    rules: list[RuleResult]  # always the fifteen rules, in catalogue order
     explanation: str  # deterministic Spanish text built by the engine from the rule results
     counterfactual: str | None  # "Se habría pagado si …"; None when it was paid
     narrative: str | None = None  # optional model-written plain-language version; every number is checked

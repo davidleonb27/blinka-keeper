@@ -110,8 +110,9 @@ def test_the_autonomy_series_counts_what_the_agent_decided_alone_each_day(
     overview = trust(client, workspace)
     days = overview["autonomy"]
     assert days[0]["day"] == "2026-09-28"
-    assert sum(day["decisions"] for day in days) == 36
-    assert sum(day["decided_alone"] for day in days) == round(overview["autonomy_rate"] * 36)
+    total = client.get("/api/v1/workspaces/current", headers=workspace.headers).json()["metrics"]["total"]
+    assert sum(day["decisions"] for day in days) == total
+    assert sum(day["decided_alone"] for day in days) == round(overview["autonomy_rate"] * total)
 
 
 def test_a_payment_a_person_approves_without_a_risk_signal_earns_trust_once(

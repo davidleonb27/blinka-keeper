@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { WorkspaceCreated } from "./client";
-import { ensureWorkspace, readWorkspaceCookie, WORKSPACE_COOKIE } from "./workspace";
+import { ensureWorkspace, readWorkspaceCookie, renewWorkspace, WORKSPACE_COOKIE } from "./workspace";
 
 function memoryStore(initial: string | null) {
   let value = initial;
@@ -41,6 +41,25 @@ describe("ensureWorkspace", () => {
     const createWorkspace = vi.fn();
 
     expect(await ensureWorkspace({ createWorkspace }, store)).toBe("ws_old");
+    expect(createWorkspace).not.toHaveBeenCalled();
+  });
+});
+
+describe("renewWorkspace", () => {
+  it("creates a demo workspace in place of the one the API no longer has", async () => {
+    const store = memoryStore("ws_gone");
+    const createWorkspace = vi.fn(async () => ({ workspace_id: "ws_new", api_key: "ck_2" }));
+
+    expect(await renewWorkspace({ createWorkspace }, store, "ws_gone")).toBe("ws_new");
+    expect(createWorkspace).toHaveBeenCalledWith("demo");
+    expect(store.write).toHaveBeenCalledWith({ workspace_id: "ws_new", api_key: "ck_2" });
+  });
+
+  it("keeps a workspace that already replaced the stale one", async () => {
+    const store = memoryStore("ws_new");
+    const createWorkspace = vi.fn();
+
+    expect(await renewWorkspace({ createWorkspace }, store, "ws_gone")).toBe("ws_new");
     expect(createWorkspace).not.toHaveBeenCalled();
   });
 });

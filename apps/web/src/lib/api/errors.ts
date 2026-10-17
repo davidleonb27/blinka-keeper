@@ -32,6 +32,9 @@ export class NotFoundError extends ApiError {
   }
 }
 
+/** The workspace the browser remembers no longer exists (the API's database was reset, for example). */
+export class WorkspaceGoneError extends NotFoundError {}
+
 export class PayloadTooLargeError extends ApiError {
   constructor() {
     super("El archivo pesa más de 4 MB. Prueba con uno más liviano.", 413);
@@ -56,10 +59,12 @@ export class UnexpectedResponseError extends ApiError {
   }
 }
 
-export function errorFromStatus(status: number, detail: string | null): ApiError {
+const WORKSPACE_GONE = "workspace_not_found";
+
+export function errorFromStatus(status: number, detail: string | null, code: string | null = null): ApiError {
   switch (status) {
     case 404:
-      return new NotFoundError();
+      return code === WORKSPACE_GONE ? new WorkspaceGoneError() : new NotFoundError();
     case 413:
       return new PayloadTooLargeError();
     case 429:

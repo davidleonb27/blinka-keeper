@@ -26,7 +26,7 @@ from custodio.db.models import WorkspaceRow
 from custodio.llm import LLMError
 from custodio.services import policy_service, records, workspace_service
 from custodio.services.context import ServiceContext
-from custodio.services.errors import ModelUnavailable, PayloadTooLarge
+from custodio.services.errors import PayloadTooLarge, model_failure
 from custodio.services.invoice_service import MAX_DOCUMENT_BYTES
 from custodio.services.workspace_service import WorkspaceSummary
 
@@ -54,7 +54,7 @@ def propose_profile(
     try:
         return ctx.lanes.profile_company(company_name, website, answers)
     except LLMError as error:
-        raise ModelUnavailable() from error
+        raise model_failure(error) from error
 
 
 def import_suppliers(ctx: ServiceContext, data: bytes, *, filename: str, media_type: str) -> SupplierImport:
@@ -63,7 +63,7 @@ def import_suppliers(ctx: ServiceContext, data: bytes, *, filename: str, media_t
     try:
         return ctx.lanes.import_suppliers(data, filename=filename, media_type=media_type)
     except LLMError as error:
-        raise ModelUnavailable() from error
+        raise model_failure(error) from error
 
 
 def complete(ctx: ServiceContext, workspace: WorkspaceRow, request: OnboardingRequest) -> OnboardingResult:

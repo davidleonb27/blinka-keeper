@@ -9,9 +9,18 @@ from custodio.contracts import RULES, Approval, Approver, Policy, RuleEffect
 from main import app
 
 
-def test_the_catalogue_has_twelve_rules_in_order() -> None:
-    assert [rule.id for rule in RULES] == [f"R{i}" for i in range(1, 13)]
-    assert len({rule.key for rule in RULES}) == 12
+def test_the_catalogue_has_fifteen_rules_in_order() -> None:
+    assert [rule.id for rule in RULES] == [f"R{i}" for i in range(1, 16)]
+    assert len({rule.key for rule in RULES}) == 15
+    assert [(rule.key, rule.effect) for rule in RULES[12:]] == [
+        ("bank_details", RuleEffect.ESCALATE),
+        ("sanctions", RuleEffect.ESCALATE),
+        ("out_of_band", RuleEffect.ESCALATE),
+    ]
+
+
+def test_only_the_payment_controls_let_a_payment_through_when_they_had_nothing_to_check() -> None:
+    assert {rule.id for rule in RULES if rule.neutral_when_skipped} == {"R13", "R14", "R15"}
 
 
 def test_hold_rules_are_the_ones_the_agent_can_stop_alone() -> None:
@@ -41,7 +50,7 @@ def test_health_answers_under_the_public_prefix() -> None:
 def test_health_reports_only_the_providers_in_use() -> None:
     body = TestClient(app).get("/api/v1/health").json()
 
-    assert set(body) == {"status", "version", "anthropic", "payment_rail"}
+    assert set(body) == {"status", "version", "anthropic", "payment_rail", "sanctions_list_date"}
     assert body["payment_rail"] == "simulated"  # Stripe only with CUSTODIO_PAYMENT_RAIL=stripe_test and a test key
 
 
@@ -55,3 +64,8 @@ def test_settings_carry_no_retired_integrations() -> None:
 def test_approvals_are_web_or_api_only() -> None:
     assert set(Approver.model_fields) == {"name", "role", "email"}
     assert get_args(Approval.model_fields["channel"].annotation) == ("web", "api")
+
+
+def test_health_dates_the_ofac_copy_in_use() -> None:
+    body = TestClient(app).get("/api/v1/health").json()
+    assert body["sanctions_list_date"] == "2026-10-15"

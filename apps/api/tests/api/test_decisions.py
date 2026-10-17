@@ -54,7 +54,7 @@ def test_the_acta_brings_the_decision_the_reading_and_its_ledger_entries(client:
     assert response.status_code == 200
     acta = response.json()
     assert acta["decision"]["status"] == "hold"
-    assert len(acta["decision"]["rules"]) == 12
+    assert len(acta["decision"]["rules"]) == 15
     assert acta["invoice"]["extraction"]["account_number"]["value"] == "999000111"
     assert [entry["kind"] for entry in acta["ledger"]] == ["invoice_received", "decision"]
 
