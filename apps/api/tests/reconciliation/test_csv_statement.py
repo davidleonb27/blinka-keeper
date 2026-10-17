@@ -141,3 +141,26 @@ def test_movement_ids_follow_the_file_order() -> None:
     statement = read("Fecha;Descripción;Monto\n16/10/2026;A;-1,00\n16/10/2026;B;-2,00\n")
 
     assert [movement.id for movement in statement.movements] == ["m001", "m002"]
+
+
+def test_a_zero_in_the_other_column_of_debit_and_credit_counts_as_empty() -> None:
+    statement = read(
+        "Fecha;Concepto;Cargo;Abono\n"
+        "16/10/2026;TRANSFERENCIA DIEGO SALAZAR;1.600,00;0,00\n"
+        "16/10/2026;ABONO CLIENTE;0;2.000,00\n"
+    )
+
+    assert [movement.amount for movement in statement.movements] == [Decimal("-1600.00"), Decimal("2000.00")]
+    assert all(movement.read for movement in statement.movements)
+
+
+def test_an_amount_with_a_debit_or_credit_word_stays_unread_instead_of_turning_positive() -> None:
+    statement = read(
+        "Fecha;Descripción;Monto\n16/10/2026;Pago;50,00 DB\n16/10/2026;Abono;50,00 CR\n16/10/2026;X;USD -5,00\n"
+    )
+
+    debit, credit, coded = statement.movements
+    assert (debit.read, debit.amount) == (False, None)
+    assert "DB" in (debit.unread_reason or "")
+    assert (credit.read, credit.amount) == (False, None)
+    assert coded.amount == Decimal("-5.00")
