@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
-from custodio.api.deps import CurrentWorkspace, Services
+from custodio.api.deps import CurrentWorkspace, ModelCallLimit, Services
 from custodio.contracts import Decision, DecisionStatus, LedgerEntry
 from custodio.services import approval_service, invoice_service, ledger_service, records
 from custodio.services.invoice_service import InvoiceView
@@ -58,3 +58,13 @@ def reject(invoice_id: str, body: ApprovalBody, ctx: Services, workspace: Curren
     return approval_service.decide(
         ctx, workspace, invoice_id, "rejected", approver=body.approver, channel="web", note=body.note
     )
+
+
+class Narrative(BaseModel):
+    invoice_id: str
+    narrative: str
+
+
+@router.get("/{invoice_id}/narrative", response_model=Narrative, dependencies=[ModelCallLimit])
+def read_narrative(invoice_id: str, ctx: Services, workspace: CurrentWorkspace) -> Narrative:
+    return Narrative(invoice_id=invoice_id, narrative=invoice_service.narrate(ctx, workspace.id, invoice_id))

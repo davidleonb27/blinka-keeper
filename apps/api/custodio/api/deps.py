@@ -17,6 +17,7 @@ BEARER = "bearer "
 
 def get_runtime(request: Request) -> Runtime:
     runtime: Runtime = request.app.state.runtime
+    runtime.database.ensure_migrated()
     return runtime
 
 
@@ -24,7 +25,6 @@ RuntimeDep = Annotated[Runtime, Depends(get_runtime)]
 
 
 def get_services(runtime: RuntimeDep) -> Iterator[ServiceContext]:
-    runtime.database.ensure_migrated()
     with runtime.database.session() as session:
         yield runtime.context(session)
 

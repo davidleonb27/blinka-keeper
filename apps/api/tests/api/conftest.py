@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -7,6 +9,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine, text
 
 from custodio.api.app import create_app
 from custodio.db import Database
@@ -61,8 +64,22 @@ def limits() -> RateLimits:
 
 
 @pytest.fixture
-def database(tmp_path: Path) -> Database:
-    return Database(f"sqlite:///{tmp_path / 'custodio.db'}")
+def database(tmp_path: Path) -> Iterator[Database]:
+    """SQLite by default. With CUSTODIO_TEST_POSTGRES_URL set, every test gets its own fresh Postgres database."""
+    server = os.environ.get("CUSTODIO_TEST_POSTGRES_URL")
+    if not server:
+        yield Database(f"sqlite:///{tmp_path / 'custodio.db'}")
+        return
+    name = f"custodio_test_{uuid.uuid4().hex[:12]}"
+    admin = create_engine(Database.normalize_url(server), isolation_level="AUTOCOMMIT")
+    with admin.connect() as connection:
+        connection.execute(text(f'CREATE DATABASE "{name}"'))
+    database = Database(f"{server.rsplit('/', 1)[0]}/{name}")
+    yield database
+    database.engine.dispose()
+    with admin.connect() as connection:
+        connection.execute(text(f'DROP DATABASE "{name}"'))
+    admin.dispose()
 
 
 @pytest.fixture

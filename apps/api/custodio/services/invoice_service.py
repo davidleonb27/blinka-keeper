@@ -31,7 +31,7 @@ from custodio.db.models import DocumentRow, InvoiceRow, WorkspaceRow
 from custodio.llm import LLMError
 from custodio.services import approval_tokens, ledger_service, policy_service, records
 from custodio.services.context import ServiceContext
-from custodio.services.errors import PayloadTooLarge, UnsupportedMediaType
+from custodio.services.errors import ModelUnavailable, PayloadTooLarge, UnsupportedMediaType
 from custodio.services.workspace_service import new_id, received_payload
 
 MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
@@ -53,6 +53,7 @@ class InvoiceView(BaseModel):
 class Outcome(BaseModel):
     batch: BatchResult
     audit: AuditReport
+    vetoed: list[str]  # invoices the engine would have paid and the independent auditor stopped
 
 
 def receive_document(
@@ -108,7 +109,14 @@ def decide(
         _record(ctx, workspace.id, decision, (approvals or {}).get(decision.invoice_id), decision.invoice_id in blocked)
     pending = [d for d in final.decisions if d.status is DecisionStatus.PENDING_APPROVAL]
     approval_tokens.request_approvals(ctx, workspace, policy, pending)
-    return Outcome(batch=final, audit=report)
+    return Outcome(batch=final, audit=report, vetoed=sorted(blocked))
+
+
+def narrate(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> str:
+    try:
+        return ctx.lanes.narrate(records.decision(ctx, workspace_id, invoice_id))
+    except LLMError as error:
+        raise ModelUnavailable() from error
 
 
 def view(row: InvoiceRow, *, decided: bool) -> InvoiceView:

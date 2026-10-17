@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import Any
 
 from sqlalchemy import select
 
@@ -24,13 +25,20 @@ def current(ctx: ServiceContext, workspace_id: str) -> Policy:
     return Policy.model_validate(row.document)
 
 
-def apply(ctx: ServiceContext, workspace_id: str, policy: Policy) -> Policy:
+def apply(ctx: ServiceContext, workspace_id: str, policy: Policy, context: dict[str, Any] | None = None) -> Policy:
+    """`context` adds what else changed with this version (e.g. the company set up in onboarding) to the ledger."""
     _validate(policy)
     previous = current(ctx, workspace_id)
-    return store(ctx, workspace_id, policy.model_copy(update={"version": previous.version + 1}), previous)
+    return store(ctx, workspace_id, policy.model_copy(update={"version": previous.version + 1}), previous, context)
 
 
-def store(ctx: ServiceContext, workspace_id: str, policy: Policy, previous: Policy | None = None) -> Policy:
+def store(
+    ctx: ServiceContext,
+    workspace_id: str,
+    policy: Policy,
+    previous: Policy | None = None,
+    context: dict[str, Any] | None = None,
+) -> Policy:
     ctx.session.add(
         PolicyRow(
             workspace_id=workspace_id,
@@ -39,7 +47,7 @@ def store(ctx: ServiceContext, workspace_id: str, policy: Policy, previous: Poli
             created_at=ctx.now(),
         )
     )
-    payload = {"version": policy.version, "changed_fields": _changed_fields(previous, policy)}
+    payload = {"version": policy.version, "changed_fields": _changed_fields(previous, policy), **(context or {})}
     ledger_service.append(ctx, workspace_id, LedgerKind.POLICY_CHANGED, f"policy-v{policy.version}", payload)
     return policy
 
