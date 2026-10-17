@@ -1,22 +1,16 @@
 "use client";
 
-import { useEffect, useId, type KeyboardEvent } from "react";
+import { useEffect, useId } from "react";
 import type { Policy } from "@/lib/api/contracts";
 import { ProposalView } from "@/components/policy/proposal-view";
 import { messageOf } from "@/lib/api/errors";
 import { useCompilePolicy } from "@/lib/api/hooks";
+import { submitOnEnter } from "@/lib/keyboard";
 import type { StepProps } from "./basic-steps";
 import { StepFrame } from "./step-frame";
 import { draftPolicy } from "./state";
 
 const COMPILE_DEBOUNCE_MS = 600;
-
-/** Enter submits like every other step; Shift+Enter writes a new line. */
-export function submitOnEnter(event: KeyboardEvent<HTMLTextAreaElement>) {
-  if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
-  event.preventDefault();
-  event.currentTarget.form?.requestSubmit();
-}
 
 export function RulesStep({ answers, update, frame }: StepProps) {
   const textId = useId();
