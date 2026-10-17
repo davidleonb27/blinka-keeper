@@ -15,6 +15,7 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any
 
+from custodio import ai
 from custodio.contracts import (
     RULES,
     AgentVerdict,
@@ -510,6 +511,9 @@ def profile_company(company_name: str, website: str | None, answers: Mapping[str
 
 
 def import_suppliers(data: bytes, *, filename: str, media_type: str, default_currency: str = "USD") -> SupplierImport:
+    """Headerless comma rows, the old quick format; a file with a header row goes to the real, model-free CSV reader."""
+    if "nombre" in data.decode(errors="replace").split("\n", 1)[0].lower():
+        return ai.import_suppliers(data, filename=filename, media_type=media_type, default_currency=default_currency)
     beneficiaries: list[Beneficiary] = []
     warnings: list[str] = []
     for number, row in enumerate(data.decode().splitlines(), start=1):
