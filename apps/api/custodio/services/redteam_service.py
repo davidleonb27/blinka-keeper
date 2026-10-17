@@ -1,4 +1,4 @@
-"""Claude against Claude, streamed live. The attacker is lane L3's; the judge is this API's real pipeline.
+"""The live red team. The attacker is lane L3's; the judge is this API's real pipeline.
 
 Attacks land in a sandbox cloned from the visitor's company (same rules, balance and history), so a run never touches
 the visitor's panel; each verdict is also written to the visitor's ledger. Every round commits on its own, so what was

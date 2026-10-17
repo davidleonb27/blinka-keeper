@@ -1,4 +1,4 @@
-"""The public functions of lanes L1 (engine, dataset), L2 (reading) and L3 (AI) that the services use.
+"""The public functions of lanes L1 (engine, dataset), L2 (reading) and L3 (model features) that the services use.
 
 Services receive them through `Lanes` so tests can stand in doubles while the lanes are built in parallel, and so
 no service imports a lane's internals. `production_lanes()` wires the real ones.
