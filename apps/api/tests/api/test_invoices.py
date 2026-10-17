@@ -1,5 +1,8 @@
+from typing import Any
+
 from fastapi.testclient import TestClient
 
+from custodio.contracts import BatchResult, DecisionStatus
 from custodio.services.lanes import Lanes
 
 from .doubles import FakeAuditor, failing, invoice_text
@@ -138,3 +141,25 @@ def test_when_the_reader_fails_the_invoice_waits_for_a_person(client: TestClient
     assert body["code"] == "reading_unavailable"
     assert "revisión humana" in body["detail"]
     assert statuses(process(client, workspace)) == {body["invoice_id"]: "pending_approval"}
+
+
+def test_a_payment_with_a_failing_hold_rule_is_never_recorded_even_if_engine_and_auditor_miss_it(
+    client: TestClient, lanes: Lanes
+) -> None:
+    honest = lanes.decide_all
+
+    def sabotaged(*args: Any, **kwargs: Any) -> BatchResult:
+        batch = honest(*args, **kwargs)
+        paid = [d.model_copy(update={"status": DecisionStatus.PAID_AUTO}) for d in batch.decisions]
+        return batch.model_copy(update={"decisions": paid})
+
+    object.__setattr__(lanes, "decide_all", sabotaged)
+    workspace = new_workspace(client)
+
+    result = process(client, workspace)
+
+    f03 = next(d for d in result["batch"]["decisions"] if d["invoice_id"] == "F03")  # account changed: R4 holds
+    assert f03["status"] == "hold"
+    assert "retención" in f03["blocked_reason"]
+    assert "F03" in result["vetoed"]
+    assert_ledger_valid(client, workspace)
