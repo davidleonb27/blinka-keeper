@@ -3,6 +3,7 @@
 import { FileUp, ShieldCheck, Siren, Target } from "lucide-react";
 import { useId, useState } from "react";
 import { PageHeader } from "@/components/shell/page-header";
+import { ErrorState } from "@/components/states";
 import { StatusPill } from "@/components/status-pill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -138,6 +139,38 @@ function AttemptForm({ onResult }: { onResult: (attempt: ChallengeAttempt) => vo
   );
 }
 
+function wallNote(attempts: ChallengeAttempt[]): string {
+  const broke = attempts.filter((attempt) => attempt.broke_through).length;
+  if (broke === 0) return "Los ataques más creativos. Ninguno cobró.";
+  return `Los ataques más creativos. ${formatCount(broke)} ${broke === 1 ? "cobró un pago indebido" : "cobraron un pago indebido"}.`;
+}
+
+function Wall({ attempts }: { attempts: ChallengeAttempt[] }) {
+  return (
+    <section className="card-surface p-5" aria-labelledby="muro-title">
+      <h2 id="muro-title" className="font-semibold">El muro</h2>
+      <p className="text-[12.5px] text-ink-3">{wallNote(attempts)}</p>
+      <ul className="mt-2 divide-y divide-line">
+        {attempts.map((attempt) => (
+          <li key={attempt.id} className="flex items-start justify-between gap-3 py-3">
+            <span className="min-w-0">
+              <b className="block font-semibold">{attempt.technique}</b>
+              <span className="text-xs text-ink-3">
+                {attempt.alias ?? "Anónimo"} · {formatDateTime(attempt.at)}
+              </span>
+            </span>
+            {attempt.broke_through ? (
+              <span className="rounded-full bg-crit-weak px-2.5 py-1 text-xs font-semibold text-crit">Pasó</span>
+            ) : (
+              <StatusPill status={attempt.decision.status} />
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function Challenge() {
   const stats = useChallengeStats();
   const [last, setLast] = useState<ChallengeAttempt | null>(null);
@@ -153,26 +186,9 @@ export function Challenge() {
           {last ? <AttemptResult attempt={last} /> : null}
         </div>
         <div className="flex flex-col gap-4">
+          {stats.error ? <ErrorState error={stats.error} onRetry={() => void stats.refetch()} /> : null}
           {stats.data ? <Scoreboard stats={stats.data} /> : null}
-          {stats.data?.hall_of_fame.length ? (
-            <section className="card-surface p-5" aria-labelledby="muro-title">
-              <h2 id="muro-title" className="font-semibold">El muro</h2>
-              <p className="text-[12.5px] text-ink-3">Los ataques más creativos. Ninguno cobró.</p>
-              <ul className="mt-2 divide-y divide-line">
-                {stats.data.hall_of_fame.map((attempt) => (
-                  <li key={attempt.id} className="flex items-start justify-between gap-3 py-3">
-                    <span className="min-w-0">
-                      <b className="block font-semibold">{attempt.technique}</b>
-                      <span className="text-xs text-ink-3">
-                        {attempt.alias ?? "Anónimo"} · {formatDateTime(attempt.at)}
-                      </span>
-                    </span>
-                    <StatusPill status={attempt.decision.status} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
+          {stats.data?.hall_of_fame.length ? <Wall attempts={stats.data.hall_of_fame} /> : null}
         </div>
       </div>
     </>
