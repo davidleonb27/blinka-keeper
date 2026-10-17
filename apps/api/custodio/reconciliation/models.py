@@ -6,7 +6,7 @@ its level and a Spanish reason with the figures, so a person (or an accountant) 
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 from enum import StrEnum
 
@@ -133,3 +133,62 @@ class ReconciliationOutcome(Model):
     movements: list[MovementResult]  # in the statement's order
     payments: list[PaymentResult]  # by invoice id
     settings: MatchSettings
+
+
+STATUS_LABELS: dict[MovementStatus, str] = {
+    MovementStatus.RECONCILED: "Conciliado",
+    MovementStatus.RECONCILED_WITH_DIFFERENCE: "Conciliado con diferencia",
+    MovementStatus.UNMATCHED_OUTFLOW: "Salida sin factura",
+    MovementStatus.BANK_FEE: "Comisión bancaria",
+    MovementStatus.DUPLICATE: "Duplicado",
+    MovementStatus.UNREAD: "NO LEÍDO",
+    MovementStatus.INFLOW: "Ingreso",
+}
+LEVEL_LABELS: dict[MatchLevel, str] = {
+    MatchLevel.EXACT: "Exacto",
+    MatchLevel.AMOUNT_DATE: "Por monto y fecha",
+    MatchLevel.SPLIT: "Partido",
+    MatchLevel.TOLERANCE: "Con tolerancia",
+}
+
+
+class Review(Model):
+    """A person looked at a movement that needed it and wrote down what it is. Stays in the ledger."""
+
+    movement_id: str
+    reviewer: str
+    note: str
+    at: datetime
+    ledger_seq: int
+
+
+class PeriodClose(Model):
+    period: str  # "2026-10"
+    closed_at: datetime
+    closed_by: str
+    reconciliation_id: str
+    ledger_seq: int
+    ledger_hash: str
+
+
+class Tally(Model):
+    count: int = 0
+    total: Amount = Decimal(0)
+
+
+class PeriodSummary(Model):
+    """The month in figures, in the account's currency. `alerts_open` must be zero to close it."""
+
+    currency: str
+    paid: Tally
+    held: Tally
+    rejected: Tally
+    pending_approval: Tally
+    reconciled: Tally  # movements, by what they reconcile
+    differences: Tally  # payments reconciled with an FX difference, by the sum of the differences
+    fees: Tally
+    inflows: Tally
+    unexplained: Tally  # outflows no paid invoice explains, duplicates included
+    pending_in_bank: Tally  # payments that do not appear in the statement yet
+    alerts: int  # movements a person must review
+    alerts_open: int
