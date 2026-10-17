@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pytest
 
+from custodio.contracts import RULES
+
 REPO = Path(__file__).resolve().parents[4]
 OWNED_DOCS = (
     "PITCH",
@@ -146,7 +148,7 @@ def test_no_inflated_marketing_words(path: str) -> None:
 @pytest.mark.parametrize("path", owned_markdown())
 def test_rule_references_exist_in_the_catalogue(path: str) -> None:
     numbers = {int(n) for n in re.findall(r"\bR(\d+)\b", read(path))}
-    assert numbers <= set(range(1, 13))
+    assert numbers <= {int(rule.id[1:]) for rule in RULES}
 
 
 @pytest.mark.parametrize("path", owned_markdown())
@@ -328,3 +330,9 @@ def test_readme_links_the_blinka_page_and_the_rails_section() -> None:
     assert "](docs/BLINKA.md)" in text
     assert "](docs/PAYMENTS.md#los-rieles)" in text
     assert "## Los rieles" in read("docs/PAYMENTS.md")
+
+
+@pytest.mark.parametrize("path", owned_markdown())
+def test_documents_count_the_rules_of_the_catalogue(path: str) -> None:
+    text = read(path)
+    assert re.findall(r"\b(?:12|doce) reglas\b", text) == []

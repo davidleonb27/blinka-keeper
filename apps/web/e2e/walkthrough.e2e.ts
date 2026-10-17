@@ -49,7 +49,7 @@ async function visit(page: Page, path: string, heading: string | RegExp) {
 async function openActa(page: Page, invoiceId: string) {
   const acta = page.getByRole("dialog");
   await expect(acta.getByText(`Acta de decisión · ${invoiceId}`)).toBeVisible();
-  await expect(acta.getByRole("list", { name: "Reglas evaluadas" }).getByRole("listitem")).toHaveCount(12);
+  await expect(acta.getByRole("list", { name: "Reglas evaluadas" }).getByRole("listitem")).toHaveCount(15);
   await expect(acta.getByText(/Asiento #\d+/)).toBeVisible();
   return acta;
 }
