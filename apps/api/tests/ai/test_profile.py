@@ -40,6 +40,12 @@ def test_the_profiler_reads_only_the_given_site_with_web_fetch(fake_llm: FakeLLM
 
 
 def test_evidence_outside_the_site_is_dropped_and_values_are_normalized(fake_llm: FakeLLM) -> None:
+    fake_llm.fetched_urls = (
+        "https://rutasclaras.co",
+        "https://www.rutasclaras.co/nosotros",
+        "https://blog.rutasclaras.co/precios/",
+        "https://www.linkedin.com/company/rutasclaras",
+    )
     fake_llm.reply(recorded("profile_offsite_evidence"))
 
     profile = profile_company("Rutas Claras", "https://rutasclaras.co", {})
@@ -55,6 +61,15 @@ def test_evidence_outside_the_site_is_dropped_and_values_are_normalized(fake_llm
     assert profile.base_currency == "COP"
     assert profile.likely_suppliers == ["hosting", "nómina tercerizada"]
     assert profile.suggested_rules_text == "Nada sobre 20 millones de pesos sin aprobación de la gerente."
+
+
+def test_a_cited_page_that_web_fetch_never_read_is_dropped(fake_llm: FakeLLM) -> None:
+    fake_llm.fetched_urls = ("https://rutasclaras.co/",)
+    fake_llm.reply(profile_reply(evidence_urls=["https://rutasclaras.co/", "https://rutasclaras.co/clientes"]))
+
+    profile = profile_company("Rutas Claras", "https://rutasclaras.co", {})
+
+    assert profile.evidence_urls == ["https://rutasclaras.co/"]
 
 
 def test_without_a_website_only_the_answers_are_used_and_nothing_is_cited(fake_llm: FakeLLM) -> None:

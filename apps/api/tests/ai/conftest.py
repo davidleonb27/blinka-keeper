@@ -53,6 +53,7 @@ class FakeLLM:
 
     replies: list[dict[str, Any] | Exception] = field(default_factory=list)
     calls: list[Call] = field(default_factory=list)
+    fetched_urls: tuple[str, ...] = ()  # what web_fetch "read" in every reply
 
     def reply(self, *payloads: dict[str, Any] | Exception) -> FakeLLM:
         self.replies.extend(payloads)
@@ -82,6 +83,7 @@ class FakeLLM:
             output_tokens=0,
             cache_read_tokens=0,
             cost_usd=0.0,
+            fetched_urls=self.fetched_urls,
         )
 
 
