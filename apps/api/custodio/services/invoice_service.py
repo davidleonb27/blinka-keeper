@@ -116,8 +116,17 @@ def decide(
         return payment_service.execute(ctx, workspace.id, decision, policy)
 
     payer = pay if execute_payments and payment_service.may_execute(workspace) else None
+    # An intent is paid by the agent that sent it, even after a person approves it here: paying it too pays it twice.
+    intents = {case.id for case in cases if case.extraction.source is InvoiceSource.INTENT}
     recorded = [
-        _record(ctx, workspace.id, d, (approvals or {}).get(d.invoice_id), d.invoice_id in stopped, payer)
+        _record(
+            ctx,
+            workspace.id,
+            d,
+            (approvals or {}).get(d.invoice_id),
+            d.invoice_id in stopped,
+            None if d.invoice_id in intents else payer,
+        )
         for d in final.decisions
     ]
     return Outcome(batch=final.model_copy(update={"decisions": recorded}), audit=report, vetoed=sorted(stopped))
