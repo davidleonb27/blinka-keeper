@@ -81,7 +81,7 @@ function SupplierCard({ supplier, overview }: { supplier: SupplierTrust; overvie
         </span>
       </div>
       <p className="mt-2 flex items-baseline justify-between gap-2">
-        <strong className="font-display text-xl tabular">{formatMoney(supplier.cap, currency)}</strong>
+        <strong className="font-serif text-xl tabular">{formatMoney(supplier.cap, currency)}</strong>
         <span className="text-xs text-ink-3">techo {formatMoney(overview.ceiling, currency)}</span>
       </p>
       <Meter
@@ -158,7 +158,7 @@ export function AutonomyPage() {
               <h2 className="flex items-center gap-2 font-semibold">
                 <TrendingUp aria-hidden className="size-4 text-brand" /> Tasa de autonomía
               </h2>
-              <strong className="font-display text-[34px] leading-none tabular">{formatPercent(overview.autonomy_rate)}</strong>
+              <strong className="font-serif text-[34px] leading-none tabular">{formatPercent(overview.autonomy_rate)}</strong>
               <p className="text-[13px] text-ink-2">
                 Piso {formatMoney(overview.floor, overview.base_currency)} · tope de la política{" "}
                 {formatMoney(overview.policy_threshold, overview.base_currency)} · techo{" "}

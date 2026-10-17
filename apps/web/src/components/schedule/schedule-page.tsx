@@ -100,7 +100,7 @@ function CapturedCard({ schedule }: { schedule: ScheduleView }) {
       <h2 id="valor-capturado" className="flex items-center gap-2 font-semibold">
         <HandCoins aria-hidden className="size-4 text-brand" /> Valor capturado este mes
       </h2>
-      <strong className="font-display text-[30px] leading-none tabular">{formatMoney(captured.total, currency)}</strong>
+      <strong className="font-serif text-[30px] leading-none tabular">{formatMoney(captured.total, currency)}</strong>
       <dl className="flex flex-col gap-1 text-[13px]">
         {lines.map((line) => (
           <div key={line.label} className="flex justify-between gap-3">
