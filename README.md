@@ -148,7 +148,8 @@ Empresa demo y facturas con trampa etiquetadas, publicadas y reproducibles: [`do
 
 ## Licencia
 
-[MIT](LICENSE).
+[Apache 2.0](LICENSE). Contribuciones bienvenidas: lee [`CONTRIBUTING.md`](CONTRIBUTING.md) y, para reportar una
+vulnerabilidad en privado, [`SECURITY.md`](SECURITY.md).
 
 ## English summary
 
@@ -160,4 +161,4 @@ altered. Other agents can use Custodio as a payment firewall through an API or a
 break it on the public "Róbale a Custodio" challenge. Try it: **https://custodio-blinka-green.vercel.app**. Figures are published only when
 measured (2026-10-17: 36 golden invoices in production, 0 improper payments, 61.1 % autonomy; 1,000 simulated companies
 and 25,139 invoices in the stress run, 0 improper payments); the rest reads NO MEDIDO ("not measured"). Built by team DreamMakers for the 30X hackathon, Blinka
-challenge. MIT licensed.
+challenge. Licensed under Apache 2.0.

@@ -1,0 +1,45 @@
+name: Riel de pago nuevo
+description: Propón un riel que ejecute los pagos que Custodio ya aprobó (banco, billetera, pasarela).
+title: "riel: "
+labels: ["riel de pago"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Un riel sólo mueve el dinero de un pago aprobado por el motor y confirmado por el auditor; nunca decide.
+        Se aceptan rieles en modo de prueba (sandbox). Lee la guía «Rieles de pago» en `/docs/rieles`.
+  - type: input
+    id: provider
+    attributes:
+      label: Proveedor o red
+      placeholder: "p. ej. un banco, una billetera o una pasarela"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Para quién y por qué
+      description: Qué empresas lo usarían y en qué países o monedas.
+    validations:
+      required: true
+  - type: dropdown
+    id: sandbox
+    attributes:
+      label: ¿Tiene modo de prueba?
+      options:
+        - Sí, con claves de prueba separadas
+        - No
+    validations:
+      required: true
+  - type: textarea
+    id: idempotency
+    attributes:
+      label: Idempotencia y conciliación
+      description: Cómo se evita pagar dos veces si se reintenta, y cómo se confirma que el pago salió.
+    validations:
+      required: true
+  - type: textarea
+    id: secrets
+    attributes:
+      label: Credenciales
+      description: Qué variables de entorno necesita (sólo los nombres, nunca los valores).
