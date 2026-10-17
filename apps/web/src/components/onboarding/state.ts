@@ -53,6 +53,8 @@ export interface Answers {
   approvers: ApproverDraft[];
   rulesText: string;
   proposal: PolicyProposal | null;
+  /** The compile input the proposal answers; a proposal for older text or numbers is stale. */
+  proposalKey: string | null;
   suppliers: Beneficiary[];
   supplierWarnings: string[];
   result: OnboardingResult | null;
@@ -71,6 +73,7 @@ export const INITIAL_ANSWERS: Answers = {
   approvers: [EMPTY_APPROVER],
   rulesText: "",
   proposal: null,
+  proposalKey: null,
   suppliers: [],
   supplierWarnings: [],
   result: null,
@@ -128,7 +131,10 @@ const VALIDATORS: Partial<Record<StepId, Validator>> = {
     return reserve < balance ? null : "La reserva tiene que ser menor que el saldo.";
   },
   approvers: (a) => (a.approvers.some((p) => p.name.trim()) ? null : "Agrega al menos una persona que apruebe."),
-  rules: (a) => (a.rulesText.trim() ? null : "Escribe al menos una regla o usa la sugerida."),
+  rules: (a) => {
+    if (!a.rulesText.trim()) return "Escribe al menos una regla o usa la sugerida.";
+    return a.proposal && a.proposalKey === compileKey(a) ? null : "Custodio todavía está compilando tus reglas.";
+  },
   suppliers: (a) => (a.suppliers.length ? null : "Sube una lista o usa la de ejemplo."),
   simulation: (a) => (a.result ? null : "Custodio todavía está decidiendo tu primera semana."),
 };
@@ -163,6 +169,17 @@ export function draftPolicy(answers: Answers): Policy {
     beneficiaries: [],
     approvers: approversOf(answers),
   };
+}
+
+export interface CompileInput {
+  text: string;
+  base: Policy;
+}
+
+/** The person's words, compiled against the draft built from the earlier answers. */
+export function compileKey(answers: Answers): string {
+  const input: CompileInput = { text: answers.rulesText.trim(), base: draftPolicy(answers) };
+  return JSON.stringify(input);
 }
 
 export function onboardingRequest(answers: Answers): OnboardingRequest {

@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useId } from "react";
-import type { Policy } from "@/lib/api/contracts";
 import { ProposalView } from "@/components/policy/proposal-view";
 import { messageOf } from "@/lib/api/errors";
 import { useCompilePolicy } from "@/lib/api/hooks";
 import { submitOnEnter } from "@/lib/keyboard";
 import type { StepProps } from "./basic-steps";
 import { StepFrame } from "./step-frame";
-import { draftPolicy } from "./state";
+import { compileKey, type CompileInput } from "./state";
 
 const COMPILE_DEBOUNCE_MS = 600;
 
@@ -17,21 +16,17 @@ export function RulesStep({ answers, update, frame }: StepProps) {
   const compile = useCompilePolicy();
   const { mutate } = compile;
   // A string key, so storing the proposal (a new `answers`) does not trigger another compile.
-  const baseKey = JSON.stringify(draftPolicy(answers));
+  const key = compileKey(answers);
 
   useEffect(() => {
-    const text = answers.rulesText.trim();
-    if (!text) return;
+    const input = JSON.parse(key) as CompileInput;
+    if (!input.text) return;
     const timer = setTimeout(
-      () =>
-        mutate(
-          { text, base: JSON.parse(baseKey) as Policy },
-          { onSuccess: (proposal) => update({ proposal }) },
-        ),
+      () => mutate(input, { onSuccess: (proposal) => update({ proposal, proposalKey: key }) }),
       COMPILE_DEBOUNCE_MS,
     );
     return () => clearTimeout(timer);
-  }, [answers.rulesText, baseKey, mutate, update]);
+  }, [key, mutate, update]);
 
   return (
     <StepFrame
