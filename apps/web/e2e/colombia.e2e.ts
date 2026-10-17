@@ -178,7 +178,26 @@ test("a Colombian company sets up in COP from the template and its COP invoice i
     expect(unknown?.status).not.toMatch(/^paid/);
     // R3 (allowed beneficiary) is what stops it: the supplier is not on the list.
     expect(unknown?.rules.find((rule) => rule.rule_id === "R3")?.outcome).toBe("escalate");
-    await page.keyboard.press("Escape");
+    await acta.getByRole("link", { name: "Agregar proveedores" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Proveedores" })).toBeVisible();
+  });
+
+  await test.step("el faltante se agrega a mano y queda en COP", async () => {
+    const form = page.getByRole("form", { name: "Agregar a mano" });
+    await form.getByLabel("Nombre").fill("Tintas del Norte SAS");
+    await form.getByLabel("NIT o identificación tributaria").fill("901999888-2");
+    await form.getByLabel("Banco").fill("Davivienda");
+    await form.getByLabel("Cuenta, como aparece en sus facturas").fill("0550-1234");
+    await form.getByRole("button", { name: "Añadir a la vista previa" }).click();
+    const preview = page.getByRole("region", { name: "Vista previa de los cambios" });
+    await preview.getByRole("button", { name: "Agregar 1 proveedor" }).click();
+    await expect(page.getByText(/Se agregó 1 proveedor\./)).toBeVisible();
+    const policy = await (await page.request.get("/api/v1/policy", { headers: await workspaceHeaders(page) })).json();
+    expect(policy.beneficiaries).toContainEqual(
+      expect.objectContaining({ name: "Tintas del Norte SAS", currency: "COP" }),
+    );
+    await page.goto("/panel");
+    await expect(page.getByRole("heading", { level: 1, name: "Panel" })).toBeVisible();
   });
 
   await test.step("el CSV nunca deja vacío el id de transferencia", async () => {
