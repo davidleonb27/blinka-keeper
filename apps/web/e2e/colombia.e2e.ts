@@ -154,10 +154,14 @@ test("a Colombian company sets up in COP from the template and its COP invoice i
     const acta = page.getByRole("dialog");
     await expect(acta).toContainText("Tintas del Norte SAS no está entre tus proveedores registrados");
     const headers = await workspaceHeaders(page);
-    const items: { invoice_number: string; decision: { status: string } }[] = await (
-      await page.request.get("/api/v1/decisions", { headers })
-    ).json();
-    expect(items.find((i) => i.invoice_number === "TN-77")?.decision.status).not.toMatch(/^paid/);
+    const items: {
+      invoice_number: string;
+      decision: { status: string; rules: { rule_id: string; outcome: string }[] };
+    }[] = await (await page.request.get("/api/v1/decisions", { headers })).json();
+    const unknown = items.find((i) => i.invoice_number === "TN-77")?.decision;
+    expect(unknown?.status).not.toMatch(/^paid/);
+    // R3 (allowed beneficiary) is what stops it: the supplier is not on the list.
+    expect(unknown?.rules.find((rule) => rule.rule_id === "R3")?.outcome).toBe("escalate");
     await page.keyboard.press("Escape");
   });
 
