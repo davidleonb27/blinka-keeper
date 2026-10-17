@@ -9,9 +9,10 @@ from custodio.db import Database
 from custodio.payments import STRIPE_TEST, RailChoice
 from custodio.payments.port import Clock
 from custodio.services.context import RateLimits, Runtime
-from custodio.services.lanes import Lanes, production_lanes
+from custodio.services.lanes import Lanes
 
 from .conftest import MutableClock
+from .doubles import model_free_lanes
 from .helpers import Workspace, assert_ledger_valid, new_workspace, process
 
 APPROVER = {"approver": "Ana Gómez"}
@@ -24,7 +25,7 @@ def refuse_stripe(_: Any, __: Clock) -> Any:
 
 @pytest.fixture
 def lanes() -> Lanes:
-    return production_lanes()  # the real engine and auditor; nothing here reads a document or calls a model
+    return model_free_lanes()
 
 
 @pytest.fixture

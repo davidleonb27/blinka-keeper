@@ -6,9 +6,10 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from custodio.services.lanes import Lanes, production_lanes
+from custodio.services.lanes import Lanes
 
 from .conftest import MutableClock
+from .doubles import model_free_lanes
 from .helpers import Workspace, assert_ledger_valid, new_workspace, process
 
 RESERVE_ABOVE_THE_CASH = 70000
@@ -16,7 +17,7 @@ RESERVE_ABOVE_THE_CASH = 70000
 
 @pytest.fixture
 def lanes() -> Lanes:
-    return production_lanes()  # the real engine and auditor; nothing here reads a document or calls a model
+    return model_free_lanes()
 
 
 @pytest.fixture
