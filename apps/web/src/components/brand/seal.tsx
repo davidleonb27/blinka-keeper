@@ -22,7 +22,7 @@ export function Wordmark({ className, subtitle }: { className?: string; subtitle
     <span className={cn("flex items-center gap-2.5", className)}>
       <Seal className="size-8 shrink-0" />
       <span className="leading-none">
-        <span className="font-display block text-[19px] font-semibold tracking-[-0.01em]">Custodio</span>
+        <span className="font-serif block text-[19px] font-semibold tracking-[-0.01em]">Custodio</span>
         {subtitle ? <span className="mt-1 block text-[11.5px] text-ink-3">{subtitle}</span> : null}
       </span>
     </span>

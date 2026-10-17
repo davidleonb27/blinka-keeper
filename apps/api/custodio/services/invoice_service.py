@@ -30,10 +30,10 @@ from custodio.contracts import (
 )
 from custodio.db.models import DocumentRow, InvoiceRow, WorkspaceRow
 from custodio.engine.domains import first_email
-from custodio.llm import LLMError
+from custodio.llm import LLMError, LLMNotConfigured
 from custodio.services import ledger_service, payment_service, policy_service, records
 from custodio.services.context import ServiceContext
-from custodio.services.errors import ModelUnavailable, PayloadTooLarge, UnsupportedMediaType
+from custodio.services.errors import ModelNotConfigured, PayloadTooLarge, UnsupportedMediaType, model_failure
 from custodio.services.workspace_service import new_id, received_payload
 
 MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
@@ -137,7 +137,7 @@ def narrate(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> str:
     try:
         return ctx.lanes.narrate(records.decision(ctx, workspace_id, invoice_id))
     except LLMError as error:
-        raise ModelUnavailable() from error
+        raise model_failure(error) from error
 
 
 def view(row: InvoiceRow, *, decided: bool) -> InvoiceView:
@@ -162,6 +162,8 @@ def _receive(
 ) -> InvoiceView:
     try:
         extraction, read_ok = read(), True
+    except LLMNotConfigured as error:
+        raise ModelNotConfigured() from error  # a missing key is a setting to fix, not a document to review
     except LLMError:
         # Kept unread on purpose: R1 escalates it, so a person reviews it instead of anyone guessing.
         extraction, read_ok = _unread(document.id, source, visible_text), False

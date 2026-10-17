@@ -54,8 +54,9 @@ async def _service_error(_: Request, error: Exception) -> JSONResponse:
 
 
 async def _model_error(_: Request, error: Exception) -> JSONResponse:
+    assert isinstance(error, LLMError)
     logger.warning("model call failed: %s", type(error).__name__)
-    return error_response(errors.ModelUnavailable())
+    return error_response(errors.model_failure(error))
 
 
 async def _validation_error(_: Request, error: Exception) -> JSONResponse:

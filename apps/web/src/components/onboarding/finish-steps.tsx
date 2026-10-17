@@ -79,7 +79,7 @@ export function ReadyStep({ answers }: Pick<StepProps, "answers">) {
     <div className="flex flex-col items-start gap-7">
       <Seal className="size-16" />
       <div>
-        <h1 className="font-display text-[34px] leading-[1.05] font-semibold tracking-[-0.025em] sm:text-[44px]">
+        <h1 className="font-serif text-[34px] leading-[1.05] font-semibold tracking-[-0.015em] sm:text-[44px]">
           Custodio está listo
         </h1>
         <p className="mt-3 max-w-[54ch] text-base text-ink-2">

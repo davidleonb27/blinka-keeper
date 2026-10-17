@@ -66,6 +66,10 @@ class LLMBudgetExceeded(LLMError):
     pass
 
 
+class LLMNotConfigured(LLMError):
+    """No ANTHROPIC_API_KEY: the deployment runs without a model, and whatever needs one says so."""
+
+
 @dataclass(frozen=True)
 class LLMResult[T: BaseModel]:
     value: T
@@ -141,6 +145,8 @@ def structured[T: BaseModel](
     the server pauses mid tool use is continued up to MAX_CONTINUATIONS times; `fetched_urls` lists the pages
     web_fetch read.
     """
+    if not get_settings().anthropic_configured:
+        raise LLMNotConfigured("Esta función requiere ANTHROPIC_API_KEY.")
     use_fallback = model in _FALLBACK_MODELS
     user_turn: BetaMessageParam = {"role": "user", "content": content}
     assistant_so_far: list[BetaContentBlockParam] = []

@@ -1,23 +1,34 @@
 # Custodio
 
-**El agente de cuentas por pagar que no se deja engañar.**
-*El modelo lee, el código decide, la persona autoriza.*
+[![CI](https://github.com/davidleonb27/custodio-blinka/actions/workflows/ci.yml/badge.svg)](https://github.com/davidleonb27/custodio-blinka/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-047857.svg)](LICENSE)
 
-Custodio revisa las facturas de una empresa y paga sólo lo que cabe en las reglas que la empresa definió. Retiene lo
-que es claramente indebido (una cuenta distinta a la registrada, un cobro repetido) y le pregunta a una persona todo lo
-demás. Cada decisión queda en un acta que se lee en un minuto y en un registro encadenado que no se puede alterar sin
-que se note.
+**El agente de cuentas por pagar de código abierto.** *El modelo lee, el código decide, la persona autoriza.*
+Revisa las facturas, paga sólo lo que cabe en tus reglas, retiene lo indebido y le pregunta a una persona lo demás.
 
-<!-- Captura: docs/img/demo.gif (ver docs/img/LEEME.md) -->
-> *Aquí va el GIF de la demo (`docs/img/demo.gif`), pendiente de grabar sobre la versión desplegada.*
+- **Demo:** <https://custodio-blinka-green.vercel.app>, sin registro y sin dinero real.
+- **Autoalojar en un comando:** `docker compose up --build` ([guía](docs/SELF_HOSTING.md)) o
+  [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fcustodio-blinka&project-name=custodio&repository-name=custodio&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
+- **Licencia:** [MIT](LICENSE). Documentación en [/docs](https://custodio-blinka-green.vercel.app/docs).
+
+**The open-source accounts-payable agent.** *The model reads, code decides, a person authorizes.*
+It reviews invoices, pays only what fits your rules, holds what is clearly improper and asks a person about the rest.
+
+- **Demo:** <https://custodio-blinka-green.vercel.app>, no sign-up, no real money.
+- **Self-host in one command:** `docker compose up --build` ([guide, in Spanish](docs/SELF_HOSTING.md)) or the
+  Vercel button above.
+- **License:** [MIT](LICENSE).
 
 ## Pruébalo en 30 segundos
 
-1. Abre **https://custodio-blinka-green.vercel.app** y pulsa **«Probar con una empresa demo»**. No hay registro: recibes tu propio espacio.
+1. Abre **https://custodio-blinka-green.vercel.app** y pulsa **«Probar la demo»**. No hay registro: recibes tu propio espacio.
 2. En el panel verás una semana de facturas ya decidida: pagado, retenido y pendiente, cada una con su razón.
 3. Abre cualquier fila para ver el acta con las 15 reglas. Prueba «Róbale a Custodio» e intenta que pague algo indebido.
 
 Es dinero de prueba: lo que Custodio paga sale como una transferencia de Stripe en modo prueba, sin cuentas reales.
+
+<!-- Captura: docs/img/demo.gif (ver docs/img/LEEME.md) -->
+> *Aquí va el GIF de la demo (`docs/img/demo.gif`), pendiente de grabar sobre la versión desplegada.*
 
 ## Por qué existe
 
@@ -94,18 +105,37 @@ flowchart LR
 Detalle y recorrido completo de una factura en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Las decisiones de diseño
 están en [`docs/DESIGN.md`](docs/DESIGN.md).
 
-## Correrlo en local
+## Autoalójalo
 
-Requisitos: Python 3.12 con [uv](https://docs.astral.sh/uv/) y, para la web, Node.js.
+Custodio corre en tu infraestructura con un comando. Todas las variables son opcionales y están explicadas en
+[`.env.example`](.env.example).
+
+```bash
+git clone https://github.com/davidleonb27/custodio-blinka.git && cd custodio-blinka
+docker compose up --build            # Postgres 16, API en :8000 y web en :3000; migraciones al arrancar
+curl http://localhost:8000/api/v1/health
+```
+
+Sin `ANTHROPIC_API_KEY` siguen funcionando el motor, el auditor, el registro, el firewall por API y MCP, y la lectura de
+texto y de PDF con texto (por etiquetas `Campo: valor`). Lo que necesita al modelo responde «requiere
+ANTHROPIC_API_KEY» (503, `model_not_configured`) sin decidir nada.
+
+- **Vercel + Neon:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fcustodio-blinka&project-name=custodio&repository-name=custodio&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D) clona el repositorio, crea la base
+  en Neon y despliega la web y la API como servicios de un proyecto.
+- **Railway, Fly.io o un VPS:** los mismos Dockerfiles; los pasos están en [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md).
+
+## Correrlo en local para desarrollar
+
+Requisitos: Python 3.12 con [uv](https://docs.astral.sh/uv/) y Node.js 24.
 
 ```bash
 ./scripts/check.sh                                   # compuerta única: lint, tipos, tests (api y web)
 cd apps/api && uv run uvicorn main:app --reload      # API en http://127.0.0.1:8000/api/v1
-curl http://127.0.0.1:8000/api/v1/health
-cd apps/web && npm install && npm run dev            # web en http://localhost:3000
+cd apps/web && npm ci && API_INTERNAL_URL=http://127.0.0.1:8000 npm run dev   # web en http://localhost:3000
 ```
 
-Variables de entorno (sólo por entorno, nunca en el repo): `ANTHROPIC_API_KEY` y `DATABASE_URL`. La lista completa está en `docs/DESIGN.md` §11. Los tests con modelo se omiten salvo que se corran con `CUSTODIO_LIVE_TESTS=1`.
+Los tests con modelo se omiten salvo que se corran con `CUSTODIO_LIVE_TESTS=1`. Cómo contribuir:
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Firewall y MCP para otros agentes
 
@@ -114,8 +144,8 @@ Cada espacio tiene una API key (pantalla «Desarrolladores»). Con ella, cualqui
 ```bash
 curl -X POST "$CUSTODIO_URL/api/v1/firewall/intents" \
   -H "Authorization: Bearer $CUSTODIO_API_KEY" -H "Content-Type: application/json" \
-  -d '{"agent": "mi-agente", "beneficiary_name": "Proveedor Uno S.A.S.", "account_number": "000123456",
-       "amount": 4200, "currency": "USD", "invoice_number": "F-1001"}'
+  -d '{"agent": "mi-agente", "beneficiary_name": "Pulso Software Inc.", "bank_name": "Mercury",
+       "account_number": "2214-1180", "amount": 840, "currency": "USD", "invoice_number": "PS-90001"}'
 ```
 
 La respuesta trae `decision` (con `agent_verdict`: `pay`, `hold` o `escalate`, y las 15 reglas), `ledger_hash` y
@@ -148,7 +178,8 @@ Empresa demo y facturas con trampa etiquetadas, publicadas y reproducibles: [`do
 
 ## Licencia
 
-[MIT](LICENSE).
+[MIT](LICENSE), a nombre de DreamMakers (Adriano Joao Souza Reyna, Juan David Leon y Leober Ramos). Contribuciones bienvenidas: lee [`CONTRIBUTING.md`](CONTRIBUTING.md) y, para reportar una
+vulnerabilidad en privado, [`SECURITY.md`](SECURITY.md).
 
 ## English summary
 

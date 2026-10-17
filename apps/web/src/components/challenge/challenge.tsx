@@ -74,7 +74,7 @@ function AttemptResult({ attempt }: { attempt: ChallengeAttempt }) {
   return (
     <section aria-live="polite" aria-label="Resultado de tu intento" className="card-surface flex flex-col gap-3 p-5">
       <div className={cn("rounded-2xl px-4 py-4", VERDICT_SURFACE[verdict.tone])}>
-        <h2 className={cn("font-display text-[34px] leading-none font-semibold tracking-[-0.02em] break-words sm:text-[44px]", VERDICT_TEXT[verdict.tone])}>
+        <h2 className={cn("font-serif text-[34px] leading-none font-semibold tracking-[-0.02em] break-words sm:text-[44px]", VERDICT_TEXT[verdict.tone])}>
           {verdict.headline}
         </h2>
         <p className="mt-2 flex items-center gap-2 text-[14px] text-ink-2">

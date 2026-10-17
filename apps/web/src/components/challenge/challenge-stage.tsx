@@ -102,7 +102,7 @@ export function ChallengeStage() {
   return (
     <div className="grid grid-cols-1 items-start gap-6 pt-2 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
       <section aria-label="Entra al reto" className="flex flex-col items-center gap-3 text-center">
-        <h1 className="font-display text-[30px] leading-[1.1] font-semibold tracking-[-0.02em] sm:text-[44px]">Róbale a Custodio</h1>
+        <h1 className="font-serif text-[30px] leading-[1.1] font-semibold tracking-[-0.02em] sm:text-[44px]">Róbale a Custodio</h1>
         <p className="max-w-[40ch] text-[16px] text-ink-2 sm:text-[18px]">Escanea, escribe una factura trampa e intenta que pague algo indebido.</p>
         <StageQr />
       </section>

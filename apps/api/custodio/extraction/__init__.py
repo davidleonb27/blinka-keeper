@@ -9,6 +9,8 @@ Pipelines, named in `ExtractedInvoice.reader`:
 - PDF without text (a scan): pdfplumber rasterizes each page -> vision transcription -> Claude.
 - Image: vision transcription -> Claude.
 - Plain text: Claude.
+Without ANTHROPIC_API_KEY, plain text and PDFs with text are read from labelled lines by code (`labels`) and the
+pipelines that need vision raise `llm.LLMNotConfigured`.
 Scanned pages go to the model as images, never as a PDF document block: a document block would also carry the
 PDF's text layer, which is where hidden text lives.
 Every pipeline also scans the visible text for instructions addressed to the agent.
@@ -25,15 +27,16 @@ from typing import Literal
 
 from PIL import Image, UnidentifiedImageError
 
+from custodio.config import get_settings
 from custodio.contracts import ExtractedField, ExtractedInvoice, HiddenTextFinding, InvoiceSource
 from custodio.engine.domains import first_email
-from custodio.extraction import pdf, structure, vision
+from custodio.extraction import labels, pdf, structure, vision
 from custodio.extraction.errors import UnreadableDocument, UnsupportedDocument
 from custodio.extraction.instructions import find_instructions
 from custodio.extraction.render import render_invoice
 from custodio.extraction.source import SourceText
 
-__all__ = ["extract_document", "extract_text", "render_invoice"]
+__all__ = ["extract_document", "extract_text", "labels", "render_invoice"]
 
 SupportedMediaType = Literal["application/pdf", "image/png", "image/jpeg", "image/webp"]
 SUPPORTED_MEDIA_TYPES: tuple[SupportedMediaType, ...] = ("application/pdf", "image/png", "image/jpeg", "image/webp")
@@ -107,7 +110,7 @@ def _read(
     readers: tuple[str, ...],
     hidden: list[HiddenTextFinding],
 ) -> ExtractedInvoice:
-    reading = structure.read_fields(source)
+    reading = structure.read_fields(source) if get_settings().anthropic_configured else labels.read_fields(source)
     return ExtractedInvoice.model_validate(
         {
             "document_id": document_id,

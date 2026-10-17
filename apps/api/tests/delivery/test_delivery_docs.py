@@ -277,7 +277,34 @@ def test_readme_names_the_team_the_license_and_ends_in_english() -> None:
         assert name in text
     assert "MIT" in text
     assert re.findall(r"^## (.+)$", text, re.MULTILINE)[-1] == "English summary"
-    assert (REPO / "LICENSE").read_text(encoding="utf-8").startswith("MIT License")
+    license_text = (REPO / "LICENSE").read_text(encoding="utf-8")
+    assert license_text.startswith("MIT License")
+    assert "Copyright (c) 2026 DreamMakers (Adriano Joao Souza Reyna, Juan David Leon, Leober Ramos)" in license_text
+
+
+def test_every_license_field_and_the_contributing_guide_say_mit() -> None:
+    assert re.search(r'^license = "MIT"$', read("apps/api/pyproject.toml"), re.MULTILINE)
+    assert '"license": "MIT"' in read("apps/web/package.json")
+    assert "bajo la licencia MIT" in read("CONTRIBUTING.md")
+    assert "Apache" not in read("README.md") + read("CONTRIBUTING.md") + read("docs/SELF_HOSTING.md")
+
+
+@pytest.mark.parametrize(
+    "path", ["CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md", ".github/PULL_REQUEST_TEMPLATE.md"]
+)
+def test_community_files_exist(path: str) -> None:
+    assert read(path).strip()
+
+
+def test_security_policy_reports_privately_and_covers_any_improper_payment() -> None:
+    text = read("SECURITY.md")
+    assert "security/advisories/new" in text
+    assert "pague algo indebido" in text
+
+
+def test_issue_templates_cover_bugs_new_rules_and_payment_rails() -> None:
+    templates = {path.name for path in (REPO / ".github" / "ISSUE_TEMPLATE").glob("*.yml")}
+    assert {"bug.yml", "rule.yml", "payment-rail.yml"} <= templates
 
 
 @pytest.mark.parametrize("path", owned_markdown())
@@ -336,3 +363,17 @@ def test_readme_links_the_blinka_page_and_the_rails_section() -> None:
 def test_documents_count_the_rules_of_the_catalogue(path: str) -> None:
     text = read(path)
     assert re.findall(r"\b(?:12|doce) reglas\b", text) == []
+
+
+def test_readme_opens_in_spanish_and_english_with_the_demo_self_hosting_and_license() -> None:
+    first_screen = "\n".join(read("README.md").splitlines()[:25])
+    for phrase in (
+        "El agente de cuentas por pagar de código abierto",
+        "The open-source accounts-payable agent",
+        "https://custodio-blinka-green.vercel.app",
+        "docker compose up --build",
+        "vercel.com/new/clone",
+        "actions/workflows/ci.yml/badge.svg",
+        "license-MIT",
+    ):
+        assert phrase in first_screen, phrase

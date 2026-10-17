@@ -15,7 +15,7 @@ from custodio.db.models import RedTeamRunRow
 from custodio.llm import LLMError
 from custodio.services import invoice_service, ledger_service, policy_service, records, workspace_service
 from custodio.services.context import Runtime
-from custodio.services.errors import ModelUnavailable
+from custodio.services.errors import model_failure
 from custodio.services.workspace_service import WorkspaceKind, new_id
 
 MAX_ROUNDS = 12
@@ -43,9 +43,9 @@ def run(runtime: Runtime, workspace_id: str, rounds: int) -> Iterator[RedTeamEve
             if event.type == "verdict":
                 _record_verdict(runtime, current, event)
             yield event
-    except LLMError:
+    except LLMError as error:
         _finish(runtime, current, "failed")
-        yield RedTeamEvent(type="error", round=current.attacks + 1, message=ModelUnavailable.message)
+        yield RedTeamEvent(type="error", round=current.attacks + 1, message=model_failure(error).message)
         return
     _finish(runtime, current, "finished")
 
