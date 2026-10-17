@@ -46,3 +46,16 @@ export async function ensureWorkspace(
   store.write(created);
   return created.workspace_id;
 }
+
+/** A new demo workspace in place of one the API no longer has, unless another call already replaced it. */
+export async function renewWorkspace(
+  api: Pick<CustodioApi, "createWorkspace">,
+  store: WorkspaceStore,
+  stale: string,
+): Promise<string> {
+  const current = store.read();
+  if (current && current !== stale) return current;
+  const created = await api.createWorkspace("demo");
+  store.write(created);
+  return created.workspace_id;
+}

@@ -154,7 +154,7 @@ describe("live client", () => {
         .fn<typeof fetch>()
         .mockResolvedValueOnce(gone())
         .mockResolvedValueOnce(jsonResponse(200, []));
-      const replaceWorkspace = vi.fn(async () => "ws_new");
+      const replaceWorkspace = vi.fn<(stale: string) => Promise<string>>(async () => "ws_new");
       let current = "ws_old";
       const client = createLiveClient({
         fetch: fetchMock,
@@ -174,7 +174,7 @@ describe("live client", () => {
 
     it("gives up after one replacement instead of looping", async () => {
       const fetchMock = vi.fn<typeof fetch>(async () => gone());
-      const replaceWorkspace = vi.fn(async () => "ws_new");
+      const replaceWorkspace = vi.fn<(stale: string) => Promise<string>>(async () => "ws_new");
       const client = createLiveClient({ fetch: fetchMock, workspaceId: () => "ws_old", replaceWorkspace });
 
       await expect(client.getWorkspace()).rejects.toBeInstanceOf(NotFoundError);
@@ -186,7 +186,7 @@ describe("live client", () => {
       const fetchMock = vi.fn<typeof fetch>(async () =>
         jsonResponse(404, { detail: "No encontramos esa decisión en este espacio.", code: "decision_not_found" }),
       );
-      const replaceWorkspace = vi.fn(async () => "ws_new");
+      const replaceWorkspace = vi.fn<(stale: string) => Promise<string>>(async () => "ws_new");
       const client = createLiveClient({ fetch: fetchMock, workspaceId: () => "ws_123", replaceWorkspace });
 
       await expect(client.getDecision("F-999")).rejects.toBeInstanceOf(NotFoundError);
