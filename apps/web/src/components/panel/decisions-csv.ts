@@ -4,9 +4,12 @@ import { failingRules, STATUS_META } from "@/lib/presentation";
 const COLUMNS = ["proveedor", "numero", "monto", "moneda", "estado", "regla_decisiva", "fecha", "id_transferencia"];
 const WITHIN_RULES = "Dentro de las reglas";
 const NEEDS_QUOTES = /[",\r\n]/;
+// A spreadsheet runs a text cell that starts with one of these as a formula; the supplier name is read from an invoice.
+const FORMULA_START = /^[=+\-@\t\r]/;
 
 function cell(value: string | number | null | undefined): string {
-  const text = value === null || value === undefined ? "" : String(value);
+  const raw = value === null || value === undefined ? "" : String(value);
+  const text = typeof value === "string" && FORMULA_START.test(raw) ? `'${raw}` : raw;
   return NEEDS_QUOTES.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
