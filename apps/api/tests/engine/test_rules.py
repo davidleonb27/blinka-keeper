@@ -531,6 +531,16 @@ def test_r14_skips_when_there_is_no_name_to_screen() -> None:
     assert result.outcome is SKIPPED
 
 
+EMPTY_LIST = SanctionsList(entries=(), source="sin lista", published_on=None)
+
+
+def test_r14_escalates_when_no_sanctions_list_is_loaded() -> None:
+    decision = one(invoice(), sanctions=EMPTY_LIST)
+    result = rule(decision, "R14")
+    assert result.outcome is ESCALATE and "0 entradas" in result.reason
+    assert decision.agent_verdict is AgentVerdict.ESCALATE  # an unscreened name is never paid alone
+
+
 def test_r14_uses_the_bundled_ofac_copy_by_default() -> None:
     [decision] = decide_all([invoice()], state(), policy()).decisions
     published = bundled_sanctions().published_on

@@ -116,6 +116,15 @@ def test_a_human_payment_that_touches_the_reserve_is_improper() -> None:
     assert report.improper_payments == 1 and "reserva" in report.findings[0].message
 
 
+def test_an_autonomous_payment_screened_against_no_list_is_improper() -> None:
+    case = invoice()
+    batch = decide_all([case], state(), policy(), sanctions=FICTITIOUS)
+    assert batch.decisions[0].status is DecisionStatus.PAID_AUTO
+    empty = SanctionsList(entries=(), source="sin lista", published_on=None)
+    report = audit(batch, [case], state(), policy(), sanctions=empty)
+    assert report.improper_payments == 1 and "OFAC" in report.findings[0].message
+
+
 # Mutants: an engine with a rule switched off is caught by the auditor, and the auditor wins. --------------------
 
 
