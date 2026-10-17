@@ -1,13 +1,11 @@
 import { screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import { GitHubStars } from "@/components/site/github-stars";
+import { describe, expect, it } from "vitest";
 import { RAIL_PITCH } from "@/lib/presentation";
 import { REPO_URL } from "@/lib/site";
 import { renderWithApi } from "@/test/render";
 import HomePage from "./page";
 
 // The live count is an async server component; here it stands still so the page renders in jsdom.
-vi.mock("@/components/site/live-github-stars", () => ({ LiveGitHubStars: () => <GitHubStars count={42} /> }));
 
 describe("HomePage", () => {
   it("says Custodio decides and the rail pays", () => {
@@ -16,18 +14,22 @@ describe("HomePage", () => {
     expect(screen.getByText(RAIL_PITCH)).toBeInTheDocument();
   });
 
-  it("presents the open-source agent with the demo and the one-command self-hosting", () => {
+  it("opens on what Custodio does for a finance team, with the demo first and the challenge as a quiet link", () => {
     renderWithApi(<HomePage />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "El agente de cuentas por pagar de código abierto" })).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: /Probar la demo/ })[0]).toHaveAttribute("href", "/panel");
-    expect(screen.getByRole("link", { name: /Autoalojar en 1 comando/ })).toHaveAttribute("href", "/docs/inicio-rapido#autoalojado");
+    expect(screen.getByRole("heading", { level: 1, name: "Tu analista de cuentas por pagar" })).toBeInTheDocument();
+    expect(screen.getByText(/Lee, decide, paga, concilia y cierra el mes;/)).toHaveTextContent("tú solo apruebas lo que importa");
+    const hero = screen.getByRole("region", { name: "Tu analista de cuentas por pagar" });
+    expect(within(hero).getByRole("link", { name: /Probar la demo/ })).toHaveAttribute("href", "/panel");
+    expect(within(hero).getByRole("link", { name: /Intenta engañarlo/ })).toHaveAttribute("href", "/reto");
+    expect(within(hero).queryByRole("link", { name: /Róbale a Custodio/ })).not.toBeInTheDocument();
+    expect(within(hero).queryByRole("figure")).not.toBeInTheDocument();
   });
 
-  it("shows the compose command and a call to the firewall", () => {
+  it("shows the compose command and a call to the firewall in the self-hosting section", () => {
     renderWithApi(<HomePage />);
 
-    const code = screen.getByRole("figure", { name: /Autoalojado/ });
+    const code = within(screen.getByRole("region", { name: /Autoalójalo/ })).getByRole("figure", { name: /Autoalojado/ });
     expect(code).toHaveTextContent("docker compose up --build");
     expect(code).toHaveTextContent("/api/v1/firewall/intents");
   });
@@ -38,7 +40,7 @@ describe("HomePage", () => {
     const features = within(screen.getByRole("region", { name: /Todo lo que necesita/ })).getAllByRole("listitem");
     expect(features.map((item) => item.querySelector("h3")?.textContent)).toEqual([
       "Lectura con evidencia",
-      "12 reglas en código",
+      "15 reglas en código",
       "Auditor independiente",
       "Registro encadenado SHA-256",
       "Firewall de pagos por API y MCP",
@@ -56,11 +58,11 @@ describe("HomePage", () => {
     expect(within(metrics).getByRole("link", { name: /Cómo se midió/ })).toHaveAttribute("href", expect.stringContaining(REPO_URL));
   });
 
-  it("links the repository with the live star count and the self-hosting options", () => {
+  it("links the repository without a star count, and the self-hosting options", () => {
     renderWithApi(<HomePage />);
 
     const openSource = screen.getByRole("region", { name: /Código abierto/ });
-    expect(within(openSource).getByText("42")).toBeInTheDocument();
+    expect(within(openSource).queryByText(/★|estrellas/i)).not.toBeInTheDocument();
     expect(within(openSource).getAllByRole("link", { name: /GitHub/ })[0]).toHaveAttribute("href", REPO_URL);
     const selfHost = screen.getByRole("region", { name: /Autoalójalo/ });
     expect(selfHost).toHaveTextContent("Vercel");

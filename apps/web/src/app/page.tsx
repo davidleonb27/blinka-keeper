@@ -1,11 +1,13 @@
 import {
   ArrowRight,
+  Banknote,
   BookOpenCheck,
   Bot,
   Cloud,
   Container,
   FileSearch,
   GitPullRequest,
+  Landmark,
   Link2,
   Plug,
   Scale,
@@ -17,12 +19,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
 import { CodeBlock } from "@/components/developers/code-block";
 import { ActaPreview } from "@/components/landing/acta-preview";
 import { UseCompanyButton } from "@/components/landing/use-company-button";
-import { GitHubStars } from "@/components/site/github-stars";
-import { LiveGitHubStars } from "@/components/site/live-github-stars";
+import { GitHubLink } from "@/components/site/github-link";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,7 @@ const FEATURES: { title: string; text: string; icon: LucideIcon; href: string }[
     text: "El modelo lee cada factura y cita el texto exacto de cada dato; el código verifica la cita. Lo que no se pudo verificar cuenta como no leído, y el texto oculto se destapa.",
   },
   {
-    title: "12 reglas en código",
+    title: "15 reglas en código",
     icon: Scale,
     href: "/docs/reglas",
     text: "Beneficiario, cuenta registrada, duplicados, lo acordado, fraccionamiento, topes, cupo y reserva. Deterministas: sin modelo, sin reloj y sin azar.",
@@ -80,6 +80,14 @@ const FEATURES: { title: string; text: string; icon: LucideIcon; href: string }[
     href: "/docs/rieles",
     text: "Simulado por defecto, Stripe en modo prueba y, en producción, el riel de tu empresa, como Blinka. El riel ejecuta lo aprobado; nunca decide.",
   },
+];
+
+const FINANCE_WEEK: { title: string; text: string; icon: LucideIcon }[] = [
+  { title: "Lee", icon: FileSearch, text: "Facturas por correo, PDF, foto o WhatsApp, con la cita de cada dato." },
+  { title: "Decide", icon: Scale, text: "Quince reglas en código: paga, retiene o te pide permiso." },
+  { title: "Paga", icon: Banknote, text: "Sólo lo aprobado, por tu riel de pagos, con su acta." },
+  { title: "Concilia", icon: Landmark, text: "Cruza el extracto del banco con cada pago y te muestra lo que no cuadra." },
+  { title: "Cierra el mes", icon: Link2, text: "Un registro encadenado que cualquiera puede verificar." },
 ];
 
 const FLOW: { title: string; tag: string; text: string; icon: LucideIcon }[] = [
@@ -142,12 +150,14 @@ function Hero() {
             <span aria-hidden className="size-1.5 rounded-full bg-brand" /> Código abierto · {LICENSE_NAME}
           </p>
           <h1 id="hero-title" className="font-serif text-[40px] leading-[1.03] font-semibold tracking-[-0.02em] text-ink sm:text-[56px] lg:text-[62px]">
-            El agente de cuentas por pagar de código abierto
+            Tu analista de cuentas por pagar
           </h1>
-          <p className="mt-5 max-w-[50ch] text-lg text-ink-2">
-            Custodio lee las facturas, paga sólo lo que cabe en tus reglas, retiene lo indebido y le pregunta a una
-            persona lo demás. <b className="font-semibold text-ink">El modelo lee, el código decide, la persona autoriza.</b>{" "}
-            Úsalo en la demo o córrelo en tu infraestructura.
+          <p className="mt-5 max-w-[46ch] text-xl text-ink">
+            Lee, decide, paga, concilia y cierra el mes; <b className="font-semibold">tú solo apruebas lo que importa.</b>
+          </p>
+          <p className="mt-3 max-w-[50ch] text-[16px] text-ink-2">
+            Paga sólo lo que cabe en tus reglas, retiene lo indebido y cada decisión queda en un acta.{" "}
+            <b className="font-semibold text-ink">El modelo lee, el código decide, la persona autoriza.</b>
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button asChild size="lg">
@@ -156,17 +166,25 @@ function Hero() {
               </Link>
             </Button>
             <UseCompanyButton />
-            <Button asChild size="lg" variant="outline">
-              <Link href="/docs/inicio-rapido#autoalojado">
-                <Container aria-hidden /> Autoalojar en 1 comando
-              </Link>
-            </Button>
           </div>
-          <p className="mt-4 text-[13px] text-ink-3">La demo no pide registro ni mueve dinero real.</p>
+          <p className="mt-4 text-[13px] text-ink-3">
+            La demo no pide registro ni mueve dinero real.{" "}
+            <Link href="/reto" className="font-medium text-brand hover:underline">
+              ¿Dudas? Intenta engañarlo →
+            </Link>
+          </p>
         </div>
-        <div className="min-w-0">
-          <CodeBlock label="Autoalojado: docker compose y el firewall" code={SELF_HOST_COMMANDS} />
-        </div>
+        <ol aria-label="Lo que hace por tu equipo de finanzas" className="flex min-w-0 flex-col gap-2.5">
+          {FINANCE_WEEK.map(({ title, text, icon: Icon }) => (
+            <li key={title} className="flex items-start gap-3.5 rounded-2xl border border-line bg-surface p-4">
+              <Icon aria-hidden className="mt-0.5 size-5 shrink-0 text-brand" strokeWidth={1.75} />
+              <span className="min-w-0">
+                <span className="block font-semibold text-ink">{title}</span>
+                <span className="block text-[14px] text-ink-2">{text}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );
@@ -269,9 +287,7 @@ function OpenSource() {
             lead={`Custodio se publica bajo licencia ${LICENSE_NAME}: úsalo, cámbialo y llévalo a producción. Las reglas, el auditor, los tests y las cifras medidas están en el repositorio.`}
           />
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Suspense fallback={<GitHubStars count={null} />}>
-              <LiveGitHubStars />
-            </Suspense>
+            <GitHubLink />
             <Button asChild variant="outline">
               <a href={REPO_URL}>
                 Ver el código en GitHub <ArrowRight aria-hidden />
@@ -318,6 +334,9 @@ function SelfHost() {
           </li>
         ))}
       </ul>
+      <div className="mt-10 max-w-3xl">
+        <CodeBlock label="Autoalojado: docker compose y el firewall" code={SELF_HOST_COMMANDS} />
+      </div>
     </section>
   );
 }

@@ -1,12 +1,14 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { ErrorState, LoadingBlock } from "@/components/states";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { messageOf } from "@/lib/api/errors";
 import { useDecision, useHumanDecision, usePolicy, useRetryPayment } from "@/lib/api/hooks";
 import { STATUS_META } from "@/lib/presentation";
+import { markTourStep } from "@/lib/tour";
 import { Acta } from "./acta";
 
 const ACTA_PARAM = "acta";
@@ -16,6 +18,10 @@ function ActaContent({ invoiceId }: { invoiceId: string }) {
   const policy = usePolicy();
   const decide = useHumanDecision(invoiceId);
   const retry = useRetryPayment(invoiceId);
+  const opened = detail.data !== undefined;
+  useEffect(() => {
+    if (opened) markTourStep("acta");
+  }, [opened]);
 
   if (detail.error || policy.error) {
     return <ErrorState error={detail.error ?? policy.error} onRetry={() => void detail.refetch()} />;

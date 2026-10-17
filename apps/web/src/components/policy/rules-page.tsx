@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { PageHeader } from "@/components/shell/page-header";
 import { ErrorState, LoadingBlock } from "@/components/states";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePolicy } from "@/lib/api/hooks";
 import { PolicyForm } from "./policy-form";
@@ -14,7 +16,11 @@ export function RulesPage() {
       <PageHeader
         title="Reglas"
         subtitle="Tú pones los límites. Antes de aplicarlos ves qué facturas cambiarían de decisión; cada cambio queda en el registro."
-      />
+      >
+        <Button asChild variant="outline">
+          <Link href="/reto">Pruébalo tú: intenta engañarlo</Link>
+        </Button>
+      </PageHeader>
       {policy.error ? <ErrorState error={policy.error} onRetry={() => void policy.refetch()} /> : null}
       {!policy.data && !policy.error ? <LoadingBlock className="h-72" /> : null}
       {policy.data ? (

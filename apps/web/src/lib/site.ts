@@ -38,7 +38,7 @@ export const MEASURED_FIGURES: readonly MeasuredFigure[] = [
     detail: "36 facturas etiquetadas, con trampas: duplicados, cuentas cambiadas, fraccionamientos y más.",
   },
   {
-    value: "12",
+    value: "15",
     label: "reglas en código, sin modelo",
     detail: "El modelo sólo lee y cita. Mismo input, misma decisión, siempre.",
   },

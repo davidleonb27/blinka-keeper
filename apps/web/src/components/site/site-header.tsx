@@ -1,16 +1,14 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import { Wordmark } from "@/components/brand/seal";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { GitHubStars } from "./github-stars";
-import { LiveGitHubStars } from "./live-github-stars";
+import { GitHubLink } from "./github-link";
 
 const NAV = [
   { href: "/#funciones", label: "Funciones" },
   { href: "/docs", label: "Documentación" },
   { href: "/docs/inicio-rapido#autoalojado", label: "Autoalojar" },
-  { href: "/reto", label: "Róbale a Custodio" },
+  { href: "/reto", label: "Seguridad" },
 ];
 
 export function SiteHeader() {
@@ -33,9 +31,7 @@ export function SiteHeader() {
           <Link href="/docs" className="rounded-lg px-2 py-2 text-[14px] font-medium text-ink-2 hover:text-ink lg:hidden">
             Docs
           </Link>
-          <Suspense fallback={<GitHubStars count={null} className="hidden sm:inline-flex" />}>
-            <LiveGitHubStars className="hidden sm:inline-flex" />
-          </Suspense>
+          <GitHubLink className="hidden sm:inline-flex" />
           <ThemeToggle />
           <Button asChild size="sm" className="hidden sm:inline-flex">
             <Link href="/panel">Probar la demo</Link>

@@ -9,7 +9,8 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy.dialects import postgresql, sqlite
+from sqlalchemy.orm import Session
 
 from custodio.db.models import RateCounterRow
 from custodio.services.context import Runtime
@@ -36,15 +37,20 @@ def _hit(runtime: Runtime, key: str, limit: int, window_seconds: int, message: s
     now = runtime.clock()
     window = _window_start(now, window_seconds)
     with runtime.database.session() as session:
-        counter = session.scalars(
-            select(RateCounterRow).where(RateCounterRow.key == key, RateCounterRow.window_start == window)
-        ).first()
-        if counter is None:
-            counter = RateCounterRow(key=key, window_start=window, count=0)
-            session.add(counter)
-        if counter.count >= limit:
+        if _increment(session, key, window) > limit:  # raising rolls this hit back, so a refused request does not count
             raise RateLimited(retry_after_seconds=window + window_seconds - int(now.timestamp()), message=message)
-        counter.count += 1
+
+
+def _increment(session: Session, key: str, window: int) -> int:
+    """One atomic upsert: simultaneous requests neither collide on a new window nor overwrite each other's hit."""
+    insert = postgresql.insert if session.get_bind().dialect.name == "postgresql" else sqlite.insert
+    statement = insert(RateCounterRow).values(key=key, window_start=window, count=1)
+    upsert = statement.on_conflict_do_update(
+        index_elements=[RateCounterRow.key, RateCounterRow.window_start],
+        set_={"count": RateCounterRow.count + 1},
+    )
+    count: int = session.execute(upsert.returning(RateCounterRow.count)).scalar_one()
+    return count
 
 
 def _window_start(now: datetime, window_seconds: int) -> int:

@@ -235,9 +235,9 @@ def test_a_payment_stops_reaching_stripe_after_its_last_allowed_attempt(
     assert len(stripe_http.posts("/v1/transfers")) == 2
 
 
-def test_the_test_transfer_caps_are_forty_per_workspace_and_four_hundred_a_day() -> None:
+def test_the_test_transfer_caps_are_forty_per_workspace_and_two_thousand_a_day() -> None:
     assert RateLimits().test_transfers_per_workspace == 40
-    assert RateLimits().test_transfers_per_day == 400
+    assert RateLimits().test_transfers_per_day == 2000
     assert RateLimits().payment_attempts_per_invoice == 5
 
 

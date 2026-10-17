@@ -9,7 +9,7 @@ import { watch } from "./problems";
 
 const PAGE_CODE_LATE_MS = 1_500;
 const PAGES: { path: string; heading: string | RegExp; sentence: string }[] = [
-  { path: "/", heading: "El agente de cuentas por pagar de código abierto", sentence: "El modelo lee, el código decide" },
+  { path: "/", heading: "Tu analista de cuentas por pagar", sentence: "El modelo lee, el código decide" },
   { path: "/reto", heading: "Róbale a Custodio", sentence: "Intenta que pague algo indebido" },
   { path: "/panel", heading: "Panel", sentence: "Lo que Custodio decidió este mes" },
   { path: "/reglas", heading: "Reglas", sentence: "Tú pones los límites" },

@@ -36,7 +36,7 @@ test("every page and the whole demo work against the real API without a single e
   const problems = watch(page);
 
   await test.step("inicio: entra a la empresa demo", async () => {
-    await visit(page, "/", "El agente de cuentas por pagar de código abierto");
+    await visit(page, "/", "Tu analista de cuentas por pagar");
     await page.getByRole("link", { name: /Probar la demo/ }).first().click();
     await expect(page).toHaveURL(/\/panel$/);
   });
@@ -191,7 +191,7 @@ test("every page and the whole demo work against the real API without a single e
     await expectNoErrorScreen(page);
   });
 
-  await test.step("arena: una ronda de Claude contra Claude", async () => {
+  await test.step("arena: una ronda de ataque contra defensa", async () => {
     await visit(page, "/arena", /Arena/);
     await page.getByRole("button", { name: /Empezar el ataque/ }).click();
     await expect(page.getByRole("button", { name: /Otra vez/ })).toBeVisible({ timeout: 60_000 });
@@ -210,7 +210,7 @@ test("every page and the whole demo work against the real API without a single e
 
   await test.step("reto en escenario: QR y contador en vivo", async () => {
     await visit(page, "/reto?escenario=1", "Róbale a Custodio");
-    await expect(page.getByRole("img", { name: /Código QR a http.*\/reto$/ })).toBeVisible();
+    await expect(page.getByRole("img", { name: /Código QR a http.*\/panel$/ })).toBeVisible();
     await expect(page.getByRole("status", { name: "Pagos indebidos" })).toContainText("0");
     await expect(page.getByRole("region", { name: "Último intento" })).toBeVisible();
     await expectNoErrorScreen(page);
