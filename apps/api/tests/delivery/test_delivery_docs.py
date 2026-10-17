@@ -348,3 +348,17 @@ def test_readme_links_the_blinka_page_and_the_rails_section() -> None:
     assert "](docs/BLINKA.md)" in text
     assert "](docs/PAYMENTS.md#los-rieles)" in text
     assert "## Los rieles" in read("docs/PAYMENTS.md")
+
+
+def test_readme_opens_in_spanish_and_english_with_the_demo_self_hosting_and_license() -> None:
+    first_screen = "\n".join(read("README.md").splitlines()[:25])
+    for phrase in (
+        "El agente de cuentas por pagar de código abierto",
+        "The open-source accounts-payable agent",
+        "https://custodio-blinka-green.vercel.app",
+        "docker compose up --build",
+        "vercel.com/new/clone",
+        "actions/workflows/ci.yml/badge.svg",
+        "Apache 2.0",
+    ):
+        assert phrase in first_screen, phrase
