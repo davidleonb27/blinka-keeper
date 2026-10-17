@@ -28,6 +28,7 @@ export const SOURCE_LABEL: Record<InvoiceSource, string> = {
 export const RAIL_LABEL: Record<PaymentRailName, string> = {
   simulated: "Simulado",
   stripe_test: "Stripe · modo prueba",
+  blinka_simulated: "Blinka · simulado",
 };
 
 export const RAIL_PITCH =
