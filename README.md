@@ -67,8 +67,9 @@ Sólo se publican cifras medidas. Mientras el coordinador no las mida sobre la v
    política, se muestra el cambio y se simula contra el historial antes de aplicarlo. Lo que no se entiende se pregunta.
 5. **Onboarding de una pregunta por pantalla.** Con el nombre y el sitio web, Claude propone el perfil de la empresa y
    unas reglas iniciales; se importan los proveedores y se simula la primera semana.
-6. **Prueba, no promesa.** Tests de propiedades sobre miles de empresas aleatorias en cada commit y un botón «alterar el
-   registro» que muestra dónde se rompe la cadena.
+6. **Prueba, no promesa.** Tests de propiedades con empresas y lotes aleatorios en cada commit, una prueba de estrés
+   reproducible de 1.000 empresas (`docs/DATASET.md`) y un botón «alterar el registro» que muestra dónde se rompe la
+   cadena.
 7. **Aprobar en un clic.** Lo dudoso queda pendiente en el acta web, donde la persona aprueba o rechaza.
 
 ## Arquitectura

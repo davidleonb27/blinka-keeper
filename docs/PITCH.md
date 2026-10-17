@@ -65,7 +65,7 @@ Entrega: video de 3:00 exactos, demo en vivo y repo público. Equipo DreamMakers
 
 ### 2:40–3:00 · Prueba y cierre
 
-**Se oye:** No es una maqueta. Hay tests de propiedades sobre miles de empresas aleatorias y un botón para alterar el registro y ver dónde se rompe. Somos DreamMakers: Adriano, Juan David y Leober. Custodio: el modelo lee, el código decide, la persona autoriza.
+**Se oye:** No es una maqueta. Cada commit corre pruebas con empresas aleatorias, y una prueba de estrés de mil empresas se puede repetir. Hay un botón para alterar el registro y ver dónde se rompe. Somos DreamMakers: Adriano, Juan David y Leober. Custodio: el modelo lee, el código decide, la persona autoriza.
 
 **Se ve:** El botón «alterar una copia» y la cadena rota en rojo en una entrada. Cierre con el logo, el enlace de la demo, el repo y los tres nombres.
 
