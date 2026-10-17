@@ -116,7 +116,7 @@ function Overview({ view }: { view: ReconciliationView }) {
   return (
     <section className="card-surface mb-4 flex flex-col gap-3 p-5" aria-label="Resumen de la conciliación">
       <div>
-        <h2 className="font-display text-[19px] font-semibold">Extracto de {monthOf(view.period)}</h2>
+        <h2 className="font-serif text-[19px] font-semibold">Extracto de {monthOf(view.period)}</h2>
         <p className="text-[13px] text-ink-2">
           {view.filename} · leído por {view.reader} · {counted(view.movements.length, "movimiento", "movimientos")} ·
           tolerancia de cambio ±{formatNumber(settings.fx_tolerance_pct, 1)} % (sólo pagos en otra moneda) · ventana
@@ -291,7 +291,7 @@ function Closing({ view }: { view: ReconciliationView }) {
 
   return (
     <section aria-label="Cierre del mes" className="card-surface flex flex-col gap-3 p-5">
-      <h2 className="font-display text-[19px] font-semibold">Cierre de {month}</h2>
+      <h2 className="font-serif text-[19px] font-semibold">Cierre de {month}</h2>
       {body}
       {close.error || downloadError ? (
         <p role="alert" className="text-[13px] text-crit">
