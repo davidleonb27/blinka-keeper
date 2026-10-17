@@ -159,3 +159,25 @@ def test_a_payment_without_beneficiary_fails_without_calling_stripe() -> None:
 
     assert receipt.status == "failed"
     assert fake.requests == []
+
+
+def test_every_transfer_of_an_invoice_shares_one_transfer_group() -> None:
+    fake = FakeStripe()
+
+    rail(fake).execute(ORDER)
+
+    assert fake.posts("/v1/transfers")[0].form["transfer_group"] == "ws-1:F01"
+
+
+def test_a_retry_after_a_lost_answer_finds_the_transfer_instead_of_paying_twice() -> None:
+    fake = FakeStripe()
+    accounts = MemoryAccounts()
+    fake.lose_next_answer("/v1/transfers")
+
+    lost = rail(fake, accounts).execute(ORDER)
+    retried = rail(fake, accounts).execute(replace(ORDER, idempotency_key="ws-1:F01:intento-2"))
+
+    assert lost.status == "failed"
+    assert retried.status == "executed"
+    assert retried.external_id == fake.transfers[0]["id"]
+    assert len(fake.transfers) == 1

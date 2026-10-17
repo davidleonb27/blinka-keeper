@@ -20,6 +20,8 @@ TABLES = {
     "challenge_attempts",
     "redteam_runs",
     "rate_counters",
+    "stripe_accounts",
+    "payment_executions",
 }
 
 
