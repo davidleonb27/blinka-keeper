@@ -77,6 +77,15 @@ test.describe("cold loads in Bogotá with the server in UTC", () => {
     });
   }
 
+  test("the panel's HTML already carries the panel, so a deep link never starts from an empty main", async ({
+    request,
+  }) => {
+    const html = await (await request.get(`/panel?acta=${workspace.decisionId}`)).text();
+    const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+
+    expect(main).toContain(PAGES[0].sentence);
+  });
+
   for (const deepLink of ["/panel?acta={id}", "/acta/{id}"]) {
     for (const late of [false, true]) {
       test(`a fresh load of ${deepLink} opens the panel with the acta on top${late ? ", code arriving late" : ""}`, async ({
