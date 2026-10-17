@@ -12,6 +12,10 @@ export const STATUS_META: Record<DecisionStatus, { label: string; tone: Tone }> 
   rejected: { label: "Rechazada", tone: "muted" },
 };
 
+export function isDecisionStatus(value: unknown): value is DecisionStatus {
+  return typeof value === "string" && Object.hasOwn(STATUS_META, value);
+}
+
 export const SOURCE_LABEL: Record<InvoiceSource, string> = {
   email: "Correo",
   pdf: "PDF",
