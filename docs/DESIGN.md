@@ -37,7 +37,7 @@ KYC, cumplimiento, decisiones de fraude como servicio y el diseño de la app de 
    termina simulando la primera semana. Se adapta a cualquier empresa en dos minutos.
 6. **Prueba, no promesa.** Tests de propiedades sobre miles de empresas aleatorias en cada commit; botón «alterar el
    registro» que muestra cómo se rompe la cadena.
-7. **Aprobar en un clic.** Desde el acta en la web. (Telegram queda fuera por ahora: las aprobaciones son sólo por la web.)
+7. **Aprobar en un clic.** Desde el acta en la web; las aprobaciones son sólo por la web.
 
 ## 3. Invariantes (los hace cumplir un test)
 
@@ -57,8 +57,8 @@ KYC, cumplimiento, decisiones de fraude como servicio y el diseño de la app de 
 ```
                  ┌────────────── Vercel (un proyecto, Services) ──────────────┐
  navegador ───▶  │  web  (Next.js App Router)   ──binding──▶  api (FastAPI)   │
- Telegram  ───▶  │                          /api/v1/*  ───────▶               │
- agentes   ───▶  │  (MCP y firewall también entran por /api/v1)               │
+ agentes   ───▶  │                          /api/v1/*  ───────▶               │
+                 │  (MCP y firewall también entran por /api/v1)               │
                  └─────────────────────────────────────────────┬──────────────┘
                                                                │
               Neon Postgres (estado, documentos ≤ 4 MB y ledger)
@@ -75,7 +75,7 @@ Backend `apps/api/custodio/`:
 | `dataset/` | empresa demo y casos trampa etiquetados (`cases.json`) | L1 |
 | `extraction/` | PDF (pdfplumber + detección de texto oculto), imágenes y PDFs escaneados (Claude con visión), estructuración (Claude), verificación de citas, `render_invoice` | L2 |
 | `ai/` | compilador de reglas, narración, perfil de empresa, importación de proveedores, red team | L3 |
-| `api/`, `db/` | rutas, persistencia, espacios de trabajo, aprobaciones, Telegram, firewall, MCP, reto público, límites | L4 |
+| `api/`, `db/` | rutas, persistencia, espacios de trabajo, aprobaciones web, firewall, MCP, reto público, límites | L4 |
 
 Frontend `apps/web/` (L5). Documentación, dataset publicado, guion y build-in-public (L6).
 
@@ -177,7 +177,7 @@ shadcn/ui, tema claro y oscuro, móvil primero.
    «Probar con una empresa demo» y «Configurar mi empresa».
 2. **Onboarding tipo Typeform**: una pregunta por pantalla, teclado (Enter avanza), barra de progreso, animaciones
    suaves. Pasos: nombre y sitio → perfil propuesto (editable) → país, moneda, saldo y reserva → quién aprueba (nombre,
-   Telegram) → reglas en tus palabras (compiladas en vivo) → proveedores (subir lista, contrato o facturas) → simulación
+   cargo y correo) → reglas en tus palabras (compiladas en vivo) → proveedores (subir lista, contrato o facturas) → simulación
    de la primera semana → «Custodio está listo».
 3. **Panel**: pagado / retenido / pendiente con razón en una línea, filtros, métricas, saldo y cupo.
 4. **Acta** (drawer): las 12 reglas con su resultado, contrafactual, documento con las citas resaltadas, texto oculto
@@ -219,5 +219,7 @@ shadcn/ui, tema claro y oscuro, móvil primero.
 ## 13. Cambios de alcance (2026-10-17)
 
 - **Sin Gemini**: Claude lee imágenes y PDFs escaneados con visión. Quitar `google-genai`, `gemini_model` y `gemini_configured`.
-- **Sin Telegram por ahora**: las aprobaciones son por la web. El código de Telegram, si existe, queda apagado sin token y fuera de la demo.
+- **Sin Telegram por ahora**: las aprobaciones son sólo por la web. Desde L7 no queda código de Telegram: `Approver`
+  ya no tiene `telegram_chat_id`, el canal de `Approval` es `web` o `api` y la migración `0002` quita ese campo de las
+  políticas guardadas.
 - **Neon**: `DATABASE_URL` llega como `postgresql://`; la capa `db` la normaliza a `postgresql+psycopg://`.
