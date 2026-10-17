@@ -1,5 +1,6 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { RAIL_PITCH } from "@/lib/presentation";
 import { renderWithApi } from "@/test/render";
 import { DevelopersPage } from "./developers-page";
 
@@ -9,6 +10,12 @@ describe("DevelopersPage", () => {
 
     expect(await screen.findByText(/API en línea/)).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/gemini|telegram/i);
+  });
+
+  it("says who decides and who pays", () => {
+    renderWithApi(<DevelopersPage />);
+
+    expect(screen.getByText(RAIL_PITCH)).toBeInTheDocument();
   });
 
   it("documents the firewall acta link at /acta/{id}", () => {
