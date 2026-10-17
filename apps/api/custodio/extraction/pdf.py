@@ -38,6 +38,7 @@ Box = tuple[float, float, float, float]  # x0, top, x1, bottom; pdfplumber page 
 PAGE_BACKGROUND: Rgb = (1.0, 1.0, 1.0)
 INVISIBLE_COLOR_DELTA = 0.08  # max per-channel distance (0..1) at which text and background look the same
 MIN_LEGIBLE_SIZE_PT = 2.0
+MAX_PDF_PAGES = 20  # every page is drawn twice and all its text goes to the model
 MAX_RASTER_PAGES = 5
 RASTER_DPI = 200
 INK_DPI = 100
@@ -98,6 +99,8 @@ class _PageReading:
 def read_pdf(data: bytes) -> PdfReading:
     try:
         document = PdfReader(io.BytesIO(data))
+        if len(document.pages) > MAX_PDF_PAGES:
+            raise UnsupportedDocument(f"Un PDF de más de {MAX_PDF_PAGES} páginas no es una factura.")
         unprinted = _without_text(document)
         with pdfplumber.open(io.BytesIO(data)) as pdf, pdfplumber.open(io.BytesIO(unprinted)) as blank:
             readings = [_read_page(page, _Ink(page, bare)) for page, bare in zip(pdf.pages, blank.pages, strict=True)]
