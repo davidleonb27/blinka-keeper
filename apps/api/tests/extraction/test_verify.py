@@ -59,7 +59,7 @@ SUPPORT_CASES = [
 
 
 @pytest.mark.parametrize(("kind", "value", "quote", "expected"), SUPPORT_CASES)
-def test_supports_checks_that_the_quote_backs_the_value(kind: FieldKind, value: str, quote: str, expected: bool) -> None:
+def test_supports_checks_the_quote_backs_the_value(kind: FieldKind, value: str, quote: str, expected: bool) -> None:
     assert supports(kind, value, quote) is expected
 
 
@@ -81,7 +81,7 @@ def test_supports_checks_that_the_quote_backs_the_value(kind: FieldKind, value: 
         (FieldKind.DIGITS, None, None),
     ],
 )
-def test_normalize_value_accepts_only_the_canonical_form(kind: FieldKind, raw: str | None, expected: str | None) -> None:
+def test_normalize_value_keeps_only_canonical_forms(kind: FieldKind, raw: str | None, expected: str | None) -> None:
     assert normalize_value(kind, raw) == expected
 
 
