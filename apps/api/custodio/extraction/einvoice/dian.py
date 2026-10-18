@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from decimal import Decimal, InvalidOperation
 from xml.etree.ElementTree import Element
 
@@ -20,6 +21,7 @@ INVOICE_TAG = f"{{{INVOICE_NS}}}Invoice"
 ATTACHED_TAG = f"{{{ATTACHED_NS}}}AttachedDocument"
 EMBEDDED_INVOICE = "cac:Attachment/cac:ExternalReference/cbc:Description"
 NIT_SCHEME = "31"  # DIAN identification type 31: NIT
+WRITTEN_CHECK_DIGIT = re.compile(r"-\s*\d$")  # a NIT's DV after a dash; other ids (an EIN, 88-4410273) keep theirs
 PAYMENT_FORMS = {"1": "contado", "2": "crédito"}
 PARTY_NAMES = (
     "cac:PartyTaxScheme/cbc:RegistrationName",
@@ -126,11 +128,10 @@ def _party(party: Node | None) -> Party:
     if company_id is None:
         return Party(name=name, tax_id=None)
     written, check_digit = company_id.own_text(), company_id.element.get("schemeID")
+    is_nit = company_id.element.get("schemeName") == NIT_SCHEME
     if written and check_digit:
         written = XmlValue(written.text, f"{written.path} y @schemeID (DV)")
-    elif written and "-" in written.text:  # some issuers write the DV in the text: «901.223.610-9»
+    elif written and is_nit and WRITTEN_CHECK_DIGIT.search(written.text):  # some write it: «901.223.610-9»
         number, _, check_digit = written.text.rpartition("-")
         written = XmlValue(number, written.path)
-    return Party(
-        name=name, tax_id=written, check_digit=check_digit, is_nit=company_id.element.get("schemeName") == NIT_SCHEME
-    )
+    return Party(name=name, tax_id=written, check_digit=check_digit, is_nit=is_nit)
