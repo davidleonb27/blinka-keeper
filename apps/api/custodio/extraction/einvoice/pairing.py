@@ -112,10 +112,14 @@ def _difference_line(document: str, label: str, official: ExtractedInvoice, othe
 def _merged_field(
     name: str, official: ExtractedInvoice, other: ExtractedInvoice, text: SourceText, *, trusted: bool
 ) -> ExtractedField:
-    """The XML's field as it was (its quote sits on the first page, unmoved); else the other one, verified again."""
+    """The XML's field as it was (its quote sits on the first page, unmoved); else the other one, verified again.
+
+    A field the XML left without value but with evidence was distrusted by a failed check (no total, say): the other
+    document never fills it, or a PDF would turn that failure into a payment.
+    """
     mine: ExtractedField = getattr(official, name)
     theirs: ExtractedField = getattr(other, name)
-    if mine.value is not None or theirs.value is None:
+    if mine.value is not None or mine.evidence is not None or theirs.value is None:
         return mine
     quote = theirs.evidence.quote if theirs.evidence else None
     field = verified_field(

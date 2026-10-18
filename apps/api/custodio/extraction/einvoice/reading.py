@@ -22,7 +22,7 @@ from custodio.contracts import (
 from custodio.engine.domains import first_email
 from custodio.extraction import CRITICAL_FIELDS
 from custodio.extraction.einvoice import cfdi, dian, safe_xml
-from custodio.extraction.einvoice.checks import CheckResult, nit_text, run_checks
+from custodio.extraction.einvoice.checks import DOCUMENT_FIELD, CheckResult, nit_text, run_checks
 from custodio.extraction.einvoice.errors import NotAnEInvoice
 from custodio.extraction.einvoice.model import EInvoice, XmlValue
 from custodio.extraction.instructions import find_instructions
@@ -66,7 +66,9 @@ def read_einvoice(
     fields = {name: _field(name, lines, text) for name in FIELD_KINDS}
     for check in reversed(checks):  # the first failure of a field is the one its quote shows
         if not check.passed and check.field:
-            fields[check.field] = distrusted(fields[check.field], f"{FAILED} {check.line}", text)
+            # The engine skips an absent optional field (a tax id), so its failure falls on what would be paid.
+            name = check.field if fields[check.field].value is not None else DOCUMENT_FIELD
+            fields[name] = distrusted(fields[name], f"{FAILED} {check.line}", text)
     return ExtractedInvoice.model_validate(
         {
             "document_id": document_id,
