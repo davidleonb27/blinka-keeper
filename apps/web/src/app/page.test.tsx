@@ -85,4 +85,21 @@ describe("HomePage", () => {
     expect(within(closing).getByRole("button", { name: /Ver cómo lo haría Blinka Keeper/ })).toBeInTheDocument();
     expect(within(closing).getByRole("link", { name: /Róbale a Blinka Keeper/ })).toHaveAttribute("href", "/reto");
   });
+
+  it("names only the rails it really uses, as text, with no borrowed logos", () => {
+    renderWithApi(<HomePage />);
+    const hero = screen.getByRole("region", { name: "Tu analista de cuentas por pagar" });
+    expect(within(hero).getAllByText("Stripe · modo prueba")[0]).toBeInTheDocument();
+    expect(within(hero).getAllByText("ISO 20022 pain.001")[0]).toBeInTheDocument();
+    expect(within(hero).queryByRole("img")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Visa|Mastercard|Mercado Pago|Marcas que confían/)).not.toBeInTheDocument();
+  });
+
+  it("answers the questions a finance team asks, including what it does not do", () => {
+    renderWithApi(<HomePage />);
+    const faq = screen.getByRole("region", { name: "Lo que pregunta un equipo de finanzas" });
+    expect(within(faq).getAllByRole("listitem")).toHaveLength(6);
+    expect(faq).toHaveTextContent("modo prueba");
+    expect(faq).toHaveTextContent("No consulta a la DIAN ni al SAT");
+  });
 });

@@ -26,6 +26,7 @@ import Link from "next/link";
 import { CodeBlock } from "@/components/developers/code-block";
 import { ActaPreview } from "@/components/landing/acta-preview";
 import { ClosingForm } from "@/components/landing/closing-form";
+import { Faq, RailsMarquee, ValueCards } from "@/components/landing/keeper-sections";
 import { UseCompanyButton } from "@/components/landing/use-company-button";
 import { GitHubLink } from "@/components/site/github-link";
 import { SiteFooter } from "@/components/site/site-footer";
@@ -203,10 +204,21 @@ function SectionTitle({ id, eyebrow, title, lead }: { id: string; eyebrow: strin
 
 function Hero() {
   return (
-    <section aria-labelledby="hero-title" className="relative overflow-hidden pt-12 pb-20 sm:pt-20 sm:pb-24">
-      <div aria-hidden className="site-grid pointer-events-none absolute inset-0 opacity-40" />
+    <section aria-labelledby="hero-title" className="night-section relative overflow-hidden pt-12 pb-36 sm:pt-20 sm:pb-40">
+      <video
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0 size-full object-cover motion-reduce:hidden"
+        autoPlay
+        loop
+        muted
+        playsInline
+        poster="/img/homepage/section-1/bg.webp"
+      >
+        <source src="/vid/homepage/hero-video.webm" type="video/webm" />
+      </video>
+      <div aria-hidden className="pointer-events-none absolute inset-0 z-0 bg-black/80" />
 
-      <div className="relative mx-auto max-w-6xl px-4">
+      <div className="relative z-10 mx-auto max-w-6xl px-4">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-14">
           <div className="min-w-0">
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line-2 bg-surface px-3 py-1 text-[12.5px] font-medium text-ink-2">
@@ -245,7 +257,9 @@ function Hero() {
               La demo no pide registro ni mueve dinero real.
             </p>
 
-            <ul className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line/60 pt-6 text-[13px] font-medium text-ink-2">
+            <RailsMarquee />
+
+            <ul className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line/60 pt-6 text-[13px] font-medium text-ink-2">
               <li className="inline-flex items-center gap-2">
                 <Banknote aria-hidden className="size-4 text-brand" strokeWidth={2} />
                 Pagos reales en Stripe (modo prueba)
@@ -262,7 +276,12 @@ function Hero() {
           </div>
 
           <div className="relative flex min-w-0 flex-col justify-center py-4">
-            <div className="rounded-2xl border border-line bg-surface p-5 shadow-card sm:p-6">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-10 z-0 bg-contain bg-center bg-no-repeat opacity-50"
+              style={{ backgroundImage: "url('/img/homepage/section-1/hero-preview.webp')" }}
+            />
+            <div className="relative z-10 rounded-2xl border border-line bg-surface/90 p-5 shadow-card backdrop-blur-md sm:p-6">
               <div className="flex items-baseline justify-between gap-3">
                 <p className="eyebrow">Una factura, de punta a punta</p>
                 <span className="font-mono text-[11px] text-ink-3">F-001</span>
@@ -314,10 +333,16 @@ function Hero() {
 
 function Metrics() {
   return (
-    <section aria-labelledby="medido-title" className="border-y border-line bg-surface">
-      <div className="mx-auto max-w-6xl px-4 py-14">
+    <section aria-labelledby="medido-title" className="night-section relative overflow-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/img/homepage/section-5/bg.webp')" }}
+      />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-slate-950/85" />
+      <div className="relative mx-auto max-w-6xl px-4 py-16">
         <h2 id="medido-title" className="eyebrow text-brand">
-          📊 Medido, no prometido
+          Medido, no prometido
         </h2>
         <dl className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-3">
           {MEASURED_FIGURES.map((figure, index) => {
@@ -545,12 +570,14 @@ export default function HomePage() {
       <SiteHeader />
       <main id="contenido">
         <Hero />
+        <ValueCards />
         <Metrics />
         <OnlyHere />
         <Features />
         <HowItDecides />
         <OpenSource />
         <SelfHost />
+        <Faq />
         <FinalCall />
       </main>
       <SiteFooter />
