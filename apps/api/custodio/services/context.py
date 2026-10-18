@@ -12,10 +12,13 @@ from sqlalchemy.orm import Session
 
 from custodio.config import Settings
 from custodio.db import Database
-from custodio.payments import PaymentRail, RailChoice, choose_rail, simulated_choice
+from custodio.payments import GuardedRail, PaymentRail, RailChoice, choose_rail, simulated_choice
+from custodio.receipts import ReceiptSigner, signer_from_secrets
 from custodio.services.lanes import Lanes, production_lanes
 
 Clock = Callable[[], datetime]
+SIGNING_KEY_VARIABLE = "CUSTODIO_RECEIPT_SIGNING_KEY"
+DEVELOPMENT_KEY_SOURCE = "custodio-local-development"  # tests and local runs only: production derives from its database URL
 
 
 def utc_now() -> datetime:
@@ -42,6 +45,7 @@ class Runtime:
     public_base_url: str
     payment_rail: RailChoice = field(default_factory=simulated_choice)
     treasury_yield_apy: Decimal = Decimal("4.0")  # percent a year; the payment calendar's stated assumption
+    receipt_signer: ReceiptSigner = field(default_factory=lambda: signer_from_secrets(None, DEVELOPMENT_KEY_SOURCE))
 
     def context(self, session: Session) -> ServiceContext:
         return ServiceContext(session=session, runtime=self)
@@ -59,8 +63,14 @@ class ServiceContext:
     def now(self) -> datetime:
         return self.runtime.clock()
 
+    @property
+    def receipt_signer(self) -> ReceiptSigner:
+        return self.runtime.receipt_signer
+
     def payment_rail(self) -> PaymentRail:
-        return self.runtime.payment_rail.build(self.session, self.runtime.clock)
+        """Every rail behind the guard: it pays only orders that carry a signed receipt of a decision to pay them."""
+        rail = self.runtime.payment_rail.build(self.session, self.runtime.clock)
+        return GuardedRail(inner=rail, key=self.receipt_signer.public_key, clock=self.runtime.clock)
 
 
 def production_runtime(settings: Settings) -> Runtime:
@@ -72,4 +82,5 @@ def production_runtime(settings: Settings) -> Runtime:
         public_base_url=settings.public_base_url,
         payment_rail=choose_rail(settings.payment_rail, os.environ.get("STRIPE_SECRET_KEY")),
         treasury_yield_apy=Decimal(str(settings.treasury_yield_apy)),
+        receipt_signer=signer_from_secrets(os.environ.get(SIGNING_KEY_VARIABLE), settings.database_url),
     )

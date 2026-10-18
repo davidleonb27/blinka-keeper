@@ -1,6 +1,7 @@
 """Signed receipts: every decision, provable to a third party with nothing but Custodio's public key."""
 
 from custodio.receipts.errors import ReceiptKeyError
+from custodio.receipts.example import example_body
 from custodio.receipts.issue import DecisionFacts, account_fingerprint, amount_text, build_body, policy_digest
 from custodio.receipts.keys import ReceiptPublicKey, ReceiptSigner, derive_seed, signer_from_secrets
 from custodio.receipts.models import (
@@ -38,6 +39,7 @@ __all__ = [
     "amount_text",
     "build_body",
     "derive_seed",
+    "example_body",
     "field_digests",
     "field_label",
     "policy_digest",

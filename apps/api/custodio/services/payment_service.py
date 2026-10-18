@@ -16,9 +16,10 @@ from sqlalchemy import func, select
 from custodio.contracts import Beneficiary, Decision, DecisionStatus, LedgerKind, PaymentExecution, Policy
 from custodio.db.models import PaymentExecutionRow, WorkspaceRow
 from custodio.payments import MOVES_NO_MONEY, PaymentOrder, PaymentRail, PaymentReceipt
-from custodio.services import ledger_service, policy_service, records
+from custodio.receipts import DecisionReceipt
+from custodio.services import ledger_service, policy_service, receipt_service, records
 from custodio.services.context import ServiceContext
-from custodio.services.errors import PaymentNotRetryable
+from custodio.services.errors import DecisionNotFound, PaymentNotRetryable, ReceiptUnavailable
 from custodio.services.workspace_service import VISITOR_KINDS
 
 SETTLED = frozenset({"executed", "simulated"})
@@ -134,7 +135,16 @@ def _order(ctx: ServiceContext, workspace_id: str, decision: Decision, policy: P
         amount=decision.amount if decision.amount is not None else amount_base,
         acta_url=records.acta_url(ctx.runtime.public_base_url, decision.invoice_id),
         beneficiary=_registered(decision, policy),
+        decision_receipt=_receipt(ctx, workspace_id, decision, policy),
     )
+
+
+def _receipt(ctx: ServiceContext, workspace_id: str, decision: Decision, policy: Policy) -> DecisionReceipt | None:
+    """None when the ledger does not show this decision: the rail's guard then refuses the order."""
+    try:
+        return receipt_service.issue(ctx, workspace_id, decision, policy)
+    except (ReceiptUnavailable, DecisionNotFound):
+        return None
 
 
 def _registered(decision: Decision, policy: Policy) -> Beneficiary | None:

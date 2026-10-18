@@ -48,6 +48,7 @@ class DecisionFacts:
     workspace_id: str
     decision: Decision
     invoice: InvoiceCase
+    document_id: str | None  # the stored file Custodio read, if the invoice came with one
     document_sha256: str | None
     policy: ReceiptPolicy
     entry: LedgerEntry  # the decision (or approval) entry of this invoice in the ledger
@@ -68,7 +69,7 @@ def build_body(facts: DecisionFacts, key_id: str) -> ReceiptBody:
             number=extraction.invoice_number.value,
             received_at=_moment(facts.invoice.received_at),
             source=extraction.source.value,
-            document_id=extraction.document_id or None,
+            document_id=facts.document_id,
             document_sha256=facts.document_sha256,
         ),
         reading={
