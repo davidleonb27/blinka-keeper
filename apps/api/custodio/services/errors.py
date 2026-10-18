@@ -47,6 +47,26 @@ class DecisionNotPending(ServiceError):
     message = "Esta decisión ya no está esperando aprobación."
 
 
+class ApprovalNotAllowed(ServiceError):
+    code = "approval_not_allowed"
+    message = "Esta factura no se puede aprobar: falla una regla que ninguna aprobación salta."
+
+
+class PolicyChanged(ServiceError):
+    code = "policy_changed"
+    message = "La política cambió desde que se simuló este cambio. Vuelve a simularlo antes de confirmar."
+
+
+class AgreementNotAvailable(ServiceError):
+    code = "agreement_not_available"
+    message = "Esta factura no es de un proveedor registrado, así que no hay acuerdo que actualizar."
+
+
+class SuggestionNotFound(NotFound):
+    code = "suggestion_not_found"
+    message = "Esa sugerencia ya no está vigente en este espacio."
+
+
 class PaymentNotRetryable(ServiceError):
     code = "payment_not_retryable"
     message = "Esta decisión no tiene un pago fallido que reintentar."

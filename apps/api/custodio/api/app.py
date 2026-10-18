@@ -24,6 +24,7 @@ from custodio.api.routes import (
     reconciliations,
     redteam,
     schedule,
+    suggestions,
     trust,
     workspaces,
 )
@@ -38,6 +39,7 @@ ROUTERS = (
     policy,
     invoices,
     decisions,
+    suggestions,
     ledger,
     trust,
     schedule,
