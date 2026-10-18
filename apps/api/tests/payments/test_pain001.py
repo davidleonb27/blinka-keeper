@@ -103,6 +103,34 @@ def test_control_characters_never_reach_the_file() -> None:
     assert texts(document, "//p:Cdtr/p:Nm") == ["Nube Segura SAS"]
 
 
+def test_characters_xml_cannot_carry_never_reach_the_file() -> None:
+    document = parsed(
+        render(
+            payment_file(
+                transfer("F-001", "10", creditor_name="Nube\ufffe Segura\uffff SAS", creditor_bank="Banco\ud800")
+            )
+        )
+    )
+
+    assert texts(document, "//p:Cdtr/p:Nm") == ["Nube Segura SAS"]
+    assert texts(document, "//p:CdtrAgt/p:FinInstnId/p:Nm") == ["Banco"]
+
+
+def test_a_blank_name_still_gives_a_valid_file() -> None:
+    blank = PaymentFile(
+        message_id="CUSTODIO-20261018-ab12cd",
+        created_at=datetime(2026, 10, 18, 3, 0, tzinfo=UTC),
+        execution_date=date(2026, 10, 18),
+        debtor=Debtor(name=" ", account_id="BLINKA-ws123"),
+        transfers=[transfer("F-001", "10", creditor_name="\x00 ")],
+    )
+
+    document = parsed(render(blank))
+
+    assert texts(document, "//p:Cdtr/p:Nm") == ["Sin nombre"]
+    assert texts(document, "//p:Dbtr/p:Nm") == ["Sin nombre"]
+
+
 def test_an_empty_batch_is_refused_rather_than_written_as_an_invalid_file() -> None:
     with pytest.raises(ValueError, match="sin pagos"):
         render(payment_file())
