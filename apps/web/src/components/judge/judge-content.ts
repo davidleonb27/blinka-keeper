@@ -5,7 +5,7 @@
 import { DEMO_URL, REPO_URL, repoFile } from "@/lib/site";
 
 /** Lanes whose routes the guide already links while they travel to main; the e2e reports them instead of failing. */
-export const PENDING_LANES = ["L21", "L23", "L26", "L27"] as const;
+export const PENDING_LANES = ["L21", "L26", "L27"] as const;
 export type PendingLane = (typeof PENDING_LANES)[number];
 
 export interface ProofLink {
@@ -60,7 +60,7 @@ export const CRITERIA: readonly Criterion[] = [
         text:
           "Cuando algo se sale de las reglas pide permiso con el porqué; si lo puede arreglar el proveedor, le manda un " +
           "enlace de corrección (/proveedor/c/…) y la corrección vuelve a pasar por las 15 reglas.",
-        proofs: [{ label: "Pedir corrección", href: "/panel?acta=F-039", lane: "L23", hint: AFTER_BATCH }],
+        proofs: [{ label: "Pedir corrección", href: "/panel?acta=F-039", hint: AFTER_BATCH }],
       },
       {
         text:
