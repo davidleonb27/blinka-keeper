@@ -152,7 +152,7 @@ test("every page and the whole demo work against the real API without a single e
     await expect(closing.getByText(/Mes cerrado por Ana Gómez/)).toBeVisible();
     const download = page.waitForEvent("download");
     await closing.getByRole("button", { name: /Descargar el paquete/ }).click();
-    expect((await download).suggestedFilename()).toMatch(/^custodio-cierre-\d{4}-\d{2}\.zip$/);
+    expect((await download).suggestedFilename()).toMatch(/^blinka-keeper-cierre-\d{4}-\d{2}\.zip$/);
     await expectNoErrorScreen(page);
   });
 

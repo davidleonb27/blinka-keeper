@@ -290,7 +290,7 @@ def test_the_evidence_pack_is_for_closed_months_and_is_reproducible(client: Test
     assert before.status_code == 409
     assert first.status_code == 200
     assert first.headers["content-type"] == "application/zip"
-    assert "custodio-cierre-2026-10.zip" in first.headers["content-disposition"]
+    assert "blinka-keeper-cierre-2026-10.zip" in first.headers["content-disposition"]
     one, two = zipfile.ZipFile(io.BytesIO(first.content)), zipfile.ZipFile(io.BytesIO(second.content))
     assert {n for n in one.namelist() if one.read(n) != two.read(n)} == {"manifiesto.json"}
     assert "actas/F-005.json" in one.namelist()

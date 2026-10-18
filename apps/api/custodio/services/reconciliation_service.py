@@ -291,7 +291,7 @@ def evidence(ctx: ServiceContext, workspace: WorkspaceRow, period: str) -> bytes
 
 
 def evidence_filename(period: str) -> str:
-    return f"custodio-cierre-{period}.zip"
+    return f"blinka-keeper-cierre-{period}.zip"
 
 
 # --- recording --------------------------------------------------------------------------------------------------

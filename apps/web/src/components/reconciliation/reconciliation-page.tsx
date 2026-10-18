@@ -235,7 +235,7 @@ function Closing({ view }: { view: ReconciliationView }) {
   async function download() {
     setDownloadError(null);
     try {
-      saveFile(await api.downloadEvidence(view.period), `custodio-cierre-${view.period}.zip`);
+      saveFile(await api.downloadEvidence(view.period), `blinka-keeper-cierre-${view.period}.zip`);
     } catch (error) {
       setDownloadError(error);
     }

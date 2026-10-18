@@ -60,6 +60,6 @@ describe("ReconciliationPage", () => {
     await userEvent.click(within(closing).getByRole("button", { name: /Descargar el paquete/ }));
 
     expect(download).toHaveBeenCalledWith("2026-10");
-    expect(save.mock.contexts[0]).toHaveProperty("download", "custodio-cierre-2026-10.zip");
+    expect(save.mock.contexts[0]).toHaveProperty("download", "blinka-keeper-cierre-2026-10.zip");
   });
 });

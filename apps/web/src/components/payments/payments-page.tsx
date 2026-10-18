@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { Freshness } from "./freshness";
 
 const SENT_CURRENCY = "USD";
-const PAIN001_FILE = "custodio-pain.001.001.09.xml";
+const PAIN001_FILE = "blinka-keeper-pain.001.001.09.xml";
 export const READY_FOR_BLINKA = "Listo para que Blinka lo pague";
 
 const LINE_LABEL: Record<RailMatchLine["kind"], string> = {

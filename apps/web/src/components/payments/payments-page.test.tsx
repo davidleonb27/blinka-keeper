@@ -121,7 +121,7 @@ describe("/pagos", () => {
     expect(card).toHaveTextContent("pain.001.001.09");
     await userEvent.click(within(card).getByRole("button", { name: /Descargar pain\.001/ }));
     expect(api.downloadPain001).toHaveBeenCalledOnce();
-    expect(saveFile).toHaveBeenCalledWith(expect.any(Blob), "custodio-pain.001.001.09.xml");
+    expect(saveFile).toHaveBeenCalledWith(expect.any(Blob), "blinka-keeper-pain.001.001.09.xml");
   });
 
   it("keeps the payments on screen when Stripe cannot be asked", async () => {
