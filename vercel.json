@@ -4,7 +4,14 @@
     "web": {
       "root": "apps/web",
       "framework": "nextjs",
-      "bindings": [{ "type": "service", "service": "api", "format": "url", "env": "API_INTERNAL_URL" }]
+      "bindings": [
+        {
+          "type": "service",
+          "service": "api",
+          "format": "url",
+          "env": "API_INTERNAL_URL"
+        }
+      ]
     },
     "api": {
       "root": "apps/api",
@@ -12,7 +19,25 @@
     }
   },
   "rewrites": [
-    { "source": "/api/v1/(.*)", "destination": { "service": "api" } },
-    { "source": "/(.*)", "destination": { "service": "web" } }
-  ]
+    {
+      "source": "/api/v1/(.*)",
+      "destination": {
+        "service": "api"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "web"
+      }
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "lane/**": false,
+      "fix/**": false,
+      "claude/**": false,
+      "review/**": false
+    }
+  }
 }
