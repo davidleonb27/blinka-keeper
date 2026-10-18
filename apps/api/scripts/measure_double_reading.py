@@ -33,7 +33,7 @@ from pydantic import BaseModel
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from custodio import llm
-from custodio.contracts import ExtractedInvoice, InvoiceCase, InvoiceSource, InvoiceSpec, RenderedDocument
+from custodio.contracts import Decision, ExtractedInvoice, InvoiceCase, InvoiceSource, InvoiceSpec, RenderedDocument
 from custodio.dataset import load_demo
 from custodio.engine import decide_all
 from custodio.engine.text import normalize_code, normalize_name
@@ -177,9 +177,17 @@ def _file(document: RenderedDocument) -> tuple[str, bytes, str]:
 
 def verdict_of(case: BlindCase, extraction: ExtractedInvoice) -> str:
     """The engine's verdict on this invoice alone, against the demo company."""
+    return _decision(case, extraction).agent_verdict.value
+
+
+def failed_rules(case: BlindCase, extraction: ExtractedInvoice) -> list[str]:
+    return [rule.rule_id for rule in _decision(case, extraction).rules if rule.outcome.value in ("hold", "escalate")]
+
+
+def _decision(case: BlindCase, extraction: ExtractedInvoice) -> Decision:
     demo = load_demo()
     invoice = InvoiceCase(id=case.id, received_at=case.received_at, extraction=extraction)
-    return decide_all([invoice], demo.state, demo.policy).decisions[0].agent_verdict.value
+    return decide_all([invoice], demo.state, demo.policy).decisions[0]
 
 
 def code_values(case: BlindCase) -> dict[str, str | None] | None:
@@ -261,6 +269,7 @@ class Tally:
             self._decided(case, "not_read")  # nothing read is nothing paid: a person looks
             return
         self._decided(case, verdict_of(case, reading.extraction))
+        self.verdicts[-1]["failed_rules"] = ",".join(failed_rules(case, reading.extraction))
         status = reading.extraction.cross_check.status.value if reading.extraction.cross_check else "none"
         self.cross_checks[status] += 1
         readers = reader_values(reading.extraction)
