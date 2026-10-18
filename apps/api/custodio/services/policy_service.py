@@ -122,7 +122,10 @@ def simulate(ctx: ServiceContext, workspace: WorkspaceRow, proposed: Policy) -> 
 def apply_reviewed(
     ctx: ServiceContext, workspace_id: str, proposed: Policy, *, simulated_on: int, context: dict[str, Any]
 ) -> Policy:
-    """Applies a change a person saw simulated on version `simulated_on`; refused if the policy moved since."""
+    """Applies a change a person saw simulated on version `simulated_on`; refused if the policy moved since.
+
+    The workspace lock makes a rival change wait, so two people confirming at once get a refusal, not a clash."""
+    ledger_service.lock(ctx, workspace_id)
     if current(ctx, workspace_id).version != simulated_on:
         raise PolicyChanged()
     return apply(ctx, workspace_id, proposed, context)
