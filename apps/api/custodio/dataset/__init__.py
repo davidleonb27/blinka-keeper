@@ -7,10 +7,19 @@ model. `demo_specs()` returns the same invoices as specs, so lane L2 can render 
 from __future__ import annotations
 
 from custodio.contracts import CompanyState, InvoiceCase, InvoiceSpec, Policy
+from custodio.dataset.approvals import DEMO_APPROVALS, SeededApproval
 from custodio.dataset.demo import load_demo, to_case
 from custodio.dataset.month import MonthInvoice, simulated_month
 
-__all__ = ["MonthInvoice", "demo_cases", "demo_company", "demo_specs", "simulated_month"]
+__all__ = [
+    "DEMO_APPROVALS",
+    "MonthInvoice",
+    "SeededApproval",
+    "demo_cases",
+    "demo_company",
+    "demo_specs",
+    "simulated_month",
+]
 
 
 def demo_company() -> tuple[CompanyState, Policy]:

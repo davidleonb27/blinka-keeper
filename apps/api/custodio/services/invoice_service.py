@@ -147,8 +147,12 @@ def decide(
     approvals: Mapping[str, Approval] | None = None,
     *,
     execute_payments: bool = False,
+    approval_context: Mapping[str, Any] | None = None,
 ) -> Outcome:
-    """`execute_payments` is for the panel only: the firewall, the challenge and the red team decide, never pay."""
+    """`execute_payments` is for the panel only: the firewall, the challenge and the red team decide, never pay.
+
+    `approval_context` adds to each approval's ledger entry how it was given (e.g. once, or updating the agreement).
+    """
     cases = [records.as_case(row) for row in invoices]
     policy = policy_service.current(ctx, workspace.id)
     learns = workspace.kind in VISITOR_KINDS  # sandboxes neither earn nor lose a supplier's trust
@@ -181,6 +185,7 @@ def decide(
             (approvals or {}).get(d.invoice_id),
             d.invoice_id in stopped,
             None if d.invoice_id in intents else payer,
+            {"policy_version": policy.version, **(approval_context or {})},
         )
         for d in final.decisions
     ]
@@ -366,11 +371,14 @@ def _record(
     approval: Approval | None,
     audit_blocked: bool,
     pay: Callable[[Decision], Payout] | None,
+    context: Mapping[str, Any],
 ) -> Decision:
     """The decision enters the ledger before any payment: the receipt the rail's guard asks for points to it."""
     kind = LedgerKind.APPROVAL if approval else LedgerKind.DECISION
     payload = _decision_payload(decision, audit_blocked)
+    payload["policy_version"] = context["policy_version"]
     if approval:
+        payload.update(context)
         payload["approval"] = approval.model_dump(mode="json")
     ledger_service.append(ctx, workspace_id, kind, decision.invoice_id, payload)
     payout: dict[str, Any] = {}
@@ -393,6 +401,9 @@ def _decision_payload(decision: Decision, audit_blocked: bool) -> dict[str, Any]
         "amount_base": _number(decision.amount_base),
         "failed_rules": failed,
         "audit_blocked": audit_blocked,
+        "beneficiary_id": decision.beneficiary_id,
+        "amount": _number(decision.amount),
+        "currency": decision.currency,
     }
 
 

@@ -2,21 +2,42 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
+from pydantic import BaseModel
 from sqlalchemy import select
 
-from custodio.contracts import Beneficiary, CompanyState, LedgerKind, Policy, PolicyProposal
+from custodio.contracts import (
+    Beneficiary,
+    CompanyState,
+    LedgerEntry,
+    LedgerKind,
+    Policy,
+    PolicyProposal,
+    SimulationReport,
+)
 from custodio.db.models import PolicyRow, WorkspaceRow
 from custodio.engine.text import normalize_code, normalize_name
 from custodio.llm import LLMError
 from custodio.services import ledger_service, records
 from custodio.services.context import ServiceContext
-from custodio.services.errors import PolicyInvalid, model_failure
+from custodio.services.errors import PolicyChanged, PolicyInvalid, model_failure
 
 AMOUNT_FIELDS = ("approval_threshold", "per_payment_limit", "period_budget", "reserve", "agreement_tolerance_pct")
 WINDOW_FIELDS = ("duplicate_window_days", "split_window_days")
+
+
+class PolicyVersion(BaseModel):
+    version: int
+    at: datetime
+    author: str | None  # who made the change, when a person made it through an approval or a suggestion
+    reason: str | None
+    invoice_id: str | None  # the invoice whose approval updated the agreement
+    suggestion_id: str | None  # the suggestion the person accepted
+    changed_fields: list[str]
+    hash: str
 
 
 def current(ctx: ServiceContext, workspace_id: str) -> Policy:
@@ -89,9 +110,49 @@ def compile_text(ctx: ServiceContext, workspace: WorkspaceRow, text: str, base: 
         raise model_failure(error) from error
     if base is not None:
         return proposal
+    return proposal.model_copy(update={"simulation": simulate(ctx, workspace, proposal.proposed)})
+
+
+def simulate(ctx: ServiceContext, workspace: WorkspaceRow, proposed: Policy) -> SimulationReport:
+    """Replays everything this workspace has received under the current policy and under `proposed`."""
     cases = [records.as_case(row) for row in records.invoices(ctx, workspace.id)]
-    simulation = ctx.lanes.simulate(cases, opening_state(ctx, workspace), policy, proposal.proposed)
-    return proposal.model_copy(update={"simulation": simulation})
+    return ctx.lanes.simulate(cases, opening_state(ctx, workspace), current(ctx, workspace.id), proposed)
+
+
+def apply_reviewed(
+    ctx: ServiceContext, workspace_id: str, proposed: Policy, *, simulated_on: int, context: dict[str, Any]
+) -> Policy:
+    """Applies a change a person saw simulated on version `simulated_on`; refused if the policy moved since.
+
+    The workspace lock makes a rival change wait, so two people confirming at once get a refusal, not a clash."""
+    ledger_service.lock(ctx, workspace_id)
+    if current(ctx, workspace_id).version != simulated_on:
+        raise PolicyChanged()
+    return apply(ctx, workspace_id, proposed, context)
+
+
+def versions(ctx: ServiceContext, workspace_id: str) -> list[PolicyVersion]:
+    """Every version, newest first, with who changed it, why and when, as the ledger holds it."""
+    changes = ledger_service.entries(ctx, workspace_id, kinds=(LedgerKind.POLICY_CHANGED,))
+    return [_version(entry) for entry in reversed(changes)]
+
+
+def _version(entry: LedgerEntry) -> PolicyVersion:
+    payload = entry.payload
+    return PolicyVersion(
+        version=int(payload["version"]),
+        at=entry.at,
+        author=_text(payload.get("author")),
+        reason=_text(payload.get("reason")),
+        invoice_id=_text(payload.get("invoice_id")),
+        suggestion_id=_text(payload.get("suggestion_id")),
+        changed_fields=[str(name) for name in payload.get("changed_fields", [])],
+        hash=entry.hash,
+    )
+
+
+def _text(value: object) -> str | None:
+    return None if value is None else str(value)
 
 
 def opening_state(ctx: ServiceContext, workspace: WorkspaceRow) -> CompanyState:

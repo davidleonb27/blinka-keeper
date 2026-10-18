@@ -1,10 +1,9 @@
 "use client";
 
-import { Check, Link2, ShieldAlert, X } from "lucide-react";
-import { useId, useState, type ReactNode } from "react";
+import { Link2, ShieldAlert } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { StatusPill } from "@/components/status-pill";
-import { Button } from "@/components/ui/button";
-import { sealOf, type Acta as ActaData } from "@/lib/api/client";
+import { sealOf, type Acta as ActaData, type AgreementInput, type AgreementPreview } from "@/lib/api/client";
 import type { ExtractedFieldName, Policy } from "@/lib/api/contracts";
 import { formatDate, formatDateTime, shortHash } from "@/lib/format";
 import { amountText, baseAmountText, supplierText } from "@/lib/presentation";
@@ -13,12 +12,15 @@ import { OriginalDocument } from "./original-document";
 import { PaymentExecutionBlock } from "./payment-execution";
 import { PaymentProgress, type PaymentStep } from "./payment-progress";
 import { UnknownSupplierHint } from "@/components/suppliers/unknown-supplier-hint";
+import { ApprovalChoices, type HumanChoice } from "./approval-choices";
+import { PolicyVersionNote } from "./policy-version-note";
 import { RuleList } from "./rule-list";
 
 export interface ActaProps {
   detail: ActaData;
-  policy: Pick<Policy, "approvers" | "min_confidence" | "base_currency">;
-  onDecide: (approve: boolean, approver: string) => void;
+  policy: Pick<Policy, "approvers" | "min_confidence" | "base_currency"> & Partial<Pick<Policy, "beneficiaries">>;
+  onDecide: (choice: HumanChoice) => void;
+  onPreviewAgreement: (agreement: AgreementInput) => Promise<AgreementPreview>;
   deciding: boolean;
   onRetryPayment: () => void;
   retryingPayment: boolean;
@@ -58,39 +60,11 @@ function ActaHeader({ detail, baseCurrency }: { detail: ActaData; baseCurrency: 
   );
 }
 
-function ApprovalActions({ policy, onDecide, deciding }: Pick<ActaProps, "policy" | "onDecide" | "deciding">) {
-  const selectId = useId();
-  const names = policy.approvers.map((a) => a.name);
-  const [approver, setApprover] = useState(names[0] ?? "");
-  return (
-    <div className="sticky bottom-0 -mx-5 mt-2 flex flex-wrap items-center gap-2.5 border-t border-line-2 bg-surface px-5 py-3.5 sm:-mx-6 sm:px-6">
-      <label htmlFor={selectId} className="flex w-full items-center gap-2 text-[12.5px] text-ink-3 sm:mr-auto sm:w-auto">
-        Decides como
-        <select
-          id={selectId}
-          value={approver}
-          onChange={(event) => setApprover(event.target.value)}
-          className="h-10 rounded-[10px] border border-line-2 bg-surface-2 px-2.5 text-[13px] text-ink"
-        >
-          {names.map((name) => (
-            <option key={name}>{name}</option>
-          ))}
-        </select>
-      </label>
-      <Button variant="reject" className="flex-1 sm:flex-none" disabled={deciding || !approver} onClick={() => onDecide(false, approver)}>
-        <X aria-hidden /> Rechazar
-      </Button>
-      <Button variant="approve" className="flex-1 sm:flex-none" disabled={deciding || !approver} onClick={() => onDecide(true, approver)}>
-        <Check aria-hidden /> Aprobar pago
-      </Button>
-    </div>
-  );
-}
-
 export function Acta({
   detail,
   policy,
   onDecide,
+  onPreviewAgreement,
   deciding,
   onRetryPayment,
   retryingPayment,
@@ -156,8 +130,10 @@ export function Acta({
         <p className="text-[13px] text-ink-2">
           {decision.approval.decision === "approved" ? "Aprobada" : "Rechazada"} por{" "}
           <b className="text-ink">{decision.approval.approver}</b> · {formatDateTime(decision.approval.at)}
+          {decision.approval.note ? <> · «{decision.approval.note}»</> : null}
         </p>
       ) : null}
+      <PolicyVersionNote ledger={detail.ledger} />
 
       {seal ? (
         <p className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5 border-t border-line pt-3.5 text-xs text-ink-3">
@@ -171,7 +147,14 @@ export function Acta({
       {receipt}
 
       {decision.status === "pending_approval" ? (
-        <ApprovalActions policy={policy} onDecide={onDecide} deciding={deciding} />
+        <ApprovalChoices
+          decision={decision}
+          approvers={policy.approvers.map((a) => a.name)}
+          agreement={policy.beneficiaries?.find((b) => b.id === decision.beneficiary_id)?.agreement ?? null}
+          onDecide={onDecide}
+          onPreviewAgreement={onPreviewAgreement}
+          deciding={deciding}
+        />
       ) : null}
     </article>
   );

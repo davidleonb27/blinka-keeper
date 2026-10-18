@@ -87,14 +87,28 @@ test("every page and the whole demo work against the real API without a single e
 
   await test.step("aprobación: una persona aprueba una factura pendiente", async () => {
     await page.getByRole("button", { name: /Esperan aprobación/ }).click();
-    const pending = page.getByRole("region", { name: "Facturas" }).getByRole("link").first();
+    // A supplier whose exception is not a hard rule (an injection or a changed account can only be rejected).
+    const pending = page.getByRole("region", { name: "Facturas" }).getByRole("link", { name: /Ruta Legal/ }).first();
     pendingId = new URLSearchParams(((await pending.getAttribute("href")) ?? "").split("?")[1]).get("acta") ?? "";
     await pending.click();
     const acta = await openActa(page, pendingId);
-    await acta.getByRole("button", { name: /Aprobar pago/ }).click();
+    await acta.getByLabel(/Motivo/).fill("Honorarios confirmados con el abogado del caso.");
+    await acta.getByRole("button", { name: /Aprobar sólo esta vez/ }).click();
     await expect(page.getByText(new RegExp(`${pendingId}: `))).toBeVisible();
     await expect(acta.getByText(/Aprobada por .+ · /)).toBeVisible();
+    await expect(acta.getByText(/Decidida con la política v1/)).toBeVisible();
     await page.keyboard.press("Escape");
+  });
+
+  await test.step("Custodio sugiere: aprobaciones repetidas proponen un ajuste que sólo aplica la persona", async () => {
+    await visit(page, "/reglas", "Reglas");
+    const suggestions = page.getByRole("region", { name: "Custodio sugiere" });
+    await expect(suggestions.getByText(/Aprobaste 3 veces a Nube Austral SpA/)).toBeVisible();
+    await suggestions.getByRole("button", { name: /aplicar como versión 2/ }).click();
+    const versions = page.getByRole("region", { name: "Versiones de la política" });
+    await expect(versions.getByText("v2")).toBeVisible();
+    await expect(versions.getByText(/sugerencia aceptada/)).toBeVisible();
+    await expect(suggestions).toHaveCount(0);
   });
 
   await test.step("conciliación: el extracto cruza lo pagado, una persona revisa las alertas y se cierra el mes", async () => {

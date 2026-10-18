@@ -143,6 +143,16 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
       call("post", "/api/v1/decisions/{invoice_id}/approve", { params: { invoice_id: id }, json: input }),
     rejectDecision: (id, input) =>
       call("post", "/api/v1/decisions/{invoice_id}/reject", { params: { invoice_id: id }, json: input }),
+    approveOnce: (id, input) =>
+      call("post", "/api/v1/decisions/{invoice_id}/approve-once", { params: { invoice_id: id }, json: input }),
+    previewAgreement: (id, input) =>
+      call("post", "/api/v1/decisions/{invoice_id}/agreement/preview", { params: { invoice_id: id }, json: input }),
+    approveWithAgreement: (id, input) =>
+      call("post", "/api/v1/decisions/{invoice_id}/approve-with-agreement", { params: { invoice_id: id }, json: input }),
+    listSuggestions: () => call("get", "/api/v1/suggestions"),
+    acceptSuggestion: (id, input) =>
+      call("post", "/api/v1/suggestions/{suggestion_id}/accept", { params: { suggestion_id: id }, json: input }),
+    listPolicyVersions: () => call("get", "/api/v1/policy/versions"),
     executePayment: (id) => call("post", "/api/v1/decisions/{invoice_id}/execute", { params: { invoice_id: id } }),
     getPolicy: () => call("get", "/api/v1/policy"),
     compilePolicy: (text, base) => call("post", "/api/v1/policy/compile", { json: { text, base: base ?? null } }),

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from datetime import datetime
+from decimal import Decimal
 from typing import Annotated
 
 from fastapi import APIRouter, Query
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 from custodio.api.deps import CurrentWorkspace, ModelCallLimit, Services
 from custodio.contracts import Decision, DecisionStatus, InvoiceSource, LedgerEntry
@@ -17,11 +18,14 @@ from custodio.services import (
     receipt_service,
     records,
 )
+from custodio.services.agreements import AgreementUpdate
+from custodio.services.approval_service import AgreementPreview, ApprovedWithAgreement
 from custodio.services.invoice_service import InvoiceView
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
 
 ApproverName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
+Reason = Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=500)]
 
 
 class ApprovalBody(BaseModel):
@@ -29,6 +33,39 @@ class ApprovalBody(BaseModel):
 
     approver: ApproverName
     note: str | None = Field(default=None, max_length=500)
+
+
+class ApproveOnceBody(BaseModel):
+    """«Aprobar sólo esta vez»: the reason is mandatory and stays in the ledger."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    approver: ApproverName
+    reason: Reason
+
+
+class AgreementBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    amount: Decimal | None = Field(default=None, gt=0)  # the newly agreed amount, in the agreement's currency
+    tolerance_pct: Decimal | None = Field(default=None, ge=0, le=100)
+
+    @model_validator(mode="after")
+    def _changes_something(self) -> AgreementBody:
+        if self.amount is None and self.tolerance_pct is None:
+            raise ValueError("Indica el nuevo monto acordado o la nueva tolerancia.")
+        return self
+
+    def update(self) -> AgreementUpdate:
+        return AgreementUpdate(amount=self.amount, tolerance_pct=self.tolerance_pct)
+
+
+class ApproveWithAgreementBody(AgreementBody):
+    """«Aprobar y actualizar el acuerdo», confirmed after seeing the simulation of `expected_policy_version`."""
+
+    approver: ApproverName
+    reason: Reason
+    expected_policy_version: int = Field(ge=1)
 
 
 class DecisionItem(BaseModel):
@@ -81,6 +118,35 @@ def read_receipt(invoice_id: str, ctx: Services, workspace: CurrentWorkspace) ->
 @router.post("/{invoice_id}/approve", response_model=Decision)
 def approve(invoice_id: str, body: ApprovalBody, ctx: Services, workspace: CurrentWorkspace) -> Decision:
     return approval_service.decide(ctx, workspace, invoice_id, "approved", approver=body.approver, note=body.note)
+
+
+@router.post("/{invoice_id}/approve-once", response_model=Decision)
+def approve_once(invoice_id: str, body: ApproveOnceBody, ctx: Services, workspace: CurrentWorkspace) -> Decision:
+    """Pays this invoice only; the policy does not change."""
+    return approval_service.approve_once(ctx, workspace, invoice_id, approver=body.approver, reason=body.reason)
+
+
+@router.post("/{invoice_id}/agreement/preview", response_model=AgreementPreview)
+def preview_agreement(
+    invoice_id: str, body: AgreementBody, ctx: Services, workspace: CurrentWorkspace
+) -> AgreementPreview:
+    """Simulates the supplier's new agreement against everything received; changes nothing."""
+    return approval_service.preview_agreement(ctx, workspace, invoice_id, body.update())
+
+
+@router.post("/{invoice_id}/approve-with-agreement", response_model=ApprovedWithAgreement)
+def approve_with_agreement(
+    invoice_id: str, body: ApproveWithAgreementBody, ctx: Services, workspace: CurrentWorkspace
+) -> ApprovedWithAgreement:
+    return approval_service.approve_with_agreement(
+        ctx,
+        workspace,
+        invoice_id,
+        body.update(),
+        approver=body.approver,
+        reason=body.reason,
+        simulated_on=body.expected_policy_version,
+    )
 
 
 @router.post("/{invoice_id}/reject", response_model=Decision)
