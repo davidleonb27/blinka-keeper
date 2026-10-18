@@ -20,7 +20,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sliders,
-  Sparkles,
   UserCheck,
   Zap,
   type LucideIcon,
