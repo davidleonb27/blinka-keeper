@@ -25,6 +25,7 @@ TABLES = {
     "stripe_accounts",
     "payment_executions",
     "reconciliations",
+    "supplier_corrections",
 }
 
 

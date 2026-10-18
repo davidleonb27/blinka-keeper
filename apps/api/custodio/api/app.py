@@ -13,6 +13,7 @@ from custodio.api import errors, mcp_server
 from custodio.api.body_limit import BodySizeLimit
 from custodio.api.routes import (
     challenge,
+    corrections,
     decisions,
     firewall,
     health,
@@ -41,6 +42,7 @@ ROUTERS = (
     policy,
     invoices,
     decisions,
+    corrections,
     ledger,
     trust,
     schedule,
