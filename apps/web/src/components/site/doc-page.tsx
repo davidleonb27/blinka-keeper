@@ -9,7 +9,7 @@ export function DocPage({ href, lead, children }: { href: string; lead: string; 
   const { previous, next } = neighbours(href);
   return (
     <article className="max-w-[72ch] pb-16">
-      <p className="eyebrow text-brand">{page.group}</p>
+      <p className="eyebrow">{page.group}</p>
       <h1 className="font-serif mt-2 text-[34px] leading-tight font-semibold tracking-[-0.015em] text-ink sm:text-[40px]">
         {page.title}
       </h1>

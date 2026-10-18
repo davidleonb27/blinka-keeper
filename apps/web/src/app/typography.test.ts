@@ -2,8 +2,9 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-// One typography for the whole web: Inter for the interface, Source Serif 4 for large titles, the system monospace
-// for code. The pair lives in layout.tsx (loading) and globals.css (tokens); nothing else names a font.
+// One typography for the whole web, Blinka's (docs/design-system/blinka): Inter as "Blinka Inter" for the interface and
+// titles, Geist Mono for figures, codes and ids. Both are self-hosted woff2 files loaded in layout.tsx; the tokens live
+// in globals.css; nothing else names a font.
 const SRC = path.resolve(__dirname, "..");
 const read = (relative: string) => readFileSync(path.join(SRC, relative), "utf8");
 
@@ -16,27 +17,27 @@ function sourceFiles(dir: string): string[] {
 }
 
 describe("typography", () => {
-  it("loads exactly Inter and Source Serif 4 from next/font/google", () => {
+  it("self-hosts Blinka Inter and Geist Mono with next/font/local", () => {
     const layout = read("app/layout.tsx");
 
-    expect(layout).toMatch(/import \{ Inter, Source_Serif_4 \} from "next\/font\/google";/);
-    expect(layout).toMatch(/Inter\(\{[^}]*subsets: \["latin"\][^}]*display: "swap"[^}]*variable: "--font-sans"/);
-    expect(layout).toMatch(
-      /Source_Serif_4\(\{[^}]*subsets: \["latin"\][^}]*display: "swap"[^}]*variable: "--font-serif"[^}]*preload: true/,
-    );
+    expect(layout).toMatch(/import localFont from "next\/font\/local";/);
+    expect(layout).toMatch(/src: "\.\/fonts\/blinka-inter-latin-variable\.woff2"[\s\S]*?variable: "--font-sans"/);
+    expect(layout).toMatch(/src: "\.\/fonts\/geist-mono-latin-variable\.woff2"[\s\S]*?variable: "--font-mono"/);
+    expect(layout).not.toMatch(/next\/font\/google/);
   });
 
-  it("keeps the font tokens in one place, with the system monospace for code", () => {
+  it("keeps the font tokens in one place, with Geist Mono for figures and code", () => {
     const css = read("app/globals.css");
 
     expect(css.match(/--font-sans:/g)).toHaveLength(1);
-    expect(css.match(/--font-serif:/g)).toHaveLength(1);
-    expect(css).toContain('--font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;');
+    expect(css.match(/--font-mono:/g)).toHaveLength(1);
+    expect(css).toContain('--font-sans: "Blinka Inter", ui-sans-serif, system-ui, sans-serif;');
+    expect(css).toContain('--font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;');
   });
 
-  it("leaves no other font or font alias anywhere in the web", () => {
+  it("leaves no serif, Google font or other font alias anywhere in the web", () => {
     const offenders = sourceFiles(SRC).filter((file) =>
-      /Geist|Bricolage|--font-geist|--font-bricolage|--font-display|--font-heading|\bfont-display\b|\bfont-heading\b/.test(
+      /Source[ _]Serif|Georgia|Bricolage|next\/font\/google|--font-geist|--font-bricolage|--font-display|--font-heading|\bfont-display\b|\bfont-heading\b/.test(
         readFileSync(file, "utf8"),
       ),
     );

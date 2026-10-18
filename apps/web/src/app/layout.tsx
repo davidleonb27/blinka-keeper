@@ -1,12 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Source_Serif_4 } from "next/font/google";
+import localFont from "next/font/local";
 import { Providers } from "@/components/providers/providers";
 import "./globals.css";
 
-// The type pair: Inter for the interface and text, Source Serif 4 for large titles. Changing the pair means changing
-// these two calls and the font tokens in globals.css; nothing else names a font.
-const sans = Inter({ subsets: ["latin"], display: "swap", variable: "--font-sans" });
-const serif = Source_Serif_4({ subsets: ["latin"], display: "swap", variable: "--font-serif", preload: true });
+// Blinka's type pair (docs/design-system/blinka), self-hosted: Inter ("Blinka Inter") for the interface and titles,
+// Geist Mono for figures, codes and ids. Changing it means changing these two calls and the font tokens in
+// globals.css; nothing else names a font.
+const sans = localFont({
+  src: "./fonts/blinka-inter-latin-variable.woff2",
+  weight: "100 900",
+  display: "swap",
+  variable: "--font-sans",
+});
+const mono = localFont({
+  src: "./fonts/geist-mono-latin-variable.woff2",
+  weight: "100 900",
+  display: "swap",
+  variable: "--font-mono",
+});
 
 export const metadata: Metadata = {
   title: { default: "Custodio · el agente de cuentas por pagar de código abierto", template: "%s · Custodio" },
@@ -19,14 +30,14 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#edf2f2" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a1012" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f7f4" },
+    { media: "(prefers-color-scheme: dark)", color: "#111720" },
   ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" suppressHydrationWarning className={`${sans.variable} ${serif.variable}`}>
+    <html lang="es" suppressHydrationWarning className={`${sans.variable} ${mono.variable}`}>
       <body className="min-h-dvh">
         <Providers>{children}</Providers>
       </body>

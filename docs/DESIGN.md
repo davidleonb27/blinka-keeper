@@ -200,6 +200,27 @@ Límites: por IP y por espacio en rutas que llaman modelos; tope diario de gasto
 Diseño base: `prototype/index.html` (ya publicado y probado). Next.js App Router, TypeScript estricto, Tailwind,
 shadcn/ui, tema claro y oscuro, móvil primero.
 
+### Identidad visual: el sistema de diseño de Blinka
+
+Desde el 18 de octubre la app adopta el sistema de diseño de Blinka, guardado en `docs/design-system/blinka/`
+(`DESIGN.md`, `colors_and_type.css`, `preview/`, `ui_kits/app/`, `reference/`). Custodio está **construido para
+Blinka**, no es Blinka: conserva su logo (`components/brand/seal.tsx`, `public/logo*`) y no usa los logos de Blinka ni
+de sus socios ni la ilustración grabada (`SOURCE.md` explica qué no se copió).
+
+- **Tokens** en `apps/web/src/app/globals.css`: papel `#f7f7f4`, tinta `#1c253a`, texto secundario `#47525d` /
+  `#5c6474`, líneas `#dedfdc`, un solo acento cobalto `#2a4bd0` (acción primaria, selección, foco; nunca de fondo en
+  áreas grandes) y la paleta nocturna `#111720` para el modo oscuro, el pie y las secciones finales (`night-section`).
+  Los colores de estado son de Custodio (pagar, retener, escalar, crítico), ajustados a esa paleta; todo par de texto
+  cumple WCAG AA (4,5:1) en claro y oscuro, también sobre su propio tinte.
+- **Tipografía**: Inter («Blinka Inter») para interfaz y títulos, Geist Mono para cifras, códigos e ids; ambas
+  servidas desde `apps/web/src/app/fonts/` con `next/font/local`. Títulos en peso 450 con tracking cerrado (la clase
+  `font-serif` es el rol «display» y ya no carga una serifa); eyebrows de 11 px en mayúsculas con tracking 0,1em.
+  `typography.test.ts` lo hace cumplir.
+- **Forma**: botones en píldora de 48 px (38 px el pequeño), tarjetas de radio 16–20 con las sombras largas de Blinka,
+  chips de radio 8, filas de radio 12, cabecera pegajosa con desenfoque de 14 px sobre papel translúcido.
+- **Reglas**: un solo CTA primario por vista, sin gradientes morados ni emojis, movimiento de 0,16–0,18 s que respeta
+  `prefers-reduced-motion`.
+
 1. **Inicio**: qué es en una frase, métricas en vivo (autonomía, pagos indebidos = 0, ataques probados), dos botones:
    «Probar con una empresa demo» y «Configurar mi empresa».
 2. **Onboarding tipo Typeform**: una pregunta por pantalla, teclado (Enter avanza), barra de progreso, animaciones
