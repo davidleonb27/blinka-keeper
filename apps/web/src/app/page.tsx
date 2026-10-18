@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Cloud,
   Container,
-  FileCheck,
   FileSearch,
   GitPullRequest,
   Landmark,
