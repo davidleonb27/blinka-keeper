@@ -39,19 +39,19 @@ def failed_lines(reading: ExtractedInvoice) -> list[str]:
 
 
 def test_a_valid_dian_attached_document_is_read_without_a_model() -> None:
-    reading = read(DEMO_FILES["dian-distrito-norte-valida.xml"])
+    reading = read(DEMO_FILES["dian-ruta-legal-valida.xml"])
 
     assert reading.visible_text.startswith("Leída de la factura electrónica oficial (sin IA)")
     assert "sin IA" in reading.reader
-    assert reading.supplier_name.value == "Distrito Norte Coworking SAS"
-    assert reading.supplier_tax_id.value == "901.223.610-9"
-    assert reading.invoice_number.value == "DNC-1042"
+    assert reading.supplier_name.value == "Ruta Legal Abogados SAS"
+    assert reading.supplier_tax_id.value == "900.771.245-1"
+    assert reading.invoice_number.value == "RL-561"
     assert reading.issue_date.value == "2026-10-15"
     assert reading.due_date.value == "2026-10-30"
-    assert reading.amount.value == "3800000.00"
+    assert reading.amount.value == "4100000.00"
     assert reading.currency.value == "COP"
-    assert reading.bank_name.value == "Davivienda"
-    assert reading.account_number.value == "0570-4410"
+    assert reading.bank_name.value == "Bancolombia"
+    assert reading.account_number.value == "0612-6614"
     assert reading.overall_confidence == 1.0
     assert failed_lines(reading) == []
 
@@ -97,7 +97,7 @@ def test_a_wrong_nit_check_digit_is_named_with_the_right_one() -> None:
 
 
 def test_totals_that_do_not_add_up_leave_the_amount_unread() -> None:
-    reading = read(dian_invoice(replace(VALID_DIAN, total=Decimal("3900000.00"))))
+    reading = read(dian_invoice(replace(VALID_DIAN, total=Decimal("4200000.00"))))
 
     assert not reading.amount.verified
     assert reading.amount.confidence == 0
@@ -245,14 +245,14 @@ def test_xml_that_is_not_an_electronic_invoice_is_unsupported() -> None:
 def test_is_einvoice_recognises_xml_by_media_type_or_name() -> None:
     assert is_einvoice("application/xml", "factura.bin")
     assert is_einvoice("text/xml", "x")
-    assert is_einvoice("application/octet-stream", "FE-1042.XML")
+    assert is_einvoice("application/octet-stream", "FE-RL561.XML")
     assert not is_einvoice("application/pdf", "factura.pdf")
 
 
 def test_a_nit_written_with_its_check_digit_in_the_text_is_read_too() -> None:
-    xml = dian_invoice(VALID_DIAN).replace('schemeID="9" schemeName="31">901223610<', 'schemeName="31">901.223.610-9<')
+    xml = dian_invoice(VALID_DIAN).replace('schemeID="1" schemeName="31">900771245<', 'schemeName="31">900.771.245-1<')
 
     reading = read(xml)
 
-    assert reading.supplier_tax_id.value == "901.223.610-9"
+    assert reading.supplier_tax_id.value == "900.771.245-1"
     assert reading.supplier_tax_id.verified

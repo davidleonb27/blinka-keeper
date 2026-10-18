@@ -210,20 +210,20 @@ def _stamp_uuid(spec: CfdiSpec) -> str:
 # Demo files -------------------------------------------------------------------------------------------------------
 
 VALID_DIAN = DianSpec(
-    number="DNC-1042",
+    number="RL-561",
     issue_date=date(2026, 10, 15),
     due_date=date(2026, 10, 30),
-    supplier_name="Distrito Norte Coworking SAS",
-    supplier_nit="901223610",
-    supplier_dv="9",
+    supplier_name="Ruta Legal Abogados SAS",
+    supplier_nit="900771245",
+    supplier_dv="1",
     customer_name=DEMO_CUSTOMER,
     customer_id=DEMO_CUSTOMER_TAX_ID,
-    subtotal=Decimal("3193277.31"),
-    tax=Decimal("606722.69"),
-    total=Decimal("3800000.00"),
-    description="Coworking en Bogotá, octubre 2026",
-    bank_name="Davivienda",
-    account="0570-4410",
+    subtotal=Decimal("3445378.15"),
+    tax=Decimal("654621.85"),
+    total=Decimal("4100000.00"),
+    description="Honorarios, caso laboral de octubre 2026",
+    bank_name="Bancolombia",
+    account="0612-6614",
 )
 WRONG_CHECK_DIGIT_DIAN = DianSpec(
     number="EL-0388",
@@ -234,9 +234,9 @@ WRONG_CHECK_DIGIT_DIAN = DianSpec(
     supplier_dv="7",  # the right one is 2
     customer_name=DEMO_CUSTOMER,
     customer_id=DEMO_CUSTOMER_TAX_ID,
-    subtotal=Decimal("2605042.02"),
-    tax=Decimal("494957.98"),
-    total=Decimal("3100000.00"),
+    subtotal=Decimal("2638655.46"),
+    tax=Decimal("501344.54"),
+    total=Decimal("3140000.00"),
     description="Fotografía de producto, octubre 2026",
     bank_name="Bancolombia",
     account="0612-7731",
@@ -256,7 +256,7 @@ DEMO_CFDI = CfdiSpec(
     description="Tableros de datos, octubre 2026",
 )
 DEMO_FILES: dict[str, str] = {
-    "dian-distrito-norte-valida.xml": attached_document(dian_invoice(VALID_DIAN), number=VALID_DIAN.number),
+    "dian-ruta-legal-valida.xml": attached_document(dian_invoice(VALID_DIAN), number=VALID_DIAN.number),
     "dian-estudio-lumbre-nit-invalido.xml": dian_invoice(WRONG_CHECK_DIGIT_DIAN),
     "cfdi-colibri-analitica.xml": cfdi(DEMO_CFDI),
 }

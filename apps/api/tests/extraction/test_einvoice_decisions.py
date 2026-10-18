@@ -26,7 +26,7 @@ def demo_reading(name: str) -> ExtractedInvoice:
 
 
 def test_the_valid_dian_invoice_is_paid_on_its_own() -> None:
-    outcome = decide(demo_reading("dian-distrito-norte-valida.xml"))
+    outcome = decide(demo_reading("dian-ruta-legal-valida.xml"))
 
     assert outcome["verdict"] is AgentVerdict.PAY
     assert outcome["R1"] is RuleOutcome.PASS

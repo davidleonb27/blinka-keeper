@@ -24,7 +24,7 @@ def upload(client: TestClient, workspace: Workspace, name: str, data: bytes, med
 
 @pytest.mark.parametrize(
     ("name", "media_type"),
-    [("fe.xml", "application/xml"), ("fe.xml", "text/xml"), ("FE-1042.XML", "application/octet-stream")],
+    [("fe.xml", "application/xml"), ("fe.xml", "text/xml"), ("FE-RL561.XML", "application/octet-stream")],
 )
 def test_an_electronic_invoice_is_read_without_a_model(client: TestClient, name: str, media_type: str) -> None:
     workspace = new_workspace(client)
@@ -35,7 +35,7 @@ def test_an_electronic_invoice_is_read_without_a_model(client: TestClient, name:
     extraction = response.json()["extraction"]
     assert "sin IA" in extraction["reader"]
     assert extraction["visible_text"].startswith("Leída de la factura electrónica oficial (sin IA)")
-    assert extraction["amount"] == {**extraction["amount"], "value": "3800000.00", "verified": True}
+    assert extraction["amount"] == {**extraction["amount"], "value": "4100000.00", "verified": True}
 
 
 def test_a_hostile_xml_is_refused_and_nothing_is_stored(client: TestClient) -> None:
@@ -98,12 +98,12 @@ def test_the_pdf_and_the_xml_of_one_invoice_become_one_invoice(client: TestClien
 def test_a_pdf_already_received_is_paired_when_its_xml_arrives(client: TestClient) -> None:
     workspace = new_workspace(client)
     pdf_text = invoice_text(
-        supplier=VALID_DIAN.supplier_name, tax_id="901.223.610-9", number="DNC-1042", amount="3900000", currency="COP"
+        supplier=VALID_DIAN.supplier_name, tax_id="900.771.245-1", number="RL-561", amount="4200000", currency="COP"
     )
     pdf = upload(client, workspace, "fe.pdf", pdf_text.encode(), "application/pdf").json()
 
     paired = upload(client, workspace, "fe.xml", dian_invoice(VALID_DIAN).encode(), "application/xml").json()
 
     assert paired["id"] == pdf["id"]
-    assert paired["extraction"]["amount"]["value"] == "3800000.00"  # the XML wins
+    assert paired["extraction"]["amount"]["value"] == "4100000.00"  # the XML wins
     assert paired["extraction"]["amount"]["verified"] is False  # and the disagreement goes to a person
