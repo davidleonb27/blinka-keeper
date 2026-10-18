@@ -58,6 +58,17 @@ export type ReconciliationItem = ResponseOf<"/api/v1/reconciliations", "get">[nu
 export type ResolveInput = JsonBodyOf<"/api/v1/reconciliations/{reconciliation_id}/resolve", "post">;
 export type PeriodCloseView = ResponseOf<"/api/v1/periods/{period}/close", "post">;
 export type DemoStatementFormat = "csv" | "pdf";
+export type CorrectionOverview = ResponseOf<"/api/v1/corrections", "get">;
+export type CorrectionRequest = CorrectionOverview["requests"][number];
+export type CorrectionOffer = ResponseOf<"/api/v1/decisions/{invoice_id}/correction", "get">;
+export type CorrectionIssued = ResponseOf<"/api/v1/decisions/{invoice_id}/correction", "post">;
+export type CorrectionRequestInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/correction", "post">;
+export type CorrectionIssue = CorrectionOffer["issues"][number];
+export type CorrectionBlocker = CorrectionOffer["blockers"][number];
+export type CorrectableField = Schemas["CorrectableField"];
+export type SupplierCorrectionView = ResponseOf<"/api/v1/supplier/corrections/{token}", "get">;
+export type SupplierReceipt = ResponseOf<"/api/v1/supplier/corrections/{token}/confirm", "post">;
+export type SupplierConfirmation = JsonBodyOf<"/api/v1/supplier/corrections/{token}/confirm", "post">["values"];
 
 /** An invoice of the company's own: a PDF or image, or the text of an email. */
 export interface InvoiceInput {
@@ -131,4 +142,14 @@ export interface CustodioApi {
   closePeriod(period: string, closedBy: string): Promise<PeriodCloseView>;
   downloadEvidence(period: string): Promise<Blob>;
   downloadDemoStatement(format: DemoStatementFormat): Promise<Blob>;
+  /** Every request to a supplier to correct a stopped invoice, and how many it resolved. */
+  listCorrections(): Promise<CorrectionOverview>;
+  /** Whether a correction can be asked for this invoice, what it would ask, and its rounds so far. */
+  getCorrectionOffer(invoiceId: string): Promise<CorrectionOffer>;
+  /** Issues a one-time link (shown once) and the message for the supplier; a new one voids the previous link. */
+  requestCorrection(invoiceId: string, input: CorrectionRequestInput): Promise<CorrectionIssued>;
+  /** The supplier's side, outside any workspace: only what that one link may see. */
+  getSupplierCorrection(token: string): Promise<SupplierCorrectionView>;
+  submitSupplierDocument(token: string, file: File): Promise<SupplierReceipt>;
+  confirmSupplierCorrection(token: string, values: SupplierConfirmation): Promise<SupplierReceipt>;
 }

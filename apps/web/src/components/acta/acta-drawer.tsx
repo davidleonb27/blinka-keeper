@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { CorrectionPanel } from "@/components/corrections/correction-panel";
 import { ErrorState, LoadingBlock } from "@/components/states";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { messageOf } from "@/lib/api/errors";
@@ -54,6 +55,9 @@ function ActaContent({ invoiceId }: { invoiceId: string }) {
       deciding={decide.isPending}
       onRetryPayment={onRetryPayment}
       retryingPayment={retry.isPending}
+      correction={
+        <CorrectionPanel invoiceId={invoiceId} cameByWhatsApp={detail.data.invoice.extraction.source === "whatsapp"} />
+      }
     />
   );
 }

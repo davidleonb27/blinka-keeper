@@ -21,6 +21,8 @@ export interface ActaProps {
   deciding: boolean;
   onRetryPayment: () => void;
   retryingPayment: boolean;
+  /** The supplier-correction section, when the acta has one (the drawer passes it; it needs the API). */
+  correction?: ReactNode;
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -80,7 +82,7 @@ function ApprovalActions({ policy, onDecide, deciding }: Pick<ActaProps, "policy
   );
 }
 
-export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retryingPayment }: ActaProps) {
+export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retryingPayment, correction }: ActaProps) {
   const [activeField, setActiveField] = useState<ExtractedFieldName | null>(null);
   const { decision, invoice } = detail;
   const { extraction } = invoice;
@@ -101,10 +103,13 @@ export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retry
         {decision.blocked_reason ? (
           <p className="mt-3 flex gap-2 rounded-xl bg-crit-weak px-3.5 py-3 text-[14px]">
             <ShieldAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-crit" />
-            Aprobada, pero no se paga: {decision.blocked_reason}
+            {decision.approval ? "Aprobada, pero no se paga: " : ""}
+            {decision.blocked_reason}
           </p>
         ) : null}
       </Section>
+
+      {correction}
 
       <PaymentExecutionBlock
         decision={decision}
