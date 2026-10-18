@@ -32,6 +32,11 @@ const VARIABLES: readonly Variable[] = [
     text: "Sólo claves sk_test_. Con una clave real o inválida, Custodio la ignora y usa el riel simulado.",
   },
   {
+    name: "CUSTODIO_RECEIPT_SIGNING_KEY",
+    fallback: "derivada de DATABASE_URL",
+    text: "Clave Ed25519 que firma el recibo de cada decisión (PEM PKCS#8, o la semilla de 32 bytes en base64 o hex). Sin ella se deriva con HKDF de DATABASE_URL: la misma en cada arranque, nunca una nueva.",
+  },
+  {
     name: "CUSTODIO_LLM_DAILY_BUDGET_USD",
     fallback: "25",
     text: "Tope de gasto en el modelo por día UTC para todo el despliegue. Al llegar, el modelo deja de llamarse; las reglas siguen.",

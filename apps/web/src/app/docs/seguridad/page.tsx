@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { DocPage } from "@/components/site/doc-page";
 import { repoFile } from "@/lib/site";
 
@@ -67,6 +68,20 @@ export default function SecurityPage() {
       <p>
         Un riel sólo ejecuta pagos que el motor aprobó y el auditor confirmó, y sólo desde el panel de la empresa. El
         firewall, MCP, el reto público y el red team nunca ejecutan pagos. Stripe sólo acepta claves de prueba.
+      </p>
+
+      <h2 id="recibos">Recibos firmados</h2>
+      <p>
+        Cada decisión sale con un recibo firmado con Ed25519: la factura, los campos leídos con la huella SHA-256 del
+        documento, el resultado de cada regla con la versión y la huella de la política, la decisión, el pago (con el id
+        de Stripe cuando salió) y su posición y hash en el registro. Cualquiera lo comprueba con la clave pública de{" "}
+        <code>/api/v1/.well-known/custodio-receipt-key</code>, sin acceso al sistema, y la verificación dice qué campo se
+        alteró. Pruébalo en <Link href="/verificar">Verificar un recibo</Link>.
+      </p>
+      <p>
+        El riel de pago tiene su propio guardián: no envía nada sin un recibo válido de una decisión de pagar exactamente
+        ese monto, a ese beneficiario y a su cuenta registrada. Un código que se salte el motor, o una orden editada
+        después de decidir, no mueve dinero.
       </p>
 
       <h2 id="reportar">Reportar una vulnerabilidad</h2>
