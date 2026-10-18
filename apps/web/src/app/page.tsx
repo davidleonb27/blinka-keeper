@@ -141,7 +141,7 @@ function SectionTitle({ id, eyebrow, title, lead }: { id: string; eyebrow: strin
 function Hero() {
   return (
     <section aria-labelledby="hero-title" className="relative overflow-hidden">
-      <WaveArt className="pointer-events-none absolute top-1/2 right-[-18rem] hidden h-[640px] w-auto -translate-y-1/2 md:block lg:right-[-6rem] xl:right-0" />
+      <WaveArt className="pointer-events-none absolute [mask-image:radial-gradient(closest-side,black_60%,transparent)] top-1/2 right-[-18rem] hidden h-[640px] w-auto -translate-y-1/2 md:block lg:right-[-6rem] xl:right-0" />
       <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 sm:pt-28 sm:pb-28">
         <div className="max-w-[50rem]">
           <p className="mb-8 inline-flex items-center gap-2 rounded-full border border-line-2 bg-surface px-3 py-1 text-[12.5px] font-medium text-ink-2">
