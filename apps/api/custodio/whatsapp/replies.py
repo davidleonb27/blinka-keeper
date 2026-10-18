@@ -26,9 +26,10 @@ REASON_LIMIT = 140
 
 
 def linked(company_name: str) -> str:
+    name = company_name.rstrip(".")  # "Inc." must not end the sentence twice
     return (
-        f"Listo: este número quedó ligado a {company_name}. Envía aquí la foto o el PDF de cada factura y Custodio "
-        f"la revisa con tus reglas. {APP_ONLY}"
+        f"Listo: este número quedó ligado a {name}. Envía aquí la foto o el PDF de cada factura y Custodio la revisa "
+        f"con tus reglas. {APP_ONLY}"
     )
 
 
