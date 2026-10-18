@@ -23,10 +23,8 @@ import {
     Sliders,
     UserCheck,
     ChevronDown,
-    Mail,
     Phone,
     MapPin,
-    ArrowRight,
 } from "lucide-react";
 
 export function Homepage() {
@@ -41,7 +39,7 @@ export function Homepage() {
     const [stat4, setStat4] = useState(0); // 0 -> 100 (100%)
     const [hasAnimated, setHasAnimated] = useState(false);
 
-    // Animated counter for Pre-footer hours (+40h)
+    // Animated counter for the pre-footer
     const [, setStatHours] = useState(0);
     const [hasAnimatedPreFooter, setHasAnimatedPreFooter] = useState(false);
 
