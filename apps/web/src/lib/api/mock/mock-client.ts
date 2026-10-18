@@ -36,11 +36,13 @@ import { compilePolicyText } from "./policy-compiler";
 import { proposeMockProfile } from "./profile";
 import { mockPayments, mockStripeProof } from "./payments";
 import { createMockReconciliations } from "./reconciliation";
+import { MOCK_RECEIPT_KEY, mockCheck, mockReceipt } from "./receipts";
 import { RED_TEAM_SCRIPT, scriptedDecision } from "./red-team-script";
 
 const DEFAULT_LATENCY_MS = 450;
 const RED_TEAM_STEP_FACTOR = 2;
 const MOCK_WORKSPACE_ID = "ws_demo";
+const EXAMPLE_WORKSPACE_ID = "ejemplo";
 export const MOCK_API_KEY = "cus_demo_7f3a91c2e4b0";
 const BLANK_COMPANY_NAME = "Mi empresa";
 const TAMPER_MARK = "alterado";
@@ -418,6 +420,17 @@ respond(() => decided().map(listItemOf)),
         ),
       ),
     downloadEvidence: () => respond(() => reconciliations.files()),
+    getReceipt: (id) =>
+      respond(() =>
+        mockReceipt(actaOf(findItem(id), workspace.data.ledger), MOCK_WORKSPACE_ID, workspace.data.policy.base_currency),
+      ),
+    getReceiptKey: () => respond(() => MOCK_RECEIPT_KEY),
+    verifyReceipt: (receipt) => respond(() => mockCheck(receipt)),
+    getExampleReceipt: () =>
+      respond(() => {
+        const paid = DEMO.items.find((item) => item.decision.status === "paid_auto") ?? DEMO.items[0];
+        return mockReceipt(actaOf(paid, []), EXAMPLE_WORKSPACE_ID, DEMO.policy.base_currency);
+      }),
     downloadDemoStatement: () => respond(() => reconciliations.files()),
     // The demo has no WhatsApp number: the panel hides the card.
     getWhatsAppStatus: () => respond(() => ({ enabled: false, display_number: null, phones: [], last_received_at: null })),

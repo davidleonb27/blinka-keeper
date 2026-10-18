@@ -37,6 +37,7 @@ const queryKeys = {
   reconciliations: ["reconciliations"] as const,
   reconciliation: (id: string) => ["reconciliations", id] as const,
   whatsapp: ["whatsapp"] as const,
+  receiptKey: ["receipt-key"] as const,
 };
 
 const HYDRATING = "hydrating";
@@ -81,6 +82,12 @@ export function useDecision(invoiceId: string | null) {
     queryFn: () => api.getDecision(invoiceId ?? ""),
     enabled: invoiceId !== null,
   });
+}
+
+/** The public key that checks every receipt: the acta shows its id on the seal. */
+export function useReceiptKey() {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.receiptKey, queryFn: () => api.getReceiptKey() });
 }
 
 export function usePolicy() {

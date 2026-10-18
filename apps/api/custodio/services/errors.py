@@ -32,6 +32,11 @@ class DecisionNotFound(NotFound):
     message = "No encontramos esa decisión en este espacio."
 
 
+class ReceiptUnavailable(NotFound):
+    code = "receipt_unavailable"
+    message = "Esta factura aún no tiene una decisión en el registro, así que no hay recibo que firmar."
+
+
 class LedgerEntryNotFound(NotFound):
     code = "ledger_entry_not_found"
     message = "Esa posición no existe en el registro."

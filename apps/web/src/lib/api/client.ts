@@ -66,6 +66,10 @@ export type RailMatchView = PaymentsOverview["stripe"];
 export type RailMatchLine = RailMatchView["lines"][number];
 export type StripeProof = ResponseOf<"/api/v1/payments/{invoice_id}/stripe", "get">;
 export type ProofCheck = StripeProof["checks"][number];
+export type DecisionReceipt = ResponseOf<"/api/v1/decisions/{invoice_id}/receipt", "get">;
+export type ReceiptBody = DecisionReceipt["body"];
+export type ReceiptKey = ResponseOf<"/api/v1/.well-known/custodio-receipt-key", "get">;
+export type ReceiptCheck = ResponseOf<"/api/v1/receipts/verify", "post">;
 
 /** An invoice of the company's own: a PDF or image, or the text of an email. */
 export interface InvoiceInput {
@@ -149,4 +153,11 @@ export interface CustodioApi {
   getStripeProof(invoiceId: string): Promise<StripeProof>;
   /** The approved payments as an ISO 20022 pain.001.001.09 file for Blinka. */
   downloadPain001(): Promise<Blob>;
+  /** The decision signed with Ed25519; anyone checks it with the public key. */
+  getReceipt(invoiceId: string): Promise<DecisionReceipt>;
+  getReceiptKey(): Promise<ReceiptKey>;
+  /** The server's own check of a pasted receipt; it names the field that was altered. */
+  verifyReceipt(receipt: unknown): Promise<ReceiptCheck>;
+  /** A receipt of a made-up decision, signed with the real key, to try the check with. */
+  getExampleReceipt(): Promise<DecisionReceipt>;
 }

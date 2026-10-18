@@ -190,6 +190,14 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
     getPayments: () => call("get", "/api/v1/payments"),
     getStripeProof: (id) => call("get", "/api/v1/payments/{invoice_id}/stripe", { params: { invoice_id: id } }),
     downloadPain001: async () => (await send("get", "/api/v1/payments/pain001.xml")).blob(),
+    getReceipt: (id) => call("get", "/api/v1/decisions/{invoice_id}/receipt", { params: { invoice_id: id } }),
+    getReceiptKey: () => call("get", "/api/v1/.well-known/custodio-receipt-key", { scoped: false }),
+    verifyReceipt: (receipt) =>
+      call("post", "/api/v1/receipts/verify", {
+        json: receipt as JsonBodyOf<"/api/v1/receipts/verify", "post">,
+        scoped: false,
+      }),
+    getExampleReceipt: () => call("get", "/api/v1/receipts/example", { scoped: false }),
     runRedTeam: async (input, onEvent, signal) => {
       const response = await send("post", "/api/v1/redteam/runs", { json: input, signal });
       if (!response.body) throw new UnexpectedResponseError(response.status);

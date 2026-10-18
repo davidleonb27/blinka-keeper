@@ -8,7 +8,15 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from custodio.api.deps import CurrentWorkspace, ModelCallLimit, Services
 from custodio.contracts import Decision, DecisionStatus, InvoiceSource, LedgerEntry
-from custodio.services import approval_service, invoice_service, ledger_service, payment_service, records
+from custodio.receipts import DecisionReceipt
+from custodio.services import (
+    approval_service,
+    invoice_service,
+    ledger_service,
+    payment_service,
+    receipt_service,
+    records,
+)
 from custodio.services.invoice_service import InvoiceView
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
@@ -62,6 +70,12 @@ def read_acta(invoice_id: str, ctx: Services, workspace: CurrentWorkspace) -> Ac
         invoice=invoice_service.view(invoice, decided=True),
         ledger=ledger_service.entries(ctx, workspace.id, subject_id=invoice_id),
     )
+
+
+@router.get("/{invoice_id}/receipt", response_model=DecisionReceipt)
+def read_receipt(invoice_id: str, ctx: Services, workspace: CurrentWorkspace) -> DecisionReceipt:
+    """The decision signed with Ed25519: anyone checks it with GET /.well-known/custodio-receipt-key."""
+    return receipt_service.for_invoice(ctx, workspace.id, invoice_id)
 
 
 @router.post("/{invoice_id}/approve", response_model=Decision)

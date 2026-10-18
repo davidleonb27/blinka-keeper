@@ -11,6 +11,7 @@ import { STATUS_META } from "@/lib/presentation";
 import { markTourStep } from "@/lib/tour";
 import { Acta } from "./acta";
 import type { PaymentStep } from "./payment-progress";
+import { SignedReceipt } from "./signed-receipt";
 
 const ACTA_PARAM = "acta";
 
@@ -62,6 +63,7 @@ function ActaContent({ invoiceId }: { invoiceId: string }) {
       deciding={decide.isPending}
       onRetryPayment={onRetryPayment}
       retryingPayment={retry.isPending}
+      receipt={<SignedReceipt invoiceId={invoiceId} />}
     />
   );
 }

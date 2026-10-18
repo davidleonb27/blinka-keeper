@@ -22,6 +22,7 @@ from custodio.api.routes import (
     payments,
     periods,
     policy,
+    receipts,
     reconciliations,
     redteam,
     schedule,
@@ -50,6 +51,7 @@ ROUTERS = (
     challenge,
     firewall,
     whatsapp,
+    receipts,
 )
 
 

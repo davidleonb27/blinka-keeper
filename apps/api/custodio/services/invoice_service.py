@@ -296,17 +296,18 @@ def _record(
     audit_blocked: bool,
     pay: Callable[[Decision], Payout] | None,
 ) -> Decision:
+    """The decision enters the ledger before any payment: the receipt the rail's guard asks for points to it."""
+    kind = LedgerKind.APPROVAL if approval else LedgerKind.DECISION
+    payload = _decision_payload(decision, audit_blocked)
+    if approval:
+        payload["approval"] = approval.model_dump(mode="json")
+    ledger_service.append(ctx, workspace_id, kind, decision.invoice_id, payload)
     payout: dict[str, Any] = {}
     if pay is not None and decision.status in records.PAID and not audit_blocked:
         execution, payout = pay(decision)
         if execution is not None:
             decision = decision.model_copy(update={"execution": execution})
     records.save_decision(ctx, workspace_id, decision, audit_blocked=audit_blocked)
-    kind = LedgerKind.APPROVAL if approval else LedgerKind.DECISION
-    payload = _decision_payload(decision, audit_blocked)
-    if approval:
-        payload["approval"] = approval.model_dump(mode="json")
-    ledger_service.append(ctx, workspace_id, kind, decision.invoice_id, payload)
     if decision.status in records.PAID:
         payment = {**payment_service.payment_payload(decision), **payout}
         ledger_service.append(ctx, workspace_id, LedgerKind.PAYMENT, decision.invoice_id, payment)
