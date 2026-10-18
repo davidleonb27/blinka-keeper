@@ -8,10 +8,11 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from custodio.db.models import WorkspaceRow
+from custodio.db.models import DecisionRow, WorkspaceRow
 from custodio.services import supplier_messaging
 from custodio.services.correction_service import EXPIRY
 from custodio.services.lanes import Lanes
+from custodio.services.context import Runtime
 
 from .conftest import MutableClock
 from .doubles import invoice_text, model_free_lanes
@@ -337,6 +338,19 @@ def test_non_negotiable_stops_are_not_offered_and_say_why(
 
 def test_a_paid_invoice_is_not_offered(client: TestClient, workspace: Workspace) -> None:
     assert offer(client, workspace, "F-001")["offered"] is False
+
+
+def test_a_payment_the_auditor_stopped_is_not_offered(
+    client: TestClient, workspace: Workspace, runtime: Runtime
+) -> None:
+    with runtime.database.session() as session:
+        row = session.get(DecisionRow, (workspace.id, SEEDED))
+        assert row is not None
+        row.audit_blocked = True
+
+    assert offer(client, workspace, SEEDED)["offered"] is False
+    response = client.post(f"/api/v1/decisions/{SEEDED}/correction", headers=workspace.headers, json={})
+    assert response.status_code == 409
 
 
 # WhatsApp (lane L20), behind a flag ---------------------------------------------------------------------------------
