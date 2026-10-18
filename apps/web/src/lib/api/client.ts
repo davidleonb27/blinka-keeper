@@ -35,6 +35,14 @@ export type WorkspaceSummary = ResponseOf<"/api/v1/workspaces/current", "get">;
 export type DecisionListItem = ResponseOf<"/api/v1/decisions", "get">[number];
 export type Acta = ResponseOf<"/api/v1/decisions/{invoice_id}", "get">;
 export type ApprovalInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/approve", "post">;
+export type ApproveOnceInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/approve-once", "post">;
+export type AgreementInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/agreement/preview", "post">;
+export type AgreementPreview = ResponseOf<"/api/v1/decisions/{invoice_id}/agreement/preview", "post">;
+export type ApproveWithAgreementInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/approve-with-agreement", "post">;
+export type ApprovedWithAgreement = ResponseOf<"/api/v1/decisions/{invoice_id}/approve-with-agreement", "post">;
+export type Suggestion = ResponseOf<"/api/v1/suggestions", "get">[number];
+export type AcceptSuggestionInput = JsonBodyOf<"/api/v1/suggestions/{suggestion_id}/accept", "post">;
+export type PolicyVersion = ResponseOf<"/api/v1/policy/versions", "get">[number];
 export type ProcessOutcome = ResponseOf<"/api/v1/invoices/process", "post">;
 export type InvoiceForm = FormOf<"/api/v1/invoices", "post">;
 export type ReceivedInvoice = ResponseOf<"/api/v1/invoices", "post">;
@@ -94,6 +102,17 @@ export interface CustodioApi {
   getDecision(invoiceId: string): Promise<Acta>;
   approveDecision(invoiceId: string, input: ApprovalInput): Promise<Decision>;
   rejectDecision(invoiceId: string, input: ApprovalInput): Promise<Decision>;
+  /** «Aprobar sólo esta vez»: pays this invoice; the policy does not change and the reason stays in the ledger. */
+  approveOnce(invoiceId: string, input: ApproveOnceInput): Promise<Decision>;
+  /** Simulates the supplier's new agreement against everything received; changes nothing. */
+  previewAgreement(invoiceId: string, input: AgreementInput): Promise<AgreementPreview>;
+  /** Approves under the policy in force and writes the next version with the new agreement. */
+  approveWithAgreement(invoiceId: string, input: ApproveWithAgreementInput): Promise<ApprovedWithAgreement>;
+  /** «Custodio sugiere»: agreement changes drawn from repeated approvals. Nothing applies until accepted. */
+  listSuggestions(): Promise<Suggestion[]>;
+  acceptSuggestion(suggestionId: string, input: AcceptSuggestionInput): Promise<Policy>;
+  /** Every policy version, newest first, with who changed it, why and when. */
+  listPolicyVersions(): Promise<PolicyVersion[]>;
   /** Retries a payment whose execution failed; a payment that already went out comes back unchanged. */
   executePayment(invoiceId: string): Promise<Decision>;
   getPolicy(): Promise<Policy>;

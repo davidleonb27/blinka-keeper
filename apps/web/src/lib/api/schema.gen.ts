@@ -124,6 +124,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/policy/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Versions
+         * @description Every version, newest first, with who changed it, why and when.
+         */
+        get: operations["read_versions_api_v1_policy_versions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/policy/beneficiaries": {
         parameters: {
             query?: never;
@@ -246,6 +266,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/decisions/{invoice_id}/approve-once": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve Once
+         * @description Pays this invoice only; the policy does not change.
+         */
+        post: operations["approve_once_api_v1_decisions__invoice_id__approve_once_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/agreement/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Agreement
+         * @description Simulates the supplier's new agreement against everything received; changes nothing.
+         */
+        post: operations["preview_agreement_api_v1_decisions__invoice_id__agreement_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/approve-with-agreement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve With Agreement */
+        post: operations["approve_with_agreement_api_v1_decisions__invoice_id__approve_with_agreement_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/decisions/{invoice_id}/reject": {
         parameters: {
             query?: never;
@@ -294,6 +371,43 @@ export interface paths {
         get: operations["read_narrative_api_v1_decisions__invoice_id__narrative_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Suggestions
+         * @description Agreement changes drawn from repeated approvals, each with its evidence and simulation. Nothing is applied.
+         */
+        get: operations["list_suggestions_api_v1_suggestions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/suggestions/{suggestion_id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept Suggestion */
+        post: operations["accept_suggestion_api_v1_suggestions__suggestion_id__accept_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -621,6 +735,13 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AcceptBody */
+        AcceptBody: {
+            /** Approver */
+            approver: string;
+            /** Expected Policy Version */
+            expected_policy_version: number;
+        };
         /** Acta */
         Acta: {
             decision: components["schemas"]["Decision"];
@@ -673,11 +794,26 @@ export interface components {
              */
             critical: boolean;
         };
+        /** AgreementBody */
+        AgreementBody: {
+            /** Amount */
+            amount?: number | string | null;
+            /** Tolerance Pct */
+            tolerance_pct?: number | string | null;
+        };
         /**
          * AgreementKind
          * @enum {string}
          */
         AgreementKind: "fixed" | "monthly_cap";
+        /** AgreementPreview */
+        AgreementPreview: {
+            /** Policy Version */
+            policy_version: number;
+            /** Changes */
+            changes: components["schemas"]["PolicyChange"][];
+            simulation: components["schemas"]["SimulationReport"];
+        };
         /** Approval */
         Approval: {
             /** Invoice Id */
@@ -708,6 +844,58 @@ export interface components {
             approver: string;
             /** Note */
             note?: string | null;
+        };
+        /** ApprovalEvidence */
+        ApprovalEvidence: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Amount */
+            amount: number;
+            /** Currency */
+            currency: string;
+            /** Deviation Pct */
+            deviation_pct: number;
+            /** Approver */
+            approver: string;
+            /**
+             * Approved At
+             * Format: date-time
+             */
+            approved_at: string;
+            /** Note */
+            note: string | null;
+        };
+        /**
+         * ApproveOnceBody
+         * @description «Aprobar sólo esta vez»: the reason is mandatory and stays in the ledger.
+         */
+        ApproveOnceBody: {
+            /** Approver */
+            approver: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * ApproveWithAgreementBody
+         * @description «Aprobar y actualizar el acuerdo», confirmed after seeing the simulation of `expected_policy_version`.
+         */
+        ApproveWithAgreementBody: {
+            /** Amount */
+            amount?: number | string | null;
+            /** Tolerance Pct */
+            tolerance_pct?: number | string | null;
+            /** Approver */
+            approver: string;
+            /** Reason */
+            reason: string;
+            /** Expected Policy Version */
+            expected_policy_version: number;
+        };
+        /** ApprovedWithAgreement */
+        ApprovedWithAgreement: {
+            decision: components["schemas"]["Decision"];
+            /** Policy Version */
+            policy_version: number;
         };
         /** Approver */
         Approver: {
@@ -1725,6 +1913,28 @@ export interface components {
             proposed: components["schemas"]["Policy-Output"];
             simulation?: components["schemas"]["SimulationReport"] | null;
         };
+        /** PolicyVersion */
+        PolicyVersion: {
+            /** Version */
+            version: number;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Author */
+            author: string | null;
+            /** Reason */
+            reason: string | null;
+            /** Invoice Id */
+            invoice_id: string | null;
+            /** Suggestion Id */
+            suggestion_id: string | null;
+            /** Changed Fields */
+            changed_fields: string[];
+            /** Hash */
+            hash: string;
+        };
         /** ProfileRequest */
         ProfileRequest: {
             /** Company Name */
@@ -2002,6 +2212,30 @@ export interface components {
          * @enum {string}
          */
         StatementSource: "csv" | "document" | "demo";
+        /** Suggestion */
+        Suggestion: {
+            /** Id */
+            id: string;
+            /** Beneficiary Id */
+            beneficiary_id: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Rule Id */
+            rule_id: string;
+            /** Question */
+            question: string;
+            /** Current Tolerance Pct */
+            current_tolerance_pct: number;
+            /** Proposed Tolerance Pct */
+            proposed_tolerance_pct: number;
+            /** Evidence */
+            evidence: components["schemas"]["ApprovalEvidence"][];
+            /** Changes */
+            changes: components["schemas"]["PolicyChange"][];
+            simulation: components["schemas"]["SimulationReport"];
+            /** Policy Version */
+            policy_version: number;
+        };
         /** SupplierImport */
         SupplierImport: {
             /** Beneficiaries */
@@ -2496,6 +2730,37 @@ export interface operations {
             };
         };
     };
+    read_versions_api_v1_policy_versions_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyVersion"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     add_beneficiaries_api_v1_policy_beneficiaries_post: {
         parameters: {
             query?: never;
@@ -2735,6 +3000,117 @@ export interface operations {
             };
         };
     };
+    approve_once_api_v1_decisions__invoice_id__approve_once_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveOnceBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Decision"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_agreement_api_v1_decisions__invoice_id__agreement_preview_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgreementBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgreementPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_with_agreement_api_v1_decisions__invoice_id__approve_with_agreement_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveWithAgreementBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovedWithAgreement"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     reject_api_v1_decisions__invoice_id__reject_post: {
         parameters: {
             query?: never;
@@ -2825,6 +3201,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Narrative"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_suggestions_api_v1_suggestions_get: {
+        parameters: {
+            query?: {
+                min_approvals?: number;
+            };
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Suggestion"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    accept_suggestion_api_v1_suggestions__suggestion_id__accept_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                suggestion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Policy-Output"];
                 };
             };
             /** @description Validation Error */

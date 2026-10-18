@@ -80,17 +80,18 @@ describe("Acta", () => {
     const onDecide = vi.fn();
     render(demoItem("F-015"), onDecide);
 
-    await userEvent.click(screen.getByRole("button", { name: /Aprobar pago/ }));
-    expect(onDecide).toHaveBeenCalledWith(true, "Ana Gómez");
+    await userEvent.type(screen.getByLabelText(/Motivo/), "Confirmado con el proveedor");
+    await userEvent.click(screen.getByRole("button", { name: /Aprobar sólo esta vez/ }));
+    expect(onDecide).toHaveBeenCalledWith({ kind: "once", approver: "Ana Gómez", reason: "Confirmado con el proveedor" });
 
     await userEvent.click(screen.getByRole("button", { name: /Rechazar/ }));
-    expect(onDecide).toHaveBeenCalledWith(false, "Ana Gómez");
+    expect(onDecide).toHaveBeenCalledWith({ kind: "reject", approver: "Ana Gómez" });
   });
 
   it("offers no approval for an invoice the agent already paid", () => {
     render(demoItem("F-001"));
 
-    expect(screen.queryByRole("button", { name: /Aprobar pago/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Aprobar sólo esta vez/ })).not.toBeInTheDocument();
     expect(screen.getByText("Pagada sola")).toBeInTheDocument();
   });
 
@@ -179,6 +180,7 @@ function render(item: ReturnType<typeof demoItem>, onDecide = vi.fn(), onRetryPa
       detail={item}
       policy={DEMO.policy}
       onDecide={onDecide}
+      onPreviewAgreement={vi.fn()}
       deciding={false}
       onRetryPayment={onRetryPayment}
       retryingPayment={false}

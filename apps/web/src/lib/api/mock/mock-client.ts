@@ -6,6 +6,7 @@
  */
 import type {
   ApprovalInput,
+  ApproveWithAgreementInput,
   CustodioApi,
   OnboardingRequest,
   OnboardingResult,
@@ -32,6 +33,7 @@ import { actaOf, DEMO, listItemOf, freshDemo, simulatedExecution, type DemoDatas
 import { mockSchedule, mockTrust } from "./autonomy";
 import { appendEntry, verifyChain } from "./ledger";
 import { importMockSuppliers, simulateFirstWeek } from "./onboarding";
+import { versionsOf, withAgreement } from "./agreements";
 import { compilePolicyText } from "./policy-compiler";
 import { proposeMockProfile } from "./profile";
 import { createMockReconciliations } from "./reconciliation";
@@ -250,7 +252,12 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
     return decision;
   }
 
-  async function decide(invoiceId: string, input: ApprovalInput, approved: boolean): Promise<Decision> {
+  async function decide(
+    invoiceId: string,
+    input: ApprovalInput,
+    approved: boolean,
+    how: Record<string, unknown> = {},
+  ): Promise<Decision> {
     const item = findItem(invoiceId);
     if (item.decision.status !== "pending_approval") {
       throw new InvalidRequestError("Esta factura no espera aprobación.", CONFLICT);
@@ -260,18 +267,35 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
       at: decision.approval?.at ?? nowIso(),
       kind: "approval",
       subject_id: invoiceId,
-      payload: { actor: input.approver, decision: decision.approval?.decision, status: decision.status },
+      payload: {
+        actor: input.approver,
+        decision: decision.approval?.decision,
+        status: decision.status,
+        policy_version: workspace.data.policy.version,
+        ...how,
+      },
     });
     return decision;
   }
 
-  async function applyPolicy(policy: Policy): Promise<Policy> {
+  async function approveWithAgreement(invoiceId: string, input: ApproveWithAgreementInput) {
+    if (input.expected_policy_version !== workspace.data.policy.version) {
+      throw new InvalidRequestError("La política cambió desde que se simuló este cambio. Vuelve a simularlo.", CONFLICT);
+    }
+    const next = withAgreement(workspace.data.policy, findItem(invoiceId).decision.beneficiary_id, input, input.reason);
+    const how = { approval_mode: "agreement_updated", agreement_policy_version: workspace.data.policy.version + 1 };
+    const decision = await decide(invoiceId, { approver: input.approver, note: input.reason }, true, how);
+    const policy = await applyPolicy(next.policy, { author: input.approver, reason: input.reason, invoice_id: invoiceId });
+    return { decision, policy_version: policy.version };
+  }
+
+  async function applyPolicy(policy: Policy, context: Record<string, unknown> = {}): Promise<Policy> {
     workspace.data.policy = { ...policy, version: workspace.data.policy.version + 1 };
     await record({
       at: nowIso(),
       kind: "policy_changed",
       subject_id: `policy-v${workspace.data.policy.version}`,
-      payload: { actor: "Tú", version: workspace.data.policy.version },
+      payload: { actor: "Tú", version: workspace.data.policy.version, ...context },
     });
     return workspace.data.policy;
   }
@@ -347,6 +371,21 @@ respond(() => decided().map(listItemOf)),
     getDecision: (id) => respond(() => actaOf(findItem(id), workspace.data.ledger)),
     approveDecision: (id, input) => respond(() => decide(id, input, true)),
     rejectDecision: (id, input) => respond(() => decide(id, input, false)),
+    approveOnce: (id, input) =>
+      respond(() => decide(id, { approver: input.approver, note: input.reason }, true, { approval_mode: "once" })),
+    previewAgreement: (id, input) =>
+      respond(() => {
+        const next = withAgreement(workspace.data.policy, findItem(id).decision.beneficiary_id, input, "");
+        const metrics = summary().metrics;
+        return { policy_version: workspace.data.policy.version, changes: next.changes, simulation: { before: metrics, after: metrics, changed: [] } };
+      }),
+    approveWithAgreement: (id, input) => respond(() => approveWithAgreement(id, input)),
+    listSuggestions: () => respond(() => []),
+    acceptSuggestion: () =>
+      respond(() => {
+        throw new NotFoundError();
+      }),
+    listPolicyVersions: () => respond(() => versionsOf(workspace.data.ledger)),
     executePayment: (id) => respond(() => executePayment(id)),
     getPolicy: () => respond(() => workspace.data.policy),
     compilePolicy: (text, base) =>

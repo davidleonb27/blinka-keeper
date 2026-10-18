@@ -5,11 +5,21 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { ErrorState, LoadingBlock } from "@/components/states";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import type { Decision } from "@/lib/api/contracts";
 import { messageOf } from "@/lib/api/errors";
-import { useDecision, useHumanDecision, usePolicy, useRetryPayment } from "@/lib/api/hooks";
+import {
+  useAgreementPreview,
+  useApproveOnce,
+  useApproveWithAgreement,
+  useDecision,
+  useHumanDecision,
+  usePolicy,
+  useRetryPayment,
+} from "@/lib/api/hooks";
 import { STATUS_META } from "@/lib/presentation";
 import { markTourStep } from "@/lib/tour";
 import { Acta } from "./acta";
+import type { HumanChoice } from "./approval-choices";
 
 const ACTA_PARAM = "acta";
 
@@ -17,6 +27,9 @@ function ActaContent({ invoiceId }: { invoiceId: string }) {
   const detail = useDecision(invoiceId);
   const policy = usePolicy();
   const decide = useHumanDecision(invoiceId);
+  const once = useApproveOnce(invoiceId);
+  const preview = useAgreementPreview(invoiceId);
+  const withAgreement = useApproveWithAgreement(invoiceId);
   const retry = useRetryPayment(invoiceId);
   const opened = detail.data !== undefined;
   useEffect(() => {
@@ -28,14 +41,26 @@ function ActaContent({ invoiceId }: { invoiceId: string }) {
   }
   if (!detail.data || !policy.data) return <LoadingBlock label="Cargando el acta…" />;
 
-  const onDecide = (approve: boolean, approver: string) =>
-    decide.mutate(
-      { approve, input: { approver } },
-      {
-        onSuccess: (decision) => toast.success(`${invoiceId}: ${STATUS_META[decision.status].label.toLowerCase()}.`),
-        onError: (error) => toast.error(messageOf(error)),
-      },
-    );
+  const settled = {
+    onSuccess: (decision: Decision) => toast.success(`${invoiceId}: ${STATUS_META[decision.status].label.toLowerCase()}.`),
+    onError: (error: Error) => toast.error(messageOf(error)),
+  };
+  const onDecide = (choice: HumanChoice) => {
+    if (choice.kind === "reject") decide.mutate({ approve: false, input: { approver: choice.approver } }, settled);
+    if (choice.kind === "once") once.mutate({ approver: choice.approver, reason: choice.reason }, settled);
+    if (choice.kind === "agreement") {
+      withAgreement.mutate(
+        { ...choice.agreement, approver: choice.approver, reason: choice.reason, expected_policy_version: choice.expectedVersion },
+        {
+          onSuccess: (result) => {
+            settled.onSuccess(result.decision);
+            toast.success(`Acuerdo actualizado: la política pasó a la versión ${result.policy_version}.`);
+          },
+          onError: settled.onError,
+        },
+      );
+    }
+  };
 
   const onRetryPayment = () =>
     retry.mutate(undefined, {
@@ -51,7 +76,8 @@ function ActaContent({ invoiceId }: { invoiceId: string }) {
       detail={detail.data}
       policy={policy.data}
       onDecide={onDecide}
-      deciding={decide.isPending}
+      onPreviewAgreement={(agreement) => preview.mutateAsync(agreement)}
+      deciding={decide.isPending || once.isPending || withAgreement.isPending}
       onRetryPayment={onRetryPayment}
       retryingPayment={retry.isPending}
     />

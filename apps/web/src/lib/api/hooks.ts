@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient, type QueryKey } from "@tanstack/
 import { useApi } from "@/components/providers/api-provider";
 import { useHydrated } from "@/lib/hydration";
 import type {
+  AcceptSuggestionInput,
+  AgreementInput,
   ApprovalInput,
+  ApproveOnceInput,
+  ApproveWithAgreementInput,
   CustodioApi,
   ChallengeInput,
   InvoiceInput,
@@ -31,6 +35,8 @@ const queryKeys = {
   schedule: ["schedule"] as const,
   reconciliations: ["reconciliations"] as const,
   reconciliation: (id: string) => ["reconciliations", id] as const,
+  suggestions: ["suggestions"] as const,
+  policyVersions: ["policy", "versions"] as const,
 };
 
 const HYDRATING = "hydrating";
@@ -129,6 +135,7 @@ function useInvalidateWorkspace() {
         queryKeys.policy,
         queryKeys.trust,
         queryKeys.schedule,
+        queryKeys.suggestions,
       ].map((queryKey) =>
         client.invalidateQueries({ queryKey }),
       ),
@@ -143,6 +150,46 @@ export function useHumanDecision(invoiceId: string) {
       approve ? api.approveDecision(invoiceId, input) : api.rejectDecision(invoiceId, input),
     onSuccess: invalidate,
   });
+}
+
+export function useApproveOnce(invoiceId: string) {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({ mutationFn: (input: ApproveOnceInput) => api.approveOnce(invoiceId, input), onSuccess: invalidate });
+}
+
+/** A simulation only: nothing changes until `useApproveWithAgreement` confirms it. */
+export function useAgreementPreview(invoiceId: string) {
+  const api = useApi();
+  return useMutation({ mutationFn: (input: AgreementInput) => api.previewAgreement(invoiceId, input) });
+}
+
+export function useApproveWithAgreement(invoiceId: string) {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({
+    mutationFn: (input: ApproveWithAgreementInput) => api.approveWithAgreement(invoiceId, input),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSuggestions() {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.suggestions, queryFn: () => api.listSuggestions() });
+}
+
+export function useAcceptSuggestion() {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: AcceptSuggestionInput }) => api.acceptSuggestion(id, input),
+    onSuccess: invalidate,
+  });
+}
+
+export function usePolicyVersions() {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.policyVersions, queryFn: () => api.listPolicyVersions() });
 }
 
 export function useRetryPayment(invoiceId: string) {
