@@ -24,6 +24,7 @@ COMPARED = (
     ("supplier_tax_id", "identificación fiscal"),
     ("invoice_number", "número"),
     ("issue_date", "fecha de emisión"),
+    ("account_number", "cuenta"),
 )
 DOCUMENT_NAMES = {InvoiceSource.PDF: "El PDF", InvoiceSource.IMAGE: "La imagen"}
 OTHER_DOCUMENT = "El otro documento"
@@ -96,6 +97,7 @@ SAME: dict[str, Callable[[str, str], bool]] = {
     "supplier_tax_id": _same_code,
     "invoice_number": _same_code,
     "issue_date": _same_text,
+    "account_number": _same_code,
 }
 
 
