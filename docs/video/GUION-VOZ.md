@@ -65,3 +65,29 @@ Revisamos los 43 repositorios públicos del reto (18 oct 2026).
 | Proveedor | Corrige por enlace y se repaga con las mismas reglas | ORBIT negocia; no paga de verdad |
 | Prueba | Recibo firmado + cadena SHA-256 + guardián en el punto de pago | ORBIT y maocaja firman, sin cadena ni conciliación |
 | Lectura | Doble lectura + XML DIAN/CFDI sin IA | Pulso (doble lectura), Bullao (XML), por separado |
+
+## Versión para presentador (persona real, en cámara o en vivo)
+
+Para que lo diga una persona con sus palabras, no una voz generada. Se cuenta a través de alguien real del día a día:
+Laura, la jefa de finanzas de una empresa de software en Medellín que le paga a proveedores en varios países. Frases
+cortas, mirando a cámara en las líneas en negrita; en el resto, la mirada va a la pantalla y el mouse señala lo que se
+dice. No hace falta memorizar palabra por palabra: lo importante es la idea de cada paso y la frase en negrita.
+
+| # | Tiempo | Qué dices (natural, a tu ritmo) | Qué haces |
+|---|---|---|---|
+| 1 | 0:00–0:15 | **«Les presento a Laura.»** Es jefa de finanzas. Cada mes le llegan decenas de facturas por correo, por WhatsApp, en PDF, en fotos. Las revisa una por una, las paga, y al final del mes cuadra todo contra el banco. **Un error y pierde plata.** | En cámara o sobre la bandeja llena. |
+| 2 | 0:15–0:25 | Construimos Custodio para Laura. **Es su analista de cuentas por pagar:** lee, decide, paga, cuadra y cierra el mes. Ella solo aprueba lo que importa. | Clic en «Probar con una empresa demo». |
+| 3 | 0:25–0:45 | Un proveedor le manda una factura por WhatsApp. Lo hago yo ahora mismo. *(Tomas la foto y la envías.)* … **Ahí está.** Ya llegó al panel, ya está decidida, y Custodio le respondió al proveedor con el acta. **Es WhatsApp de verdad.** | Celular en mano, pantalla dividida. Esperas en silencio los segundos que tarde. |
+| 4 | 0:45–1:00 | Este mes a Laura le llegaron treinta y ocho facturas. Le doy «Decidir». *(Pausa.)* Diecisiete se pagaron solas, siete se frenaron y catorce la esperan a ella. **Más de la mitad del trabajo, hecho.** | Clic en «Decidir»; señalas cada número. |
+| 5 | 1:00–1:18 | ¿Por qué esta se frenó? Lo dice aquí, en una línea, con las cifras. Dos lectores distintos leen cada factura; **si no están de acuerdo en el monto o en la cuenta, no se paga.** Y si es factura electrónica de la DIAN, la leemos directo, sin IA, y revisamos el NIT. | Abres una retenida; luego la factura XML. |
+| 6 | 1:18–1:35 | Y esta se pagó. **No es una simulación:** aquí está el pago en Stripe, consultado en este momento, mismo monto, mismo proveedor. Y Laura descarga el lote listo para que Blinka lo pague. | Acta pagada → bloque de Stripe → /pagos → «Archivo para Blinka». |
+| 7 | 1:35–1:52 | Esta otra tenía mal el monto. Custodio no se queda frenado: **le pide al proveedor que la corrija.** El proveedor la sube corregida… y se paga sola, con las mismas reglas. Lo que nunca se negocia es un cambio de cuenta. | «Pedir corrección» → pestaña del proveedor → vuelves: pagada. |
+| 8 | 1:52–2:07 | Las reglas las escribe Laura, como habla: «nada sobre tres mil dólares sin aprobación». **Antes de guardarla ve qué cambiaría.** Y si aprueba lo mismo varias veces, Custodio le sugiere la regla; ella decide. | Escribes la regla → «Compilar y simular» → tarjeta «Custodio sugiere». |
+| 9 | 2:07–2:18 | Además cuida la caja: paga cada factura el día que vence y nunca toca la reserva. | /calendario. |
+| 10 | 2:18–2:32 | Fin de mes. Antes, esto era una tarde entera. Ahora: cruza el extracto del banco, diecisiete movimientos cuadran solos y **estos dos salen en rojo: plata que salió sin factura.** Cierra el mes y le manda la evidencia al contador. | /conciliacion → extracto demo → alertas → «Cerrar mes». |
+| 11 | 2:32–2:48 | ¿Y si alguien intenta engañarlo? Esta factura trae una orden escondida en texto blanco. *(Pausa.)* **Frenada.** Y cada decisión sale firmada: si alguien cambia una cifra, se nota. Cero pagos indebidos en más de veinticinco mil facturas de prueba. | /reto → PDF trampa → /verificar → recibo alterado en rojo. |
+| 12 | 2:48–3:00 | **Laura ya no persigue facturas: las aprueba.** Custodio está en producción y es código abierto. Escaneen y pruébenlo. **Custodio decide. Blinka paga.** | Mirando a cámara; QR en pantalla. |
+
+Consejos para grabar: graba cada bloque por separado y repítelo hasta que salga natural (se unen en edición); habla
+como si se lo explicaras a un amigo que trabaja en finanzas; si una cifra en pantalla cambió, di la que ves; en el
+bloque 3 no rellenes la espera con palabras: el silencio mientras llega la factura es el momento fuerte.
