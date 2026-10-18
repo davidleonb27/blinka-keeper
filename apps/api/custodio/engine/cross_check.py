@@ -54,10 +54,15 @@ def agreement(cross_check: ReadingCrossCheck) -> str:
     return f"Las dos lecturas independientes coinciden en proveedor, monto, moneda y cuenta ({join_es(readers)})."
 
 
+def values_agree(field: str, values: list[str | None]) -> bool:
+    """At least two readers, every one of them read the field, and all of them read the same thing once normalized."""
+    normalize = _NORMALIZERS[field]
+    normalized = [normalize(value) if value and value.strip() else None for value in values]
+    return len(normalized) >= 2 and None not in normalized and len(set(normalized)) == 1
+
+
 def _agree(comparison: FieldCrossCheck) -> bool:
-    normalize = _NORMALIZERS[comparison.field]
-    values = [normalize(reading.value) if reading.value else None for reading in comparison.readings]
-    return len(values) >= 2 and None not in values and len(set(values)) == 1
+    return values_agree(comparison.field, [reading.value for reading in comparison.readings])
 
 
 def _amount(value: str) -> str:

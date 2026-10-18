@@ -14,6 +14,9 @@ pipelines that need vision raise `llm.LLMNotConfigured`.
 Scanned pages go to the model as images, never as a PDF document block: a document block would also carry the
 PDF's text layer, which is where hidden text lives.
 Every pipeline also scans the visible text for instructions addressed to the agent.
+With a model, a second independent reader (`second_reading`: Gemini when GEMINI_API_KEY is set, another Claude model
+otherwise) reads the same document beside the first one; `cross_check` compares supplier, amount, currency and
+account and R1 escalates unless they agree.
 
 Failures are typed: UnsupportedDocument, UnreadableDocument, MalformedReading
 (custodio.extraction.errors) and custodio.llm.LLMError. Callers escalate or say "NO MEDIDO"; nothing is guessed.
@@ -30,10 +33,11 @@ from PIL import Image, UnidentifiedImageError
 from custodio.config import get_settings
 from custodio.contracts import ExtractedField, ExtractedInvoice, HiddenTextFinding, InvoiceSource
 from custodio.engine.domains import first_email
-from custodio.extraction import labels, pdf, structure, vision
+from custodio.extraction import cross_check, labels, pdf, structure, vision
 from custodio.extraction.errors import UnreadableDocument, UnsupportedDocument
 from custodio.extraction.instructions import find_instructions
 from custodio.extraction.render import render_invoice
+from custodio.extraction.second_reading import Document
 from custodio.extraction.source import SourceText
 
 __all__ = ["extract_document", "extract_text", "labels", "render_invoice"]
@@ -55,7 +59,10 @@ def extract_document(data: bytes, *, filename: str, media_type: str, document_id
 
 def extract_text(text: str, *, document_id: str, source: InvoiceSource = InvoiceSource.TEXT) -> ExtractedInvoice:
     """Read a plain-text invoice (email body, WhatsApp message, payment intent text)."""
-    return _read(SourceText(pages=(text,)), document_id=document_id, origin=source, readers=("text",), hidden=[])
+    pending = cross_check.start(Document(text=text))
+    return _read(
+        SourceText(pages=(text,)), document_id=document_id, origin=source, readers=("text",), hidden=[], second=pending
+    )
 
 
 def _media_type(declared: str, filename: str) -> SupportedMediaType:
@@ -73,17 +80,29 @@ def _extract_pdf(data: bytes, document_id: str) -> ExtractedInvoice:
     readers: tuple[str, ...]
     if reading.has_visible_text:
         source, readers = SourceText(pages=reading.pages), ("pdfplumber",)
+        pending = cross_check.start(Document(text=source.text))
     else:
-        transcripts = [vision.transcribe(page, "image/png") for page in pdf.rasterize(data)]
+        pages = pdf.rasterize(data)
+        pending = cross_check.start(Document(images=tuple((page, "image/png") for page in pages)))
+        transcripts = [vision.transcribe(page, "image/png") for page in pages]
         if not transcripts:
             raise UnreadableDocument("El PDF no tiene páginas.")
         source = SourceText(pages=tuple(transcript.text for transcript in transcripts))
         readers = ("pdfplumber", f"vision:{transcripts[0].model}")
-    return _read(source, document_id=document_id, origin=InvoiceSource.PDF, readers=readers, hidden=reading.findings)
+    return _read(
+        source,
+        document_id=document_id,
+        origin=InvoiceSource.PDF,
+        readers=readers,
+        hidden=reading.findings,
+        second=pending,
+        native_text=reading.has_visible_text,
+    )
 
 
 def _extract_image(data: bytes, media_type: vision.ImageMediaType, document_id: str) -> ExtractedInvoice:
     _ensure_image(data)
+    pending = cross_check.start(Document(images=((data, media_type),)))
     transcript = vision.transcribe(data, media_type)
     return _read(
         SourceText(pages=(transcript.text,)),
@@ -91,6 +110,8 @@ def _extract_image(data: bytes, media_type: vision.ImageMediaType, document_id: 
         origin=InvoiceSource.IMAGE,
         readers=(f"vision:{transcript.model}",),
         hidden=[],
+        second=pending,
+        native_text=False,
     )
 
 
@@ -109,8 +130,13 @@ def _read(
     origin: InvoiceSource,
     readers: tuple[str, ...],
     hidden: list[HiddenTextFinding],
+    second: cross_check.PendingReading | None,
+    native_text: bool = True,
 ) -> ExtractedInvoice:
+    """`second`: the independent reading started for this document; `native_text`: the source is the document's own
+    text rather than a transcript, so the code reader may vote too."""
     reading = structure.read_fields(source) if get_settings().anthropic_configured else labels.read_fields(source)
+    checked = cross_check.compare(reading, second, source=source if native_text else None) if second else None
     return ExtractedInvoice.model_validate(
         {
             "document_id": document_id,
@@ -121,6 +147,7 @@ def _read(
             "hidden_findings": [*hidden, *find_instructions(source)],
             "reader": "+".join((*readers, reading.model)),
             "overall_confidence": _overall_confidence(reading.fields),
+            "cross_check": checked,
         }
     )
 
