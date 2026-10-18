@@ -16,7 +16,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-30 border-b border-line/70 bg-(--header) pt-[env(safe-area-inset-top)] backdrop-blur-[14px]">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
         <div className="flex min-w-0 items-center gap-6">
-          <Link href="/" aria-label="Custodio, inicio" className="rounded-lg">
+          <Link href="/" aria-label="Blinka Keeper, inicio" className="rounded-lg">
             <Wordmark />
           </Link>
           <nav aria-label="Principal" className="hidden items-center gap-1 text-[13px] text-ink-2 lg:flex">

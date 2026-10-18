@@ -1,4 +1,4 @@
-"""Approving once versus updating the agreement, and the suggestions Custodio draws from repeated approvals.
+"""Approving once versus updating the agreement, and the suggestions Blinka Keeper draws from repeated approvals.
 
 The real engine and the real demo company (`model_free_lanes`): Nube Austral SpA (b8) bills a fixed 2,150 USD with
 the policy's 2 % tolerance, and the demo seeds three past approvals of it about 4 % above that.
@@ -258,7 +258,7 @@ def test_a_rejection_is_still_allowed_on_a_hard_rule(client: TestClient, workspa
     assert response.json()["status"] == "rejected"
 
 
-# --- «Custodio sugiere» -------------------------------------------------------------------------------------------
+# --- «Keeper sugiere» -------------------------------------------------------------------------------------------
 
 
 def test_the_demo_seeds_a_real_suggestion_with_its_evidence_and_simulation(

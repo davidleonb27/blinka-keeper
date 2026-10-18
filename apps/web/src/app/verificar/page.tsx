@@ -5,7 +5,7 @@ import { VerifyPage } from "@/components/verify/verify-page";
 
 export const metadata: Metadata = {
   title: "Verificar un recibo",
-  description: "Comprueba la firma Ed25519 de un recibo de Custodio con su clave pública, sin acceso al sistema.",
+  description: "Comprueba la firma Ed25519 de un recibo de Blinka Keeper con su clave pública, sin acceso al sistema.",
 };
 
 export default function VerifyReceiptPage() {

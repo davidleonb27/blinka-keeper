@@ -1,4 +1,4 @@
-"""The verifier that travels with the evidence pack: standard library only, and it agrees with Custodio."""
+"""The verifier that travels with the evidence pack: standard library only, and it agrees with Blinka Keeper."""
 
 from __future__ import annotations
 

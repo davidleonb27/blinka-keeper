@@ -78,7 +78,7 @@ class Budget:
 
 
 class _Declined(Exception):
-    """A message Custodio answers without reading an invoice: the reply says why."""
+    """A message Blinka Keeper answers without reading an invoice: the reply says why."""
 
     def __init__(self, reply: str) -> None:
         super().__init__(reply)

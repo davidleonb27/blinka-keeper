@@ -1,4 +1,4 @@
-"""«Custodio sugiere»: when people keep approving the same exception, propose the agreement change that would end it.
+"""«Keeper sugiere»: when people keep approving the same exception, propose the agreement change that would end it.
 
 The evidence is the ledger's approval entries. Only R6 (a fixed agreement's tolerance, for one supplier) is ever
 proposed: global caps (R9–R12) and the reserve stay as the policy says, and an approval that also failed a hard rule

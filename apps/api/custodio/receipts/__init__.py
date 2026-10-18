@@ -1,4 +1,4 @@
-"""Signed receipts: every decision, provable to a third party with nothing but Custodio's public key."""
+"""Signed receipts: every decision, provable to a third party with nothing but Blinka Keeper's public key."""
 
 from custodio.receipts.errors import ReceiptKeyError
 from custodio.receipts.example import example_body

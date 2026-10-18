@@ -1,4 +1,4 @@
-"""What a bank statement says, what Custodio paid, and how code paired them.
+"""What a bank statement says, what Blinka Keeper paid, and how code paired them.
 
 A movement's amount is signed in the account's terms: negative is money that left the account. Every match carries
 its level and a Spanish reason with the figures, so a person (or an accountant) can redo it by hand.
@@ -44,7 +44,7 @@ class MatchSettings(Model):
 
 
 class PaidInvoice(Model):
-    """A payment Custodio made (alone or approved by a person), as reconciliation needs it."""
+    """A payment Blinka Keeper made (alone or approved by a person), as reconciliation needs it."""
 
     invoice_id: str
     invoice_number: str | None
@@ -62,7 +62,7 @@ class PaidInvoice(Model):
 
 
 class UnpaidInvoice(Model):
-    """An invoice Custodio did not pay; an outflow that matches it is still an outflow nobody authorized."""
+    """An invoice Blinka Keeper did not pay; an outflow that matches it is still an outflow nobody authorized."""
 
     invoice_id: str
     invoice_number: str | None
@@ -78,7 +78,7 @@ class UnpaidInvoice(Model):
 class MovementStatus(StrEnum):
     RECONCILED = "reconciled"
     RECONCILED_WITH_DIFFERENCE = "reconciled_with_difference"
-    UNMATCHED_OUTFLOW = "unmatched_outflow"  # money left with no invoice Custodio paid: red alert
+    UNMATCHED_OUTFLOW = "unmatched_outflow"  # money left with no invoice Blinka Keeper paid: red alert
     BANK_FEE = "bank_fee"
     DUPLICATE = "duplicate"  # the same movement listed again
     UNREAD = "unread"  # NO LEÍDO: never interpreted, a person reads it

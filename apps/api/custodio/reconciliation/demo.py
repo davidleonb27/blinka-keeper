@@ -5,7 +5,7 @@ kept next to it (`python -m custodio.reconciliation.demo` rewrites it). Both are
 batch is paid on the demo company's `today`. A workspace pays its batch on the day a visitor decides it, so the
 statement it is offered moves by the same number of days; nothing else changes.
 
-The story: the payments Custodio made, one split in two transfers, four with cents of FX difference, one whose
+The story: the payments Blinka Keeper made, one split in two transfers, four with cents of FX difference, one whose
 reference misspells the invoice number, one the bank lists twice, one that is not in the statement yet, two bank
 charges, a customer's deposit, and a transfer to a supplier whose invoice was waiting for approval.
 """
@@ -42,7 +42,7 @@ COLUMN_DESCRIPTION, COLUMN_REFERENCE, COLUMN_AMOUNT = MARGIN + 62, MARGIN + 290,
 INK = (0.13, 0.14, 0.17)
 MUTED = (0.42, 0.44, 0.48)
 BRAND = (0.07, 0.24, 0.42)
-FOOTER = "Extracto de demostración: datos sintéticos de Custodio. Ninguna cuenta ni movimiento es real."
+FOOTER = "Extracto de demostración: datos sintéticos de Blinka Keeper. Ninguna cuenta ni movimiento es real."
 
 
 @dataclass(frozen=True)

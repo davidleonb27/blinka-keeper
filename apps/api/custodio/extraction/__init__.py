@@ -72,7 +72,7 @@ def _media_type(declared: str, filename: str) -> SupportedMediaType:
     for supported in SUPPORTED_MEDIA_TYPES:
         if media_type == supported:
             return supported
-    raise UnsupportedDocument(f"Custodio lee PDF, PNG, JPEG o WebP; «{filename}» llegó como «{declared}».")
+    raise UnsupportedDocument(f"Blinka Keeper lee PDF, PNG, JPEG o WebP; «{filename}» llegó como «{declared}».")
 
 
 def _extract_pdf(data: bytes, document_id: str) -> ExtractedInvoice:

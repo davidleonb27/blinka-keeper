@@ -33,7 +33,7 @@ def test_a_real_test_transfer_is_proven_by_reading_it_back_from_stripe() -> None
         workspace_id=f"live-proof-{run}",
         invoice_id="F01",
         beneficiary_id=f"B-LIVE-{run}",
-        supplier_name="Proveedor de prueba Custodio",
+        supplier_name="Proveedor de prueba Blinka Keeper",
         amount_base=Decimal("1.00"),
         currency="USD",
         amount=Decimal("1.00"),

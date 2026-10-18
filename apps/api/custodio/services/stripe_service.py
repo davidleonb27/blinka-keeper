@@ -1,14 +1,14 @@
-"""What Stripe says about the payments Custodio sent, asked live, and the file that hands approved payments to Blinka.
+"""What Stripe says about the payments Keeper sent, asked live, and the file that hands approved payments to Blinka.
 
 Three views, each scoped to the caller's workspace:
 
 - `proof`: the acta's «Pago en Stripe». The transfer is read back from Stripe and each field is checked against the
   acta (amount, currency, beneficiary, invoice). A transfer whose metadata names another workspace is never shown.
-- `overview`: /pagos. The workspace's payments and the match of Custodio's record against Stripe's transfers.
+- `overview`: /pagos. The workspace's payments and the match of Blinka Keeper's record against Stripe's transfers.
 - `pain001`: the approved payments as an ISO 20022 pain.001.001.09 file for Blinka.
 
 Stripe failing is an answer here, not an error: the views say «No se pudo consultar Stripe ahora» and keep showing
-what Custodio recorded.
+what Blinka Keeper recorded.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ UNAVAILABLE = (
 )
 NO_LOOKUP = "Este despliegue no tiene una clave de prueba de Stripe para consultar el pago."
 NOT_STRIPE = "Este pago no salió por Stripe, así que no hay transferencia que consultar."
-MISSING = "Stripe no tiene ninguna transferencia con este id. El registro de Custodio y Stripe no coinciden."
+MISSING = "Stripe no tiene ninguna transferencia con este id. El registro de Blinka Keeper y Stripe no coinciden."
 FOREIGN = "La transferencia existe, pero Stripe la asocia a otro espacio de trabajo: no se muestra."
 RAIL_NOT_STRIPE = "El riel activo no es Stripe: los pagos de este espacio no generan transferencias que cuadrar."
 INCOMPLETE = "Stripe tiene más transferencias de las que se revisaron; el cuadre puede estar incompleto."
@@ -112,7 +112,7 @@ class MatchLineView(BaseModel):
 
 
 class RailMatchView(BaseModel):
-    """«Registro de Custodio ↔ Stripe»: amounts in USD, the currency the rail sends."""
+    """«Registro de Blinka Keeper ↔ Stripe»: amounts in USD, the currency the rail sends."""
 
     status: MatchStatus
     message: str | None

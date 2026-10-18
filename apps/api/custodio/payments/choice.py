@@ -37,7 +37,7 @@ def choose_rail(requested: str, secret_key: str | None) -> RailChoice:
         return simulated_choice()
     key = (secret_key or "").strip()
     if key.startswith(LIVE_KEY_PREFIXES):
-        logger.warning("STRIPE_SECRET_KEY is a live key and Custodio only pays in test mode: using the simulated rail")
+        logger.warning("STRIPE_SECRET_KEY is a live key and Keeper only pays in test mode: using the simulated rail")
         return simulated_choice()
     if not key.startswith(TEST_KEY_PREFIX):
         logger.warning("CUSTODIO_PAYMENT_RAIL=stripe_test needs a sk_test_ STRIPE_SECRET_KEY: using the simulated rail")

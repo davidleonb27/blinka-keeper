@@ -4,8 +4,8 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 
 export const metadata: Metadata = {
-  title: { default: "Documentación", template: "%s · Documentación de Custodio" },
-  description: "Cómo usar, autoalojar, configurar e integrar Custodio, el agente de cuentas por pagar de código abierto.",
+  title: { default: "Documentación", template: "%s · Documentación de Blinka Keeper" },
+  description: "Cómo usar, autoalojar, configurar e integrar Blinka Keeper, el agente de cuentas por pagar de código abierto.",
 };
 
 export default function DocsLayout({ children }: LayoutProps<"/docs">) {

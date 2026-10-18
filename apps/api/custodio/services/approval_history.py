@@ -1,6 +1,6 @@
 """Seeds the demo company's past approvals into its ledger and payment history (see custodio.dataset.approvals).
 
-They are written exactly as a live «Aprobar sólo esta vez» writes them, marked `seeded`, so «Custodio sugiere» reads
+They are written exactly as a live «Aprobar sólo esta vez» writes them, marked `seeded`, so «Keeper sugiere» reads
 them through the same path as any other approval.
 """
 

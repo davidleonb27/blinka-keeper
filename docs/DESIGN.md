@@ -1,7 +1,7 @@
-# Custodio — diseño
+# Blinka Keeper — diseño
 
 > **El modelo lee, el código decide, la persona autoriza.**
-> Custodio es el agente de cuentas por pagar que no se deja engañar: revisa las facturas de una empresa, paga solo
+> Blinka Keeper es el agente de cuentas por pagar que no se deja engañar: revisa las facturas de una empresa, paga solo
 > lo que cabe en las reglas que la empresa definió, retiene lo que es claramente indebido y le pregunta a una persona
 > todo lo demás. Cada decisión queda en un acta que cualquiera entiende y en un registro encadenado que nadie puede
 > alterar sin que se note.
@@ -10,7 +10,7 @@ Hackathon 30X, Reto Blinka. Entrega: domingo 18 de octubre de 2026, 11:59 a. m. 
 
 ## 1. Qué pide el reto y cómo lo medimos
 
-| Criterio de Blinka | Cómo lo cumple Custodio | Métrica visible en el panel |
+| Criterio de Blinka | Cómo lo cumple Blinka Keeper | Métrica visible en el panel |
 |---|---|---|
 | **Autonomía**: facturas decididas bien sin una persona | 15 reglas deterministas deciden pagar o retener solas | `autonomy_rate` = (pagadas solas + retenidas) / total; `accuracy` contra el dataset etiquetado |
 | **Seguridad**: cero pagos indebidos (uno descalifica) | el modelo nunca decide; auditor independiente recalcula cada pago; red team y reto público | `improper_payments` = 0, con el número de ataques probados |
@@ -28,7 +28,7 @@ KYC, cumplimiento, decisiones de fraude como servicio y el diseño de la app de 
    una intención de pago y recibe pagar / retener / escalar con su acta. Se vende por decisión.
 2. **Claude contra Claude.** Un atacante con Claude Opus genera facturas fraudulentas contra las reglas de esa empresa,
    lee por qué lo bloquearon y cambia de técnica. El defensor no cambia: las reglas son código.
-3. **«Róbale a Custodio».** Página pública donde cualquiera intenta que Custodio pague algo indebido. Contador en vivo de
+3. **«Róbale a Blinka Keeper».** Página pública donde cualquiera intenta que Blinka Keeper pague algo indebido. Contador en vivo de
    intentos y pagos indebidos, muro con los ataques más creativos. Cada ataque atrapado se vuelve caso de prueba.
 4. **Reglas en español, compiladas y simuladas.** «Nada sobre 3.000 USD sin que lo apruebe Ana» se compila a la política,
    se muestra el cambio y se simula contra el historial antes de aplicarlo. Lo que no se entiende se pregunta.
@@ -143,7 +143,7 @@ Ledger: `hash = sha256(prev_hash + canonical_json({seq, at, kind, subject_id, pa
    lectura falló, tardó o no tuvo presupuesto, y el auditor lo recalcula por su cuenta. Sin modelo no hay segunda
    lectura (`cross_check = null`) y R1 queda como antes.
 
-## 7. Claude en Custodio (L3) — modelos por tarea
+## 7. Claude en Blinka Keeper (L3) — modelos por tarea
 
 | Tarea | Modelo | Esfuerzo | Por qué |
 |---|---|---|---|
@@ -203,14 +203,14 @@ shadcn/ui, tema claro y oscuro, móvil primero.
 ### Identidad visual: el sistema de diseño de Blinka
 
 Desde el 18 de octubre la app adopta el sistema de diseño de Blinka, guardado en `docs/design-system/blinka/`
-(`DESIGN.md`, `colors_and_type.css`, `preview/`, `ui_kits/app/`, `reference/`). Custodio está **construido para
+(`DESIGN.md`, `colors_and_type.css`, `preview/`, `ui_kits/app/`, `reference/`). Blinka Keeper está **construido para
 Blinka**, no es Blinka: conserva su logo (`components/brand/seal.tsx`, `public/logo*`) y no usa los logos de Blinka ni
 de sus socios ni la ilustración grabada (`SOURCE.md` explica qué no se copió).
 
 - **Tokens** en `apps/web/src/app/globals.css`: papel `#f7f7f4`, tinta `#1c253a`, texto secundario `#47525d` /
   `#5c6474`, líneas `#dedfdc`, un solo acento cobalto `#2a4bd0` (acción primaria, selección, foco; nunca de fondo en
   áreas grandes) y la paleta nocturna `#111720` para el modo oscuro, el pie y las secciones finales (`night-section`).
-  Los colores de estado son de Custodio (pagar, retener, escalar, crítico), ajustados a esa paleta; todo par de texto
+  Los colores de estado son de Blinka Keeper (pagar, retener, escalar, crítico), ajustados a esa paleta; todo par de texto
   cumple WCAG AA (4,5:1) en claro y oscuro, también sobre su propio tinte.
 - **Tipografía**: Inter («Blinka Inter») para interfaz y títulos, Geist Mono para cifras, códigos e ids; ambas
   servidas desde `apps/web/src/app/fonts/` con `next/font/local`. Títulos en peso 450 con tracking cerrado (la clase
@@ -226,13 +226,13 @@ de sus socios ni la ilustración grabada (`SOURCE.md` explica qué no se copió)
 2. **Onboarding tipo Typeform**: una pregunta por pantalla, teclado (Enter avanza), barra de progreso, animaciones
    suaves. Pasos: nombre y sitio → perfil propuesto (editable) → país, moneda, saldo y reserva → quién aprueba (nombre,
    cargo y correo) → reglas en tus palabras (compiladas en vivo) → proveedores (subir lista, contrato o facturas) → simulación
-   de la primera semana → «Custodio está listo».
+   de la primera semana → «Blinka Keeper está listo».
 3. **Panel**: pagado / retenido / pendiente con razón en una línea, filtros, métricas, saldo y cupo.
 4. **Acta** (drawer): las 15 reglas con su resultado, contrafactual, documento con las citas resaltadas, texto oculto
    destapado, aprobar / rechazar, hash en el ledger.
 5. **Reglas**: editor en español con diff y simulación antes de aplicar; formulario clásico como alternativa.
 6. **Arena**: Claude contra Claude en vivo (rondas, técnica, veredicto, marcador).
-7. **Róbale a Custodio**: subir o escribir una factura trampa, resultado al instante, contador global y muro.
+7. **Róbale a Blinka Keeper**: subir o escribir una factura trampa, resultado al instante, contador global y muro.
 8. **Registro**: cadena de hashes, «verificar» y «alterar una copia».
 9. **Desarrolladores**: API key, ejemplo del firewall y configuración MCP para Claude Desktop.
 10. **Conciliación**: arrastrar el extracto (o usar el de demo), tres columnas (conciliado, con diferencia, alertas) con

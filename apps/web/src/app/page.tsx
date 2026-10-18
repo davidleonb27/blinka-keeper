@@ -274,7 +274,7 @@ function Hero() {
               </div>
             </div>
 
-            {/* What Custodio does for finance (collapsible / compact list accessible for tests & accessibility) */}
+            {/* What Blinka Keeper does for finance (collapsible / compact list accessible for tests & accessibility) */}
             <ol aria-label="Lo que hace por tu equipo de finanzas" className="sr-only">
               {FINANCE_WEEK.map(({ title, text }) => (
                 <li key={title}>
@@ -407,7 +407,7 @@ function OpenSource() {
                 Revisa cada línea que <span className="wavy-highlight">decide un pago</span>
               </>
             }
-            lead={`Custodio se publica bajo licencia ${LICENSE_NAME}: úsalo, cámbialo y llévalo a producción. Las reglas, el auditor, los tests y las cifras medidas están en el repositorio.`}
+            lead={`Blinka Keeper se publica bajo licencia ${LICENSE_NAME}: úsalo, cámbialo y llévalo a producción. Las reglas, el auditor, los tests y las cifras medidas están en el repositorio.`}
           />
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <GitHubLink />
@@ -478,7 +478,7 @@ function FinalCall() {
           </h2>
           <p className="mt-2 max-w-[52ch] text-ink-2">
             Entra con una empresa demo y una semana de facturas con trampas, o escribe tu propia factura en «Róbale a
-            Custodio».
+            Blinka Keeper».
           </p>
         </div>
 
@@ -487,7 +487,7 @@ function FinalCall() {
             <Link href="/panel">Probar con una empresa demo</Link>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link href="/reto">Róbale a Custodio</Link>
+            <Link href="/reto">Róbale a Blinka Keeper</Link>
           </Button>
         </div>
       </div>

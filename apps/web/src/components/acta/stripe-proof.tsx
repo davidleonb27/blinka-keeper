@@ -144,7 +144,7 @@ function ProofBody({ proof }: { proof: StripeProof }) {
           >
             Abrir en Stripe <ExternalLink aria-hidden className="size-3.5" />
           </a>{" "}
-          · el dashboard de prueba pide iniciar sesión en la cuenta de Stripe de Custodio.
+          · el dashboard de prueba pide iniciar sesión en la cuenta de Stripe de Blinka Keeper.
         </p>
       ) : null}
     </div>

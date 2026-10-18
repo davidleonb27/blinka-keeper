@@ -1,5 +1,5 @@
 /**
- * Checking a Custodio receipt in the browser, with nothing but the public key: the same algorithm as the API's
+ * Checking a Blinka Keeper receipt in the browser, with nothing but the public key: the same algorithm as the API's
  * `custodio.receipts.verify_receipt`. One Ed25519 signature covers the canonical body; a second one covers the SHA-256
  * of each field, which is how the check names the field that was altered.
  */
@@ -36,8 +36,8 @@ interface Envelope {
   digestsSignature: Uint8Array;
 }
 
-const NOT_A_RECEIPT = "Inválido: esto no tiene la forma de un recibo firmado de Custodio.";
-const BAD_SIGNATURE = "Inválido: la firma no corresponde a este contenido ni a la clave de Custodio.";
+const NOT_A_RECEIPT = "Inválido: esto no tiene la forma de un recibo firmado de Blinka Keeper.";
+const BAD_SIGNATURE = "Inválido: la firma no corresponde a este contenido ni a la clave de Blinka Keeper.";
 
 export function fromBase64(text: unknown): Uint8Array | null {
   if (typeof text !== "string" || !/^[A-Za-z0-9+/]*={0,2}$/.test(text)) return null;
@@ -102,14 +102,14 @@ function check(raw: unknown, key: PublicReceiptKey): BrowserCheck {
   const publicKey = fromBase64(key.public_key);
   if (!envelope || !publicKey) return { ...EMPTY, valid: false, message: NOT_A_RECEIPT };
   if (envelope.keyId !== key.key_id) {
-    const message = `Inválido: el recibo dice estar firmado con la clave ${envelope.keyId} y la clave de Custodio es ${key.key_id}.`;
+    const message = `Inválido: el recibo dice estar firmado con la clave ${envelope.keyId} y la clave de Blinka Keeper es ${key.key_id}.`;
     return { ...EMPTY, keyId: envelope.keyId, valid: false, message };
   }
   const seen = { ...EMPTY, keyId: key.key_id, invoiceId: textAt(envelope.body, "invoice", "id") };
   if (verifies(publicKey, envelope.signature, envelope.body) && envelope.body.key_id === key.key_id) {
     const verdict = textAt(envelope.body, "decision", "verdict");
     const label = VERDICT_LABELS[verdict ?? ""] ?? "sin decisión";
-    const message = `Válido: firmado por Custodio con la clave ${key.key_id}. La decisión fue «${label}».`;
+    const message = `Válido: firmado por Blinka Keeper con la clave ${key.key_id}. La decisión fue «${label}».`;
     return { ...seen, valid: true, verdict, message };
   }
   const altered = alteredFields(envelope, publicKey);

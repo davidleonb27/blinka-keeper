@@ -1,6 +1,6 @@
-# Cómo paga Custodio
+# Cómo paga Blinka Keeper
 
-> **Custodio decide; el riel paga.** Hoy: Stripe en modo prueba. En producción: el riel de la empresa, por ejemplo
+> **Blinka Keeper decide; el riel paga.** Hoy: Stripe en modo prueba. En producción: el riel de la empresa, por ejemplo
 > Blinka (ACH, wire, Bre-B, SPEI, Pix), cuyo adaptador ya arma la instrucción exacta (ver [`BLINKA.md`](BLINKA.md)).
 
 El motor y el auditor deciden qué se paga. El riel sólo ejecuta lo que ya quedó decidido: no lee facturas, no evalúa
@@ -34,7 +34,7 @@ devuelve el mismo recibo y no llama al riel.
 | Panel: procesar facturas | sí | es la empresa pagando sus facturas |
 | Panel: aprobar una factura | sí, sólo después de aprobar | la persona autoriza; antes no sale nada |
 | Firewall y MCP | no, ni siquiera si una persona aprueba la intención en el panel | responden a otro agente; ese agente paga con su riel |
-| «Róbale a Custodio» | no | cada intento corre en un espacio aislado |
+| «Róbale a Blinka Keeper» | no | cada intento corre en un espacio aislado |
 | Red team | no | los ataques corren en un espacio aislado |
 
 Hay tres guardias: `decide` sólo ejecuta cuando quien llama lo pide (`execute_payments=True`, sólo el panel), nunca en
@@ -106,7 +106,7 @@ modo prueba con `CUSTODIO_LIVE_TESTS=1` y una `STRIPE_SECRET_KEY` de prueba.
 
 ## Ver el pago en Stripe
 
-Un `tr_…` en el acta no prueba nada por sí solo. Custodio se lo pregunta a Stripe en vivo y muestra la respuesta.
+Un `tr_…` en el acta no prueba nada por sí solo. Blinka Keeper se lo pregunta a Stripe en vivo y muestra la respuesta.
 
 ### «Pago en Stripe» en el acta
 
@@ -126,7 +126,7 @@ Responde `status`: `verified` (todo coincide), `mismatch` (algún campo no; el a
 no tiene ese id), `unavailable` (Stripe no respondió, la clave fue rechazada o se pasó el límite de Stripe) o
 `not_applicable` (el pago no salió por Stripe). La web muestra «Verificado en Stripe hace N s» con la hora en que Stripe
 contestó, el JSON crudo plegable y «Abrir en Stripe» hacia `dashboard.stripe.com/test/…`, que pide iniciar sesión en la
-cuenta de Stripe de Custodio. Si Stripe falla, el bloque dice «No se pudo consultar Stripe ahora» con «Consultar de
+cuenta de Stripe de Blinka Keeper. Si Stripe falla, el bloque dice «No se pudo consultar Stripe ahora» con «Consultar de
 nuevo»; el acta nunca muestra una página de error.
 
 - **Aislamiento.** La factura se busca en el espacio de quien llama (otra da 404). Si la transferencia existe pero su
@@ -139,7 +139,7 @@ nuevo»; el acta nunca muestra una página de error.
 - **Límite de tasa.** 30 consultas por minuto por espacio y 60 por IP (`RateLimits.stripe_lookups_per_minute_*`), con
   los mismos contadores en la base que el resto de los límites.
 
-### /pagos: registro de Custodio ↔ Stripe
+### /pagos: registro de Blinka Keeper ↔ Stripe
 
 `GET /api/v1/payments` lista los pagos del espacio (pagados por el motor o por una persona, con su ejecución) y cuadra
 el registro contra Stripe. Toma los recibos `executed` del riel `stripe_test` y las transferencias de Stripe creadas
@@ -197,7 +197,7 @@ envío, el comprobante del acta, /pagos (también a 390 px) y la descarga del pa
 
 El reto deja fuera el dinero real, las pasarelas y el KYC. El modo prueba de Stripe es un riel real (la misma API, las
 mismas cuentas conectadas, las mismas transferencias, visibles en el dashboard) con dinero de prueba. Demuestra que la
-decisión de Custodio llega hasta un pago verificable sin que nadie pueda perder plata, y la guardia de claves `live` hace
+decisión de Blinka Keeper llega hasta un pago verificable sin que nadie pueda perder plata, y la guardia de claves `live` hace
 que un error de configuración no pueda convertirse en un pago real.
 
 ## Blinka, simulado
@@ -228,4 +228,4 @@ class PaymentRail(Protocol):
   `POST` a la API de Blinka con la llave de idempotencia como cabecera y cómo se traduce su respuesta. Conectarlo no
   cambia el motor, ni el auditor, ni el registro, ni quién decide.
 
-Qué le ofrece Custodio a Blinka y el plan de integración: [`BLINKA.md`](BLINKA.md).
+Qué le ofrece Blinka Keeper a Blinka y el plan de integración: [`BLINKA.md`](BLINKA.md).

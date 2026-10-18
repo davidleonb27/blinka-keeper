@@ -53,7 +53,7 @@ function MatchBanner({ match }: { match: RailMatchView }) {
     return (
       <p className="flex gap-2 rounded-xl bg-crit-weak px-3.5 py-3 text-[14px] font-semibold text-crit">
         <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
-        No cuadra: {formatCount(off)} {off === 1 ? "diferencia" : "diferencias"} entre el registro de Custodio y Stripe.
+        No cuadra: {formatCount(off)} {off === 1 ? "diferencia" : "diferencias"} entre el registro de Blinka Keeper y Stripe.
         {match.message ? ` ${match.message}` : ""}
       </p>
     );
@@ -65,7 +65,7 @@ function MatchBanner({ match }: { match: RailMatchView }) {
 function Totals({ match }: { match: RailMatchView }) {
   const shown = match.status === "balanced" || match.status === "differences";
   const items = [
-    { label: "Registro de Custodio", value: usd(match.recorded_total), bad: false },
+    { label: "Registro de Blinka Keeper", value: usd(match.recorded_total), bad: false },
     { label: "Stripe", value: shown ? usd(match.stripe_total) : "—", bad: false },
     { label: "Diferencia", value: shown ? usd(match.difference) : "—", bad: shown && match.difference !== 0 },
   ];
@@ -111,7 +111,7 @@ function MatchRow({ line }: { line: RailMatchLine }) {
         </a>
       </div>
       <div className="text-right text-[13px] tabular">
-        <span className="block">Custodio {usd(line.recorded_amount)}</span>
+        <span className="block">Blinka Keeper {usd(line.recorded_amount)}</span>
         <span className={cn("block", ok ? "text-ink-3" : "font-semibold text-crit")}>Stripe {usd(line.stripe_amount)}</span>
       </div>
     </li>
@@ -123,7 +123,7 @@ function MatchCard({ match, onRefresh, refreshing }: { match: RailMatchView; onR
     <section aria-labelledby="cuadre-stripe" className="card-surface flex flex-col gap-3 p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id="cuadre-stripe" className="flex items-center gap-2 font-semibold">
-          <ArrowLeftRight aria-hidden className="size-4 text-brand" /> Registro de Custodio ↔ Stripe
+          <ArrowLeftRight aria-hidden className="size-4 text-brand" /> Registro de Blinka Keeper ↔ Stripe
         </h2>
         <span className="flex items-center gap-2">
           {match.status === "balanced" || match.status === "differences" ? (
@@ -249,7 +249,7 @@ export function PaymentsPage() {
     <>
       <PageHeader
         title="Pagos"
-        subtitle="Lo que Custodio pagó, comprobado en vivo contra Stripe transferencia por transferencia, y el archivo para que Blinka pague el lote."
+        subtitle="Lo que Blinka Keeper pagó, comprobado en vivo contra Stripe transferencia por transferencia, y el archivo para que Blinka pague el lote."
       />
       {payments.isPending ? <LoadingBlock label="Consultando los pagos…" /> : null}
       {payments.error ? <ErrorState error={payments.error} onRetry={() => void payments.refetch()} /> : null}

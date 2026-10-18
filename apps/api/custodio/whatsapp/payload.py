@@ -1,6 +1,6 @@
-"""The parts of a WhatsApp webhook delivery Custodio reads: the messages sent to its own number.
+"""The parts of a WhatsApp webhook delivery Blinka Keeper reads: the messages sent to its own number.
 
-Statuses (sent, delivered, read) and every field Custodio does not use are ignored.
+Statuses (sent, delivered, read) and every field Blinka Keeper does not use are ignored.
 """
 
 from __future__ import annotations

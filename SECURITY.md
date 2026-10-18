@@ -1,9 +1,9 @@
 # Política de seguridad
 
-Custodio decide pagos. Tomamos en serio cualquier forma de romperlo y agradecemos a quien la reporte con cuidado.
+Blinka Keeper decide pagos. Tomamos en serio cualquier forma de romperlo y agradecemos a quien la reporte con cuidado.
 
 *English: report vulnerabilities privately through GitHub Security Advisories (link below). Do not open a public
-issue. Any path that leads Custodio to pay something it should not is in scope.*
+issue. Any path that leads Blinka Keeper to pay something it should not is in scope.*
 
 ## Cómo reportar
 
@@ -32,12 +32,12 @@ Está dentro del alcance, en particular:
 - Saltarse los límites de gasto en modelos o de tamaño de archivos de forma que afecte a otros.
 
 Fuera del alcance: ataques de denegación de servicio por volumen, ingeniería social contra mantenedores, fallas de
-servicios de terceros (Vercel, Neon, Anthropic, Stripe) que no dependen de Custodio y reportes sin un caso
+servicios de terceros (Vercel, Neon, Anthropic, Stripe) que no dependen de Blinka Keeper y reportes sin un caso
 reproducible.
 
 ## Reto público
 
-«Róbale a Custodio» invita a intentar que pague algo indebido en la demo. Intentarlo ahí es bienvenido. Si lo logras,
+«Róbale a Blinka Keeper» invita a intentar que pague algo indebido en la demo. Intentarlo ahí es bienvenido. Si lo logras,
 repórtalo por el canal privado de arriba antes de publicarlo.
 
 ## Versiones soportadas

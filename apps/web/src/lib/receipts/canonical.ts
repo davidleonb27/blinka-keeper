@@ -1,5 +1,5 @@
 /**
- * The canonical JSON Custodio signs: keys sorted, no spaces, accents written as they are. It is the same text Python's
+ * The canonical JSON Blinka Keeper signs: keys sorted, no spaces, accents written as they are. It is the same text Python's
  * `json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)` writes for the values a receipt holds
  * (strings, integers, booleans, null, lists and objects).
  */

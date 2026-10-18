@@ -1,5 +1,5 @@
 name: Riel de pago nuevo
-description: Propón un riel que ejecute los pagos que Custodio ya aprobó (banco, billetera, pasarela).
+description: Propón un riel que ejecute los pagos que Blinka Keeper ya aprobó (banco, billetera, pasarela).
 title: "riel: "
 labels: ["riel de pago"]
 body:

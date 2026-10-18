@@ -99,7 +99,7 @@ export function VerifyPage() {
       const { receipt, from, to } = tamperAmount(await api.getExampleReceipt());
       const content = JSON.stringify(receipt, null, 2);
       setText(content);
-      setNote(`Tomamos un recibo de ejemplo firmado por Custodio y cambiamos el monto de ${from} a ${to}.`);
+      setNote(`Tomamos un recibo de ejemplo firmado por Blinka Keeper y cambiamos el monto de ${from} a ${to}.`);
       await check(content);
     } catch (error) {
       setResults({ ...EMPTY, serverError: messageOf(error) });
@@ -119,12 +119,12 @@ export function VerifyPage() {
     <article className="mx-auto max-w-3xl px-4 pt-10 pb-16">
       <p className="eyebrow text-brand">Recibos firmados</p>
       <h1 className="font-serif mt-2 text-[34px] leading-tight font-semibold tracking-[-0.015em] text-ink sm:text-[40px]">
-        Verifica un recibo de Custodio
+        Verifica un recibo de Blinka Keeper
       </h1>
       <p className="mt-3 text-[17px] text-ink-2">
-        Cada decisión de Custodio sale con un recibo firmado con Ed25519: la factura, lo que se leyó, las reglas, la
+        Cada decisión de Blinka Keeper sale con un recibo firmado con Ed25519: la factura, lo que se leyó, las reglas, la
         decisión, el pago y su lugar en el registro. Pégalo o súbelo y lo comprobamos dos veces: aquí mismo, en tu
-        navegador, sólo con la clave pública, y en el servidor de Custodio.
+        navegador, sólo con la clave pública, y en el servidor de Blinka Keeper.
       </p>
 
       <p className="mt-5 flex flex-wrap items-center gap-2 text-[13px] text-ink-3">
@@ -172,11 +172,11 @@ export function VerifyPage() {
 
       <div className="mt-6 grid gap-3">
         <ResultCard title="En tu navegador" result={results.browser} />
-        <ResultCard title="En el servidor de Custodio" result={results.server} error={results.serverError} />
+        <ResultCard title="En el servidor de Blinka Keeper" result={results.server} error={results.serverError} />
       </div>
 
       <section className="doc-prose mt-10">
-        <h2>Sin Custodio de por medio</h2>
+        <h2>Sin Blinka Keeper de por medio</h2>
         <p>
           El paquete de cierre de mes trae cada recibo, la clave pública y <code>verificar_recibo.py</code>, que sólo
           usa la biblioteca estándar de Python: <code>python3 verificar_recibo.py recibo.json clave_publica.json</code>.

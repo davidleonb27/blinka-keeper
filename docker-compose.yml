@@ -1,4 +1,4 @@
-# Custodio autoalojado en un comando:
+# Blinka Keeper autoalojado en un comando:
 #   cp .env.example .env   (opcional: todas las variables tienen un valor por defecto que funciona)
 #   docker compose up --build
 # Web en http://localhost:3000 · API en http://localhost:8000/api/v1 (documentación en /api/v1/docs)

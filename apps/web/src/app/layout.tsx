@@ -20,9 +20,9 @@ const mono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Custodio · el agente de cuentas por pagar de código abierto", template: "%s · Custodio" },
+  title: { default: "Blinka Keeper · el agente de cuentas por pagar de código abierto", template: "%s · Blinka Keeper" },
   description:
-    "Custodio revisa las facturas de tu empresa: el modelo lee, el código decide y una persona autoriza. Código abierto bajo licencia MIT: úsalo en la demo o autoalójalo con un comando.",
+    "Blinka Keeper revisa las facturas de tu empresa: el modelo lee, el código decide y una persona autoriza. Código abierto bajo licencia MIT: úsalo en la demo o autoalójalo con un comando.",
 };
 
 export const viewport: Viewport = {

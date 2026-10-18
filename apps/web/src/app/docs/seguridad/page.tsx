@@ -21,7 +21,7 @@ export default function SecurityPage() {
   return (
     <DocPage
       href="/docs/seguridad"
-      lead="Custodio asume que cada factura puede ser un ataque y que el modelo puede equivocarse o ser engañado. Por eso el modelo nunca decide."
+      lead="Blinka Keeper asume que cada factura puede ser un ataque y que el modelo puede equivocarse o ser engañado. Por eso el modelo nunca decide."
     >
       <h2 id="invariantes">Invariantes</h2>
       <p>Cada una la hace cumplir un test que corre en cada commit, incluidos tests de propiedades sobre empresas aleatorias.</p>

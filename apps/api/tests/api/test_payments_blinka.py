@@ -1,4 +1,4 @@
-"""The panel's payments become the exact instruction Blinka would receive; nothing leaves Custodio."""
+"""The panel's payments become the exact instruction Blinka would receive; nothing leaves Blinka Keeper."""
 
 from dataclasses import replace
 from typing import Any

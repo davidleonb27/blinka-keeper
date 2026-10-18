@@ -38,17 +38,17 @@ PATH = "/api/v1/mcp"
 # servers reachable from a browser) is off.
 TRANSPORT_SECURITY = TransportSecuritySettings(enable_dns_rebinding_protection=False)
 INSTRUCTIONS = (
-    "Custodio es un firewall de pagos. Antes de pagar una factura, envía la intención de pago con "
-    "submit_payment_intent: Custodio la decide con las reglas de la empresa y responde pagar, retener o escalar a una "
-    "persona, con el acta y el hash en su registro. Nunca pagues algo que Custodio retuvo o escaló. Para conciliar "
-    "el extracto del banco con lo pagado, usa reconcile_statement."
+    "Blinka Keeper es un firewall de pagos. Antes de pagar una factura, envía la intención de pago con "
+    "submit_payment_intent: Blinka Keeper la decide con las reglas de la empresa y responde pagar, retener o "
+    "escalar a una persona, con el acta y el hash en su registro. Nunca pagues algo que Blinka Keeper retuvo o "
+    "escaló. Para conciliar el extracto del banco con lo pagado, usa reconcile_statement."
 )
 
 
 def build(runtime: Runtime) -> MCPServer:
     server = MCPServer(name="custodio", version=__version__, instructions=INSTRUCTIONS)
 
-    @server.tool(description="Envía una intención de pago y recibe la decisión de Custodio con su acta.")
+    @server.tool(description="Envía una intención de pago y recibe la decisión de Blinka Keeper con su acta.")
     def submit_payment_intent(intent: PaymentIntent, ctx: Context) -> IntentVerdict:
         request = _http_request(ctx)
         with _workspace(runtime, request) as (services, workspace):

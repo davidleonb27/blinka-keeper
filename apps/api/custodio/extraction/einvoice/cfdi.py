@@ -32,7 +32,7 @@ def handles(root: Element) -> bool:
 
 def parse(root: Element) -> EInvoice:
     if root.tag != ROOT_TAG or root.get("Version") != SUPPORTED_VERSION:
-        raise NotAnEInvoice(f"Custodio lee CFDI {SUPPORTED_VERSION}; este comprobante es de otra versión.")
+        raise NotAnEInvoice(f"Blinka Keeper lee CFDI {SUPPORTED_VERSION}; este comprobante es de otra versión.")
     voucher = Node(root, "cfdi:Comprobante", NAMESPACES)
     if root.get("TipoDeComprobante") not in (None, INCOME):
         raise NotAnEInvoice("El CFDI no es de ingreso (TipoDeComprobante I): no es una factura por pagar.")

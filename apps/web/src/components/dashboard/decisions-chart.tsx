@@ -72,7 +72,7 @@ export function DecisionsChart({ days }: { days: DayCounts[] }) {
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
           <h2 className="font-semibold">Decisiones por día</h2>
-          <p className="text-[12.5px] text-ink-3">Lo que Custodio hizo con cada factura que llegó.</p>
+          <p className="text-[12.5px] text-ink-3">Lo que Blinka Keeper hizo con cada factura que llegó.</p>
         </div>
         <Button variant="ghost" size="sm" aria-pressed={asTable} onClick={() => setAsTable((v) => !v)}>
           {asTable ? "Ver gráfica" : "Ver tabla"}

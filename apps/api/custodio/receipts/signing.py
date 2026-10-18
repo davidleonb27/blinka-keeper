@@ -71,12 +71,12 @@ READING_LABELS: dict[str, str] = {
     "account_number": "cuenta leída",
 }
 
-VALID = "Válido: firmado por Custodio con la clave {key}. La decisión fue «{verdict}»."
+VALID = "Válido: firmado por Blinka Keeper con la clave {key}. La decisión fue «{verdict}»."
 ONE_ALTERED = "Inválido: el campo {fields} fue alterado después de firmarse."
 MANY_ALTERED = "Inválido: los campos {fields} fueron alterados después de firmarse."
-WRONG_KEY = "Inválido: el recibo dice estar firmado con la clave {claimed} y la clave de Custodio es {ours}."
-BAD_SIGNATURE = "Inválido: la firma no corresponde a este contenido ni a la clave de Custodio."
-NOT_A_RECEIPT = "Inválido: esto no tiene la forma de un recibo firmado de Custodio."
+WRONG_KEY = "Inválido: el recibo dice estar firmado con la clave {claimed} y la clave de Blinka Keeper es {ours}."
+BAD_SIGNATURE = "Inválido: la firma no corresponde a este contenido ni a la clave de Blinka Keeper."
+NOT_A_RECEIPT = "Inválido: esto no tiene la forma de un recibo firmado de Blinka Keeper."
 
 
 def sign_receipt(body: ReceiptBody, signer: ReceiptSigner) -> DecisionReceipt:

@@ -1,4 +1,4 @@
-"""What Custodio answers on WhatsApp: Spanish, short, without jargon. Approvals happen only in the app."""
+"""What Blinka Keeper answers on WhatsApp: Spanish, short, without jargon. Approvals happen only in the app."""
 
 from __future__ import annotations
 
@@ -6,14 +6,14 @@ from custodio.contracts import Decision, DecisionStatus, RuleOutcome
 from custodio.engine.formatting import money
 from custodio.whatsapp.errors import MediaProblem
 
-APP_ONLY = "Las aprobaciones se hacen sólo en la app de Custodio."
+APP_ONLY = "Las aprobaciones se hacen sólo en la app de Blinka Keeper."
 UNLINKED = (
-    "Hola. Este número todavía no está ligado a una empresa en Custodio. Abre el panel de Custodio, busca "
+    "Hola. Este número todavía no está ligado a una empresa en Blinka Keeper. Abre el panel de Blinka Keeper, busca "
     "«Recibe facturas por WhatsApp» y envía aquí el código que aparece."
 )
-CODE_INVALID = "Ese código no es válido o ya se usó. Pide uno nuevo en el panel de Custodio."
-CODE_EXPIRED = "Ese código venció. Pide uno nuevo en el panel de Custodio."
-TOO_MANY_TRIES = "Demasiados intentos con códigos. Espera una hora y pide uno nuevo en el panel de Custodio."
+CODE_INVALID = "Ese código no es válido o ya se usó. Pide uno nuevo en el panel de Blinka Keeper."
+CODE_EXPIRED = "Ese código venció. Pide uno nuevo en el panel de Blinka Keeper."
+TOO_MANY_TRIES = "Demasiados intentos con códigos. Espera una hora y pide uno nuevo en el panel de Blinka Keeper."
 UNSUPPORTED = "Por ahora sólo leemos facturas en foto, PDF o texto. Envíala en uno de esos formatos."
 SEND_INVOICE = f"Envía la foto o el PDF de la factura, o pega su texto completo. {APP_ONLY}"
 MEDIA_PROBLEMS = {
@@ -28,8 +28,8 @@ REASON_LIMIT = 140
 def linked(company_name: str) -> str:
     name = company_name.rstrip(".")  # "Inc." must not end the sentence twice
     return (
-        f"Listo: este número quedó ligado a {name}. Envía aquí la foto o el PDF de cada factura y Custodio la revisa "
-        f"con tus reglas. {APP_ONLY}"
+        f"Listo: este número quedó ligado a {name}. Envía aquí la foto o el PDF de cada factura y Blinka Keeper la "
+        f"revisa con tus reglas. {APP_ONLY}"
     )
 
 

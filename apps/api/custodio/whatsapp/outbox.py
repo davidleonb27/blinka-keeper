@@ -1,4 +1,4 @@
-"""Free-form text to a linked phone, for any part of Custodio that has news about an invoice it received there.
+"""Free-form text to a linked phone, for any part of Blinka Keeper that has news about an invoice it received there.
 
 Only inside WhatsApp's 24-hour customer-service window (the sender wrote first); outside it Meta refuses free text.
 """

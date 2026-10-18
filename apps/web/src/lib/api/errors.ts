@@ -43,19 +43,19 @@ export class PayloadTooLargeError extends ApiError {
 
 export class InvalidRequestError extends ApiError {
   constructor(detail: string | null, status: number) {
-    super(detail ?? "Revisa los datos: hay algo que Custodio no pudo aceptar.", status);
+    super(detail ?? "Revisa los datos: hay algo que Blinka Keeper no pudo aceptar.", status);
   }
 }
 
 export class NetworkError extends ApiError {
   constructor() {
-    super("No pudimos conectarnos con Custodio. Revisa tu conexión y vuelve a intentarlo.", null);
+    super("No pudimos conectarnos con Blinka Keeper. Revisa tu conexión y vuelve a intentarlo.", null);
   }
 }
 
 export class UnexpectedResponseError extends ApiError {
   constructor(status: number) {
-    super("Custodio respondió algo inesperado. Nada se pagó; vuelve a intentarlo.", status);
+    super("Blinka Keeper respondió algo inesperado. Nada se pagó; vuelve a intentarlo.", status);
   }
 }
 

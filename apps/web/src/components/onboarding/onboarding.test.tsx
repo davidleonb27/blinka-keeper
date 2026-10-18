@@ -65,14 +65,14 @@ describe("Onboarding", () => {
 
     await pressEnter();
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Custodio todavía está compilando tus reglas.");
+    expect(screen.getByRole("alert")).toHaveTextContent("Blinka Keeper todavía está compilando tus reglas.");
     expect(screen.getByRole("heading", { name: "Tus reglas, en tus palabras" })).toBeInTheDocument();
     await screen.findByText("Tope de aprobación automática");
     await userEvent.click(screen.getByRole("button", { name: "Continuar" }));
     await screen.findByRole("heading", { name: "¿A quién le pagas?" });
   });
 
-  it("runs the whole flow in mock mode until Custodio is ready", async () => {
+  it("runs the whole flow in mock mode until Blinka Keeper is ready", async () => {
     renderWithApi(<Onboarding />);
     await fillCompany();
 
@@ -104,7 +104,7 @@ describe("Onboarding", () => {
     await waitFor(() => expect(screen.getByText(/facturas decididas/)).toBeInTheDocument());
     await pressEnter();
 
-    await screen.findByRole("heading", { name: "Custodio está listo" });
+    await screen.findByRole("heading", { name: "Blinka Keeper está listo" });
     expect(screen.getByRole("link", { name: /Ir al panel/ })).toHaveAttribute("href", "/panel");
   });
 });

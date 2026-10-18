@@ -9,9 +9,9 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .night-section, .night-section *));
 
 /*
- * Visual identity: Blinka's design system (docs/design-system/blinka), with Custodio's own logo. Warm paper, navy ink,
+ * Visual identity: Blinka's design system (docs/design-system/blinka), with Blinka Keeper's own logo. Warm paper, navy ink,
  * one cobalt accent used sparingly (primary action, selection, focus), hairlines, soft long shadows, and a night
- * palette for dark mode and closing sections. The status colors (pay, hold, escalate, critical) are Custodio's, tuned
+ * palette for dark mode and closing sections. The status colors (pay, hold, escalate, critical) are Blinka Keeper's, tuned
  * to sit on that paper; every text pairing, including on its own weak tint, clears WCAG AA (4.5:1) in both themes.
  */
 :root {

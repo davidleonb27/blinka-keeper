@@ -1,4 +1,4 @@
-"""Custodio's payment record against Stripe's transfers: every recorded payment has exactly one transfer of the same
+"""Keeper's payment record against Stripe's transfers: every recorded payment has exactly one transfer of the same
 amount, and every transfer of the workspace has its recorded payment. Pure: no I/O, the same input gives the same lines.
 """
 

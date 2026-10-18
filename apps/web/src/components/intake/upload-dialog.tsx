@@ -58,13 +58,13 @@ function Progress({ rows }: { rows: Row[] }) {
   );
 }
 
-/** Custodio only pays registered suppliers to their registered accounts on its own (R3, R4): say so before the upload, so a held invoice is no surprise. */
+/** Blinka Keeper only pays registered suppliers to their registered accounts on its own (R3, R4): say so before the upload, so a held invoice is no surprise. */
 function SuppliersNote() {
   const suppliers = usePolicy().data?.beneficiaries.filter((b) => b.allowed).length;
   if (suppliers === undefined) return null;
   return (
     <p className="rounded-xl bg-surface-2 px-3.5 py-3 text-[13px] text-ink-2">
-      Custodio paga por su cuenta sólo a tus {suppliers} {suppliers === 1 ? "proveedor registrado" : "proveedores registrados"}; la
+      Blinka Keeper paga por su cuenta sólo a tus {suppliers} {suppliers === 1 ? "proveedor registrado" : "proveedores registrados"}; la
       factura de cualquier otro se retiene o espera tu aprobación, y su acta dice por qué.{" "}
       <Link href={SUPPLIERS_PATH} className="font-semibold text-brand underline-offset-4 hover:underline">
         Agregar proveedores
@@ -129,7 +129,7 @@ function UploadForm({ onDecided }: { onDecided: () => void }) {
   const decide = () =>
     process.mutateAsync().then(
       ({ batch }) => {
-        toast.success(`Custodio decidió ${batch.metrics.total} ${batch.metrics.total === 1 ? "factura" : "facturas"}.`);
+        toast.success(`Blinka Keeper decidió ${batch.metrics.total} ${batch.metrics.total === 1 ? "factura" : "facturas"}.`);
         onDecided();
       },
       (error: unknown) => toast.error(messageOf(error)),
@@ -225,7 +225,7 @@ export function UploadDialog() {
         <div className="pr-8">
           <SheetTitle className="font-serif text-2xl font-semibold">Subir facturas</SheetTitle>
           <SheetDescription className="mt-1 text-ink-2">
-            Custodio las lee y las deja listas; ninguna se paga hasta que decidas el lote con tus reglas.
+            Blinka Keeper las lee y las deja listas; ninguna se paga hasta que decidas el lote con tus reglas.
           </SheetDescription>
         </div>
         <UploadForm onDecided={() => setDialogOpen(false)} />

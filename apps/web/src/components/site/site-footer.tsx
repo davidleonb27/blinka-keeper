@@ -14,7 +14,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     links: [
       { label: "Demo", href: "/panel" },
       { label: "Usar con mi empresa", href: "/empezar" },
-      { label: "Róbale a Custodio", href: "/reto" },
+      { label: "Róbale a Blinka Keeper", href: "/reto" },
       { label: "Arena: ataque contra defensa", href: "/arena" },
       { label: "Desarrolladores", href: "/desarrolladores" },
     ],

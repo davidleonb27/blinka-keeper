@@ -1,4 +1,4 @@
-# L3 · Claude en Custodio: reglas en español, narración, onboarding y red team
+# L3 · Claude en Blinka Keeper: reglas en español, narración, onboarding y red team
 
 **Objetivo**: lo más vistoso de la demo, sin que el modelo decida nada.
 

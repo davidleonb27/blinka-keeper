@@ -84,7 +84,7 @@ export default function RulesPage() {
 
       <h2 id="nueva">Proponer una regla nueva</h2>
       <p>
-        Una regla nueva cambia lo que Custodio paga, así que se discute antes de escribirla: abre un issue con la plantilla
+        Una regla nueva cambia lo que Blinka Keeper paga, así que se discute antes de escribirla: abre un issue con la plantilla
         «Regla nueva» y sigue los pasos de <Link href="/docs/contribuir">Contribuir</Link>. El auditor independiente debe
         comprobar lo mismo por otro camino de código.
       </p>

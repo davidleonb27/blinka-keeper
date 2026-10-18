@@ -48,7 +48,7 @@ class DecisionFacts:
     workspace_id: str
     decision: Decision
     invoice: InvoiceCase
-    document_id: str | None  # the stored file Custodio read, if the invoice came with one
+    document_id: str | None  # the stored file Blinka Keeper read, if the invoice came with one
     document_sha256: str | None
     policy: ReceiptPolicy
     entry: LedgerEntry  # the decision (or approval) entry of this invoice in the ledger

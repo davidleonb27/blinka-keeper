@@ -45,7 +45,7 @@ export function Dashboard() {
   const [query, setQuery] = useState("");
 
   const header = (
-    <PageHeader title="Panel" subtitle="Lo que Custodio decidió este mes y por qué puedes confiar en eso.">
+    <PageHeader title="Panel" subtitle="Lo que Blinka Keeper decidió este mes y por qué puedes confiar en eso.">
       {summary.data ? (
         <>
           <Chip tone="live">Hoy {formatDate(summary.data.today)}</Chip>
@@ -107,7 +107,7 @@ export function Dashboard() {
           <WhatsAppCard />
           {tour}
           <p className="text-[13px] text-ink-3">
-            Las métricas aparecen aquí en cuanto Custodio decida: pagos indebidos, autonomía y lo que espera tu aprobación.
+            Las métricas aparecen aquí en cuanto Blinka Keeper decida: pagos indebidos, autonomía y lo que espera tu aprobación.
           </p>
         </div>
       </>

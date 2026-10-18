@@ -2,7 +2,7 @@ blank_issues_enabled: false
 contact_links:
   - name: Reportar una vulnerabilidad (privado)
     url: https://github.com/davidleonb27/blinka-keeper/security/advisories/new
-    about: Si Custodio pagó o podría pagar algo indebido, repórtalo aquí en privado, no en un issue público.
+    about: Si Blinka Keeper pagó o podría pagar algo indebido, repórtalo aquí en privado, no en un issue público.
   - name: Documentación
     url: https://blinka-keeper.vercel.app/docs
     about: Inicio rápido, configuración, reglas, firewall, MCP y rieles de pago.

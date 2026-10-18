@@ -113,7 +113,7 @@ export function ActaDrawer() {
       <SheetContent side="right" className="gap-0 overflow-y-auto data-[side=right]:w-full border-line-2 bg-surface px-5 pt-5 pb-0 data-[side=right]:sm:max-w-[640px] sm:px-6">
         <SheetTitle className="sr-only">Acta de decisión {invoiceId}</SheetTitle>
         <SheetDescription className="sr-only">
-          Las quince reglas, el documento leído y la decisión de Custodio para esta factura.
+          Las quince reglas, el documento leído y la decisión de Blinka Keeper para esta factura.
         </SheetDescription>
         {invoiceId ? (
           <div className="pb-6">

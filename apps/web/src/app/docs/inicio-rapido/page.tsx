@@ -30,7 +30,7 @@ cd apps/web && npm ci && API_INTERNAL_URL=http://127.0.0.1:8000 npm run dev   # 
 
 export default function QuickstartPage() {
   return (
-    <DocPage href="/docs/inicio-rapido" lead="Prueba Custodio en la demo en 30 segundos, o córrelo en tu infraestructura con un comando.">
+    <DocPage href="/docs/inicio-rapido" lead="Prueba Blinka Keeper en la demo en 30 segundos, o córrelo en tu infraestructura con un comando.">
       <h2 id="demo">En la demo</h2>
       <ol>
         <li>
@@ -51,7 +51,7 @@ export default function QuickstartPage() {
         demo no se mezcla con él.
       </p>
       <ol>
-        <li>Perfil: el nombre de la empresa y su sitio; Custodio propone el país, la moneda y el saldo, y tú los corriges.</li>
+        <li>Perfil: el nombre de la empresa y su sitio; Blinka Keeper propone el país, la moneda y el saldo, y tú los corriges.</li>
         <li>Quién aprueba lo que se sale de las reglas.</li>
         <li>Tus reglas en tus palabras; ves los topes que entendió antes de seguir.</li>
         <li>
@@ -68,7 +68,7 @@ export default function QuickstartPage() {
         con <code>POST /api/v1/invoices/process</code>.
       </p>
       <p>
-        Custodio paga por su cuenta sólo a proveedores registrados, a su cuenta registrada. Para sumar uno después,
+        Blinka Keeper paga por su cuenta sólo a proveedores registrados, a su cuenta registrada. Para sumar uno después,
         entra a <Link href="/proveedores">Proveedores</Link> (también desde el diálogo de subida y desde el acta de una
         factura de un proveedor desconocido): importa un CSV con el mismo formato o escríbelo a mano, revisa la vista
         previa y aplícala. Queda como una versión nueva de la política en el registro. Los proveedores ya registrados no

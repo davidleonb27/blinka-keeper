@@ -1,7 +1,7 @@
 """The message to the supplier: a fixed template filled with the assessment, the registered names and the link.
 
 Nothing the invoice says is copied into it except a reference that looks like an invoice number, so a document cannot
-make Custodio write to the supplier what the document wants.
+make Blinka Keeper write to the supplier what the document wants.
 """
 
 from __future__ import annotations
@@ -15,8 +15,8 @@ from custodio.engine.formatting import long_date
 
 SAFE_REFERENCE = re.compile(r"[A-Za-z0-9][A-Za-z0-9\-_/.#]{0,29}")
 ACCOUNT_WARNING = (
-    "Custodio sólo paga a la cuenta registrada. Si la factura corregida trae otra cuenta, no se paga: los cambios de "
-    "cuenta se verifican por otro canal con su contacto registrado."
+    "Blinka Keeper sólo paga a la cuenta registrada. Si la factura corregida trae otra cuenta, no se paga: los "
+    "cambios de cuenta se verifican por otro canal con su contacto registrado."
 )
 
 

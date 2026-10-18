@@ -49,8 +49,8 @@ WHY_NOT: dict[BlockerKind, str] = {
         "para volver a intentarlo."
     ),
     BlockerKind.UNREGISTERED_SUPPLIER: (
-        "El proveedor no está registrado o está bloqueado. Custodio sólo escribe a proveedores registrados; darlo de "
-        "alta lo decide una persona de la empresa."
+        "El proveedor no está registrado o está bloqueado. Blinka Keeper sólo escribe a proveedores registrados; "
+        "darlo de alta lo decide una persona de la empresa."
     ),
     BlockerKind.SANCTIONS: (
         "El nombre coincide con la lista OFAC. Eso no se corrige con un documento: lo revisa una persona."

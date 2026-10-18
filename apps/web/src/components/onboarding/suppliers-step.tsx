@@ -50,7 +50,7 @@ export function SuppliersStep({ answers, update, frame }: StepProps) {
       busy={upload.isPending}
       busyLabel="Leyendo el archivo…"
       title="¿A quién le pagas?"
-      helper="Sube una lista, un contrato o facturas viejas. Custodio arma la lista de beneficiarios permitidos, cada uno con su cuenta registrada."
+      helper="Sube una lista, un contrato o facturas viejas. Blinka Keeper arma la lista de beneficiarios permitidos, cada uno con su cuenta registrada."
     >
       <div className="flex flex-col gap-3 sm:flex-row">
         <label

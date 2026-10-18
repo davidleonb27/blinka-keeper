@@ -27,7 +27,7 @@ _CURRENCY = re.compile(r"[A-Z]{3}")
 
 
 class InvalidWebsite(ValueError):
-    """The website is not a public http(s) address Custodio may read."""
+    """The website is not a public http(s) address Blinka Keeper may read."""
 
 
 class DraftProfile(Model):
@@ -41,8 +41,8 @@ class DraftProfile(Model):
 
 
 SYSTEM = """\
-You prepare the first screen of Custodio's onboarding: what Custodio understood about a company before asking it \
-anything else. Custodio is an accounts-payable agent; its rules are written in Spanish and then compiled.
+You prepare the first screen of Keeper's onboarding: what Keeper understood about a company before asking it \
+anything else. Blinka Keeper is an accounts-payable agent; its rules are written in Spanish and then compiled.
 
 When a website is given, read it with web_fetch: start with the URL you are given, then at most a few pages of \
 the same site that tell what the company sells, where it operates and whom it pays (about us, services, pricing, \

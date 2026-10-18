@@ -1,8 +1,8 @@
-"""Blinka, simulated: the exact instruction Custodio would hand Blinka, built and shown, never sent.
+"""Blinka, simulated: the exact instruction Blinka Keeper would hand Blinka, built and shown, never sent.
 
 Blinka pays by ACH, wire, Bre-B (COP), SPEI (MXN) and Pix (BRL) but has no public API yet. So this rail stops one step
 before the network: it picks Blinka's network for the payment, builds the instruction with the registered beneficiary's
-bank details and returns it in the receipt with status "simulated". No money moves and nothing leaves Custodio.
+bank details and returns it in the receipt with status "simulated". No money moves and nothing leaves Blinka Keeper.
 """
 
 from __future__ import annotations

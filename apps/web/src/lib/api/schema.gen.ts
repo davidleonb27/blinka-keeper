@@ -956,7 +956,7 @@ export interface paths {
         put?: never;
         /**
          * Verify Receipt
-         * @description Checks a receipt with Custodio's public key and names the field that was altered, if any.
+         * @description Checks a receipt with Blinka Keeper's public key and names the field that was altered, if any.
          */
         post: operations["verify_receipt_api_v1_receipts_verify_post"];
         delete?: never;
@@ -1433,7 +1433,7 @@ export interface components {
         };
         /**
          * CompanyProfile
-         * @description What Custodio infers about a company from its website and first answers, before asking anything else.
+         * @description What Blinka Keeper infers about a company from its website and first answers, before asking anything else.
          */
         CompanyProfile: {
             /** Company Name */
@@ -2083,7 +2083,7 @@ export interface components {
         };
         /**
          * PaymentInstruction
-         * @description Exactly what Custodio hands a bank partner (Blinka) to pay one invoice: original amount and currency.
+         * @description Exactly what Blinka Keeper hands a bank partner (Blinka) to pay one invoice: original amount and currency.
          */
         PaymentInstruction: {
             /**
@@ -2501,7 +2501,7 @@ export interface components {
         };
         /**
          * RailMatchView
-         * @description «Registro de Custodio ↔ Stripe»: amounts in USD, the currency the rail sends.
+         * @description «Registro de Blinka Keeper ↔ Stripe»: amounts in USD, the currency the rail sends.
          */
         RailMatchView: {
             /**

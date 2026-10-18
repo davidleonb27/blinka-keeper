@@ -137,7 +137,7 @@ class FakeStripe(stripe.HTTPClient):
     def add_transfer(
         self, amount: int, metadata: dict[str, str], destination: str = "acct_fake_stray"
     ) -> dict[str, Any]:
-        """A transfer made outside Custodio, straight in Stripe's dashboard."""
+        """A transfer made outside Blinka Keeper, straight in Stripe's dashboard."""
         return self._record_transfer(amount, None, destination, metadata)
 
     def _transfer(self, form: dict[str, str]) -> Response:

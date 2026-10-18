@@ -50,7 +50,7 @@ OUT_OF_SCOPE_SERVICES = ("telegram", "celular")  # Gemini came back in L21, only
 FORBIDDEN_TRAILERS = ("Co-Authored-By", "Generated with")
 BLINKA_SECTIONS = (
     "El problema de sus clientes",
-    "Dónde va Custodio",
+    "Dónde va Blinka Keeper",
     "Qué gana Blinka",
     "Lo que ya está medido",
     "Integración en 2 semanas",
@@ -59,7 +59,7 @@ BLINKA_SECTIONS = (
     "Lo que falta para producción",
 )
 MEASURED_SOURCES = ("README.md", "docs/DATASET.md", "docs/MEASUREMENTS.md", "docs/PAYMENTS.md")
-CLOSING_LINE = "Custodio decide; Blinka paga"
+CLOSING_LINE = "Blinka Keeper decide; Blinka paga"
 NUMBER = re.compile(r"\d[\d.,]*\d|\d")
 WRITTEN_SEGMENT = re.compile(r"^### (\d+):(\d\d)–(\d+):(\d\d) · .+$", re.MULTILINE)
 
@@ -204,8 +204,8 @@ def test_the_public_challenge_launches_saturday_at_noon() -> None:
     launch = [post for post in posts(read("docs/BUILD_IN_PUBLIC.md")) if post.when == LAUNCH]
     assert len(launch) == 1
     assert LAUNCH.strftime("%A") == "Saturday"
-    assert "Róbale a Custodio" in launch[0].x
-    assert "Róbale a Custodio" in launch[0].linkedin
+    assert "Róbale a Blinka Keeper" in launch[0].x
+    assert "Róbale a Blinka Keeper" in launch[0].linkedin
 
 
 def test_every_post_fits_x_and_names_the_hackathon_and_blinka() -> None:

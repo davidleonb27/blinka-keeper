@@ -118,7 +118,7 @@ export function Onboarding() {
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-10 bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between gap-3 px-4">
-          <Link href="/" aria-label="Custodio, inicio" className="rounded-lg">
+          <Link href="/" aria-label="Blinka Keeper, inicio" className="rounded-lg">
             <Wordmark />
           </Link>
           <div className="flex items-center gap-1">

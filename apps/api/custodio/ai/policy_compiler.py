@@ -248,7 +248,7 @@ def _payload(change: DraftChange) -> str:
 
 
 def _unknown_field(change: DraftChange, policy: Policy) -> tuple[Policy, PolicyChange]:
-    raise NotSupported(f"«{change.source_quote}»: Custodio no tiene una regla para esto (campo «{change.field}»).")
+    raise NotSupported(f"«{change.source_quote}»: Blinka Keeper no tiene una regla para esto (campo «{change.field}»).")
 
 
 def _set_money(change: DraftChange, policy: Policy) -> tuple[Policy, PolicyChange]:

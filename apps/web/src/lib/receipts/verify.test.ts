@@ -33,7 +33,7 @@ describe("receipts checked in the browser", () => {
 
     expect(check.valid).toBe(true);
     expect(check.verdict).toBe("pay");
-    expect(check.message).toBe(`Válido: firmado por Custodio con la clave ${golden.key.key_id}. La decisión fue «Pagar».`);
+    expect(check.message).toBe(`Válido: firmado por Blinka Keeper con la clave ${golden.key.key_id}. La decisión fue «Pagar».`);
   });
 
   it("signs byte for byte like the API with the same key", () => {
@@ -79,7 +79,7 @@ describe("receipts checked in the browser", () => {
     "says when something is not a receipt (%#)",
     (raw) => {
       expect(verifyReceiptInBrowser(raw, golden.key).message).toBe(
-        "Inválido: esto no tiene la forma de un recibo firmado de Custodio.",
+        "Inválido: esto no tiene la forma de un recibo firmado de Blinka Keeper.",
       );
     },
   );
@@ -97,7 +97,7 @@ describe("receipts checked in the browser", () => {
     const check = verifyReceiptInBrowser(receipt, golden.key);
 
     expect(check.valid).toBe(false);
-    expect(check.message).toBe("Inválido: esto no tiene la forma de un recibo firmado de Custodio.");
+    expect(check.message).toBe("Inválido: esto no tiene la forma de un recibo firmado de Blinka Keeper.");
   });
 
   it("ignores key order and whitespace", () => {

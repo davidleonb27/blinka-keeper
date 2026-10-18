@@ -1,6 +1,6 @@
 """The file for Blinka: approved payments as an ISO 20022 customer credit transfer initiation (pain.001.001.09).
 
-Banks and payment partners take this message to pay a batch at once. Custodio writes it from what the engine already
+Banks and payment partners take this message to pay a batch at once. Keeper writes it from what the engine already
 decided and the registered beneficiaries' bank details (never the invoice's). One payment block per currency, so each
 block's control sum adds amounts of a single currency. Texts are cut to the schema's limits and stripped of control
 characters; the XML writer escapes the rest.

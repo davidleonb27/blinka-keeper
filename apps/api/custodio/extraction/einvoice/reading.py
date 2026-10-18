@@ -128,7 +128,7 @@ def _document_text(invoice: EInvoice, lines: list[FieldLine], checks: list[Check
     parts = [HEADER, f"Documento: {invoice.title}", *(line.line for line in lines), "", CHECKS_HEADER]
     parts += [f"{PASSED if check.passed else FAILED} {check.line}" for check in checks]
     parts.append(
-        f"No se consultó {invoice.authority} ni se verificó la firma digital: Custodio no se conecta a servicios "
+        f"No se consultó {invoice.authority} ni se verificó la firma digital: Blinka Keeper no se conecta a servicios "
         "externos; lo de arriba se comprobó sobre el contenido del XML."
     )
     if invoice.notes:

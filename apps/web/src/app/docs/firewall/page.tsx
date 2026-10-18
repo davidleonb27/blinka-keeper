@@ -51,7 +51,7 @@ export default function FirewallPage() {
   return (
     <DocPage
       href="/docs/firewall"
-      lead="Antes de pagar, tu ERP o tu agente le pregunta a Custodio. Recibe pagar, retener o escalar, con el acta y el hash en el registro."
+      lead="Antes de pagar, tu ERP o tu agente le pregunta a Blinka Keeper. Recibe pagar, retener o escalar, con el acta y el hash en el registro."
     >
       <p>
         Una intención de pago recorre el mismo camino que una factura subida al panel: se lee, se decide con las reglas y

@@ -25,11 +25,11 @@ Es el guion de `docs/video/out/custodio-pitch-horizontal.mp4` (2:59.0). Los tiem
 los del corte en segundos enteros sobre 3:00; los exactos, frase por frase, están en
 [`video/GUION.md`](video/GUION.md).
 
-### 0:00–0:09 · Una maqueta lo dice; Custodio lo demuestra
+### 0:00–0:09 · Una maqueta lo dice; Blinka Keeper lo demuestra
 
-**Se oye:** Cualquiera puede hacer una maqueta bonita. Esto es Custodio funcionando de verdad: en producción, con pagos reales y bajo ataque.
+**Se oye:** Cualquiera puede hacer una maqueta bonita. Esto es Blinka Keeper funcionando de verdad: en producción, con pagos reales y bajo ataque.
 
-**Se ve:** Tarjeta: «Una maqueta lo dice» se tacha; «Custodio lo demuestra». En producción · pagos reales · bajo ataque.
+**Se ve:** Tarjeta: «Una maqueta lo dice» se tacha; «Blinka Keeper lo demuestra». En producción · pagos reales · bajo ataque.
 
 **Toma:** Tarjeta animada, sin producto.
 
@@ -77,13 +77,13 @@ los del corte en segundos enteros sobre 3:00; los exactos, frase por frase, est�
 
 ### 0:52–1:06 · El reto público lo frena
 
-**Se oye:** La subimos al reto público. Frenada. Custodio destapa la frase oculta, cita las reglas que la frenan y no obedece al documento.
+**Se oye:** La subimos al reto público. Frenada. Blinka Keeper destapa la frase oculta, cita las reglas que la frenan y no obedece al documento.
 
-**Se ve:** Producto: «Róbale a Custodio», se sube el PDF, FRENADO, las reglas que se dispararon (R2, R4) y la cita destapada.
+**Se ve:** Producto: «Róbale a Blinka Keeper», se sube el PDF, FRENADO, las reglas que se dispararon (R2, R4) y la cita destapada.
 
 **Toma:** Grabación continua: se sube el PDF, la lectura va ×3 y el resultado a velocidad normal con zoom.
 
-**Respaldo:** Toma `attack`: el mismo PDF subido a «Róbale a Custodio».
+**Respaldo:** Toma `attack`: el mismo PDF subido a «Róbale a Blinka Keeper».
 
 ### 1:06–1:18 · La Arena cambia de técnica
 
@@ -97,7 +97,7 @@ los del corte en segundos enteros sobre 3:00; los exactos, frase por frase, est�
 
 ### 1:18–1:36 · Cada decisión, con su acta
 
-**Se oye:** Cada decisión trae su acta: por qué, qué regla aplicó y qué tendría que cambiar. Aquí cambió la cuenta y el correo imita el dominio: Custodio la retiene y pide llamar al contacto registrado. Y cruza cada proveedor con la lista de sanciones de la OFAC.
+**Se oye:** Cada decisión trae su acta: por qué, qué regla aplicó y qué tendría que cambiar. Aquí cambió la cuenta y el correo imita el dominio: la retiene y pide llamar al contacto registrado. Y cruza cada proveedor con la lista de sanciones de la OFAC.
 
 **Se ve:** Producto: acta de Joaquín Méndez (F-038): cuenta cambiada y dominio parecido; a quién llamar (R15) y la lista OFAC del 15 de octubre (R14).
 
@@ -147,7 +147,7 @@ los del corte en segundos enteros sobre 3:00; los exactos, frase por frase, est�
 
 ### 2:16–2:28 · Reglas en tus palabras
 
-**Se oye:** ¿Quieres cambiar una regla? Escríbela en español. Custodio la compila y te muestra qué facturas cambiarían antes de aplicarla.
+**Se oye:** ¿Quieres cambiar una regla? Escríbela en español. Blinka Keeper la compila y te muestra qué facturas cambiarían antes de aplicarla.
 
 **Se ve:** Producto: Reglas: se escribe «Nada sobre 1.000 USD sin que lo apruebe Ana» → compilar y simular (acelerado ×3).
 
@@ -167,9 +167,9 @@ los del corte en segundos enteros sobre 3:00; los exactos, frase por frase, est�
 
 ### 2:37–2:48 · Maqueta contra producto
 
-**Se oye:** Una maqueta lo dice. Custodio lo demuestra: ataque real, pago real y un registro verificable. Código abierto, con licencia MIT y autoalojable con Docker.
+**Se oye:** Una maqueta lo dice. Blinka Keeper lo demuestra: ataque real, pago real y un registro verificable. Código abierto, con licencia MIT y autoalojable con Docker.
 
-**Se ve:** Tarjeta: «Una maqueta lo dice» frente a «Custodio lo demuestra, en producción», fila por fila.
+**Se ve:** Tarjeta: «Una maqueta lo dice» frente a «Blinka Keeper lo demuestra, en producción», fila por fila.
 
 **Toma:** Tarjeta animada, fila por fila.
 
@@ -179,7 +179,7 @@ los del corte en segundos enteros sobre 3:00; los exactos, frase por frase, est�
 
 **Se oye:** Y el reto sigue abierto. Jurado: escaneen el código e intenten robarnos ahora. Pagos indebidos: cero.
 
-**Se ve:** Producto: «Róbale a Custodio» en modo escenario: el QR a /reto y «Pagos indebidos 0» en vivo.
+**Se ve:** Producto: «Róbale a Blinka Keeper» en modo escenario: el QR a /reto y «Pagos indebidos 0» en vivo.
 
 **Toma:** Plano fijo del modo escenario y zoom al contador; el número se lee de la pantalla.
 
@@ -187,9 +187,9 @@ los del corte en segundos enteros sobre 3:00; los exactos, frase por frase, est�
 
 ### 2:55–3:00 · Cierre
 
-**Se oye:** Custodio decide; Blinka paga. Somos DreamMakers.
+**Se oye:** Blinka Keeper decide; Blinka paga. Somos DreamMakers.
 
-**Se ve:** Tarjeta: «Custodio decide; Blinka paga.», enlace de la demo, repo, MIT y el equipo.
+**Se ve:** Tarjeta: «Blinka Keeper decide; Blinka paga.», enlace de la demo, repo, MIT y el equipo.
 
 **Toma:** Plano fijo.
 
@@ -200,13 +200,13 @@ los del corte en segundos enteros sobre 3:00; los exactos, frase por frase, est�
 Para redes y Build in Public, en el formato vertical de la competencia pero con producto real:
 `docs/video/out/custodio-pitch-vertical.mp4` (1080×1920, 0:40.2).
 
-- **0:00.0** Otros te muestran maquetas. Esto es Custodio, en producción. Tarjeta vertical: «Una maqueta lo dice. Custodio lo demuestra.»
+- **0:00.0** Otros te muestran maquetas. Esto es Blinka Keeper, en producción. Tarjeta vertical: «Una maqueta lo dice. Blinka Keeper lo demuestra.»
 - **0:06.8** Una factura con una orden escondida en texto blanco y la cuenta cambiada. Tarjeta vertical: el PDF con la línea oculta destapada y la cuenta cambiada.
-- **0:13.4** Custodio la frena y destapa la trampa. Producto: resultado del reto, FRENADO, con la cita destapada.
+- **0:13.4** Blinka Keeper la frena y destapa la trampa. Producto: resultado del reto, FRENADO, con la cita destapada.
 - **0:20.6** Cuando paga, paga de verdad: una transferencia en Stripe, en modo prueba. Producto: la factura aprobada sale por Stripe en modo prueba, con su transferencia tr_….
 - **0:25.4** Cruza el extracto del banco con lo pagado y marca cada salida sin factura. Producto: la conciliación con el extracto de demo y la alerta «Sin factura».
 - **0:30.6** Ahora tú: escanea el código e intenta robarnos. Pagos indebidos: cero. Producto: modo escenario del reto, con el QR y «Pagos indebidos 0».
-- **0:35.7** Custodio decide; Blinka paga. Tarjeta vertical: «Custodio decide; Blinka paga.»
+- **0:35.7** Blinka Keeper decide; Blinka paga. Tarjeta vertical: «Blinka Keeper decide; Blinka paga.»
 
 ## Versión de 60 s
 
@@ -224,18 +224,18 @@ Para redes y Build in Public, en el formato vertical de la competencia pero con 
 
 ### 0:20–0:36 · El código decide
 
-**Se oye:** En Custodio el modelo lee y cita. Doce reglas en código pagan, retienen o preguntan a una persona. Cada decisión trae su acta y queda en un registro que no se puede alterar.
+**Se oye:** En Blinka Keeper el modelo lee y cita. Doce reglas en código pagan, retienen o preguntan a una persona. Cada decisión trae su acta y queda en un registro que no se puede alterar.
 
 **Se ve:** El panel con pagado, retenido y pendiente; un acta abierta con las quince reglas.
 
 ### 0:36–0:50 · Claude contra Claude
 
-**Se oye:** Pusimos a Claude a atacarlo. Cambia de técnica; las reglas no cambian. Ahora tú: Róbale a Custodio.
+**Se oye:** Pusimos a Claude a atacarlo. Cambia de técnica; las reglas no cambian. Ahora tú: Róbale a Blinka Keeper.
 
 **Se ve:** La Arena en vivo y la página del reto con su contador.
 
 ### 0:50–1:00 · Cierre
 
-**Se oye:** Custodio, de DreamMakers. El modelo lee, el código decide, la persona autoriza. Pruébalo, el enlace está abajo.
+**Se oye:** Blinka Keeper, de DreamMakers. El modelo lee, el código decide, la persona autoriza. Pruébalo, el enlace está abajo.
 
 **Se ve:** Logo, enlace de la demo y el repo.

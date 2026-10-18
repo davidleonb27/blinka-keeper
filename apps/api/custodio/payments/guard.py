@@ -1,6 +1,6 @@
 """The guard at the point of payment: defence in depth under the engine, the auditor and the attempts cap.
 
-Every rail is wrapped in it. It sends nothing unless the order carries a receipt, signed with Custodio's key, of a
+Every rail is wrapped in it. It sends nothing unless the order carries a receipt, signed with Blinka Keeper's key, of a
 decision to pay exactly this invoice: the same workspace, amount, currency, beneficiary and registered account. Code
 that skips the engine, or an order edited after the decision, meets a failed receipt and moves no money.
 """

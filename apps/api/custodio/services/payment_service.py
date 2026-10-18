@@ -26,7 +26,9 @@ SETTLED = frozenset({"executed", "simulated"})
 RAIL_CURRENCY = "USD"
 CAP_REACHED = "Tope de pagos de prueba alcanzado"
 WORKSPACE_CAP = CAP_REACHED + ": {} transferencias en este espacio. No se transfirió dinero."
-DAILY_CAP = CAP_REACHED + ": {} transferencias hoy (UTC) en todo Custodio. No se transfirió dinero; reintenta mañana."
+DAILY_CAP = (
+    CAP_REACHED + ": {} transferencias hoy (UTC) en todo Blinka Keeper. No se transfirió dinero; reintenta mañana."
+)
 NOT_USD = "El riel de prueba sólo paga en USD y la moneda base de este espacio es {}. No se transfirió dinero."
 NO_ATTEMPTS_LEFT = "Este pago ya usó el máximo de {} intentos. No se transfirió dinero."
 

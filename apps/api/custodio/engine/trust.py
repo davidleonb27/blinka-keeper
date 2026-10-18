@@ -3,7 +3,7 @@
 The history is the supplier's `trust_raised` and `trust_revoked` entries; there is no counter kept anywhere else, so
 the cap can always be recomputed from the chained ledger and checked. The fold, for one supplier:
 
-- Without history the cap is the policy's `approval_threshold` (`start`): what Custodio did before earned autonomy.
+- Without history the cap is the policy's `approval_threshold` (`start`): what Blinka Keeper did before earned autonomy.
 - An incident (a risk signal: R2 hidden instructions, R4 changed account, R5 duplicate, R6 off the agreement, R13
   invalid bank details, R14 a sanctions-list match, R15 an out-of-band check, or a person rejecting a charge) sends
   the supplier back to supervised: cap = `floor`, streak and amounts reset.

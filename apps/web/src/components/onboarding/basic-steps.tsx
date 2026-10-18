@@ -27,7 +27,7 @@ export function CompanyStep({ answers, update, frame }: StepProps) {
     <StepFrame
       {...frame}
       title="¿Cómo se llama tu empresa?"
-      helper="Con el nombre y tu sitio web, Custodio propone un perfil y unas reglas iniciales. Tú decides qué se queda."
+      helper="Con el nombre y tu sitio web, Blinka Keeper propone un perfil y unas reglas iniciales. Tú decides qué se queda."
       busyLabel="Leyendo tu sitio…"
     >
       <div className="flex flex-col gap-6">
@@ -62,7 +62,7 @@ export function ProfileStep({ answers, update, frame }: StepProps) {
     <StepFrame
       {...frame}
       title={`Esto entendimos de ${profile.company_name}`}
-      helper="Corrige lo que no cuadre. Custodio usa este perfil para proponer reglas y reconocer a tus proveedores."
+      helper="Corrige lo que no cuadre. Blinka Keeper usa este perfil para proponer reglas y reconocer a tus proveedores."
       nextLabel="Se ve bien"
     >
       <div className="card-surface flex flex-col gap-5 p-5">
@@ -150,7 +150,7 @@ export function MoneyStep({ answers, update, frame }: StepProps) {
     <StepFrame
       {...frame}
       title="País, moneda y saldo"
-      helper="Custodio compara cada pago en tu moneda base y nunca deja el saldo por debajo de la reserva, ni siquiera con aprobación."
+      helper="Blinka Keeper compara cada pago en tu moneda base y nunca deja el saldo por debajo de la reserva, ni siquiera con aprobación."
     >
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <Select

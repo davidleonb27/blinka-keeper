@@ -47,7 +47,7 @@ def test_a_signed_receipt_verifies_with_the_public_key_and_says_the_decision() -
     assert check.valid is True
     assert check.verdict == "pay"
     assert check.invoice_id == "INV-0001"
-    assert check.message == f"Válido: firmado por Custodio con la clave {SIGNER.key_id}. La decisión fue «Pagar»."
+    assert check.message == f"Válido: firmado por Blinka Keeper con la clave {SIGNER.key_id}. La decisión fue «Pagar»."
 
 
 def test_the_receipt_survives_a_round_trip_through_json_text() -> None:
@@ -126,7 +126,7 @@ def test_anything_that_is_not_a_receipt_says_so(raw: object) -> None:
     check = verify_receipt(raw, SIGNER.public_key)
 
     assert check.valid is False
-    assert check.message == "Inválido: esto no tiene la forma de un recibo firmado de Custodio."
+    assert check.message == "Inválido: esto no tiene la forma de un recibo firmado de Blinka Keeper."
 
 
 def test_a_body_that_cannot_be_written_canonically_is_not_a_receipt() -> None:
@@ -148,7 +148,7 @@ def test_a_body_with_a_lone_surrogate_or_nested_past_the_stack_is_not_a_receipt(
     check = verify_receipt(receipt, SIGNER.public_key)
 
     assert check.valid is False
-    assert check.message == "Inválido: esto no tiene la forma de un recibo firmado de Custodio."
+    assert check.message == "Inválido: esto no tiene la forma de un recibo firmado de Blinka Keeper."
 
 
 def test_canonical_bytes_ignore_key_order_and_whitespace() -> None:

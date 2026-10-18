@@ -1,7 +1,7 @@
-"""The two Graph API calls Custodio makes: download a message's file and answer the sender.
+"""The two Graph API calls Blinka Keeper makes: download a message's file and answer the sender.
 
 A file is fetched in two steps (its metadata, then its bytes, both with the access token) and refused as soon as it is
-known to be too large or of a type Custodio does not read, so a big file is never held in memory whole.
+known to be too large or of a type Blinka Keeper does not read, so a big file is never held in memory whole.
 """
 
 from __future__ import annotations

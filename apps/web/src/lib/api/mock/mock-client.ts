@@ -230,7 +230,7 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
         at: received_at,
         kind: "decision",
         subject_id: decision.invoice_id,
-        payload: { actor: "Custodio (agente)", status: decision.status, agent_verdict: decision.agent_verdict },
+        payload: { actor: "Blinka Keeper (agente)", status: decision.status, agent_verdict: decision.agent_verdict },
       });
     }
     const { company, audit } = workspace.data;

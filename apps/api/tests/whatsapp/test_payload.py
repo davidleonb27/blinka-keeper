@@ -51,7 +51,7 @@ def test_a_body_that_is_not_a_delivery_is_refused() -> None:
 
 
 def test_a_change_of_another_webhook_field_is_ignored_not_refused() -> None:
-    """Meta retries a delivery it did not get a 200 for: a field Custodio does not read must not look malformed."""
+    """Meta retries a delivery it did not get a 200 for: a field Blinka Keeper does not read must not look malformed."""
     other = {"field": "account_update", "value": {"event": "VERIFIED_ACCOUNT", "phone_number": "15550783881"}}
     delivery = fixture("text_message")
     delivery["entry"][0]["changes"].insert(0, other)

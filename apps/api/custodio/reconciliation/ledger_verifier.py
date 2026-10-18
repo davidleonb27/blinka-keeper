@@ -1,4 +1,4 @@
-"""Verifica la cadena del registro de Custodio sin instalar nada.
+"""Verifica la cadena del registro de Blinka Keeper sin instalar nada.
 
 Uso: python3 verificar_registro.py registro.json
 

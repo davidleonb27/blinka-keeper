@@ -1,4 +1,4 @@
-"""The only way an XML enters Custodio: size first, then defusedxml with no DTD at all, then depth.
+"""The only way an XML enters Blinka Keeper: size first, then defusedxml with no DTD at all, then depth.
 
 A DTD is refused outright, so no entity is ever expanded (billion laughs) or fetched (XXE). An invoice never needs one.
 """
@@ -19,7 +19,7 @@ MAX_DEPTH = 40  # UBL nests about a dozen levels; far more is an attack on the p
 
 def parse(data: bytes) -> Element:
     if len(data) > MAX_XML_BYTES:
-        raise UnsafeXml(f"El XML pesa {len(data):,} bytes; Custodio lee hasta {MAX_XML_BYTES:,}.")
+        raise UnsafeXml(f"El XML pesa {len(data):,} bytes; Blinka Keeper lee hasta {MAX_XML_BYTES:,}.")
     try:
         root = fromstring(data, forbid_dtd=True, forbid_entities=True, forbid_external=True)
     except DefusedXmlException as error:

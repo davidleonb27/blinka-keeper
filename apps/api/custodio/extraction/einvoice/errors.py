@@ -1,4 +1,4 @@
-"""Why an XML is refused: it is unsafe to parse, or it is not an electronic invoice Custodio reads."""
+"""Why an XML is refused: it is unsafe to parse, or it is not an electronic invoice Blinka Keeper reads."""
 
 from __future__ import annotations
 

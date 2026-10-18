@@ -1,8 +1,8 @@
-"""Verifica un recibo firmado de Custodio sin instalar nada y sin acceso a Custodio.
+"""Verifica un recibo firmado de Blinka Keeper sin instalar nada y sin acceso a Blinka Keeper.
 
 Uso: python3 verificar_recibo.py recibo.json clave_publica.json [--exportar CARPETA]
 
-clave_publica.json es lo que publica Custodio en /api/v1/.well-known/custodio-receipt-key. El recibo trae dos firmas
+clave_publica.json es lo que publica Keeper en /api/v1/.well-known/custodio-receipt-key. El recibo trae dos firmas
 Ed25519 de esa clave: una sobre el JSON canónico de `body` (claves ordenadas, sin espacios, sin escapar acentos) y otra
 sobre el SHA-256 de cada campo de `body`, que es como se sabe qué campo se alteró. Sale con 0 si el recibo es válido y
 con 1 si no, diciendo por qué. La verificación Ed25519 sigue el RFC 8032 con la biblioteca estándar de Python.
@@ -57,7 +57,7 @@ def check(receipt: dict[str, Any], key: dict[str, Any]) -> tuple[bool, str]:
     body = receipt["body"]
     if ed25519_verify(public_key, canonical_json(body), base64.b64decode(receipt["signature"])):
         if body.get("key_id") == key["key_id"]:
-            return True, f"firmado por Custodio; la decisión fue «{body['decision']['verdict']}»"
+            return True, f"firmado por Blinka Keeper; la decisión fue «{body['decision']['verdict']}»"
     digests = receipt["field_digests"]
     if not ed25519_verify(public_key, canonical_json(digests), base64.b64decode(receipt["digests_signature"])):
         return False, "la firma no corresponde a este contenido ni a esta clave"

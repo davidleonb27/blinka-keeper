@@ -59,6 +59,6 @@ describe("SuggestionsPanel", () => {
     renderWithApi(<SuggestionsPanel policy={DEMO.policy} />, api);
 
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(screen.queryByRole("region", { name: "Custodio sugiere" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Blinka Keeper sugiere" })).not.toBeInTheDocument();
   });
 });

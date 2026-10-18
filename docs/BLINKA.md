@@ -1,6 +1,6 @@
-# Custodio para Blinka
+# Blinka Keeper para Blinka
 
-> **Custodio decide; Blinka paga.** Una página para el equipo de Blinka: qué problema resuelve en sus clientes, dónde
+> **Blinka Keeper decide; Blinka paga.** Una página para el equipo de Blinka: qué problema resuelve en sus clientes, dónde
 > se conecta, qué está medido y qué falta.
 
 Demo desplegada: https://blinka-keeper.vercel.app · Código: este repositorio (MIT).
@@ -23,13 +23,13 @@ No encontramos una cifra medida de cuánto pierden por esto las pymes de Améric
 (FBI, AFP) son de Estados Unidos y están en [`BUSINESS.md`](BUSINESS.md). Para los clientes de Blinka, el tamaño del
 problema hay que medirlo en un piloto.
 
-## Dónde va Custodio
+## Dónde va Blinka Keeper
 
-Custodio va **delante** de cada pago de Blinka. No mueve dinero: decide si un pago se hace, se retiene o espera a una
+Blinka Keeper va **delante** de cada pago de Blinka. No mueve dinero: decide si un pago se hace, se retiene o espera a una
 persona, y deja un acta que explica por qué. Blinka sigue siendo quien paga.
 
 ```
-factura, agente o ERP ──▶ Custodio: el modelo lee, 15 reglas en código deciden, un auditor recalcula
+factura, agente o ERP ──▶ Blinka Keeper: el modelo lee, 15 reglas en código deciden, un auditor recalcula
                                 │
                  pagar ─────────┼───────── retener / escalar
                    │                              │
@@ -44,7 +44,7 @@ Dos formas de conectarlo:
    `POST /api/v1/firewall/intents` o por el servidor MCP (`submit_payment_intent`) y recibe `pay`, `hold` o `escalate`
    con las 15 reglas, el enlace al acta y el hash en el registro. Blinka sólo ejecuta lo que vuelve `pay`. No hay que
    tocar el flujo de pagos de Blinka.
-2. **Integrado, como riel.** Custodio decide y entrega el pago a Blinka por su API. Ya existe el adaptador
+2. **Integrado, como riel.** Blinka Keeper decide y entrega el pago a Blinka por su API. Ya existe el adaptador
    (`apps/api/custodio/payments/blinka.py`, riel `blinka_simulated`): elige la red por moneda y país del beneficiario y
    arma la instrucción exacta que Blinka recibiría. Como Blinka aún no tiene API pública, la instrucción se arma y se
    muestra, pero no se envía; el código marca la línea donde va la llamada real.
@@ -119,11 +119,11 @@ intentos del reto público y latencia de los pagos: NO MEDIDO. No tenemos client
    idempotencia; el id de pago de Blinka queda en el acta y en el registro. Tests contra un transporte falso, como ya se
    hace con Stripe.
 3. Día 5: los beneficiarios ya verificados por Blinka se importan como la lista de permitidos de cada cliente (reglas
-   R3 y R4), así Custodio no pide datos que Blinka ya tiene.
+   R3 y R4), así Blinka Keeper no pide datos que Blinka ya tiene.
 
 **Semana 2: piloto.**
 
-4. Días 6 a 8: tres clientes de Blinka en **modo sombra**: Custodio decide cada pago real, pero no bloquea nada. Se
+4. Días 6 a 8: tres clientes de Blinka en **modo sombra**: Blinka Keeper decide cada pago real, pero no bloquea nada. Se
    compara su decisión con lo que el cliente pagó.
 5. Días 9 y 10: los clientes que quieran pasan a **modo firewall**: lo retenido no sale. Se mide autonomía, tasa de
    escalamiento, retenciones correctas y costo por decisión, con el mismo método que publicamos.
@@ -134,9 +134,9 @@ Es una **propuesta**, no un precio validado: aún no medimos el costo real por d
 
 | Opción | Cómo se cobra | Para qué caso |
 |---|---|---|
-| Por decisión | una tarifa por cada pago que Custodio decide, con las decisiones del piloto sin costo | clientes con pocos pagos grandes |
+| Por decisión | una tarifa por cada pago que Blinka Keeper decide, con las decisiones del piloto sin costo | clientes con pocos pagos grandes |
 | Por volumen | un porcentaje pequeño del monto protegido, con un tope por pago | clientes con muchos pagos |
-| Para Blinka | Blinka lo incluye en su plan y Custodio cobra a Blinka por decisión o por volumen | diferenciación de Blinka |
+| Para Blinka | Blinka lo incluye en su plan y Blinka Keeper cobra a Blinka por decisión o por volumen | diferenciación de Blinka |
 
 Los montos se fijan con Blinka al cerrar el piloto, con el costo por decisión medido (modelo, base de datos y hospedaje).
 Hasta entonces, NO MEDIDO.
@@ -161,8 +161,8 @@ Hasta entonces, NO MEDIDO.
 
 - **API de Blinka.** Hoy no hay API pública: el riel arma la instrucción pero no la envía. Faltan el endpoint de pagos,
   los estados por webhook y un sandbox.
-- **KYC y KYB.** Custodio no verifica identidades; depende de los beneficiarios que Blinka ya verificó.
-- **SOC 2.** Custodio no tiene SOC 2 ni otra certificación. Hace falta antes de manejar pagos reales de clientes.
+- **KYC y KYB.** Blinka Keeper no verifica identidades; depende de los beneficiarios que Blinka ya verificó.
+- **SOC 2.** Blinka Keeper no tiene SOC 2 ni otra certificación. Hace falta antes de manejar pagos reales de clientes.
 - **Datos bancarios.** Hoy el número de cuenta se guarda tal cual porque es demo; en producción se guarda una huella y
   el número vive en Blinka.
 - **Cuentas y acceso.** Hoy cada visitante recibe un espacio con una cabecera y una API key; faltan inicio de sesión,

@@ -1,6 +1,6 @@
 # Recibos firmados
 
-> Cada decisión de Custodio sale con un recibo firmado con Ed25519 que un tercero verifica **sin acceso al sistema**:
+> Cada decisión de Blinka Keeper sale con un recibo firmado con Ed25519 que un tercero verifica **sin acceso al sistema**:
 > sólo con la clave pública. La cadena SHA-256 del registro prueba que nada cambió adentro; el recibo lo prueba afuera.
 
 ## Qué firma
@@ -62,7 +62,7 @@ real y le multiplica el monto.
 ```bash
 curl -s https://custodio-blinka.vercel.app/api/v1/.well-known/custodio-receipt-key > clave_publica.json
 python3 verificar_recibo.py recibo.json clave_publica.json
-# VÁLIDO: firmado por Custodio; la decisión fue «pay»
+# VÁLIDO: firmado por Blinka Keeper; la decisión fue «pay»
 # INVÁLIDO: se alteró payment.amount
 ```
 

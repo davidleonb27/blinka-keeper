@@ -1,4 +1,4 @@
-"""Shared contracts between every part of Custodio.
+"""Shared contracts between every part of Blinka Keeper.
 
 These models are the seams between lanes (engine, extraction, AI, API, web). Changing a field here is a
 contract change: it needs the coordinator's approval and a note in docs/DESIGN.md.
@@ -364,7 +364,7 @@ PaymentNetwork = Literal["ach", "wire", "bre_b", "spei", "pix"]
 
 
 class PaymentInstruction(Model):
-    """Exactly what Custodio hands a bank partner (Blinka) to pay one invoice: original amount and currency."""
+    """Exactly what Blinka Keeper hands a bank partner (Blinka) to pay one invoice: original amount and currency."""
 
     network: PaymentNetwork
     amount: Amount
@@ -519,7 +519,7 @@ class PolicyProposal(Model):
 
 
 class CompanyProfile(Model):
-    """What Custodio infers about a company from its website and first answers, before asking anything else."""
+    """What Blinka Keeper infers about a company from its website and first answers, before asking anything else."""
 
     company_name: str
     website: str | None = None

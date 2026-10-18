@@ -27,7 +27,7 @@ export function WhatsAppCard() {
             <h2 className="text-[15px] font-semibold text-ink">Recibe facturas por WhatsApp</h2>
             <p className="mt-1 text-ink-2">
               {linked
-                ? `Envía la foto o el PDF de cada factura al +${number}. Custodio la decide con tus reglas y te responde ahí mismo.`
+                ? `Envía la foto o el PDF de cada factura al +${number}. Blinka Keeper la decide con tus reglas y te responde ahí mismo.`
                 : "Liga tu celular con un código de un solo uso y envía las facturas en foto o PDF."}{" "}
               Las aprobaciones se hacen sólo aquí, en la app.
             </p>

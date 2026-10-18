@@ -12,7 +12,7 @@ import { saveFile } from "@/lib/download";
 
 export const VERIFY_PATH = "/verificar";
 
-/** The seal of a decision signed with Ed25519, and the receipt anyone can check without access to Custodio. */
+/** The seal of a decision signed with Ed25519, and the receipt anyone can check without access to Blinka Keeper. */
 export function SignedReceipt({ invoiceId }: { invoiceId: string }) {
   const api = useApi();
   const key = useReceiptKey();

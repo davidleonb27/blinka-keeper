@@ -1,6 +1,6 @@
 """Signed receipts for third parties: the public key, a server-side check and an example to try the check with.
 
-None of these routes needs a workspace: whoever holds a receipt can check it without access to Custodio.
+None of these routes needs a workspace: whoever holds a receipt can check it without access to Blinka Keeper.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ def receipt_key(ctx: Services) -> ReceiptKey:
 
 @router.post("/receipts/verify", response_model=ReceiptCheck)
 def verify_receipt(receipt: Annotated[JsonValue, Body()], ctx: Services) -> ReceiptCheck:
-    """Checks a receipt with Custodio's public key and names the field that was altered, if any."""
+    """Checks a receipt with Blinka Keeper's public key and names the field that was altered, if any."""
     return receipt_service.check(ctx, receipt)
 
 

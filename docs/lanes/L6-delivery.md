@@ -19,7 +19,7 @@
 4. `docs/BUSINESS.md`: problema (fraude por cambio de cuenta y pagos duplicados en pymes LatAm), mercado y modelo
    (por decisión / por agente conectado). **Toda cifra con fuente enlazada** (búsqueda web); sin fuente, no va.
 5. `docs/BUILD_IN_PUBLIC.md`: calendario de publicaciones (cada 4 h hasta el domingo) con borradores listos para X y
-   LinkedIn en español, mencionando a 30X y Blinka; el lanzamiento del reto «Róbale a Custodio» el sábado al mediodía.
+   LinkedIn en español, mencionando a 30X y Blinka; el lanzamiento del reto «Róbale a Blinka Keeper» el sábado al mediodía.
 6. `docs/COPY.md`: textos de la web (inicio, onboarding, estados vacíos, errores) para el carril L5.
 7. `docs/ARCHITECTURE.md`: diagrama (Mermaid) y el recorrido de una factura de punta a punta.
 

@@ -8,7 +8,7 @@ class ExtractionError(RuntimeError):
 
 
 class UnsupportedDocument(ExtractionError):
-    """The file type is not one Custodio reads (PDF, PNG, JPEG, WebP or plain text)."""
+    """The file type is not one Blinka Keeper reads (PDF, PNG, JPEG, WebP or plain text)."""
 
 
 class UnreadableDocument(ExtractionError):

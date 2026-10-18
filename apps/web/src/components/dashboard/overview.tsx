@@ -75,7 +75,7 @@ export function Overview({ summary, pendingTotal, onShowPending }: { summary: Wo
         <Stat
           label="Coincide con el banco de casos"
           value={formatPercent(metrics.accuracy ?? null)}
-          detail="Facturas de prueba, normales y trampas, donde Custodio tomó la decisión esperada."
+          detail="Facturas de prueba, normales y trampas, donde Blinka Keeper tomó la decisión esperada."
         >
           {metrics.accuracy != null ? <Meter value={metrics.accuracy} tone="pay" label="Coincidencia" /> : null}
         </Stat>
@@ -84,7 +84,7 @@ export function Overview({ summary, pendingTotal, onShowPending }: { summary: Wo
           <p className="text-[32px] leading-[1.05] font-semibold tracking-[-0.02em] tabular">{metrics.pending}</p>
           <p className="text-[12.5px] text-ink-3">
             {metrics.pending
-              ? `${formatMoney(pendingTotal, base)} en total. Custodio no las paga sin tu sí.`
+              ? `${formatMoney(pendingTotal, base)} en total. Blinka Keeper no las paga sin tu sí.`
               : "Nada pendiente: todo lo demás está dentro de tus reglas."}
           </p>
           {metrics.pending ? (

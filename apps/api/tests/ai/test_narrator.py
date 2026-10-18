@@ -14,7 +14,7 @@ ESCALATED = make_decision(
 
 def test_a_narration_whose_numbers_all_come_from_the_acta_is_returned(fake_llm: FakeLLM) -> None:
     text = (
-        "Custodio no pagó solo esta factura de Nube S.A.S. por 12.500 USD porque pasa del tope de 5.000 USD "
+        "Blinka Keeper no pagó solo esta factura de Nube S.A.S. por 12.500 USD porque pasa del tope de 5.000 USD "
         "que la empresa fijó para pagar sin preguntar. Una persona debe aprobarla."
     )
     fake_llm.reply({"text": text})

@@ -17,7 +17,7 @@ async function Correction({ params }: Pick<PageProps<"/proveedor/c/[token]">, "p
 export default function Page({ params }: PageProps<"/proveedor/c/[token]">) {
   return (
     <main className="mx-auto flex min-h-dvh max-w-[640px] flex-col gap-4 px-4 py-8">
-      <p className="text-[13px] font-semibold tracking-[0.08em] text-ink-3 uppercase">Custodio · corrección de factura</p>
+      <p className="text-[13px] font-semibold tracking-[0.08em] text-ink-3 uppercase">Blinka Keeper · corrección de factura</p>
       <Suspense>
         <Correction params={params} />
       </Suspense>

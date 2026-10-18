@@ -170,10 +170,10 @@ const VALIDATORS: Partial<Record<StepId, Validator>> = {
   approvers: (a) => (a.approvers.some((p) => p.name.trim()) ? null : "Agrega al menos una persona que apruebe."),
   rules: (a) => {
     if (!a.rulesText.trim()) return "Escribe al menos una regla o usa la sugerida.";
-    return a.proposal && a.proposalKey === compileKey(a) ? null : "Custodio todavía está compilando tus reglas.";
+    return a.proposal && a.proposalKey === compileKey(a) ? null : "Blinka Keeper todavía está compilando tus reglas.";
   },
   suppliers: (a) => (a.suppliers.length ? null : "Sube una lista o usa la de ejemplo."),
-  simulation: (a) => (a.result ? null : "Custodio todavía está decidiendo tu primera semana."),
+  simulation: (a) => (a.result ? null : "Blinka Keeper todavía está decidiendo tu primera semana."),
 };
 
 export function validateStep(step: StepId, answers: Answers): string | null {

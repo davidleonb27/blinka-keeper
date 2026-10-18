@@ -38,7 +38,7 @@ class MediaProblem(StrEnum):
 
 
 class MediaRejected(Exception):
-    """The file in a message is one Custodio does not read: too large or of a type it does not accept."""
+    """The file in a message is one Blinka Keeper does not read: too large or of a type it does not accept."""
 
     def __init__(self, problem: MediaProblem) -> None:
         super().__init__(problem.value)

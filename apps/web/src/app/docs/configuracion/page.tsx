@@ -29,7 +29,7 @@ const VARIABLES: readonly Variable[] = [
   {
     name: "STRIPE_SECRET_KEY",
     fallback: "sin definir",
-    text: "Sólo claves sk_test_. Con una clave real o inválida, Custodio la ignora y usa el riel simulado.",
+    text: "Sólo claves sk_test_. Con una clave real o inválida, Blinka Keeper la ignora y usa el riel simulado.",
   },
   {
     name: "CUSTODIO_RECEIPT_SIGNING_KEY",
@@ -77,7 +77,7 @@ export default function ConfigurationPage() {
   return (
     <DocPage
       href="/docs/configuracion"
-      lead="Todo se configura con variables de entorno y todas son opcionales: sin ninguna, Custodio arranca con la empresa demo, el riel simulado y sin modelo."
+      lead="Todo se configura con variables de entorno y todas son opcionales: sin ninguna, Blinka Keeper arranca con la empresa demo, el riel simulado y sin modelo."
     >
       <p>
         Copia <a href={repoFile(".env.example")}>.env.example</a> a <code>.env</code>; docker compose lo lee solo. Los
@@ -107,7 +107,7 @@ export default function ConfigurationPage() {
 
       <h2 id="sin-modelo">Sin ANTHROPIC_API_KEY</h2>
       <p>
-        Custodio está hecho para que el modelo nunca decida, así que lo esencial funciona sin él. El endpoint{" "}
+        Blinka Keeper está hecho para que el modelo nunca decida, así que lo esencial funciona sin él. El endpoint{" "}
         <code>GET /api/v1/health</code> dice si hay clave (<code>anthropic</code>) y qué riel está activo.
       </p>
       <DocTable>

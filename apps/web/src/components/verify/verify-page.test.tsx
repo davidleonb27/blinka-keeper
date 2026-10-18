@@ -26,7 +26,7 @@ describe("VerifyPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /Probar con un recibo alterado/ }));
 
     const browser = await screen.findByRole("region", { name: "En tu navegador" });
-    const server = await screen.findByRole("region", { name: "En el servidor de Custodio" });
+    const server = await screen.findByRole("region", { name: "En el servidor de Blinka Keeper" });
     expect(browser).toHaveTextContent("Inválido: el campo monto fue alterado después de firmarse.");
     expect(server).toHaveTextContent("Inválido: el campo monto fue alterado después de firmarse.");
     expect(screen.getByText(/cambiamos el monto de/)).toBeInTheDocument();
@@ -41,9 +41,9 @@ describe("VerifyPage", () => {
     await paste(JSON.stringify(receipt));
 
     const browser = await screen.findByRole("region", { name: "En tu navegador" });
-    expect(browser).toHaveTextContent(/Válido: firmado por Custodio/);
+    expect(browser).toHaveTextContent(/Válido: firmado por Blinka Keeper/);
     expect(within(browser).getByText("Pagar")).toBeInTheDocument();
-    expect(await screen.findByRole("region", { name: "En el servidor de Custodio" })).toHaveTextContent(/Válido/);
+    expect(await screen.findByRole("region", { name: "En el servidor de Blinka Keeper" })).toHaveTextContent(/Válido/);
   });
 
   it("says when the text is not JSON at all", async () => {

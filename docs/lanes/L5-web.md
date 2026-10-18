@@ -30,7 +30,7 @@
 3. Inicio con métricas en vivo y los dos caminos (demo / mi empresa).
 4. Reglas en español con diff y simulación.
 5. Arena Claude contra Claude (consume SSE de `/redteam/runs`).
-6. «Róbale a Custodio» (subir o escribir, resultado, contador global, muro).
+6. «Róbale a Blinka Keeper» (subir o escribir, resultado, contador global, muro).
 7. Registro (cadena, verificar, alterar una copia).
 8. Desarrolladores (API key, ejemplo curl del firewall, config MCP para Claude Desktop).
 

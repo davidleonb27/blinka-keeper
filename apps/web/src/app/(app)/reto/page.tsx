@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Challenge } from "@/components/challenge/challenge";
 import { ChallengeStage } from "@/components/challenge/challenge-stage";
 
-export const metadata: Metadata = { title: "Róbale a Custodio" };
+export const metadata: Metadata = { title: "Róbale a Blinka Keeper" };
 
 const STAGE_PARAM = "escenario";
 

@@ -1,4 +1,4 @@
-"""The signed receipt of one decision: what a third party checks without any access to Custodio.
+"""The signed receipt of one decision: what a third party checks without any access to Blinka Keeper.
 
 Every leaf of the body is a string, an integer, a boolean or null (amounts and dates travel as their canonical text),
 so the canonical JSON that is signed reads the same in Python, in a browser and in a shell script.
@@ -24,7 +24,7 @@ class ReceiptInvoice(Model):
     received_at: str
     source: str
     document_id: str | None
-    document_sha256: str | None  # the bytes Custodio read; null when the invoice arrived as an intent with no file
+    document_sha256: str | None  # the bytes Blinka Keeper read; null when the invoice arrived as an intent with no file
 
 
 class ReadField(Model):

@@ -15,7 +15,7 @@ const ACCOUNT_DIGITS_SHOWN = 4;
 
 interface PaymentExecutionBlockProps {
   decision: Decision;
-  /** An intent from another agent is paid by that agent, so Custodio never schedules it. */
+  /** An intent from another agent is paid by that agent, so Blinka Keeper never schedules it. */
   paidByItsAgent?: boolean;
   onRetry: () => void;
   retrying: boolean;

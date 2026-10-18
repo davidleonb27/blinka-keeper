@@ -145,9 +145,9 @@ resumen.pdf             Lo pagado, retenido y rechazado en el mes, lo conciliado
                         cambio, las comisiones y cada alerta con la nota de quien la revisó.
 conciliacion.csv        Un movimiento del extracto por fila: cómo se emparejó, con qué factura y por qué.
 actas/                  El acta de cada factura decidida en el mes: las 12 reglas, la razón y la ejecución del pago.
-registro/registro.json  El registro encadenado completo (SHA-256), tal como lo guarda Custodio.
+registro/registro.json  El registro encadenado completo (SHA-256), tal como lo guarda Blinka Keeper.
 registro/verificacion.json
-                        Lo que responde el verificador público de Custodio sobre ese registro.
+                        Lo que responde el verificador público de Blinka Keeper sobre ese registro.
 registro/verificar_registro.py
                         El mismo algoritmo, sin dependencias: python3 verificar_registro.py registro.json
 recibos/                El recibo firmado (Ed25519) de cada decisión del mes y la clave pública que lo comprueba:
@@ -241,7 +241,7 @@ def _summary_pdf(source: EvidenceSource) -> bytes:
     buffer = io.BytesIO()
     canvas = Canvas(buffer, pagesize=letter, invariant=1)
     canvas.setTitle(f"Cierre de {_month(source.period)}")
-    canvas.setAuthor("Custodio")
+    canvas.setAuthor("Blinka Keeper")
     page = _Page(canvas)
     _draw_title(page, source)
     _draw_decisions(page, source.summary)

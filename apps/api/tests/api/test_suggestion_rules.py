@@ -1,4 +1,4 @@
-"""The pure part of «Custodio sugiere»: which repeated approvals become a proposal, and what a proposal may touch."""
+"""The pure part of «Keeper sugiere»: which repeated approvals become a proposal, and what a proposal may touch."""
 
 from datetime import UTC, datetime
 from decimal import Decimal

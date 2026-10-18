@@ -1,4 +1,4 @@
-"""The message Custodio writes to the supplier, and the corrected invoice a typed confirmation becomes."""
+"""The message Blinka Keeper writes to the supplier, and the corrected invoice a typed confirmation becomes."""
 
 from __future__ import annotations
 

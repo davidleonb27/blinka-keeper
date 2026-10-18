@@ -1,4 +1,4 @@
-"""Custodio's record against Stripe's transfers: one transfer per recorded payment, the same amount, nothing extra."""
+"""Keeper's record against Stripe's transfers: one transfer per recorded payment, the same amount, nothing extra."""
 
 from __future__ import annotations
 

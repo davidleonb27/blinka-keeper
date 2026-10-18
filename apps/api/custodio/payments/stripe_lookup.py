@@ -1,4 +1,4 @@
-"""Reading back from Stripe what the rail sent: the proof behind a `tr_…` id, asked live, never from Custodio's copy.
+"""Reading back from Stripe what the rail sent: the proof behind a `tr_…` id, asked live, never from Keeper's copy.
 
 Read only. A lookup has a short timeout and no retries (a person is looking at the acta), answers are kept a few
 seconds so a reload does not ask Stripe again, and any Stripe failure becomes `StripeUnavailableError` without

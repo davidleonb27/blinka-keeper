@@ -1,4 +1,4 @@
-"""«Róbale a Custodio»: anyone tries to get an improper payment past the full pipeline.
+"""«Róbale a Blinka Keeper»: anyone tries to get an improper payment past the full pipeline.
 
 Each attempt runs in its own sandbox cloned from the demo company, so no attempt can affect another or any visitor.
 `broke_through` is true only when the independent auditor rejects a payment the engine made; the auditor's veto still

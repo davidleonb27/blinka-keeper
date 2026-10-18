@@ -35,7 +35,7 @@ export default function RailsPage() {
   return (
     <DocPage
       href="/docs/rieles"
-      lead="Custodio decide; el riel paga. Un riel sólo ejecuta lo que el motor aprobó y el auditor confirmó: no lee facturas, no evalúa reglas y nunca decide."
+      lead="Blinka Keeper decide; el riel paga. Un riel sólo ejecuta lo que el motor aprobó y el auditor confirmó: no lee facturas, no evalúa reglas y nunca decide."
     >
       <DocTable>
         <table>
@@ -59,7 +59,7 @@ export default function RailsPage() {
         </table>
       </DocTable>
       <p>
-        Con <code>stripe_test</code> y una clave real (<code>sk_live_</code>) o inválida, Custodio la ignora y usa el riel
+        Con <code>stripe_test</code> y una clave real (<code>sk_live_</code>) o inválida, Blinka Keeper la ignora y usa el riel
         simulado. Sólo el panel de la empresa ejecuta pagos: el firewall, MCP, el reto y el red team nunca. El recorrido
         completo, las guardias y los topes están en <a href={repoFile("docs/PAYMENTS.md")}>docs/PAYMENTS.md</a>.
       </p>

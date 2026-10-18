@@ -1,6 +1,6 @@
 # Dataset
 
-Custodio se prueba contra un dataset propio, etiquetado y público: una empresa demo y facturas con las trampas que pide
+Blinka Keeper se prueba contra un dataset propio, etiquetado y público: una empresa demo y facturas con las trampas que pide
 el reto. Está en `apps/api/custodio/dataset/` y es sintético: ningún nombre, NIT ni cuenta es real.
 
 ## Cómo se construyó
@@ -18,7 +18,7 @@ el reto. Está en `apps/api/custodio/dataset/` y es sintético: ningún nombre, 
 5. **Un solo origen para todo.** Cada caso se describe como `InvoiceSpec`. De ahí salen los casos de prueba del motor, los
    PDF que genera `render_invoice` para probar la lectura y las facturas que escribe el atacante del red team. Así lo
    que se ataca es lo mismo que se lee y se decide.
-6. **El reto público alimenta el dataset.** Cada ataque atrapado en «Róbale a Custodio» se puede volver un caso nuevo.
+6. **El reto público alimenta el dataset.** Cada ataque atrapado en «Róbale a Blinka Keeper» se puede volver un caso nuevo.
 
 ## Trampas y la regla que las atrapa
 
@@ -63,7 +63,7 @@ un espacio, sus fechas se mueven al día en que ese espacio pagó su lote. Lo qu
 
 | Caso | Movimiento | Qué debe pasar |
 |---|---|---|
-| Pagos que Custodio hizo | 16 pagos con su referencia | conciliado (exacto o por monto y fecha) |
+| Pagos que Blinka Keeper hizo | 16 pagos con su referencia | conciliado (exacto o por monto y fecha) |
 | Pago partido en dos | Andes Code: USD 3.000 + USD 1.800 | conciliado como partido (suma exacta de USD 4.800) |
 | Diferencias de céntimos por cambio | Kora, Caju, María Fernanda Ríos, Sofía Herrera | conciliado con diferencia, dentro de ±0,5 % |
 | Número de factura mal escrito | «PN-1201» en vez de PN-1021 | conciliado por monto, fecha y beneficiario, diciendo el error |

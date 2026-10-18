@@ -90,10 +90,10 @@ function apiWith(overview: PaymentsOverview): CustodioApi {
 }
 
 describe("/pagos", () => {
-  it("shows that Custodio's record and Stripe balance, with the totals", async () => {
+  it("shows that Blinka Keeper's record and Stripe balance, with the totals", async () => {
     renderWithApi(<PaymentsPage />, apiWith(BALANCED));
 
-    const match = await screen.findByRole("region", { name: "Registro de Custodio ↔ Stripe" });
+    const match = await screen.findByRole("region", { name: "Registro de Blinka Keeper ↔ Stripe" });
     expect(match).toHaveTextContent(/Cuadra: 1 pagos del registro, 1 transferencias en Stripe/);
     expect(match).toHaveTextContent(/Consultado en Stripe hace \d+ s/);
     expect(within(match).getByText("Diferencia").parentElement).toHaveTextContent("USD 0,00");
@@ -101,10 +101,10 @@ describe("/pagos", () => {
     expect(within(payments).getByRole("link", { name: "tr_1" })).toHaveAttribute("href", BALANCED.payments[0].execution?.dashboard_url);
   });
 
-  it("marks a transfer Custodio never recorded and the difference in red", async () => {
+  it("marks a transfer Blinka Keeper never recorded and the difference in red", async () => {
     renderWithApi(<PaymentsPage />, apiWith(OFF));
 
-    const match = await screen.findByRole("region", { name: "Registro de Custodio ↔ Stripe" });
+    const match = await screen.findByRole("region", { name: "Registro de Blinka Keeper ↔ Stripe" });
     expect(match).toHaveTextContent(/No cuadra: 1 diferencia/);
     const stray = within(match).getByText("No está en el registro").closest("li");
     expect(stray).toHaveClass("bg-crit-weak");

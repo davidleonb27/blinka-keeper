@@ -9,7 +9,7 @@ export default function IntroductionPage() {
   return (
     <DocPage
       href="/docs"
-      lead="Custodio es un agente de cuentas por pagar de código abierto: revisa las facturas de una empresa y paga sólo lo que cabe en las reglas que la empresa definió."
+      lead="Blinka Keeper es un agente de cuentas por pagar de código abierto: revisa las facturas de una empresa y paga sólo lo que cabe en las reglas que la empresa definió."
     >
       <p>
         Retiene lo que es claramente indebido (una cuenta distinta a la registrada, un cobro repetido) y le pregunta a una
@@ -20,7 +20,7 @@ export default function IntroductionPage() {
       <h2>El principio</h2>
       <p>
         <strong>El modelo lee, el código decide, la persona autoriza.</strong> Un agente que lee facturas y paga es el
-        blanco ideal del fraude de pagos: basta una instrucción escondida en un PDF para convencerlo. Por eso en Custodio
+        blanco ideal del fraude de pagos: basta una instrucción escondida en un PDF para convencerlo. Por eso en Blinka Keeper
         el modelo sólo lee y cita de dónde sacó cada dato; quien decide es código determinista que se puede leer, probar
         y auditar.
       </p>
@@ -42,7 +42,7 @@ export default function IntroductionPage() {
         </li>
       </ol>
 
-      <h2>Qué puedes hacer con Custodio</h2>
+      <h2>Qué puedes hacer con Blinka Keeper</h2>
       <ul>
         <li>Revisar las facturas de tu empresa desde el panel web, con reglas escritas en español y simuladas antes de aplicarlas.</li>
         <li>
@@ -53,7 +53,7 @@ export default function IntroductionPage() {
           Ejecutar lo aprobado por un <Link href="/docs/rieles">riel de pago</Link>: simulado, Stripe en modo prueba o el
           riel de tu empresa.
         </li>
-        <li>Intentar engañarlo en «Róbale a Custodio» o ver a un atacante con Claude probar tus reglas en la arena.</li>
+        <li>Intentar engañarlo en «Róbale a Blinka Keeper» o ver a un atacante con Claude probar tus reglas en la arena.</li>
       </ul>
 
       <h2>Dos formas de usarlo</h2>
@@ -65,7 +65,7 @@ export default function IntroductionPage() {
 
       <h2>Licencia</h2>
       <p>
-        Custodio se publica bajo licencia {LICENSE_NAME}, a nombre del equipo DreamMakers (Adriano Joao Souza Reyna, Juan
+        Blinka Keeper se publica bajo licencia {LICENSE_NAME}, a nombre del equipo DreamMakers (Adriano Joao Souza Reyna, Juan
         David Leon y Leober Ramos). El código, los tests y las mediciones están en{" "}
         <a href={REPO_URL}>GitHub</a>.
       </p>

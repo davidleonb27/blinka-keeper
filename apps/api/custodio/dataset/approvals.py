@@ -1,4 +1,4 @@
-"""Past approvals of the demo company, so «Custodio sugiere» has real history to learn from.
+"""Past approvals of the demo company, so «Blinka Keeper sugiere» has real history to learn from.
 
 Ana approved Nube Austral SpA (b8, a fixed 2,150 USD hosting agreement with the policy's 2 % tolerance) three times
 this year at about 4 % above the agreement, each time «sólo esta vez» and with her reason. They predate the demo's

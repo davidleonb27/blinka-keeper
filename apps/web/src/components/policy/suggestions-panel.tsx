@@ -95,17 +95,17 @@ function SuggestionCard({ suggestion, approvers }: { suggestion: Suggestion; app
   );
 }
 
-/** «Custodio sugiere»: agreement changes drawn from the exceptions people keep approving. Never applied on their own. */
+/** «Blinka Keeper sugiere»: agreement changes drawn from the exceptions people keep approving. Never applied on their own. */
 export function SuggestionsPanel({ policy }: { policy: Pick<Policy, "approvers"> }) {
   const suggestions = useSuggestions();
   if (!suggestions.data?.length) return null;
   return (
-    <section aria-label="Custodio sugiere" className="flex flex-col gap-3">
+    <section aria-label="Blinka Keeper sugiere" className="flex flex-col gap-3">
       <h2 className="flex items-center gap-2 text-[15px] font-semibold">
-        <Lightbulb aria-hidden className="size-4 text-brand" /> Custodio sugiere
+        <Lightbulb aria-hidden className="size-4 text-brand" /> Blinka Keeper sugiere
       </h2>
       <p className="max-w-[70ch] text-[13.5px] text-ink-2">
-        Cuando apruebas varias veces la misma excepción, Custodio propone el ajuste del acuerdo que la evitaría, con su
+        Cuando apruebas varias veces la misma excepción, Blinka Keeper propone el ajuste del acuerdo que la evitaría, con su
         evidencia y su simulación. Nunca propone relajar las reglas duras ni los topes globales, y nada se aplica solo.
       </p>
       <ul className="flex flex-col gap-3">

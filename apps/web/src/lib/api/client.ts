@@ -131,7 +131,7 @@ export interface CustodioApi {
   previewAgreement(invoiceId: string, input: AgreementInput): Promise<AgreementPreview>;
   /** Approves under the policy in force and writes the next version with the new agreement. */
   approveWithAgreement(invoiceId: string, input: ApproveWithAgreementInput): Promise<ApprovedWithAgreement>;
-  /** «Custodio sugiere»: agreement changes drawn from repeated approvals. Nothing applies until accepted. */
+  /** «Blinka Keeper sugiere»: agreement changes drawn from repeated approvals. Nothing applies until accepted. */
   listSuggestions(): Promise<Suggestion[]>;
   acceptSuggestion(suggestionId: string, input: AcceptSuggestionInput): Promise<Policy>;
   /** Every policy version, newest first, with who changed it, why and when. */
@@ -177,7 +177,7 @@ export interface CustodioApi {
   getWhatsAppStatus(): Promise<WhatsAppStatus>;
   /** A one-time code that links the phone that sends it to this workspace. */
   createWhatsAppCode(): Promise<WhatsAppLinkCode>;
-  /** The workspace's payments and Custodio's record matched, live, against Stripe's transfers. */
+  /** The workspace's payments and Blinka Keeper's record matched, live, against Stripe's transfers. */
   getPayments(): Promise<PaymentsOverview>;
   /** Stripe's own answer about the transfer behind a payment, checked field by field against the acta. */
   getStripeProof(invoiceId: string): Promise<StripeProof>;

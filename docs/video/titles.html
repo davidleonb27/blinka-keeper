@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Custodio · títulos del pitch</title>
+<title>Blinka Keeper · títulos del pitch</title>
 <!--
   Title cards and overlays of the pitch. titles.mjs opens this page with ?scene=<id>&w=&h=&d=<seconds>&data=<json>
   and calls window.frame(t) for each frame, so every animation is a pure function of time.
@@ -70,7 +70,7 @@ const SEAL = `<svg width="46" height="46" viewBox="0 0 48 48" aria-hidden="true"
 const CHECK = `<svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 function brandRow(x, y, scale = 1) {
-  const b = put(el(`<div class="brand">${SEAL}<span>Custodio</span></div>`), { left: x + "px", top: y + "px", transform: `scale(${scale})`, transformOrigin: "0 0" });
+  const b = put(el(`<div class="brand">${SEAL}<span>Blinka Keeper</span></div>`), { left: x + "px", top: y + "px", transform: `scale(${scale})`, transformOrigin: "0 0" });
   return b;
 }
 
@@ -83,7 +83,7 @@ const SCENES = {
       fontSize: (v ? 120 : 132) + "px", color: "var(--ink-3)" });
     const strike = put(el(`<div></div>`), { position: "absolute", height: "10px", borderRadius: "5px", background: "var(--hold)",
       left: (v ? 80 : 120) + "px", top: (v ? 420 + 175 : 250 + 190) + "px", width: "0px" });
-    const b = put(el(`<div class="display">Custodio<br><span style="color:var(--brand)">lo demuestra.</span></div>`), {
+    const b = put(el(`<div class="display">Blinka Keeper<br><span style="color:var(--brand)">lo demuestra.</span></div>`), {
       position: "absolute", left: (v ? 80 : 1010) + "px", top: (v ? 820 : 250) + "px", fontSize: (v ? 150 : 132) + "px" });
     const chips = ["En producción", "Pagos reales · Stripe modo prueba", "Bajo ataque"].map((text, i) =>
       put(el(`<div class="chip"><i class="dot"></i>${text}</div>`), { position: "absolute",
@@ -214,7 +214,7 @@ const SCENES = {
       ["No muestra el producto funcionando", "Código abierto MIT · Docker · documentación en /docs"],
     ];
     const head = put(el(`<div style="display:grid;grid-template-columns:620px 1060px;gap:40px;font-size:30px;font-weight:600">
-      <div style="color:var(--ink-3)">Una maqueta lo dice</div><div style="color:var(--brand)">Custodio lo demuestra, en producción</div></div>`),
+      <div style="color:var(--ink-3)">Una maqueta lo dice</div><div style="color:var(--brand)">Blinka Keeper lo demuestra, en producción</div></div>`),
       { position: "absolute", left: "120px", top: "120px" });
     const items = rows.map(([a, b], i) => put(el(`<div style="display:grid;grid-template-columns:620px 1060px;gap:40px;align-items:center;padding:22px 0;border-top:1px solid var(--line-2)">
       <div style="display:flex;gap:18px;align-items:center;font-size:30px;color:var(--ink-3)"><span class="dash">–</span>${a}</div>
@@ -231,7 +231,7 @@ const SCENES = {
     stage.appendChild(el(`<div class="grid"></div>`));
     const v = VERTICAL, x = v ? 80 : 120;
     const seal = put(el(`<div>${SEAL}</div>`), { position: "absolute", left: x + "px", top: (v ? 360 : 150) + "px", transform: "scale(2.2)", transformOrigin: "0 0" });
-    const l1 = put(el(`<div class="display">Custodio decide;</div>`), { position: "absolute", left: x + "px", top: (v ? 520 : 290) + "px", fontSize: (v ? 112 : 150) + "px" });
+    const l1 = put(el(`<div class="display">Blinka Keeper decide;</div>`), { position: "absolute", left: x + "px", top: (v ? 520 : 290) + "px", fontSize: (v ? 112 : 150) + "px" });
     const l2 = put(el(`<div class="display" style="color:var(--brand)">Blinka paga.</div>`), { position: "absolute", left: x + "px", top: (v ? 660 : 450) + "px", fontSize: (v ? 112 : 150) + "px" });
     const tag = put(el(`<div style="font-size:${v ? 38 : 36}px;color:var(--ink-2)">El modelo lee, el código decide, la persona autoriza.</div>`),
       { position: "absolute", left: x + "px", top: (v ? 870 : 640) + "px", maxWidth: (v ? 900 : 1600) + "px" });

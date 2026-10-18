@@ -75,7 +75,7 @@ def create_app(runtime: Runtime | None = None) -> FastAPI:
             yield
 
     app = FastAPI(
-        title="Custodio API",
+        title="Blinka Keeper API",
         version=__version__,
         summary="The model reads, code decides, a person authorizes.",
         docs_url=f"{API_PREFIX}/docs",

@@ -102,7 +102,7 @@ export function AppNav() {
   return (
     <>
       <aside className="sticky top-4 my-4 hidden h-[calc(100dvh-2rem)] min-h-[520px] flex-col gap-5 self-start rounded-2xl border border-line bg-surface px-3 pt-[18px] pb-3.5 shadow-sm lg:flex">
-        <Link href="/" className="rounded-lg px-1.5" aria-label="Custodio, inicio">
+        <Link href="/" className="rounded-lg px-1.5" aria-label="Blinka Keeper, inicio">
           <Wordmark subtitle="Agente de pagos" />
         </Link>
         <nav aria-label="Secciones">
@@ -112,7 +112,7 @@ export function AppNav() {
       </aside>
       <header className="sticky top-0 z-40 -mx-4 border-b border-line bg-(--header) px-4 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-[14px] lg:hidden">
         <div className="flex h-12 items-center justify-between gap-3">
-          <Link href="/" aria-label="Custodio, inicio" className="rounded-lg">
+          <Link href="/" aria-label="Blinka Keeper, inicio" className="rounded-lg">
             <Wordmark />
           </Link>
           <div className="flex items-center gap-1">
