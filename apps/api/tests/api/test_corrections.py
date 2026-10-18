@@ -190,6 +190,14 @@ def test_an_expired_link_is_refused(client: TestClient, workspace: Workspace, cl
     assert offer(client, workspace, SEEDED)["history"][-1]["status"] == "expired"
 
 
+def test_reading_the_public_page_is_rate_limited_per_ip(client: TestClient, runtime: Runtime) -> None:
+    limit = runtime.limits.supplier_link_reads_per_minute_per_ip
+    codes = [client.get(f"/api/v1/supplier/corrections/guess-{n}").status_code for n in range(limit + 1)]
+
+    assert codes[:limit] == [404] * limit
+    assert codes[-1] == 429
+
+
 def test_an_unknown_link_is_not_found(client: TestClient, workspace: Workspace) -> None:
     ask(client, workspace)
 
