@@ -294,7 +294,7 @@ function Metrics() {
     <section aria-labelledby="medido-title" className="border-y border-line bg-surface">
       <div className="mx-auto max-w-6xl px-4 py-14">
         <h2 id="medido-title" className="eyebrow text-brand">
-          📊 Medido, no prometido
+          Medido, no prometido
         </h2>
         <dl className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-3">
           {MEASURED_FIGURES.map((figure, index) => {
@@ -331,7 +331,7 @@ function Features() {
     <section id="funciones" aria-labelledby="funciones-title-eyebrow funciones-title" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:py-24">
       <SectionTitle
         id="funciones-title"
-        eyebrow="⚙️ Funciones"
+        eyebrow="Funciones"
         title={
           <>
             Todo lo que necesita un <span className="wavy-highlight">pago</span> para salir bien
@@ -363,7 +363,7 @@ function HowItDecides() {
         <div className="min-w-0">
           <SectionTitle
             id="como-decide-title"
-            eyebrow="🧠 Cómo decide"
+            eyebrow="Cómo decide"
             title={
               <>
                 Lee, decide, explica y <span className="wavy-highlight">pide permiso</span>
@@ -401,7 +401,7 @@ function OpenSource() {
         <div className="min-w-0">
           <SectionTitle
             id="codigo-abierto-title"
-            eyebrow="📖 Código abierto"
+            eyebrow="Código abierto"
             title={
               <>
                 Revisa cada línea que <span className="wavy-highlight">decide un pago</span>
@@ -441,7 +441,7 @@ function SelfHost() {
     <section aria-labelledby="autoalojalo-title-eyebrow autoalojalo-title" className="mx-auto max-w-6xl px-4 py-20 sm:py-24">
       <SectionTitle
         id="autoalojalo-title"
-        eyebrow="🚀 Autoalójalo"
+        eyebrow="Autoalójalo"
         title={
           <>
             Tus facturas, en tu <span className="wavy-highlight">infraestructura</span>
@@ -474,7 +474,7 @@ function FinalCall() {
       <div className="flex flex-col items-start gap-6 rounded-3xl border border-line bg-surface p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 id="final-title" className="font-serif text-3xl font-semibold tracking-[-0.015em] text-ink">
-            🎯 Intenta que pague <span className="wavy-highlight">algo indebido</span>
+            Intenta que pague <span className="wavy-highlight">algo indebido</span>
           </h2>
           <p className="mt-2 max-w-[52ch] text-ink-2">
             Entra con una empresa demo y una semana de facturas con trampas, o escribe tu propia factura en «Róbale a
