@@ -1,15 +1,18 @@
 import {
   ArrowRight,
   Banknote,
+  BarChart3,
   BookOpenCheck,
   Bot,
   CheckCircle2,
   Cloud,
   Container,
   FileSearch,
+  FileText,
   GitPullRequest,
   Landmark,
   Link2,
+  Play,
   Plug,
   Scale,
   ScanText,
@@ -17,7 +20,9 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sliders,
+  Sparkles,
   UserCheck,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -147,49 +152,139 @@ function SectionTitle({ id, eyebrow, title, lead }: { id: string; eyebrow: strin
 
 function Hero() {
   return (
-    <section aria-labelledby="hero-title" className="relative overflow-hidden">
-      <div aria-hidden className="site-grid pointer-events-none absolute inset-0" />
-      <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 pt-14 pb-16 sm:pt-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
-        <div className="min-w-0">
-          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line-2 bg-surface px-3 py-1 text-[12.5px] font-medium text-ink-2">
-            <span aria-hidden className="size-1.5 rounded-full bg-brand" /> Código abierto · {LICENSE_NAME}
-          </p>
-          <h1 id="hero-title" className="font-serif text-[40px] leading-[1.03] font-semibold tracking-[-0.02em] text-ink sm:text-[56px] lg:text-[62px]">
-            Tu analista de <span className="wavy-highlight">cuentas por pagar</span>
-          </h1>
-          <p className="mt-5 max-w-[46ch] text-xl text-ink">
-            Lee, decide, paga, concilia y cierra el mes; <b className="font-semibold">tú solo apruebas lo que importa.</b>
-          </p>
-          <p className="mt-3 max-w-[50ch] text-[16px] text-ink-2">
-            Paga sólo lo que cabe en tus reglas, retiene lo indebido y cada decisión queda en un acta.{" "}
-            <b className="font-semibold text-ink">El modelo lee, el código decide, la persona autoriza.</b>
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Button asChild size="lg">
-              <Link href="/panel">
-                Probar la demo <ArrowRight aria-hidden />
-              </Link>
-            </Button>
-            <UseCompanyButton />
-          </div>
-          <p className="mt-4 text-[13px] text-ink-3">
-            La demo no pide registro ni mueve dinero real.{" "}
-            <Link href="/reto" className="font-medium text-brand hover:underline">
-              ¿Dudas? Intenta engañarlo →
-            </Link>
-          </p>
-        </div>
-        <ol aria-label="Lo que hace por tu equipo de finanzas" className="flex min-w-0 flex-col gap-2.5">
-          {FINANCE_WEEK.map(({ title, text, icon: Icon }) => (
-            <li key={title} className="flex items-start gap-3.5 rounded-2xl border border-line bg-surface p-4">
-              <Icon aria-hidden className="mt-0.5 size-5 shrink-0 text-brand" strokeWidth={1.75} />
-              <span className="min-w-0">
-                <span className="block font-semibold text-ink">{title}</span>
-                <span className="block text-[14px] text-ink-2">{text}</span>
+    <section aria-labelledby="hero-title" className="relative overflow-hidden pt-12 pb-20 sm:pt-20 sm:pb-24">
+      {/* Background orbital ambient glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 right-[-5%] -translate-y-1/2 size-[650px] rounded-full bg-brand/10 blur-[130px]"
+      />
+      <div aria-hidden className="site-grid pointer-events-none absolute inset-0 opacity-40" />
+
+      <div className="relative mx-auto max-w-6xl px-4">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-14">
+          <div className="min-w-0">
+            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line-2 bg-surface px-3 py-1 text-[12.5px] font-medium text-ink-2">
+              <span aria-hidden className="size-1.5 rounded-full bg-brand" /> Código abierto · {LICENSE_NAME}
+            </p>
+
+            <h1 id="hero-title" className="font-serif text-[42px] leading-[1.05] font-semibold tracking-[-0.025em] text-ink sm:text-[56px] lg:text-[62px]">
+              Tu analista de <span className="wavy-highlight">cuentas por pagar</span>
+            </h1>
+
+            <p className="mt-5 max-w-[50ch] text-xl font-medium text-ink">
+              Lee, decide, paga, concilia y cierra el mes; <b className="font-semibold text-brand">tú solo apruebas lo que importa.</b>
+            </p>
+
+            <p className="mt-4 max-w-[52ch] text-[15.5px] leading-relaxed text-ink-2">
+              Paga sólo lo que cabe en tus reglas, retiene lo indebido y cada decisión queda en un acta.{" "}
+              <b className="font-semibold text-ink">El modelo lee, el código decide, la persona autoriza.</b>
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3.5 sm:flex-row sm:items-center">
+              <Button asChild size="lg" className="h-12 px-6 rounded-full font-semibold shadow-md">
+                <Link href="/panel">
+                  Probar la demo <ArrowRight aria-hidden className="ml-1 size-4" />
+                </Link>
+              </Button>
+              <UseCompanyButton />
+              <Button asChild size="lg" variant="outline" className="h-12 px-5 rounded-full">
+                <Link href="/reto">
+                  <Play aria-hidden className="mr-1.5 size-4 fill-current opacity-80" />
+                  Intenta engañarlo
+                </Link>
+              </Button>
+            </div>
+
+            <p className="mt-3.5 text-[13px] text-ink-3">
+              La demo no pide registro ni mueve dinero real.
+            </p>
+
+            {/* Bottom trust badges matching Orbit style */}
+            <div className="mt-10 flex flex-wrap items-center gap-6 border-t border-line/60 pt-6 text-[13px] font-medium text-ink-2">
+              <span className="inline-flex items-center gap-2">
+                <ShieldCheck className="size-4 text-brand" strokeWidth={2} />
+                Seguro y auditable
               </span>
-            </li>
-          ))}
-        </ol>
+              <span className="inline-flex items-center gap-2">
+                <Zap className="size-4 text-brand" strokeWidth={2} />
+                Autónomo, pero controlado
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <BarChart3 className="size-4 text-brand" strokeWidth={2} />
+                Decisiones explicables
+              </span>
+            </div>
+          </div>
+
+          {/* Right column: Graphic with Orbit visual composition & interactive cards */}
+          <div className="relative flex flex-col items-center justify-center min-h-[420px] py-4">
+            {/* Orbital Rings Background SVG */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <svg className="size-[420px] sm:size-[480px] text-brand/25" viewBox="0 0 500 500" fill="none">
+                <ellipse cx="250" cy="250" rx="210" ry="85" stroke="currentColor" strokeWidth="1.5" transform="rotate(-20 250 250)" />
+                <ellipse cx="250" cy="250" rx="230" ry="110" stroke="currentColor" strokeWidth="1" strokeDasharray="6 6" transform="rotate(-10 250 250)" />
+                <ellipse cx="250" cy="250" rx="190" ry="65" stroke="currentColor" strokeWidth="1" transform="rotate(35 250 250)" />
+                {/* Central glowing core / mark */}
+                <circle cx="250" cy="250" r="68" stroke="currentColor" strokeWidth="4" className="text-brand/35" />
+                <circle cx="250" cy="250" r="54" fill="currentColor" className="text-brand/10" />
+                <circle cx="236" cy="250" r="9" fill="currentColor" className="text-brand" />
+                <circle cx="264" cy="250" r="9" fill="currentColor" className="text-brand" />
+              </svg>
+            </div>
+
+            {/* Floating Card 1: Factura en análisis (Top-Left) */}
+            <div className="relative self-start z-10 w-64 -mb-8 sm:ml-4 rounded-2xl border border-line-2 bg-surface/95 p-4 shadow-xl backdrop-blur-md transition-transform hover:-translate-y-1">
+              <div className="flex items-start gap-3">
+                <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-surface-2 border border-line text-brand">
+                  <FileText className="size-4.5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-semibold text-ink">Factura #1032</p>
+                  <p className="text-[11.5px] text-ink-3">Acme Solutions</p>
+                </div>
+              </div>
+              <div className="mt-3.5 flex items-center justify-between">
+                <div>
+                  <span className="text-[10.5px] font-mono uppercase text-ink-3">Total</span>
+                  <p className="font-mono text-[15px] font-semibold text-ink">USD 2.500</p>
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/15 px-2.5 py-1 text-[11px] font-semibold text-brand">
+                  <span className="size-1.5 rounded-full bg-brand animate-pulse" />
+                  Analizando...
+                </span>
+              </div>
+            </div>
+
+            {/* Floating Card 2: Decisión del agente (Bottom-Right) */}
+            <div className="relative self-end z-20 w-72 mt-16 sm:mr-4 rounded-2xl border border-line-2 bg-surface/95 p-4 shadow-2xl backdrop-blur-md transition-transform hover:-translate-y-1">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">Decisión del agente</p>
+              <div className="mt-2.5 flex items-center gap-2.5">
+                <span className="grid size-7 place-items-center rounded-full bg-pay-weak text-pay">
+                  <CheckCircle2 className="size-4.5" />
+                </span>
+                <span className="text-[18px] font-semibold text-ink">Pagar</span>
+              </div>
+              <p className="mt-1.5 text-[12px] text-ink-2">
+                Dentro de las reglas de la empresa. Citas verificadas.
+              </p>
+              <div className="mt-3 border-t border-line/60 pt-2.5 flex items-center justify-between">
+                <Link href="/panel" className="inline-flex items-center gap-1 text-[12px] font-semibold text-brand hover:underline">
+                  Ver detalle de acta <ArrowRight className="size-3" />
+                </Link>
+                <span className="font-mono text-[10.5px] text-ink-3">hash SHA-256 ✓</span>
+              </div>
+            </div>
+
+            {/* What Custodio does for finance (collapsible / compact list accessible for tests & accessibility) */}
+            <ol aria-label="Lo que hace por tu equipo de finanzas" className="sr-only">
+              {FINANCE_WEEK.map(({ title, text }) => (
+                <li key={title}>
+                  <span>{title}</span>: <span>{text}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
       </div>
     </section>
   );
