@@ -128,6 +128,9 @@ def _party(party: Node | None) -> Party:
     written, check_digit = company_id.own_text(), company_id.element.get("schemeID")
     if written and check_digit:
         written = XmlValue(written.text, f"{written.path} y @schemeID (DV)")
+    elif written and "-" in written.text:  # some issuers write the DV in the text: «901.223.610-9»
+        number, _, check_digit = written.text.rpartition("-")
+        written = XmlValue(number, written.path)
     return Party(
         name=name, tax_id=written, check_digit=check_digit, is_nit=company_id.element.get("schemeName") == NIT_SCHEME
     )

@@ -247,3 +247,12 @@ def test_is_einvoice_recognises_xml_by_media_type_or_name() -> None:
     assert is_einvoice("text/xml", "x")
     assert is_einvoice("application/octet-stream", "FE-1042.XML")
     assert not is_einvoice("application/pdf", "factura.pdf")
+
+
+def test_a_nit_written_with_its_check_digit_in_the_text_is_read_too() -> None:
+    xml = dian_invoice(VALID_DIAN).replace('schemeID="9" schemeName="31">901223610<', 'schemeName="31">901.223.610-9<')
+
+    reading = read(xml)
+
+    assert reading.supplier_tax_id.value == "901.223.610-9"
+    assert reading.supplier_tax_id.verified
