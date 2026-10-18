@@ -8,16 +8,18 @@ export function Seal({ className }: { className?: string }) {
       <Image
         src="/logo-icon.webp"
         alt="Custodio"
-        width={64}
-        height={64}
+        width={32}
+        height={32}
+        unoptimized
         className="size-full object-contain dark:hidden"
         priority
       />
       <Image
         src="/logo-icon-dark.webp"
         alt="Custodio"
-        width={64}
-        height={64}
+        width={32}
+        height={32}
+        unoptimized
         className="size-full object-contain hidden dark:block"
         priority
       />
@@ -28,21 +30,23 @@ export function Seal({ className }: { className?: string }) {
 export function Wordmark({ className, subtitle }: { className?: string; subtitle?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <span className="relative flex items-center">
+      <span className="relative flex items-center h-8">
         <Image
           src="/logo.webp"
           alt="Custodio"
           width={130}
-          height={40}
-          className="h-8 w-auto object-contain dark:hidden"
+          height={32}
+          unoptimized
+          className="h-8 w-auto max-h-8 object-contain dark:hidden"
           priority
         />
         <Image
           src="/logo-dark.webp"
           alt="Custodio"
           width={130}
-          height={40}
-          className="h-8 w-auto object-contain hidden dark:block"
+          height={32}
+          unoptimized
+          className="h-8 w-auto max-h-8 object-contain hidden dark:block"
           priority
         />
       </span>
@@ -50,4 +54,5 @@ export function Wordmark({ className, subtitle }: { className?: string; subtitle
     </span>
   );
 }
+
 
