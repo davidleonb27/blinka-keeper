@@ -30,8 +30,6 @@ import {
 } from "lucide-react";
 
 export function Homepage() {
-    const [activeTab, setActiveTab] = useState<"bolsas" | "impresion" | "papeleria">("bolsas");
-    const [openCard, setOpenCard] = useState<number | null>(null);
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
     const [showWhatsApp, setShowWhatsApp] = useState(false);
     const [openFaqs, setOpenFaqs] = useState<number[]>([1]);
@@ -44,7 +42,7 @@ export function Homepage() {
     const [hasAnimated, setHasAnimated] = useState(false);
 
     // Animated counter for Pre-footer hours (+40h)
-    const [statHours, setStatHours] = useState(0);
+    const [, setStatHours] = useState(0);
     const [hasAnimatedPreFooter, setHasAnimatedPreFooter] = useState(false);
 
     useEffect(() => {
@@ -241,7 +239,7 @@ export function Homepage() {
                                 <span className="block text-xl sm:text-2xl lg:text-3xl mt-1 text-white/95 font-medium">sin arriesgar el dinero de tu empresa</span>
                                 <span className="block text-lg sm:text-xl lg:text-2xl mt-1 text-white/90">
                                     ¡<span className="relative inline-block px-1 font-bold text-white">
-                                        <span className="relative z-10 text-emerald-400">Cero fraudes</span>
+                                        <span className="relative z-10 text-emerald-400">Cero pagos indebidos</span>
                                         <span className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400 rounded-full shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
                                     </span>, pagos duplicados o fugas de capital! 💸
                                 </span>
@@ -272,16 +270,12 @@ export function Homepage() {
                                 <div className="blinka-marquee-track gap-4">
                                     {[
                                         { name: "Stripe", logo: "/img/homepage/section-1/stripe-logo.svg" },
-                                        { name: "Visa", logo: "/img/homepage/section-1/visa-logo.svg" },
-                                        { name: "Mastercard", logo: "/img/homepage/section-1/mastercard-logo.svg" },
-                                        { name: "American Express", logo: "/img/homepage/section-1/american-express-logo.svg" },
-                                        { name: "Mercado Pago", logo: "/img/homepage/section-1/mercadopago-logo.svg" },
                                         { name: "Blinka", logo: "/img/homepage/section-1/blinka-logo.svg" },
                                         { name: "Stripe", logo: "/img/homepage/section-1/stripe-logo.svg" },
-                                        { name: "Visa", logo: "/img/homepage/section-1/visa-logo.svg" },
-                                        { name: "Mastercard", logo: "/img/homepage/section-1/mastercard-logo.svg" },
-                                        { name: "American Express", logo: "/img/homepage/section-1/american-express-logo.svg" },
-                                        { name: "Mercado Pago", logo: "/img/homepage/section-1/mercadopago-logo.svg" },
+                                        { name: "Blinka", logo: "/img/homepage/section-1/blinka-logo.svg" },
+                                        { name: "Stripe", logo: "/img/homepage/section-1/stripe-logo.svg" },
+                                        { name: "Blinka", logo: "/img/homepage/section-1/blinka-logo.svg" },
+                                        { name: "Stripe", logo: "/img/homepage/section-1/stripe-logo.svg" },
                                         { name: "Blinka", logo: "/img/homepage/section-1/blinka-logo.svg" },
                                     ].map((brand, i) => (
                                         <div
@@ -488,7 +482,7 @@ export function Homepage() {
                         <div className="max-w-3xl mx-auto text-center">
                             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-800 mb-4">
                                 <span className="size-2 rounded-full bg-black animate-pulse" />
-                                🕛 Ahorrate +40h al mes con pagos automatizados
+                                Cada pago con su acta y tu aprobación
                             </div>
                             <h2 className="font-bold tracking-tight text-3xl sm:text-4xl lg:text-5xl text-slate-900 font-for-titles leading-tight">
                                 Control total de tus pagos 💼
@@ -629,15 +623,15 @@ export function Homepage() {
                                     <div className="group relative p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                                         <div className="flex items-center justify-between mb-3">
                                             <span className="text-4xl sm:text-5xl font-black text-emerald-600 tabular-nums tracking-tight">
-                                                -80%
+                                                36/36
                                             </span>
                                             <div className="size-11 rounded-2xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-emerald-600 shadow-xs group-hover:scale-105 transition">
                                                 <Clock className="size-5" />
                                             </div>
                                         </div>
-                                        <h4 className="mt-2 text-sm font-bold text-slate-900">Tiempo operativo ahorrado</h4>
+                                        <h4 className="mt-2 text-sm font-bold text-slate-900">Decisiones correctas en el dataset dorado</h4>
                                         <p className="mt-1 text-xs text-slate-500 leading-relaxed">
-                                            Elimina la transcripción manual y las revisiones interminables de facturas.
+                                            36 facturas etiquetadas con trampas: duplicados, cuentas cambiadas y fraccionamientos.
                                         </p>
                                     </div>
                                 </div>
@@ -646,154 +640,6 @@ export function Homepage() {
                     </div>
                 </div>
             </section>
-
-            {/* SECTION 3: MARCAS QUE CONFÍAN / CASOS DE ÉXITO */}
-            <section id="casos-de-exito" className="bg-white relative pt-8 pb-16">
-                <div className="relative px-8 mx-auto max-w-[1140px]">
-                    <div
-                        className="relative px-4 h-96 sm:px-8 shadow-lg overflow-hidden"
-                        style={{
-                            background: "url(/img/homepage/section-3/bg.webp)",
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                            backgroundRepeat: "no-repeat",
-                            borderTopLeftRadius: "2.5rem",
-                            borderBottomLeftRadius: "2.5rem",
-                            borderBottomRightRadius: "2.5rem",
-                        }}
-                    >
-                        <div
-                            className="absolute inset-0 w-full h-full"
-                            style={{
-                                background: "linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(2, 6, 23, 0.96) 50%, rgba(15, 23, 42, 0.92) 100%)",
-                                borderTopLeftRadius: "2.5rem",
-                                borderBottomLeftRadius: "2.5rem",
-                                borderBottomRightRadius: "2.5rem",
-                                zIndex: 1,
-                            }}
-                        />
-
-                        <div className="relative pt-16 lg:pt-20" style={{ zIndex: 2 }}>
-                            <h2
-                                className="font-bold tracking-wider text-center text-white font-for-titles"
-                                style={{ textShadow: "0px 2px 2px rgba(0,0,0,.2)" }}
-                            >
-                                <span className="text-3xl sm:text-4xl lg:text-5xl">
-                                    Marcas que confían
-                                </span>
-                                <span className="block text-2xl lg:text-3xl mt-1">
-                                    en <span className="underline decoration-wavy decoration-white">Blinka</span> 📢
-                                </span>
-                            </h2>
-                        </div>
-                    </div>
-
-                    <div className="gap-6 relative z-10 max-w-md px-4 mx-auto sm:px-8 grid grid-cols-1 lg:grid-cols-3 lg:max-w-5xl -mt-36">
-                        {[
-                            {
-                                title: "Dapta 🚀",
-                                bg: "/img/homepage/section-3/box-image-1.webp",
-                                logo: "/img/homepage/section-3/dapta-logo.webp",
-                                items: [
-                                    "Automatización y validación de pagos B2B en tiempo real.",
-                                    "Bloqueo proactivo de pagos no autorizados y reducción de errores.",
-                                    "Conciliación bancaria automática con respaldo criptográfico.",
-                                ],
-                            },
-                            {
-                                title: "Creditop 💳",
-                                bg: "/img/homepage/section-3/box-image-2.webp",
-                                logo: "/img/homepage/section-3/creditop-logo.webp",
-                                items: [
-                                    "Cuentas operativas en dólares para gestión de fondos.",
-                                    "Desembolsos y cobros multimoneda automatizados (ACH, Wire y rieles locales).",
-                                    "Sincronización contable directa para reducir carga operativa.",
-                                ],
-                            },
-                            {
-                                title: "Bricksave 🏢",
-                                bg: "/img/homepage/section-3/box-image-3.webp",
-                                logo: "/img/homepage/section-3/bricksave-logo.webp",
-                                items: [
-                                    "Cobro internacional de capital en USD (Wire/ACH).",
-                                    "Distribución masiva y transfronteriza de dividendos a inversionistas.",
-                                    "Cuentas de tesorería institucional para rentabilizar saldos en espera.",
-                                ],
-                            },
-                        ].map((box, i) => (
-                            <div
-                                key={i}
-                                onClick={() => setOpenCard(openCard === i ? null : i)}
-                                className="flex flex-col items-center justify-center w-full transition-all duration-300 rounded-3xl p-6 text-white cursor-pointer shadow-xl relative overflow-hidden min-h-[300px]"
-                                style={{
-                                    background: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url(${box.bg}) center/cover no-repeat`,
-                                }}
-                            >
-                                <img
-                                    src={box.logo}
-                                    alt={box.title}
-                                    className="h-16 w-16 object-contain rounded-2xl bg-white/95 p-2 shadow-md mb-3"
-                                />
-                                <h3 className="text-2xl font-bold font-for-titles text-center">{box.title}</h3>
-
-                                {/* Animated details container */}
-                                <div
-                                    className={`w-full grid transition-all duration-500 ease-in-out ${openCard === i
-                                        ? "grid-rows-[1fr] opacity-100 mt-4"
-                                        : "grid-rows-[0fr] opacity-0 mt-0 pointer-events-none"
-                                        }`}
-                                >
-                                    <div className="overflow-hidden">
-                                        <div
-                                            className={`transition-all duration-500 transform ${openCard === i
-                                                ? "translate-y-0 opacity-100"
-                                                : "-translate-y-2 opacity-0"
-                                                }`}
-                                        >
-                                            <ul className="text-xs font-semibold text-white/95 space-y-2 text-left px-3 py-3 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-inner">
-                                                {box.items.map((it, idx) => (
-                                                    <li key={idx} className="flex items-start gap-2">
-                                                        <span className="text-[#3EC5FF] font-bold shrink-0 mt-0.5">✓</span>
-                                                        <span className="leading-relaxed">{it}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <span className="mt-4 text-xs font-bold uppercase tracking-wider text-[#3EC5FF] hover:text-white transition-colors flex items-center gap-1">
-                                    {openCard === i ? "Ver menos ↑" : "Ver detalles +"}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* 4 Brand logos */}
-                    <div className="mt-14 max-w-4xl mx-auto">
-                        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-                            {[
-                                { name: "Treinta", img: "/img/homepage/section-3/treinta-logo.svg" },
-                                { name: "Lazo", img: "/img/homepage/section-3/lazo-logo.webp" },
-                                { name: "Pygma", img: "/img/homepage/section-3/pygma-logo.png" },
-                                { name: "Didit", img: "/img/homepage/section-3/didit-logo.svg" },
-                            ].map((brand, idx) => (
-                                <div
-                                    key={idx}
-                                    title={brand.name}
-                                    className="flex items-center justify-center px-6 py-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-black/50 hover:scale-105 transition-all duration-300 h-20 w-36 sm:w-44"
-                                >
-                                    <img
-                                        src={brand.img}
-                                        alt={brand.name}
-                                        className="max-h-10 max-w-[120px] object-contain filter grayscale hover:grayscale-0 transition duration-300"
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section >
 
             {/* SECTION 4: FUNCIONALIDADES DESTACADAS */}
             <section id="catalogo" className="py-24 bg-white border-t border-slate-200/80 text-slate-900 relative overflow-hidden">
@@ -1071,7 +917,7 @@ export function Homepage() {
                                     const empresa = formData.get("empresa") || "";
                                     const volumen = formData.get("volumen") || "";
                                     const msg = `Hola, me interesa agendar una demo de Blinka Keeper.\nNombre: ${nombre}\nEmpresa: ${empresa}\nVolumen mensual: ${volumen}`;
-                                    window.open(`https://wa.me/584129876543?text=${encodeURIComponent(msg)}`, "_blank");
+                                    window.open(`https://wa.me/573136314294?text=${encodeURIComponent(msg)}`, "_blank");
                                 }}
                                 className="p-8 sm:p-10 border border-slate-200 shadow-2xl rounded-3xl bg-white relative overflow-hidden"
                             >
@@ -1384,12 +1230,12 @@ export function Homepage() {
                     </div>
 
                     <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black font-for-titles tracking-tight text-white max-w-4xl mx-auto leading-[1.15]">
-                        ¿Listo para ahorrarte{" "}
+                        ¿Listo para pagar{" "}
                         <span className="relative inline-block px-1 font-black text-white">
-                            <span className="relative z-10 text-emerald-400">+{statHours}h</span>
+                            <span className="relative z-10 text-emerald-400">sólo lo debido</span>
                             <span className="absolute bottom-0 left-0 w-full h-[3px] bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400 rounded-full shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
                         </span>{" "}
-                        al mes <br className="hidden sm:inline" />
+                        <br className="hidden sm:inline" />
                         con pagos automatizados? <span className="text-sky-400">⏱️</span>
                     </h2>
 
@@ -1564,26 +1410,18 @@ export function Homepage() {
                             <h4 className="font-bold text-slate-900 text-sm mb-4">Contacto y canales directos 📞</h4>
                             <ul className="space-y-3 text-xs text-slate-600">
                                 <li>
-                                    <span className="text-slate-900 font-semibold block mb-0.5">Línea Directa Directores / CFO:</span>
-                                    <a href="mailto:soporte@blinka.co" className="inline-flex items-center gap-1.5 hover:text-sky-700 transition text-sky-600 font-medium">
-                                        <Mail className="size-3.5 shrink-0 text-slate-500" />
-                                        <span>soporte@blinka.co</span>
+                                    <span className="text-slate-900 font-semibold block mb-0.5">Código abierto (MIT):</span>
+                                    <a href="https://github.com/davidleonb27/blinka-keeper" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-sky-700 transition text-sky-600 font-medium">
+                                        <span>github.com/davidleonb27/blinka-keeper</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <span className="text-slate-900 font-semibold block mb-0.5">Mesa de Operaciones Financieras:</span>
-                                    <a href="mailto:soporte@blinka.co" className="inline-flex items-center gap-1.5 hover:text-black transition text-slate-600">
-                                        <Mail className="size-3.5 shrink-0 text-slate-500" />
-                                        <span>soporte@blinka.co</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <span className="text-slate-900 font-semibold block mb-0.5">Canal VIP de WhatsApp / Concierge:</span>
-                                    <a href="https://wa.me/584129876543" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-[#25D366] transition text-slate-700 font-medium">
+                                    <span className="text-slate-900 font-semibold block mb-0.5">WhatsApp de la demo:</span>
+                                    <a href="https://wa.me/573136314294" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-[#25D366] transition text-slate-700 font-medium">
                                         <Phone className="size-3.5 shrink-0 text-[#25D366]" />
-                                        <span>+58 412 987 6543</span>
+                                        <span>+57 313 631 4294</span>
                                     </a>
-                                    <span className="text-[11px] text-slate-500 block mt-0.5">Atención prioritaria para directivos y gerencias contables.</span>
+                                    <span className="text-[11px] text-slate-500 block mt-0.5">Envía la foto de una factura para probarlo.</span>
                                 </li>
                                 <li className="pt-1">
                                     <span className="text-slate-900 font-semibold block mb-0.5">Sede & Operaciones:</span>
@@ -1653,7 +1491,7 @@ export function Homepage() {
             {/* FLOATING WHATSAPP BUTTON WITH PING EFFECT */}
             <aside aria-label="Contacto directo por WhatsApp">
                 <a
-                    href="https://wa.me/584129876543"
+                    href="https://wa.me/573136314294"
                     target="_blank"
                     rel="noopener noreferrer"
                     title="Contactar por WhatsApp"
