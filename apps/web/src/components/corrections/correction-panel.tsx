@@ -48,6 +48,13 @@ function NotNegotiated({ offer }: { offer: CorrectionOffer }) {
   );
 }
 
+/** A deployment without CUSTODIO_PUBLIC_BASE_URL answers a relative link; the supplier needs the whole address. */
+function absolute(issued: CorrectionIssued): CorrectionIssued {
+  if (!issued.link.startsWith("/")) return issued;
+  const link = `${window.location.origin}${issued.link}`;
+  return { ...issued, link, message: issued.message.replace(issued.link, link) };
+}
+
 function Issued({ issued }: { issued: CorrectionIssued }) {
   return (
     <div className="flex flex-col gap-2.5">
@@ -112,7 +119,7 @@ export function CorrectionPanel({ invoiceId, cameByWhatsApp }: { invoiceId: stri
       { whatsapp },
       {
         onSuccess: (result) => {
-          setIssued(result);
+          setIssued(absolute(result));
           void offer.refetch();
         },
         onError: (error) => toast.error(messageOf(error)),
