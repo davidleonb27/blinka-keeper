@@ -194,7 +194,9 @@ def test_no_receipt_is_signed_for_more_than_the_ledger_recorded(client: TestClie
         ctx = runtime.context(session)
         decision = records.decision(ctx, workspace.id, "F01")
         assert decision.amount is not None and decision.amount_base is not None
-        inflated = decision.model_copy(update={"amount": decision.amount * 10, "amount_base": decision.amount_base * 10})
+        inflated = decision.model_copy(
+            update={"amount": decision.amount * 10, "amount_base": decision.amount_base * 10}
+        )
 
         with pytest.raises(ReceiptUnavailable):
             receipt_service.issue(ctx, workspace.id, inflated, policy_service.current(ctx, workspace.id))

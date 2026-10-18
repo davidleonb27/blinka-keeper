@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from sqlalchemy import select
@@ -48,7 +49,7 @@ def issue(ctx: ServiceContext, workspace_id: str, decision: Decision, policy: Po
     if not entries:
         raise ReceiptUnavailable()
     entry = entries[-1]
-    if entry.payload.get("status") != decision.status.value:
+    if entry.payload.get("status") != decision.status.value or _exceeds_recorded(decision, entry):
         raise ReceiptUnavailable()  # the ledger recorded another outcome: nothing is signed that it does not show
     invoice = records.invoice(ctx, workspace_id, decision.invoice_id)
     receipt_policy, in_force = _policy_in_force(ctx, workspace_id, entry, policy)
@@ -65,6 +66,18 @@ def issue(ctx: ServiceContext, workspace_id: str, decision: Decision, policy: Po
     )
     signer = ctx.receipt_signer
     return sign_receipt(build_body(facts, signer.key_id), signer)
+
+
+def _exceeds_recorded(decision: Decision, entry: LedgerEntry) -> bool:
+    """A payment may go out for less than decided (an early-payment discount), never for more."""
+    if decision.status not in records.PAID:
+        return False
+    recorded = entry.payload.get("amount_base")
+    try:
+        ceiling = Decimal(recorded) if isinstance(recorded, str) else None
+    except InvalidOperation:
+        ceiling = None
+    return ceiling is None or decision.amount_base is None or decision.amount_base > ceiling
 
 
 def _document_digest(ctx: ServiceContext, workspace_id: str, document_id: str | None) -> str | None:
