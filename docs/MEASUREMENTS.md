@@ -89,10 +89,30 @@ capturas). Salida cruda: [`lanes/reports/L21/blind-set-production.json`](lanes/r
 ## La doble lectura (L21)
 
 Desde L21, con modelo, cada documento lo leen dos lectores independientes y R1 sólo deja pasar la factura si
-coinciden en proveedor, monto, moneda y cuenta (ver `DESIGN.md` §6.6). **Producción aún no corre esta versión**: la
-corrida de arriba mide el lector A y el motor, no la doble lectura. La vista previa de la rama está protegida y este
-entorno no tiene `ANTHROPIC_API_KEY` ni la clave del segundo proveedor, así que la doble lectura con modelos reales es
-NO MEDIDO. Para medirla, con las claves en el entorno:
+coinciden en proveedor, monto, moneda y cuenta (ver `DESIGN.md` §6.6).
+
+**Medida en producción con la doble lectura activa** (18 de octubre de 2026, 14:34 UTC, set ciego de 20 facturas que
+nadie usó para afinar; reporte completo en
+[`docs/lanes/reports/L21/blind-set-production-dual-reading.json`](lanes/reports/L21/blind-set-production-dual-reading.json)):
+
+| Qué | Resultado |
+|---|---|
+| Decisiones correctas | **19 de 20** (IC 95 % Clopper-Pearson: 75,1–99,9 %) |
+| Pagos indebidos | **0** (cota superior del 95 % por regla de tres: 15 %) |
+| Lecturas que coinciden | 19 de 20; la única diferencia fue un monto mal leído por un lector: **la doble lectura lo atrapó y escaló** |
+| Campos bien leídos | Lector A (Claude Sonnet 5.5): 80 de 80; lector B: 79 de 80 |
+| Latencia por factura | p50 3,88 s · p95 6,44 s (las dos lecturas corren en paralelo) |
+| Costo por factura | NO MEDIDO (la API desplegada no expone el gasto) |
+
+En esta corrida el lector B fue Claude Opus 5.5: la clave de Gemini de producción está bloqueada para la API de
+Gemini (`/api/v1/health/gemini` lo dice) y, si Gemini falla, el segundo lector pasa a Claude con otro modelo y otro
+prompt. Para repetir la medición contra producción:
+
+```bash
+uv run python scripts/measure_double_reading.py --base-url https://blinka-keeper.vercel.app
+```
+
+Con las claves en este entorno también se puede medir el costo:
 
 ```bash
 CUSTODIO_LIVE_TESTS=1 uv run python scripts/measure_double_reading.py --local
@@ -118,5 +138,5 @@ coincidencia entre los lectores reales.
 - Lectura de facturas reales o escaneadas: NO MEDIDO.
 - Variación entre corridas (se corrió una vez): NO MEDIDO.
 - Latencia de la lectura del dataset dorado: NO MEDIDO (la del set ciego, arriba).
-- Doble lectura con modelos reales, su costo y su latencia: NO MEDIDO (ver «La doble lectura»).
+- Costo de la doble lectura: NO MEDIDO (su exactitud y latencia en producción, arriba).
 - Resto de campos (NIT, número, fechas, banco, descripción) en producción: NO MEDIDO.

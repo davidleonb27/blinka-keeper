@@ -78,7 +78,7 @@ convencerlo. Por eso en Blinka Keeper el modelo sólo lee y cita; quien decide e
 
 ## Métricas
 
-Sólo se publican cifras medidas, todas el 2026-10-17. Lo que no se midió dice NO MEDIDO. El detalle y los comandos están
+Sólo se publican cifras medidas, el 17 y el 18 de octubre de 2026. Lo que no se midió dice NO MEDIDO. El detalle y los comandos están
 en [`docs/DATASET.md`](docs/DATASET.md) y [`docs/MEASUREMENTS.md`](docs/MEASUREMENTS.md).
 
 | Métrica | Valor | Cómo se midió (2026-10-17) |
@@ -91,6 +91,8 @@ en [`docs/DATASET.md`](docs/DATASET.md) y [`docs/MEASUREMENTS.md`](docs/MEASUREM
 | Latencia del narrador | 4,2 s (N=1, sin intervalo) | una llamada real a Claude en producción |
 | Latencia del compilador de políticas | 6,0 s (N=1, sin intervalo) | una llamada real a Claude en producción |
 | Lectura de facturas con el modelo real | 36 de 36 con proveedor, monto, moneda y cuenta correctos; 0 rechazos | `apps/api/scripts/measure_reading.py` contra producción, una corrida ([detalle](docs/MEASUREMENTS.md)) |
+| **Set ciego con doble lectura (producción, 2026-10-18)** | 19 de 20 correctas, 0 pagos indebidos; la única lectura errada, atrapada y escalada | `scripts/measure_double_reading.py --base-url https://blinka-keeper.vercel.app`, 20 facturas que nadie usó para afinar ([reporte](docs/lanes/reports/L21/blind-set-production-dual-reading.json)) |
+| Latencia por factura con doble lectura | p50 3,88 s · p95 6,44 s | misma corrida |
 | Ataques probados del red team | NO MEDIDO | rondas de Claude contra las reglas |
 | Intentos del reto público | NO MEDIDO | contador en vivo de «Róbale a Blinka Keeper» |
 | Decisiones con acta | NO MEDIDO | actas / decisiones |
