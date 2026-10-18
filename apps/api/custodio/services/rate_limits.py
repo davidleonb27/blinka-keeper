@@ -33,6 +33,10 @@ def check_challenge_attempt(runtime: Runtime, *, ip: str) -> None:
     _hit(runtime, "challenge:all", limits.challenge_attempts_per_day, DAY, CHALLENGE_CLOSED)
 
 
+def check_supplier_link_read(runtime: Runtime, *, ip: str) -> None:
+    _hit(runtime, f"supplier-link:ip:{_anonymous(ip)}", runtime.limits.supplier_link_reads_per_minute_per_ip, MINUTE)
+
+
 def _hit(runtime: Runtime, key: str, limit: int, window_seconds: int, message: str | None = None) -> None:
     now = runtime.clock()
     window = _window_start(now, window_seconds)

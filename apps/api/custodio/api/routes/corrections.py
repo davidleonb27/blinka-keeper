@@ -62,7 +62,15 @@ def limit_supplier_uploads(token: str, runtime: RuntimeDep, ip: ClientIp) -> Non
 SupplierUploadLimit = Depends(limit_supplier_uploads)
 
 
-@router.get("/supplier/corrections/{token}", response_model=SupplierCorrectionView)
+def limit_supplier_reads(runtime: RuntimeDep, ip: ClientIp) -> None:
+    rate_limits.check_supplier_link_read(runtime, ip=ip)
+
+
+@router.get(
+    "/supplier/corrections/{token}",
+    response_model=SupplierCorrectionView,
+    dependencies=[Depends(limit_supplier_reads)],
+)
 def read_supplier_correction(token: str, ctx: Services) -> SupplierCorrectionView:
     return correction_service.supplier_view(ctx, token)
 
