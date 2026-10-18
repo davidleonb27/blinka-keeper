@@ -284,6 +284,13 @@ def test_the_threshold_is_configurable(client: TestClient, workspace: Workspace)
     assert len(suggestions(client, workspace, min_approvals=3)) == 1
 
 
+def test_the_threshold_can_be_raised_but_never_lowered(client: TestClient, workspace: Workspace) -> None:
+    # Accepting recomputes the suggestion with the default threshold, so a lower one would list what cannot apply.
+    response = client.get("/api/v1/suggestions", headers=workspace.headers, params={"min_approvals": 1})
+
+    assert response.status_code == 422
+
+
 def test_a_suggestion_is_never_applied_on_its_own(client: TestClient, workspace: Workspace) -> None:
     suggestions(client, workspace)
     process(client, workspace)
