@@ -20,5 +20,5 @@ def configured_model(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.fixture(autouse=True)
 def no_second_reader(monkeypatch: pytest.MonkeyPatch) -> None:
     """Most tests here are about the first reading; tests/extraction/test_second_reading.py turns the second one on."""
-    second_reading.read.cache_clear()
+    second_reading.cache.clear()
     monkeypatch.setattr(cross_check, "start", lambda document: None)

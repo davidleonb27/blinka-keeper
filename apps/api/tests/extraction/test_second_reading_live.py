@@ -27,7 +27,7 @@ REAL_START = cross_check.start
 @pytest.fixture(autouse=True)
 def second_reader_on(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(cross_check, "start", REAL_START)
-    second_reading.read.cache_clear()
+    second_reading.cache.clear()
 
 
 @pytest.mark.parametrize("case", script.load_blind_set(), ids=lambda case: case.id)

@@ -136,7 +136,10 @@ def remote_reader(client: httpx.Client, pause: Callable[[float], None] = time.sl
         uploads += 1
         document = case.document()
         started = time.perf_counter()
-        response = client.post("/invoices", headers=headers, files={"file": _file(document)})
+        try:
+            response = client.post("/invoices", headers=headers, files={"file": _file(document)})
+        except httpx.HTTPError as error:
+            return Reading(None, time.perf_counter() - started, None, error=type(error).__name__)
         seconds = time.perf_counter() - started
         if response.status_code != CREATED:
             return Reading(None, seconds, None, error=f"HTTP {response.status_code}")

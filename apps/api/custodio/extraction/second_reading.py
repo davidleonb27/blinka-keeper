@@ -9,8 +9,10 @@ bytes are not paid for twice in one process.
 from __future__ import annotations
 
 import base64
+import hashlib
+import threading
+from collections import OrderedDict
 from dataclasses import dataclass
-from functools import lru_cache
 
 from anthropic.types.beta import BetaContentBlockParam
 from pydantic import BaseModel, ConfigDict
@@ -44,7 +46,7 @@ passages: a person must look. If the document does not state a field, return nul
 
 REQUEST = "Read the four payment fields of the document above."
 COMPARED = ("supplier_name", "amount", "currency", "account_number")
-_CACHED_READINGS = 128
+_CACHED_READINGS = 64
 
 
 class CriticalReading(BaseModel):
@@ -70,9 +72,53 @@ class SecondReading:
     fields: dict[str, QuotedValue]
 
 
-@lru_cache(maxsize=_CACHED_READINGS)
+class _Cache:
+    """The last readings, keyed by the SHA-256 of the document so a 4 MB scan is not kept as a key."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._readings: OrderedDict[str, SecondReading] = OrderedDict()
+
+    def get(self, key: str) -> SecondReading | None:
+        with self._lock:
+            if key in self._readings:
+                self._readings.move_to_end(key)
+            return self._readings.get(key)
+
+    def put(self, key: str, reading: SecondReading) -> None:
+        with self._lock:
+            self._readings[key] = reading
+            while len(self._readings) > _CACHED_READINGS:
+                self._readings.popitem(last=False)
+
+    def clear(self) -> None:
+        with self._lock:
+            self._readings.clear()
+
+
+cache = _Cache()
+
+
 def read(document: Document) -> SecondReading:
     """Read `document` with the second reader. Failures raise `llm.LLMError` or MalformedReading; never a guess."""
+    key = _digest(document)
+    cached = cache.get(key)
+    if cached is not None:
+        return cached
+    reading = _read(document)
+    cache.put(key, reading)
+    return reading
+
+
+def _digest(document: Document) -> str:
+    digest = hashlib.sha256((document.text or "").encode())
+    for image, media_type in document.images:
+        digest.update(media_type.encode())
+        digest.update(hashlib.sha256(image).digest())
+    return digest.hexdigest()
+
+
+def _read(document: Document) -> SecondReading:
     reading, reader = _with_gemini(document) if get_settings().gemini_configured else _with_claude(document)
     for name in COMPARED:
         confidence = getattr(reading, name).confidence
