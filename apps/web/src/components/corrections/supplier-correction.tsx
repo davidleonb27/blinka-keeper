@@ -6,7 +6,7 @@ import { ErrorState, LoadingBlock } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { CorrectableField, SupplierCorrectionView, SupplierReceipt } from "@/lib/api/client";
-import { messageOf } from "@/lib/api/errors";
+import { ApiError, NotFoundError, messageOf } from "@/lib/api/errors";
 import { useSubmitSupplierCorrection, useSupplierCorrection } from "@/lib/api/hooks";
 import { formatDate, formatMoney } from "@/lib/format";
 import { FIELD_LABEL } from "./labels";
@@ -107,11 +107,18 @@ function Request({ view }: { view: SupplierCorrectionView }) {
   );
 }
 
+const UNKNOWN_LINK = "Este enlace de corrección no existe. Revise que lo copió completo o pídale a la empresa uno nuevo.";
+
+/** The supplier has no workspace: a missing link is said in their terms, not as a missing page of a workspace. */
+function LinkError({ error }: { error: unknown }) {
+  return <ErrorState error={error instanceof NotFoundError ? new ApiError(UNKNOWN_LINK, 404) : error} />;
+}
+
 /** The supplier's page: one invoice, what to fix, and a way to send the fix. Nothing else of the company. */
 export function SupplierCorrection({ token }: { token: string }) {
   const view = useSupplierCorrection(token);
   const submit = useSubmitSupplierCorrection(token);
-  if (view.error) return <ErrorState error={view.error} />;
+  if (view.error) return <LinkError error={view.error} />;
   if (!view.data) return <LoadingBlock label="Cargando la solicitud…" />;
   if (submit.data) return <Received receipt={submit.data} />;
   return (
