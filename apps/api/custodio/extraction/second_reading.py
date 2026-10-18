@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import logging
 import threading
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -47,6 +48,8 @@ passages: a person must look. If the document does not state a field, return nul
 REQUEST = "Read the four payment fields of the document above."
 COMPARED = ("supplier_name", "amount", "currency", "account_number")
 _CACHED_READINGS = 64
+
+logger = logging.getLogger(__name__)
 
 
 class CriticalReading(BaseModel):
@@ -119,12 +122,22 @@ def _digest(document: Document) -> str:
 
 
 def _read(document: Document) -> SecondReading:
-    reading, reader = _with_gemini(document) if get_settings().gemini_configured else _with_claude(document)
+    reading, reader = _with_gemini_or_claude(document) if get_settings().gemini_configured else _with_claude(document)
     for name in COMPARED:
         confidence = getattr(reading, name).confidence
         if not 0 <= confidence <= 1:
             raise MalformedReading(f"El segundo lector dio una confianza de {confidence} para «{name}».")
     return SecondReading(reader=reader, fields={name: getattr(reading, name) for name in COMPARED})
+
+
+def _with_gemini_or_claude(document: Document) -> tuple[CriticalReading, str]:
+    """Gemini first; if it is down, misconfigured or answers badly, Claude reads instead, so one provider's outage
+    does not send every invoice to a person. Both failing still raises: no second reading, no payment."""
+    try:
+        return _with_gemini(document)
+    except (gemini.GeminiError, MalformedReading):
+        logger.warning("Gemini could not give the second reading; Claude reads it instead")
+        return _with_claude(document)
 
 
 def _with_claude(document: Document) -> tuple[CriticalReading, str]:

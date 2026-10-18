@@ -261,13 +261,35 @@ def test_gemini_spend_counts_against_the_daily_budget(gemini_reader: FakeGemini)
         httpx.Response(200, json={"candidates": [{"finishReason": "STOP", "content": {"parts": [{"text": "{"}]}}]}),
     ],
 )
-def test_a_gemini_failure_is_unavailable_and_never_leaks_the_key(
-    gemini_reader: FakeGemini, response: httpx.Response
+def test_a_gemini_failure_falls_back_to_claude_as_the_second_reader(
+    readers: TwoReaders, gemini_reader: FakeGemini, response: httpx.Response
 ) -> None:
     gemini_reader.response = response
     checked = read_text()
+    assert checked.status is CrossCheckStatus.AGREE
+    assert len(readers.second_calls()) == 1
+    assert all(r.reader != "gemini-2.5-flash" for r in field_check(checked, "amount").readings)
+
+
+def test_a_rejected_gemini_key_falls_back_to_claude(readers: TwoReaders, gemini_reader: FakeGemini) -> None:
+    gemini_reader.response = httpx.Response(403, json={"error": {"status": "PERMISSION_DENIED"}})
+    checked = read_text()
+    assert checked.status is CrossCheckStatus.AGREE
+    assert "test-key-for-doubles" not in (checked.error or "")
+
+
+def test_when_gemini_and_claude_both_fail_the_second_reading_is_unavailable(
+    readers: TwoReaders, gemini_reader: FakeGemini, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    gemini_reader.response = httpx.Response(500, json={"error": "boom"})
+    monkeypatch.setattr(second_reading, "_with_claude", _claude_down)
+    checked = read_text()
     assert checked.status is CrossCheckStatus.UNAVAILABLE
     assert "test-key-for-doubles" not in (checked.error or "")
+
+
+def _claude_down(document: object) -> object:
+    raise llm.LLMError("Claude no respondió")
 
 
 def test_a_gemini_disagreement_is_reported(gemini_reader: FakeGemini) -> None:
