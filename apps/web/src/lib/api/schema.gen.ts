@@ -229,6 +229,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/decisions/{invoice_id}/receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Receipt
+         * @description The decision signed with Ed25519: anyone checks it with GET /.well-known/custodio-receipt-key.
+         */
+        get: operations["read_receipt_api_v1_decisions__invoice_id__receipt_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/decisions/{invoice_id}/approve": {
         parameters: {
             query?: never;
@@ -611,6 +631,63 @@ export interface paths {
         put?: never;
         /** Submit Intent */
         post: operations["submit_intent_api_v1_firewall_intents_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/.well-known/custodio-receipt-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Receipt Key */
+        get: operations["receipt_key_api_v1__well_known_custodio_receipt_key_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/receipts/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify Receipt
+         * @description Checks a receipt with Custodio's public key and names the field that was altered, if any.
+         */
+        post: operations["verify_receipt_api_v1_receipts_verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/receipts/example": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Example Receipt
+         * @description A receipt of a made-up decision (workspace «ejemplo»), signed with the real key, to try the check with.
+         */
+        get: operations["example_receipt_api_v1_receipts_example_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1050,6 +1127,36 @@ export interface components {
             invoice_number: string | null;
         };
         /**
+         * DecisionReceipt
+         * @description `signature` signs the canonical body; `digests_signature` signs one SHA-256 per field of the body, which is how
+         *     a verifier names the field that was altered instead of only saying that something was.
+         */
+        DecisionReceipt: {
+            /**
+             * Format
+             * @default custodio-receipt/1
+             * @constant
+             */
+            format: "custodio-receipt/1";
+            /**
+             * Algorithm
+             * @default Ed25519
+             * @constant
+             */
+            algorithm: "Ed25519";
+            /** Key Id */
+            key_id: string;
+            body: components["schemas"]["ReceiptBody"];
+            /** Signature */
+            signature: string;
+            /** Field Digests */
+            field_digests: {
+                [key: string]: string;
+            };
+            /** Digests Signature */
+            digests_signature: string;
+        };
+        /**
          * DecisionStatus
          * @enum {string}
          */
@@ -1196,6 +1303,7 @@ export interface components {
             read_ok: boolean;
             extraction: components["schemas"]["ExtractedInvoice"];
         };
+        JsonValue: unknown;
         /** LedgerEntry */
         LedgerEntry: {
             /** Seq */
@@ -1738,6 +1846,159 @@ export interface components {
             answers: {
                 [key: string]: string;
             };
+        };
+        /** ReadField */
+        ReadField: {
+            /** Value */
+            value: string | null;
+            /** Verified */
+            verified: boolean;
+        };
+        /** ReceiptBody */
+        ReceiptBody: {
+            /**
+             * Format
+             * @default custodio-receipt/1
+             * @constant
+             */
+            format: "custodio-receipt/1";
+            /** Key Id */
+            key_id: string;
+            /** Workspace Id */
+            workspace_id: string;
+            /** Issued At */
+            issued_at: string;
+            invoice: components["schemas"]["ReceiptInvoice"];
+            /** Reading */
+            reading: {
+                [key: string]: components["schemas"]["ReadField"];
+            };
+            /** Rules */
+            rules: components["schemas"]["ReceiptRule"][];
+            policy: components["schemas"]["ReceiptPolicy"];
+            decision: components["schemas"]["ReceiptDecision"];
+            payment: components["schemas"]["ReceiptPayment"] | null;
+            ledger: components["schemas"]["ReceiptLedger"];
+        };
+        /** ReceiptCheck */
+        ReceiptCheck: {
+            /** Valid */
+            valid: boolean;
+            /** Message */
+            message: string;
+            /** Key Id */
+            key_id?: string | null;
+            /** Invoice Id */
+            invoice_id?: string | null;
+            /** Verdict */
+            verdict?: ("pay" | "hold" | "escalate" | "reject") | null;
+            /** Altered Fields */
+            altered_fields?: string[];
+            /** Altered Labels */
+            altered_labels?: string[];
+        };
+        /** ReceiptDecision */
+        ReceiptDecision: {
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "pay" | "hold" | "escalate" | "reject";
+            status: components["schemas"]["DecisionStatus"];
+            agent_verdict: components["schemas"]["AgentVerdict"];
+            /** Approved By */
+            approved_by: string | null;
+        };
+        /** ReceiptInvoice */
+        ReceiptInvoice: {
+            /** Id */
+            id: string;
+            /** Number */
+            number: string | null;
+            /** Received At */
+            received_at: string;
+            /** Source */
+            source: string;
+            /** Document Id */
+            document_id: string | null;
+            /** Document Sha256 */
+            document_sha256: string | null;
+        };
+        /**
+         * ReceiptKey
+         * @description The public half, served at /api/v1/.well-known/custodio-receipt-key.
+         */
+        ReceiptKey: {
+            /**
+             * Format
+             * @default custodio-receipt/1
+             * @constant
+             */
+            format: "custodio-receipt/1";
+            /**
+             * Algorithm
+             * @default Ed25519
+             * @constant
+             */
+            algorithm: "Ed25519";
+            /** Key Id */
+            key_id: string;
+            /** Public Key */
+            public_key: string;
+            /** Public Key Pem */
+            public_key_pem: string;
+        };
+        /** ReceiptLedger */
+        ReceiptLedger: {
+            /** Seq */
+            seq: number;
+            /** Hash */
+            hash: string;
+            /** Kind */
+            kind: string;
+        };
+        /**
+         * ReceiptPayment
+         * @description Only for a decision to pay: what the rail may send, to whom and where. The account travels as a fingerprint.
+         */
+        ReceiptPayment: {
+            /** Beneficiary Id */
+            beneficiary_id: string | null;
+            /** Beneficiary Name */
+            beneficiary_name: string;
+            /** Account Last4 */
+            account_last4: string | null;
+            /** Account Sha256 */
+            account_sha256: string | null;
+            /** Amount */
+            amount: string;
+            /** Currency */
+            currency: string | null;
+            /** Amount Base */
+            amount_base: string;
+            /** Base Currency */
+            base_currency: string;
+            /** Rail */
+            rail: string | null;
+            /** External Id */
+            external_id: string | null;
+        };
+        /** ReceiptPolicy */
+        ReceiptPolicy: {
+            /** Version */
+            version: number;
+            /** Sha256 */
+            sha256: string | null;
+            /** Ledger Seq */
+            ledger_seq: number | null;
+            /** Ledger Hash */
+            ledger_hash: string | null;
+        };
+        /** ReceiptRule */
+        ReceiptRule: {
+            /** Rule Id */
+            rule_id: string;
+            outcome: components["schemas"]["RuleOutcome"];
         };
         /** ReconciliationItem */
         ReconciliationItem: {
@@ -2698,6 +2959,39 @@ export interface operations {
             };
         };
     };
+    read_receipt_api_v1_decisions__invoice_id__receipt_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionReceipt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     approve_api_v1_decisions__invoice_id__approve_post: {
         parameters: {
             query?: never;
@@ -3420,6 +3714,79 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    receipt_key_api_v1__well_known_custodio_receipt_key_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReceiptKey"];
+                };
+            };
+        };
+    };
+    verify_receipt_api_v1_receipts_verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JsonValue"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReceiptCheck"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    example_receipt_api_v1_receipts_example_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionReceipt"];
                 };
             };
         };

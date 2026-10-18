@@ -58,6 +58,10 @@ export type ReconciliationItem = ResponseOf<"/api/v1/reconciliations", "get">[nu
 export type ResolveInput = JsonBodyOf<"/api/v1/reconciliations/{reconciliation_id}/resolve", "post">;
 export type PeriodCloseView = ResponseOf<"/api/v1/periods/{period}/close", "post">;
 export type DemoStatementFormat = "csv" | "pdf";
+export type DecisionReceipt = ResponseOf<"/api/v1/decisions/{invoice_id}/receipt", "get">;
+export type ReceiptBody = DecisionReceipt["body"];
+export type ReceiptKey = ResponseOf<"/api/v1/.well-known/custodio-receipt-key", "get">;
+export type ReceiptCheck = ResponseOf<"/api/v1/receipts/verify", "post">;
 
 /** An invoice of the company's own: a PDF or image, or the text of an email. */
 export interface InvoiceInput {
@@ -131,4 +135,11 @@ export interface CustodioApi {
   closePeriod(period: string, closedBy: string): Promise<PeriodCloseView>;
   downloadEvidence(period: string): Promise<Blob>;
   downloadDemoStatement(format: DemoStatementFormat): Promise<Blob>;
+  /** The decision signed with Ed25519; anyone checks it with the public key. */
+  getReceipt(invoiceId: string): Promise<DecisionReceipt>;
+  getReceiptKey(): Promise<ReceiptKey>;
+  /** The server's own check of a pasted receipt; it names the field that was altered. */
+  verifyReceipt(receipt: unknown): Promise<ReceiptCheck>;
+  /** A receipt of a made-up decision, signed with the real key, to try the check with. */
+  getExampleReceipt(): Promise<DecisionReceipt>;
 }

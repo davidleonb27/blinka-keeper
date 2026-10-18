@@ -21,6 +21,8 @@ export interface ActaProps {
   deciding: boolean;
   onRetryPayment: () => void;
   retryingPayment: boolean;
+  /** The signed receipt of this decision, shown next to the ledger seal. */
+  receipt?: ReactNode;
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -80,7 +82,7 @@ function ApprovalActions({ policy, onDecide, deciding }: Pick<ActaProps, "policy
   );
 }
 
-export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retryingPayment }: ActaProps) {
+export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retryingPayment, receipt }: ActaProps) {
   const [activeField, setActiveField] = useState<ExtractedFieldName | null>(null);
   const { decision, invoice } = detail;
   const { extraction } = invoice;
@@ -147,6 +149,7 @@ export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retry
           </span>
         </p>
       ) : null}
+      {receipt}
 
       {decision.status === "pending_approval" ? (
         <ApprovalActions policy={policy} onDecide={onDecide} deciding={deciding} />
