@@ -171,7 +171,9 @@ def _payment_means(spec: DianSpec) -> str:
             if spec.bank_name
             else ""
         )
-        account = f"<cac:PayeeFinancialAccount><cbc:ID>{escape(spec.account)}</cbc:ID>{bank}</cac:PayeeFinancialAccount>"
+        account = (
+            f"<cac:PayeeFinancialAccount><cbc:ID>{escape(spec.account)}</cbc:ID>{bank}</cac:PayeeFinancialAccount>"
+        )
     due = f"<cbc:PaymentDueDate>{spec.due_date.isoformat()}</cbc:PaymentDueDate>" if spec.due_date else ""
     return (
         "<cac:PaymentMeans><cbc:ID>2</cbc:ID><cbc:PaymentMeansCode>47</cbc:PaymentMeansCode>"
@@ -220,7 +222,7 @@ VALID_DIAN = DianSpec(
     tax=Decimal("606722.69"),
     total=Decimal("3800000.00"),
     description="Coworking en Bogotá, octubre 2026",
-    bank_name="Banco Popular",
+    bank_name="Davivienda",
     account="0570-4410",
 )
 WRONG_CHECK_DIGIT_DIAN = DianSpec(

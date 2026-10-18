@@ -50,7 +50,7 @@ def test_a_valid_dian_attached_document_is_read_without_a_model() -> None:
     assert reading.due_date.value == "2026-10-30"
     assert reading.amount.value == "3800000.00"
     assert reading.currency.value == "COP"
-    assert reading.bank_name.value == "Banco Popular"
+    assert reading.bank_name.value == "Davivienda"
     assert reading.account_number.value == "0570-4410"
     assert reading.overall_confidence == 1.0
     assert failed_lines(reading) == []
