@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import sys
 from typing import Any
 
 import pytest
@@ -133,6 +134,21 @@ def test_a_body_that_cannot_be_written_canonically_is_not_a_receipt() -> None:
     receipt["body"]["payment"]["amount"] = float("nan")
 
     assert verify_receipt(receipt, SIGNER.public_key).valid is False
+
+
+@pytest.mark.parametrize("value", ["\ud800", [[[[[]]]]]])
+def test_a_body_with_a_lone_surrogate_or_nested_past_the_stack_is_not_a_receipt(value: object) -> None:
+    receipt = copy.deepcopy(RECEIPT)
+    nested: object = value
+    if isinstance(value, list):
+        for _ in range(sys.getrecursionlimit()):
+            nested = [nested]
+    receipt["body"]["payment"]["amount"] = nested
+
+    check = verify_receipt(receipt, SIGNER.public_key)
+
+    assert check.valid is False
+    assert check.message == "Inválido: esto no tiene la forma de un recibo firmado de Custodio."
 
 
 def test_canonical_bytes_ignore_key_order_and_whitespace() -> None:
