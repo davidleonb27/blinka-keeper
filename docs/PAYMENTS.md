@@ -12,7 +12,10 @@ decide.
 1. `invoice_service.decide` corre el motor y el auditor, como siempre.
 2. Si la decisión queda pagada (`paid_auto` o `paid_human`) y el auditor no la vetó, `payment_service.execute` arma una
    `PaymentOrder` (llave de idempotencia, espacio, factura, beneficiario, nombre registrado del proveedor, monto en USD,
-   moneda y monto originales, enlace al acta) y se la pasa al riel.
+   moneda y monto originales, enlace al acta), le adjunta el recibo firmado de la decisión (ver [`RECIBOS.md`](RECIBOS.md))
+   y se la pasa al riel. Todo riel va envuelto en el guardián del pago (`custodio/payments/guard.py`): sin un recibo
+   válido de una decisión de pagar exactamente esa factura, ese monto, a ese beneficiario y a su cuenta registrada,
+   devuelve un recibo `failed` («Guardián del pago: …») y no llama al riel.
 3. El riel devuelve un recibo (`PaymentExecution`): riel, estado (`executed`, `simulated` o `failed`), id externo,
    enlace al dashboard, hora, si falló un error en español sin secretos y, en el riel de Blinka, la instrucción que se
    le enviaría (`instruction`).
