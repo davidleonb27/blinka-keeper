@@ -26,7 +26,7 @@ class AcceptBody(BaseModel):
 def list_suggestions(
     ctx: Services,
     workspace: CurrentWorkspace,
-    min_approvals: Annotated[int, Query(ge=1, le=MAX_MIN_APPROVALS)] = DEFAULT_MIN_APPROVALS,
+    min_approvals: Annotated[int, Query(ge=DEFAULT_MIN_APPROVALS, le=MAX_MIN_APPROVALS)] = DEFAULT_MIN_APPROVALS,
 ) -> list[Suggestion]:
     """Agreement changes drawn from repeated approvals, each with its evidence and simulation. Nothing is applied."""
     return suggestion_service.suggestions(ctx, workspace, min_approvals)

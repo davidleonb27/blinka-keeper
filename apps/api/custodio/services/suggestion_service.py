@@ -119,9 +119,10 @@ def suggestions(
 def accept(
     ctx: ServiceContext, workspace: WorkspaceRow, suggestion_id: str, *, approver: str, simulated_on: int
 ) -> Policy:
-    """Applies a suggestion a person accepted: recomputed from the ledger here, never taken from the request."""
+    """Applies a suggestion a person accepted: recomputed from the ledger here, never taken from the request, and only
+    while its evidence still reaches the default threshold."""
     policy = policy_service.current(ctx, workspace.id)
-    found = propose(_approved_exceptions(ctx, workspace.id), policy, min_approvals=1)
+    found = propose(_approved_exceptions(ctx, workspace.id), policy, min_approvals=DEFAULT_MIN_APPROVALS)
     proposal = next((p for p in found if p.id == suggestion_id), None)
     if proposal is None:
         raise SuggestionNotFound()
