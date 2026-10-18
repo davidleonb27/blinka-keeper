@@ -15,6 +15,7 @@ from typing import Final, Literal, Protocol
 from sqlalchemy.orm import Session
 
 from custodio.contracts import Beneficiary, PaymentExecution
+from custodio.payments.stripe_lookup import StripeLookup
 
 RailName = Literal["simulated", "stripe_test", "blinka_simulated"]
 SIMULATED: Final = "simulated"
@@ -54,3 +55,4 @@ class RailChoice:
 
     name: RailName
     build: Callable[[Session, Clock], PaymentRail]
+    lookup: StripeLookup | None = None  # reads Stripe back, so the acta and /pagos can prove what was sent

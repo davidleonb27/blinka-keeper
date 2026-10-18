@@ -1,8 +1,9 @@
-import { render as renderComponent, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { PaymentExecution } from "@/lib/api/contracts";
 import { actaOf, DEMO } from "@/lib/api/mock/dataset";
+import { renderWithApi } from "@/test/render";
 import { Acta } from "./acta";
 
 const SENT: PaymentExecution = {
@@ -174,7 +175,7 @@ describe("Acta", () => {
 });
 
 function render(item: ReturnType<typeof demoItem>, onDecide = vi.fn(), onRetryPayment = vi.fn()) {
-  return renderComponent(
+  return renderWithApi(
     <Acta
       detail={item}
       policy={DEMO.policy}

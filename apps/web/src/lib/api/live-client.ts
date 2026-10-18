@@ -187,6 +187,9 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
       (await send("get", "/api/v1/reconciliations/demo-statement", { query: { format } })).blob(),
     getWhatsAppStatus: () => call("get", "/api/v1/whatsapp/link"),
     createWhatsAppCode: () => call("post", "/api/v1/whatsapp/link-codes"),
+    getPayments: () => call("get", "/api/v1/payments"),
+    getStripeProof: (id) => call("get", "/api/v1/payments/{invoice_id}/stripe", { params: { invoice_id: id } }),
+    downloadPain001: async () => (await send("get", "/api/v1/payments/pain001.xml")).blob(),
     runRedTeam: async (input, onEvent, signal) => {
       const response = await send("post", "/api/v1/redteam/runs", { json: input, signal });
       if (!response.body) throw new UnexpectedResponseError(response.status);

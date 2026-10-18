@@ -168,3 +168,8 @@ class PeriodClosed(ReconciliationConflict):
 class PeriodNotClosed(ReconciliationConflict):
     code = "period_not_closed"
     message = "Cierra el mes para descargar su paquete de evidencia."
+
+
+class NothingToExport(ServiceError):
+    code = "nothing_to_export"
+    message = "No hay pagos aprobados en este lote: no se armó ningún archivo para Blinka."

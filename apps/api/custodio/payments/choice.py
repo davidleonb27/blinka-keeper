@@ -14,6 +14,7 @@ from custodio.payments.accounts import StripeAccountTable
 from custodio.payments.blinka import BlinkaRail
 from custodio.payments.port import BLINKA_SIMULATED, SIMULATED, STRIPE_TEST, Clock, PaymentRail, RailChoice
 from custodio.payments.simulated import SimulatedRail
+from custodio.payments.stripe_lookup import CachedLookup, StripeApiLookup
 from custodio.payments.stripe_rail import StripeTestRail
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ def choose_rail(requested: str, secret_key: str | None) -> RailChoice:
     def build(session: Session, clock: Clock) -> PaymentRail:
         return StripeTestRail(client, StripeAccountTable(session, clock), clock=clock)
 
-    return RailChoice(name=STRIPE_TEST, build=build)
+    return RailChoice(name=STRIPE_TEST, build=build, lookup=CachedLookup(StripeApiLookup.with_key(key)))
 
 
 def _simulated(_: Session, clock: Clock) -> PaymentRail:

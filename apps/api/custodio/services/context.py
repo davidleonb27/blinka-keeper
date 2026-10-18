@@ -37,6 +37,8 @@ class RateLimits:
     payment_attempts_per_invoice: int = 5  # each retry of a failed payment calls Stripe; a click loop must not
     whatsapp_messages_per_minute_per_phone: int = 10  # each message may call the model; a loop must not
     whatsapp_link_attempts_per_hour_per_phone: int = 5  # a wrong code costs a try: guessing one is out of reach
+    stripe_lookups_per_minute_per_ip: int = 60  # live reads behind «Pago en Stripe» and /pagos
+    stripe_lookups_per_minute_per_workspace: int = 30
 
 
 @dataclass(frozen=True)

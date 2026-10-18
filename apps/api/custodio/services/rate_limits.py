@@ -44,6 +44,13 @@ def check_whatsapp_link_attempt(runtime: Runtime, *, phone: str) -> None:
     _hit(runtime, f"whatsapp:link:{_anonymous(phone)}", limit, HOUR)
 
 
+def check_stripe_lookup(runtime: Runtime, *, ip: str, workspace_id: str) -> None:
+    """Each look at a payment may ask Stripe; a reload loop must not exhaust the shared test key's rate limit."""
+    limits = runtime.limits
+    _hit(runtime, f"stripe:ip:{_anonymous(ip)}", limits.stripe_lookups_per_minute_per_ip, MINUTE)
+    _hit(runtime, f"stripe:ws:{workspace_id}", limits.stripe_lookups_per_minute_per_workspace, MINUTE)
+
+
 def _hit(runtime: Runtime, key: str, limit: int, window_seconds: int, message: str | None = None) -> None:
     now = runtime.clock()
     window = _window_start(now, window_seconds)

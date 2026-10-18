@@ -60,6 +60,12 @@ export type PeriodCloseView = ResponseOf<"/api/v1/periods/{period}/close", "post
 export type DemoStatementFormat = "csv" | "pdf";
 export type WhatsAppStatus = ResponseOf<"/api/v1/whatsapp/link", "get">;
 export type WhatsAppLinkCode = ResponseOf<"/api/v1/whatsapp/link-codes", "post">;
+export type PaymentsOverview = ResponseOf<"/api/v1/payments", "get">;
+export type PaymentListRow = PaymentsOverview["payments"][number];
+export type RailMatchView = PaymentsOverview["stripe"];
+export type RailMatchLine = RailMatchView["lines"][number];
+export type StripeProof = ResponseOf<"/api/v1/payments/{invoice_id}/stripe", "get">;
+export type ProofCheck = StripeProof["checks"][number];
 
 /** An invoice of the company's own: a PDF or image, or the text of an email. */
 export interface InvoiceInput {
@@ -137,4 +143,10 @@ export interface CustodioApi {
   getWhatsAppStatus(): Promise<WhatsAppStatus>;
   /** A one-time code that links the phone that sends it to this workspace. */
   createWhatsAppCode(): Promise<WhatsAppLinkCode>;
+  /** The workspace's payments and Custodio's record matched, live, against Stripe's transfers. */
+  getPayments(): Promise<PaymentsOverview>;
+  /** Stripe's own answer about the transfer behind a payment, checked field by field against the acta. */
+  getStripeProof(invoiceId: string): Promise<StripeProof>;
+  /** The approved payments as an ISO 20022 pain.001.001.09 file for Blinka. */
+  downloadPain001(): Promise<Blob>;
 }
