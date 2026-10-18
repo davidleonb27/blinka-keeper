@@ -168,3 +168,38 @@ class PeriodClosed(ReconciliationConflict):
 class PeriodNotClosed(ReconciliationConflict):
     code = "period_not_closed"
     message = "Cierra el mes para descargar su paquete de evidencia."
+
+
+class CorrectionNotOffered(ServiceError):
+    code = "correction_not_offered"
+    message = "Esta factura no tiene una causa que el proveedor pueda corregir."
+
+
+class CorrectionLinkInvalid(NotFound):
+    code = "correction_link_invalid"
+    message = "Este enlace de corrección no existe."
+
+
+class CorrectionLinkGone(ServiceError):
+    code = "correction_link_gone"
+    message = "Este enlace ya no sirve. Pídale a la empresa uno nuevo si aún hace falta."
+
+
+class CorrectionLinkExpired(CorrectionLinkGone):
+    code = "correction_link_expired"
+    message = "Este enlace venció. Pídale a la empresa uno nuevo si aún hace falta."
+
+
+class CorrectionLinkUsed(CorrectionLinkGone):
+    code = "correction_link_used"
+    message = "Con este enlace ya se envió una corrección. Cada enlace sirve una sola vez."
+
+
+class CorrectionClosed(CorrectionLinkGone):
+    code = "correction_closed"
+    message = "La empresa ya resolvió esta factura por otro camino; no hace falta corregirla."
+
+
+class CorrectionInputInvalid(ServiceError):
+    code = "correction_input_invalid"
+    message = "Envíe la factura corregida (PDF o imagen) o confirme los datos que se piden."

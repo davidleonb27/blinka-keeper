@@ -233,3 +233,27 @@ class ReconciliationRow(Base):
     reviews: Mapped[list[Any]]
     ledger_seq: Mapped[int]
     created_at: Mapped[datetime]
+
+
+class SupplierCorrectionRow(Base):
+    """A request to a supplier to correct one stopped invoice. Only the SHA-256 of its link token is stored."""
+
+    __tablename__ = "supplier_corrections"
+
+    id: Mapped[str] = mapped_column(ID, primary_key=True)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
+    invoice_id: Mapped[str] = mapped_column(ID, index=True)
+    root_invoice_id: Mapped[str] = mapped_column(ID)
+    round: Mapped[int]
+    token_hash: Mapped[str] = mapped_column(HASH, unique=True)
+    status: Mapped[str] = mapped_column(String(16))
+    original_status: Mapped[str] = mapped_column(String(32))
+    assessment: Mapped[dict[str, Any]]
+    message: Mapped[str] = mapped_column(String(4000))
+    channels: Mapped[list[Any]]
+    created_at: Mapped[datetime]
+    expires_at: Mapped[datetime]
+    submitted_at: Mapped[datetime | None]
+    corrected_invoice_id: Mapped[str | None] = mapped_column(ID)
+    outcome: Mapped[str | None] = mapped_column(String(32))
+    alert: Mapped[str | None] = mapped_column(String(500))

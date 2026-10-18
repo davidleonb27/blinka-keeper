@@ -122,7 +122,7 @@ def _rule_issues(
 ) -> list[Issue]:
     issues: list[Issue] = []
     if "R1" in failing:
-        issues += _reading_issues(extraction, known, policy)
+        issues += _reading_issues(extraction, known, policy, amount_parsed=decision.amount is not None)
     if "R6" in failing and known is not None:
         issues += _agreement_issues(decision, known)
     if "R8" in failing and (allowed := _expected_currency(known, policy)) is not None:
@@ -130,10 +130,12 @@ def _rule_issues(
     return issues
 
 
-def _reading_issues(extraction: ExtractedInvoice, known: Beneficiary | None, policy: Policy) -> list[Issue]:
+def _reading_issues(
+    extraction: ExtractedInvoice, known: Beneficiary | None, policy: Policy, *, amount_parsed: bool
+) -> list[Issue]:
     minimum = float(policy.min_confidence)
     issues: list[Issue] = []
-    if _doubtful(extraction.amount, minimum):
+    if _doubtful(extraction.amount, minimum) or not amount_parsed:
         issues.append(_amount_unreadable(known))
     if _doubtful(extraction.currency, minimum) or _bare_dollar(extraction.currency):
         issues.append(_currency_unclear(known))
