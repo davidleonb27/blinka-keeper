@@ -240,7 +240,7 @@ class CrossCheckStatus(StrEnum):
 
 
 class ReaderValue(Model):
-    reader: str  # e.g. "claude-sonnet-5-5", "gemini-2.5-flash", "etiquetas"
+    reader: str  # e.g. "claude-sonnet-5-5", "gemini-3.8-flash", "etiquetas"
     value: str | None  # normalized like ExtractedField.value; None when that reader did not state it
     quote: str | None = None
 

@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     # The second, independent reading R1 compares with the first. With GEMINI_API_KEY it is Gemini (another company,
     # errors that do not correlate with Claude's); without it, another Claude model with another prompt.
     model_second_reader: str = "claude-opus-5-5"
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.8-flash"
     second_reading_timeout_seconds: float = 90.0
 
     llm_daily_budget_usd: float = 25.0  # hard stop for model spend per deployment per UTC day
