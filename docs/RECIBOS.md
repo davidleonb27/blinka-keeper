@@ -30,6 +30,8 @@
 ```
 
 - `payment` sólo existe si la decisión fue pagar; la cuenta viaja como huella SHA-256 y últimos 4 dígitos.
+  La huella no tiene sal: sirve para comprobar una cuenta que ya conoces, no para ocultarla (un número de cuenta
+  corto se recupera probando combinaciones). Comparte el recibo como compartirías los datos del pago.
   `external_id` es el id de Stripe (`tr_…`) cuando el pago ya salió.
 - `issued_at` es la hora del asiento de la decisión en el registro: la misma decisión da siempre el mismo recibo.
 - JSON canónico: claves ordenadas, sin espacios, sin escapar acentos (`json.dumps(v, sort_keys=True,
