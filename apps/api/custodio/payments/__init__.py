@@ -3,6 +3,7 @@
 from custodio.payments.accounts import StripeAccountTable
 from custodio.payments.blinka import BlinkaRail
 from custodio.payments.choice import choose_rail, simulated_choice
+from custodio.payments.guard import GuardedRail
 from custodio.payments.port import (
     BLINKA_SIMULATED,
     MOVES_NO_MONEY,
@@ -24,6 +25,7 @@ __all__ = [
     "SIMULATED",
     "STRIPE_TEST",
     "BlinkaRail",
+    "GuardedRail",
     "Clock",
     "PaymentOrder",
     "PaymentRail",

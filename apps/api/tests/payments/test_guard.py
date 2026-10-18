@@ -12,7 +12,7 @@ from custodio.contracts import Beneficiary
 from custodio.payments import GuardedRail, PaymentOrder, PaymentReceipt
 from custodio.receipts import DecisionReceipt, ReceiptBody, account_fingerprint, sign_receipt
 
-from ..receipts.builders import fixed_signer, other_signer, sample_body
+from tests.receipts.builders import fixed_signer, other_signer, sample_body
 
 NOW = datetime(2026, 10, 17, 15, 0, tzinfo=UTC)
 SIGNER = fixed_signer()
