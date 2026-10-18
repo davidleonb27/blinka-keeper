@@ -340,7 +340,7 @@ def test_the_reading_check_names_why_gemini_would_fall_back(gemini_reader: FakeG
     assert "test-key-for-doubles" not in status
 
 
-def test_flash_models_lists_only_gemini_models_that_generate(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_generating_models_lists_only_gemini_models_that_generate(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GEMINI_API_KEY", "test-key-for-doubles")
     listing = {
         "models": [
@@ -351,4 +351,4 @@ def test_flash_models_lists_only_gemini_models_that_generate(monkeypatch: pytest
         ]
     }
     monkeypatch.setattr(httpx, "get", lambda *args, **kwargs: httpx.Response(200, json=listing))
-    assert gemini.flash_models() == ["gemini-3-flash", "gemini-3-pro"]
+    assert gemini.generating_models() == ["gemini-3-flash", "gemini-3-pro"]

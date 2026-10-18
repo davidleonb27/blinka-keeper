@@ -117,7 +117,7 @@ def probe(model: str) -> str:
     return f"estado {response.status_code}{_reason(response)}"
 
 
-def flash_models() -> list[str]:
+def generating_models() -> list[str]:
     """The Gemini models this key may call generateContent on, so a 404 says which name to use instead."""
     headers = {"x-goog-api-key": os.environ.get("GEMINI_API_KEY", "")}
     try:

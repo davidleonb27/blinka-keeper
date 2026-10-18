@@ -54,5 +54,5 @@ def gemini_health(leer: bool = False) -> GeminiHealth:
     if status == "ok" and leer:
         status = second_reading.gemini_check()
         if "404" in status:
-            status = f"{status} Modelos Gemini disponibles: {', '.join(gemini.flash_models()) or 'ninguno'}"
+            status = f"{status} Modelos Gemini disponibles: {', '.join(gemini.generating_models()) or 'ninguno'}"
     return GeminiHealth(configured=True, model=settings.gemini_model, status=status)
