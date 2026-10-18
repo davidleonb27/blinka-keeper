@@ -9,7 +9,7 @@ import pytest
 from custodio import llm
 from custodio.config import get_settings
 from custodio.contracts import CrossCheckStatus, InvoiceSource, ReadingCrossCheck
-from custodio.extraction import cross_check, extract_document, extract_text, render_invoice, second_reading
+from custodio.extraction import cross_check, extract_document, extract_text, gemini, render_invoice, second_reading
 from custodio.extraction.second_reading import CriticalReading
 from custodio.extraction.structure import QuotedValue
 from custodio.extraction.vision import Transcription
@@ -304,3 +304,25 @@ def _raise_budget() -> None:
 
 def _never_called(*args: object, **kwargs: object) -> httpx.Response:
     raise AssertionError("Gemini must not be called without budget")
+
+
+def test_a_rejected_key_names_googles_reason_but_never_the_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key-for-doubles")
+    body = {
+        "error": {
+            "code": 403,
+            "status": "PERMISSION_DENIED",
+            "message": "x",
+            "details": [{"reason": "SERVICE_DISABLED"}],
+        }
+    }
+    monkeypatch.setattr(httpx, "get", lambda *args, **kwargs: httpx.Response(403, json=body))
+    status = gemini.probe("gemini-2.5-flash")
+    assert status == "estado 403 (PERMISSION_DENIED · SERVICE_DISABLED)"
+    assert "test-key-for-doubles" not in status
+
+
+def test_an_accepted_key_probes_ok(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key-for-doubles")
+    monkeypatch.setattr(httpx, "get", lambda *args, **kwargs: httpx.Response(200, json={"name": "models/x"}))
+    assert gemini.probe("gemini-2.5-flash") == "ok"

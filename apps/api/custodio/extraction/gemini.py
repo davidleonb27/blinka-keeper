@@ -17,6 +17,7 @@ import httpx
 from custodio import llm
 
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}"
 TIMEOUT_SECONDS = 60.0
 MAX_OUTPUT_TOKENS = 4096
 # Gemini 2.5 thinks by default and its thoughts count against MAX_OUTPUT_TOKENS: an unbounded budget can end the
@@ -73,7 +74,7 @@ def _post(model: str, body: dict[str, object]) -> dict[str, object]:
     except httpx.HTTPError as error:
         raise GeminiError(f"Gemini no respondió ({type(error).__name__}).") from None
     if response.status_code != httpx.codes.OK:
-        raise GeminiError(f"Gemini respondió con estado {response.status_code}.")
+        raise GeminiError(f"Gemini respondió con estado {response.status_code}{_reason(response)}.")
     payload = response.json()
     if not isinstance(payload, dict):
         raise GeminiError("Gemini devolvió una respuesta que no es un objeto.")
@@ -99,3 +100,33 @@ def _cost(payload: dict[str, object]) -> float:
     tokens_out = usage.get("candidatesTokenCount", 0) + usage.get("thoughtsTokenCount", 0)
     price_in, price_out = PRICE_PER_MILLION
     return float(tokens_in * price_in + tokens_out * price_out) / 1e6
+
+
+def probe(model: str) -> str:
+    """Whether the configured key may use `model`, asked without generating anything (so it costs nothing).
+
+    Returns "ok" or the reason Google gives (its status and reason codes only, never the key)."""
+    headers = {"x-goog-api-key": os.environ.get("GEMINI_API_KEY", "")}
+    try:
+        response = httpx.get(MODEL_URL.format(model=model), headers=headers, timeout=TIMEOUT_SECONDS)
+    except httpx.HTTPError as error:
+        return f"sin respuesta ({type(error).__name__})"
+    if response.status_code == httpx.codes.OK:
+        return "ok"
+    return f"estado {response.status_code}{_reason(response)}"
+
+
+def _reason(response: httpx.Response) -> str:
+    """Google's machine-readable cause (e.g. PERMISSION_DENIED · SERVICE_DISABLED); free text is left out."""
+    try:
+        error = response.json().get("error", {})
+    except ValueError:
+        return ""
+    if not isinstance(error, dict):
+        return ""
+    codes = [str(error.get("status") or "")]
+    for detail in error.get("details") or []:
+        if isinstance(detail, dict) and detail.get("reason"):
+            codes.append(str(detail["reason"]))
+    codes = [code for code in codes if code.replace("_", "").isalnum()]
+    return f" ({' · '.join(codes)})" if codes else ""
