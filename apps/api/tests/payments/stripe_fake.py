@@ -8,7 +8,7 @@ an idempotency key it has already seen, errors included.
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from typing import Any, ClassVar
 from urllib.parse import parse_qs, urlsplit
@@ -38,6 +38,7 @@ class FakeStripe(stripe.HTTPClient):
     failures: dict[str, list[Response]] = field(default_factory=dict)  # path -> answers to the next POSTs
     read_failures: dict[str, list[Response]] = field(default_factory=dict)  # path -> answers to the next GETs
     unreachable: bool = False
+    seconds: Callable[[], int] | None = None  # the transfers' `created`; by default one second apart from FIRST_CREATED
     transfers: list[dict[str, Any]] = field(default_factory=list)
     _replays: dict[str, Response] = field(default_factory=dict)
     _ids: int = 0
@@ -158,7 +159,7 @@ class FakeStripe(stripe.HTTPClient):
             "amount_reversed": 0,
             "currency": "usd",
             "destination": destination,
-            "created": FIRST_CREATED + self._ids,
+            "created": self.seconds() if self.seconds else FIRST_CREATED + self._ids,
             "livemode": False,
             "reversed": False,
             "metadata": metadata,

@@ -143,7 +143,7 @@ def test_stripe_down_is_an_answer_not_an_error(
     assert proof["status"] == "unavailable"
     assert proof["message"].startswith("No se pudo consultar Stripe ahora")
     assert overview["stripe"]["status"] == "unavailable"
-    assert overview["stripe"]["recorded_total"] != "0.00"
+    assert overview["stripe"]["recorded_total"] > 0
     assert overview["payments"]
 
 
@@ -165,7 +165,7 @@ def test_another_workspace_cannot_read_a_payment_or_see_its_transfers(
 
     assert overview["payments"] == []
     assert overview["stripe"]["lines"] == []
-    assert overview["stripe"]["stripe_total"] == "0.00"
+    assert overview["stripe"]["stripe_total"] == 0
 
 
 def test_a_transfer_whose_metadata_names_another_workspace_is_never_shown(
@@ -193,7 +193,7 @@ def test_payments_lists_the_workspace_s_payments_and_the_record_balances_with_st
     assert {line["kind"] for line in match["lines"]} == {"matched"}
     assert {line["transfer_id"] for line in match["lines"]} == {p["execution"]["external_id"] for p in executed}
     assert match["recorded_total"] == match["stripe_total"]
-    assert match["difference"] == "0.00"
+    assert match["difference"] == 0
     assert overview["exportable"] >= len(executed)
 
 

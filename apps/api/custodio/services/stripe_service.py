@@ -21,7 +21,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
-from custodio.contracts import Decision, DecisionStatus, PaymentExecution, Policy
+from custodio.contracts import Amount, Decision, DecisionStatus, PaymentExecution, Policy
 from custodio.db.models import WorkspaceRow
 from custodio.payments import STRIPE_TEST, RailName, StripeAccountTable, StripeTransfer, StripeUnavailableError
 from custodio.payments.pain001 import CreditTransfer, Debtor, PaymentFile, render
@@ -59,22 +59,22 @@ class ProofCheck(BaseModel):
 
 class BalanceView(BaseModel):
     id: str
-    amount: Decimal
-    fee: Decimal
-    net: Decimal
+    amount: Amount
+    fee: Amount
+    net: Amount
     status: str
     available_on: datetime | None
 
 
 class StripeTransferView(BaseModel):
     id: str
-    amount: Decimal
+    amount: Amount
     currency: str
     destination: str | None
     created: datetime
     livemode: bool
     state: TransferState
-    amount_reversed: Decimal
+    amount_reversed: Amount
     balance_transaction: BalanceView | None
 
 
@@ -95,9 +95,9 @@ class PaymentRow(BaseModel):
     invoice_id: str
     supplier_name: str | None
     status: DecisionStatus
-    amount: Decimal | None
+    amount: Amount | None
     currency: str | None
-    amount_base: Decimal | None
+    amount_base: Amount | None
     execution: PaymentExecution | None
 
 
@@ -105,8 +105,8 @@ class MatchLineView(BaseModel):
     kind: Literal["matched", "amount_differs", "missing_in_stripe", "missing_in_registry"]
     invoice_id: str | None
     supplier_name: str | None
-    recorded_amount: Decimal | None
-    stripe_amount: Decimal | None
+    recorded_amount: Amount | None
+    stripe_amount: Amount | None
     transfer_id: str
     dashboard_url: str
 
@@ -119,9 +119,9 @@ class RailMatchView(BaseModel):
     checked_at: datetime
     complete: bool
     lines: list[MatchLineView]
-    recorded_total: Decimal
-    stripe_total: Decimal
-    difference: Decimal
+    recorded_total: Amount
+    stripe_total: Amount
+    difference: Amount
 
 
 class PaymentsOverview(BaseModel):
