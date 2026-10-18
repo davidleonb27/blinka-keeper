@@ -27,6 +27,17 @@ It reviews invoices, pays only what fits your rules, holds what is clearly impro
   Vercel button above.
 - **License:** [MIT](LICENSE).
 
+## Pruébalo en 30 segundos
+
+1. Abre **https://blinka-keeper.vercel.app** y pulsa **«Probar la demo»**. No hay registro: recibes tu propio espacio.
+2. En el panel pulsa **«Decidir las facturas»**: 39 facturas se deciden en segundos (pagadas, retenidas y las que esperan a una persona), cada una con su razón.
+3. Abre cualquier fila para ver el acta con las 15 reglas. Prueba «Róbale a Blinka Keeper» e intenta que pague algo indebido.
+
+Es dinero de prueba: lo que Blinka Keeper paga sale como una transferencia de Stripe en modo prueba, sin cuentas reales.
+
+<!-- Captura: docs/img/demo.gif (ver docs/img/LEEME.md) -->
+> *Aquí va el GIF de la demo (`docs/img/demo.gif`), pendiente de grabar sobre la versión desplegada.*
+
 ## Qué hace, todo en producción
 
 Del correo al cierre de mes, en un solo agente. Cada punto se prueba en un clic en [/jurado](https://blinka-keeper.vercel.app/jurado).
@@ -42,17 +53,6 @@ Del correo al cierre de mes, en un solo agente. Cada punto se prueba en un clic 
 | **Cuida la caja** | Paga el día que vence, respeta la reserva y cada proveedor **gana autonomía** con pagos limpios. | /calendario, /autonomia |
 | **Cierra el mes** | Concilia el extracto del banco, marca en rojo lo que salió sin factura y entrega la evidencia al contador. | /conciliacion |
 | **Lo prueba** | Cada decisión sale con **recibo firmado Ed25519** verificable por cualquiera, en un registro encadenado con SHA-256, y el riel se niega a pagar sin recibo válido. Reto público para intentar engañarlo. | /verificar, /registro, /reto |
-
-## Pruébalo en 30 segundos
-
-1. Abre **https://blinka-keeper.vercel.app** y pulsa **«Probar la demo»**. No hay registro: recibes tu propio espacio.
-2. En el panel pulsa **«Decidir las facturas»**: 39 facturas se deciden en segundos (pagadas, retenidas y las que esperan a una persona), cada una con su razón.
-3. Abre cualquier fila para ver el acta con las 15 reglas. Prueba «Róbale a Blinka Keeper» e intenta que pague algo indebido.
-
-Es dinero de prueba: lo que Blinka Keeper paga sale como una transferencia de Stripe en modo prueba, sin cuentas reales.
-
-<!-- Captura: docs/img/demo.gif (ver docs/img/LEEME.md) -->
-> *Aquí va el GIF de la demo (`docs/img/demo.gif`), pendiente de grabar sobre la versión desplegada.*
 
 ## Por qué existe
 
