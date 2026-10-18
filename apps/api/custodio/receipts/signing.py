@@ -103,7 +103,8 @@ def verify_receipt(raw: object, key: ReceiptPublicKey) -> ReceiptCheck:
     """`raw` is whatever someone pasted, already parsed from JSON; nothing about it is trusted."""
     try:
         return _check(raw, key)
-    except CanonicalJsonError:  # e.g. a NaN or a non-string key: no receipt is spelled like that
+    except (CanonicalJsonError, UnicodeEncodeError, RecursionError):
+        # a NaN, a non-string key, a lone surrogate or a body nested past the stack: no receipt is spelled like that
         return ReceiptCheck(valid=False, message=NOT_A_RECEIPT)
 
 
