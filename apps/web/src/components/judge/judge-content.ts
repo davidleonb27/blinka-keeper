@@ -5,7 +5,7 @@
 import { DEMO_URL, REPO_URL, repoFile } from "@/lib/site";
 
 /** Lanes whose routes the guide already links while they travel to main; the e2e reports them instead of failing. */
-export const PENDING_LANES = ["L21", "L26", "L27"] as const;
+export const PENDING_LANES = ["L21", "L27"] as const;
 export type PendingLane = (typeof PENDING_LANES)[number];
 
 export interface ProofLink {
@@ -99,7 +99,7 @@ export const CRITERIA: readonly Criterion[] = [
           "La factura electrónica oficial (DIAN UBL 2.1 y CFDI 4.0) se lee sin IA: CUFE, dígito de verificación del NIT " +
           "y totales se comprueban por código.",
         proofs: [
-          { label: "Descargar una factura DIAN de prueba", href: "/demo/facturas/dian-ruta-legal-valida.xml", lane: "L26" },
+          { label: "Descargar una factura DIAN de prueba", href: "/demo/facturas/dian-ruta-legal-valida.xml" },
         ],
       },
     ],
