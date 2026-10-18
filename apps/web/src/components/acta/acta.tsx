@@ -11,6 +11,7 @@ import { amountText, baseAmountText, supplierText } from "@/lib/presentation";
 import { ExtractedFields } from "./extracted-fields";
 import { OriginalDocument } from "./original-document";
 import { PaymentExecutionBlock } from "./payment-execution";
+import { PaymentProgress, type PaymentStep } from "./payment-progress";
 import { UnknownSupplierHint } from "@/components/suppliers/unknown-supplier-hint";
 import { RuleList } from "./rule-list";
 
@@ -21,6 +22,8 @@ export interface ActaProps {
   deciding: boolean;
   onRetryPayment: () => void;
   retryingPayment: boolean;
+  /** The approval just sent from this acta, while it travels to the rail and once the rail answered. */
+  paymentStep?: PaymentStep | null;
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -80,7 +83,7 @@ function ApprovalActions({ policy, onDecide, deciding }: Pick<ActaProps, "policy
   );
 }
 
-export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retryingPayment }: ActaProps) {
+export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retryingPayment, paymentStep = null }: ActaProps) {
   const [activeField, setActiveField] = useState<ExtractedFieldName | null>(null);
   const { decision, invoice } = detail;
   const { extraction } = invoice;
@@ -105,6 +108,8 @@ export function Acta({ detail, policy, onDecide, deciding, onRetryPayment, retry
           </p>
         ) : null}
       </Section>
+
+      <PaymentProgress step={paymentStep} />
 
       <PaymentExecutionBlock
         decision={decision}

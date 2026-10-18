@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { Decision, PaymentExecution, PaymentInstruction } from "@/lib/api/contracts";
 import { formatDateTime, formatMoney } from "@/lib/format";
 import { NETWORK_LABEL, RAIL_LABEL } from "@/lib/presentation";
+import { StripeProofBlock } from "./stripe-proof";
 
 /** What the Stripe rail sends is the base amount, in USD; a Blinka instruction keeps the invoiced amount and currency. */
 const SENT_CURRENCY = "USD";
@@ -71,6 +72,10 @@ function Outcome({
   );
 }
 
+function sentByStripe(execution: PaymentExecution): boolean {
+  return execution.rail === "stripe_test" && execution.status === "executed" && Boolean(execution.external_id);
+}
+
 const PAID: ReadonlySet<Decision["status"]> = new Set(["paid_auto", "paid_human"]);
 
 function Scheduled({ titleId, decision }: { titleId: string; decision: Decision }) {
@@ -115,6 +120,11 @@ export function PaymentExecutionBlock({ decision, paidByItsAgent = false, onRetr
         </p>
         <Outcome execution={execution} onRetry={onRetry} retrying={retrying} />
       </div>
+      {sentByStripe(execution) ? (
+        <div className="mt-2.5">
+          <StripeProofBlock invoiceId={decision.invoice_id} />
+        </div>
+      ) : null}
     </section>
   );
 }
