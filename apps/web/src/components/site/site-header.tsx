@@ -9,6 +9,7 @@ const NAV = [
   { href: "/docs", label: "Documentación" },
   { href: "/docs/inicio-rapido#autoalojado", label: "Autoalojar" },
   { href: "/reto", label: "Seguridad" },
+  { href: "/jurado", label: "Jurado" },
 ];
 
 export function SiteHeader() {
