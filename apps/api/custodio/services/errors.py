@@ -63,7 +63,14 @@ class InvoiceInputMissing(ServiceError):
 
 class UnsupportedMediaType(ServiceError):
     code = "unsupported_media_type"
-    message = "Sólo leemos PDF, PNG, JPEG, WEBP o texto."
+    message = "Sólo leemos PDF, PNG, JPEG, WEBP, texto o la factura electrónica en XML (DIAN o CFDI)."
+
+
+class EInvoiceRejected(ServiceError):
+    """An XML refused before any reading: unsafe to parse, malformed, or not a DIAN or CFDI invoice."""
+
+    code = "einvoice_rejected"
+    message = "No pudimos leer la factura electrónica."
 
 
 class UnreadableSupplierFile(ServiceError):

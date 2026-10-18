@@ -30,15 +30,24 @@ from custodio.contracts import (
 )
 from custodio.db.models import DocumentRow, InvoiceRow, WorkspaceRow
 from custodio.engine.domains import first_email
+from custodio.extraction.einvoice import is_einvoice, is_einvoice_reading, merge, same_invoice
+from custodio.extraction.errors import ExtractionError
 from custodio.llm import LLMError, LLMNotConfigured
 from custodio.services import ledger_service, payment_service, policy_service, records, schedule_service, trust_service
 from custodio.services.context import ServiceContext
-from custodio.services.errors import ModelNotConfigured, PayloadTooLarge, UnsupportedMediaType, model_failure
+from custodio.services.errors import (
+    EInvoiceRejected,
+    ModelNotConfigured,
+    PayloadTooLarge,
+    UnsupportedMediaType,
+    model_failure,
+)
 from custodio.services.workspace_service import VISITOR_KINDS, new_id, received_payload
 
 MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
 DOCUMENT_MEDIA_TYPES = frozenset({"application/pdf", "image/png", "image/jpeg", "image/webp"})
 TEXT_MEDIA_TYPE = "text/plain"
+XML_MEDIA_TYPE = "application/xml"
 UNREAD_READER = "sin-lectura"
 AUDITOR_STOP = "El auditor independiente no confirmó este pago y no se hizo"
 HOLD_RULE_STOP = "Una regla de retención falló, así que este pago no se hizo"
@@ -68,6 +77,8 @@ def receive_document(
         raise PayloadTooLarge()
     if media_type == TEXT_MEDIA_TYPE:
         return receive_text(ctx, workspace, data.decode("utf-8", errors="replace"))
+    if is_einvoice(media_type, filename):
+        return receive_einvoice(ctx, workspace, data, filename=filename)
     if media_type not in DOCUMENT_MEDIA_TYPES:
         raise UnsupportedMediaType()
     document = _store_document(ctx, workspace.id, data, filename=filename, media_type=media_type)
@@ -91,6 +102,30 @@ def receive_text(
         return ctx.lanes.extract_text(text, document_id=document.id, source=source)
 
     return _receive(ctx, workspace, document, read, source=source, visible_text=text)
+
+
+def receive_einvoice(
+    ctx: ServiceContext,
+    workspace: WorkspaceRow,
+    data: bytes,
+    *,
+    filename: str,
+    source: InvoiceSource = InvoiceSource.TEXT,
+) -> InvoiceView:
+    """The official XML (DIAN or CFDI), read by code. A hostile or foreign XML is refused before anything is stored."""
+    if len(data) > MAX_DOCUMENT_BYTES:
+        raise PayloadTooLarge()
+    document_id = new_id()
+    try:
+        extraction = ctx.lanes.read_einvoice(
+            data, document_id=document_id, company_name=workspace.company_name, source=source
+        )
+    except ExtractionError as error:
+        raise EInvoiceRejected(f"No pudimos leer la factura electrónica: {error}") from error
+    document = _store_document(
+        ctx, workspace.id, data, filename=filename, media_type=XML_MEDIA_TYPE, document_id=document_id
+    )
+    return _receive(ctx, workspace, document, lambda: extraction, source=source, visible_text="")
 
 
 def process_pending(ctx: ServiceContext, workspace: WorkspaceRow) -> Outcome:
@@ -180,6 +215,9 @@ def _receive(
     except LLMError:
         # Kept unread on purpose: R1 escalates it, so a person reviews it instead of anyone guessing.
         extraction, read_ok = _unread(document.id, source, visible_text), False
+    partner = _same_invoice_pending(ctx, workspace.id, extraction) if read_ok else None
+    if partner is not None:
+        return _pair(ctx, workspace.id, partner, document, extraction)
     case = InvoiceCase(id=_new_invoice_id(), received_at=ctx.now(), extraction=extraction)
     row = records.store_invoice(ctx, workspace.id, case, document_id=document.id, read_ok=read_ok)
     payload = {**received_payload(case, document.id), "read": read_ok}
@@ -187,11 +225,44 @@ def _receive(
     return view(row, decided=False)
 
 
+def _same_invoice_pending(ctx: ServiceContext, workspace_id: str, reading: ExtractedInvoice) -> InvoiceRow | None:
+    """The undecided invoice that is this one in its other form: its official XML, or its PDF or image."""
+    for row in records.pending_invoices(ctx, workspace_id):
+        other = ExtractedInvoice.model_validate(row.extraction)
+        if is_einvoice_reading(other) == is_einvoice_reading(reading):
+            continue
+        official, document = (other, reading) if is_einvoice_reading(other) else (reading, other)
+        if same_invoice(official, document):
+            return row
+    return None
+
+
+def _pair(
+    ctx: ServiceContext, workspace_id: str, row: InvoiceRow, document: DocumentRow, reading: ExtractedInvoice
+) -> InvoiceView:
+    """One invoice, not two: the XML's values stand and the other document fills only what the XML lacks."""
+    stored = ExtractedInvoice.model_validate(row.extraction)
+    official, other = (stored, reading) if is_einvoice_reading(stored) else (reading, stored)
+    merged = merge(official, other)
+    row.extraction = merged.model_dump(mode="json")
+    ctx.session.flush()
+    case = records.as_case(row)
+    payload = {**received_payload(case, document.id), "read": True, "paired_with": row.document_id}
+    ledger_service.append(ctx, workspace_id, LedgerKind.INVOICE_RECEIVED, row.id, payload)
+    return view(row, decided=False)
+
+
 def _store_document(
-    ctx: ServiceContext, workspace_id: str, data: bytes, *, filename: str, media_type: str
+    ctx: ServiceContext,
+    workspace_id: str,
+    data: bytes,
+    *,
+    filename: str,
+    media_type: str,
+    document_id: str | None = None,
 ) -> DocumentRow:
     document = DocumentRow(
-        id=new_id(),
+        id=document_id or new_id(),
         workspace_id=workspace_id,
         filename=filename[:255],
         media_type=media_type,

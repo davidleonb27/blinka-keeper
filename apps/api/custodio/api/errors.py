@@ -26,6 +26,7 @@ STATUS_BY_ERROR: dict[type[errors.ServiceError], int] = {
     errors.UnsupportedStatement: 415,
     errors.UnsupportedSupplierFile: 415,
     errors.PolicyInvalid: 422,
+    errors.EInvoiceRejected: 422,
     errors.InvoiceInputMissing: 422,
     errors.StatementInputMissing: 422,
     errors.StatementUnreadable: 422,
