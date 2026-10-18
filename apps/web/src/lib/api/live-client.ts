@@ -185,6 +185,8 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
       (await send("get", "/api/v1/periods/{period}/evidence.zip", { params: { period } })).blob(),
     downloadDemoStatement: async (format) =>
       (await send("get", "/api/v1/reconciliations/demo-statement", { query: { format } })).blob(),
+    getWhatsAppStatus: () => call("get", "/api/v1/whatsapp/link"),
+    createWhatsAppCode: () => call("post", "/api/v1/whatsapp/link-codes"),
     runRedTeam: async (input, onEvent, signal) => {
       const response = await send("post", "/api/v1/redteam/runs", { json: input, signal });
       if (!response.body) throw new UnexpectedResponseError(response.status);

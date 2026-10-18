@@ -233,3 +233,39 @@ class ReconciliationRow(Base):
     reviews: Mapped[list[Any]]
     ledger_seq: Mapped[int]
     created_at: Mapped[datetime]
+
+
+class WhatsAppLinkCodeRow(Base):
+    """A one-time code that ties the phone that sends it to this workspace. Only its digest is stored."""
+
+    __tablename__ = "whatsapp_link_codes"
+
+    code_hash: Mapped[str] = mapped_column(HASH, primary_key=True)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
+    created_at: Mapped[datetime]
+    expires_at: Mapped[datetime]
+    used_at: Mapped[datetime | None]
+
+
+class WhatsAppPhoneRow(Base):
+    """A phone belongs to one workspace at a time: linking it again moves it, so workspaces never mix."""
+
+    __tablename__ = "whatsapp_phones"
+
+    phone: Mapped[str] = mapped_column(String(32), primary_key=True)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
+    linked_at: Mapped[datetime]
+
+
+class WhatsAppMessageRow(Base):
+    """Each message Meta delivered, by its id: Meta retries, and a retry must never read an invoice twice."""
+
+    __tablename__ = "whatsapp_messages"
+
+    message_id: Mapped[str] = mapped_column(String(255), primary_key=True)
+    workspace_id: Mapped[str | None] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
+    status: Mapped[str] = mapped_column(String(16))
+    attempts: Mapped[int]
+    invoice_id: Mapped[str | None] = mapped_column(ID)
+    claimed_at: Mapped[datetime]
+    finished_at: Mapped[datetime | None]
