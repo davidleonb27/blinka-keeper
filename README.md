@@ -1,5 +1,23 @@
 # Custodio
 
+> ### Para el jurado · For the judges
+>
+> **Guía con cada prueba a un clic · Guide with every proof one click away: <https://blinka-keeper.vercel.app/jurado>**
+> ([versión en texto · text version](docs/JUDGE-GUIDE.md))
+>
+> **Recorrido de 2 minutos · 2-minute walkthrough:** (1) [/panel](https://blinka-keeper.vercel.app/panel): «Decidir
+> las facturas» · decide the batch; (2) [acta F-004](https://blinka-keeper.vercel.app/panel?acta=F-004): 15 reglas y
+> pago verificado en Stripe · 15 rules and a payment checked live in Stripe; (3) [/reto](https://blinka-keeper.vercel.app/reto):
+> engáñalo · try to fool it; (4) [/reglas](https://blinka-keeper.vercel.app/reglas): reglas en español, simuladas ·
+> rules in plain Spanish, simulated; (5) [/verificar](https://blinka-keeper.vercel.app/verificar): un recibo alterado
+> no pasa · a tampered receipt fails.
+>
+> - **Impacto 30 % · Impact:** paga sola lo que cabe en las reglas, retiene lo indebido, pide permiso en lo demás; pagos reales en Stripe modo prueba · pays what fits, holds what is improper, asks about the rest; real Stripe test-mode payments.
+> - **Innovación 20 % · Innovation:** el modelo lee, 15 reglas en código deciden, doble lectura, reglas en español · the model reads, 15 coded rules decide, double reading, rules in plain Spanish.
+> - **Viabilidad técnica 20 % · Technical:** reto público, recibos Ed25519, registro encadenado, 0 pagos indebidos medidos · public challenge, Ed25519 receipts, hash-chained ledger, 0 improper payments measured.
+> - **Implementación 20 % · Implementation:** `/empezar`, archivo pain.001 para Blinka, WhatsApp, autohospedable; lo no medido dice «NO MEDIDO» · onboarding, pain.001 for Blinka, WhatsApp, self-hostable; unmeasured is marked as such.
+> - **Presentación 10 % · Presentation:** cada afirmación con su prueba y una tabla real vs. simulado · every claim with its proof and a real-vs-simulated table.
+
 [![CI](https://github.com/davidleonb27/blinka-keeper/actions/workflows/ci.yml/badge.svg)](https://github.com/davidleonb27/blinka-keeper/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-047857.svg)](LICENSE)
 
