@@ -39,7 +39,7 @@ function RoundCard({ round }: { round: ArenaRound }) {
         <p className="eyebrow text-crit">Atacante · ronda {round.round}</p>
         {attack ? (
           <>
-            <h3 className="font-serif text-lg font-semibold">{attack.technique}</h3>
+            <h3 className="headline text-lg">{attack.technique}</h3>
             <p className="text-[13.5px] text-ink-2">{attack.rationale}</p>
             <pre className="overflow-x-auto rounded-xl border border-line bg-surface-2 px-3 py-2.5 font-mono text-[12px] leading-relaxed whitespace-pre-wrap">
               {attack.invoice_text}

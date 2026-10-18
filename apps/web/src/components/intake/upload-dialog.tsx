@@ -223,7 +223,7 @@ export function UploadDialog() {
         className="gap-4 overflow-y-auto border-line-2 bg-surface px-5 pt-5 pb-6 data-[side=right]:w-full data-[side=right]:sm:max-w-[520px] sm:px-6"
       >
         <div className="pr-8">
-          <SheetTitle className="font-serif text-2xl font-semibold">Subir facturas</SheetTitle>
+          <SheetTitle className="headline text-2xl">Subir facturas</SheetTitle>
           <SheetDescription className="mt-1 text-ink-2">
             Custodio las lee y las deja listas; ninguna se paga hasta que decidas el lote con tus reglas.
           </SheetDescription>

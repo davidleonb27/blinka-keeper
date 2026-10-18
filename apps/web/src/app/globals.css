@@ -3,26 +3,27 @@
 @import "shadcn/tailwind.css";
 
 /* Theme is a concrete data-theme on <html> (next-themes resolves "system"). */
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .inverse, .inverse *));
 
 /*
- * Custodio identity, ported from prototype/index.html: ledger teal on deep slate, security-print guilloche,
- * Inter for text, Source Serif 4 for large titles (tokens below), tabular figures everywhere money appears.
- * Light values are darkened from the prototype so every text pairing clears WCAG AA (4.5:1).
+ * Custodio identity in the visual language of the Blinka ecosystem (the rail it pays through): paper background, deep
+ * navy ink, one blue accent, hairline borders. Inter for text and heavy, tightly tracked titles; the system monospace
+ * for figures and labels; tabular figures everywhere money appears. Every text pairing clears WCAG AA (4.5:1).
  */
 :root {
-  --bg: #edf2f2;
+  --bg: #f7f7f4;
   --surface: #ffffff;
-  --surface-2: #f3f7f7;
-  --surface-3: #e6eeef;
-  --line: rgb(12 48 54 / 0.1);
-  --line-2: rgb(12 48 54 / 0.18);
-  --grid: rgb(12 48 54 / 0.07);
-  --ink: #0b1618;
-  --ink-2: #3b4c4f;
-  --ink-3: #56696c;
-  --brand: #08707e;
-  --brand-weak: rgb(10 132 148 / 0.1);
+  --surface-2: #f1f1ed;
+  --surface-3: #e9eae5;
+  --line: #dedfdc;
+  --line-2: #c9cbc6;
+  --grid: rgb(28 37 58 / 0.06);
+  --ink: #1c253a;
+  --ink-2: #434a5b;
+  --ink-3: #5e6270;
+  --brand: #2a4bd0;
+  --brand-weak: rgb(42 75 208 / 0.09);
+  --brand-soft: #b9c8ff;
   --on-brand: #ffffff;
   --pay: #0f7443;
   --pay-weak: rgb(19 128 75 / 0.1);
@@ -36,9 +37,52 @@
   --chart-paid: #15834f;
   --chart-pending: #d39b1c;
   --chart-held: #c0392b;
-  --scrim: rgb(10 30 34 / 0.35);
-  --shadow-card: 0 1px 2px rgb(10 40 45 / 0.05), 0 18px 40px -28px rgb(10 40 45 / 0.35);
+  --scrim: rgb(17 23 32 / 0.4);
+  --shadow-card: 0 1px 2px rgb(28 37 58 / 0.04), 0 16px 36px -30px rgb(28 37 58 / 0.35);
+  --radius: 0.875rem;
+  color-scheme: light;
+}
 
+/*
+ * The dark theme, and .inverse: a dark band (the landing's closing section and footer) that keeps the dark palette in
+ * both themes. The dark: variant above applies inside .inverse too, so logos and buttons follow.
+ */
+[data-theme="dark"],
+.inverse {
+  --bg: #111720;
+  --surface: #171e2a;
+  --surface-2: #1d2532;
+  --surface-3: #252e3d;
+  --line: rgb(214 222 240 / 0.1);
+  --line-2: rgb(214 222 240 / 0.18);
+  --grid: rgb(214 222 240 / 0.06);
+  --ink: #eef0f4;
+  --ink-2: #b6bcc8;
+  --ink-3: #959cab;
+  --brand: #8ea3ff;
+  --brand-weak: rgb(142 163 255 / 0.14);
+  --brand-soft: #b9c8ff;
+  --on-brand: #0b1230;
+  --pay: #34b977;
+  --pay-weak: rgb(52 185 119 / 0.14);
+  --on-pay: #03200f;
+  --esc: #eeb03c;
+  --esc-weak: rgb(238 176 60 / 0.14);
+  --hold: #ee7b56;
+  --hold-weak: rgb(238 123 86 / 0.14);
+  --crit: #f0676b;
+  --crit-weak: rgb(229 72 77 / 0.16);
+  --chart-paid: #2a9d63;
+  --chart-pending: #b8862a;
+  --chart-held: #e0607e;
+  --scrim: rgb(5 8 12 / 0.65);
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 18px 40px -24px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
+
+/* shadcn's names for the tokens above. Restated on .inverse because a var() resolves where it is declared. */
+:root,
+.inverse {
   --background: var(--bg);
   --foreground: var(--ink);
   --card: var(--surface);
@@ -57,90 +101,26 @@
   --border: var(--line);
   --input: var(--line-2);
   --ring: var(--brand);
-  --radius: 0.75rem;
-  color-scheme: light;
 }
 
-[data-theme="dark"] {
-  --bg: #0a1012;
-  --surface: #0f171a;
-  --surface-2: #142024;
-  --surface-3: #1a282d;
-  --line: rgb(170 215 222 / 0.09);
-  --line-2: rgb(170 215 222 / 0.17);
-  --grid: rgb(170 215 222 / 0.07);
-  --ink: #e4eded;
-  --ink-2: #a3b3b5;
-  --ink-3: #8a9ca0;
-  --brand: #38c3d2;
-  --brand-weak: rgb(56 195 210 / 0.13);
-  --on-brand: #032529;
-  --pay: #34b977;
-  --pay-weak: rgb(52 185 119 / 0.14);
-  --on-pay: #03200f;
-  --esc: #eeb03c;
-  --esc-weak: rgb(238 176 60 / 0.14);
-  --hold: #ee7b56;
-  --hold-weak: rgb(238 123 86 / 0.14);
-  --crit: #f0676b;
-  --crit-weak: rgb(229 72 77 / 0.16);
-  --chart-paid: #2a9d63;
-  --chart-pending: #b8862a;
-  --chart-held: #e0607e;
-  --scrim: rgb(3 8 10 / 0.6);
-  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.035) inset, 0 18px 40px -24px rgb(0 0 0 / 0.75);
-  color-scheme: dark;
-}
-
-/*
- * The public site (landing and docs): developer-first, an emerald accent and a near-black dark canvas. The rest of the
- * identity (type, status colors, cards) is shared with the app. shadcn tokens are restated because they resolve where
- * they are declared. Pairings clear WCAG AA in both themes.
- */
-.site {
-  --bg: #f5f8f6;
-  --surface-2: #eef3f0;
-  --surface-3: #e3ebe7;
-  --brand: #047857;
-  --brand-weak: rgb(4 120 87 / 0.1);
-  --on-brand: #ffffff;
-  --background: var(--bg);
-  --primary: var(--brand);
-  --primary-foreground: var(--on-brand);
-  --secondary: var(--surface-2);
-  --muted: var(--surface-2);
-  --accent: var(--surface-3);
-  --ring: var(--brand);
+.inverse {
   background: var(--bg);
   color: var(--ink);
 }
 
-[data-theme="dark"] .site {
-  --bg: #0b0d0c;
-  --surface: #111413;
-  --surface-2: #161a18;
-  --surface-3: #1d2220;
-  --line: rgb(214 236 226 / 0.08);
-  --line-2: rgb(214 236 226 / 0.15);
-  --grid: rgb(214 236 226 / 0.05);
-  --ink: #ecf1ee;
-  --ink-2: #a9b5af;
-  --ink-3: #8b9891;
-  --brand: #34d399;
-  --brand-weak: rgb(52 211 153 / 0.12);
-  --on-brand: #022c22;
-  --card: var(--surface);
-  --popover: var(--surface);
+/* The public site (landing and docs) shares the app's palette. */
+.site {
+  background: var(--bg);
+  color: var(--ink);
 }
 
 /*
- * Typography, the single source of truth. layout.tsx loads Inter into --font-sans and Source Serif 4 into --font-serif
- * on <html> with next/font, whose unlayered declarations win over these layered ones; the values here are what the
- * page falls back to. Code and technical labels use the system monospace.
+ * Typography, the single source of truth. layout.tsx loads Inter into --font-sans on <html> with next/font, whose
+ * unlayered declaration wins over this layered one; the value here is what the page falls back to. Titles are Inter,
+ * heavy and tightly tracked (the headline utility). Figures, code and technical labels use the system monospace.
  */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Source Serif 4", ui-serif, Georgia, serif;
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }
 
@@ -174,6 +154,7 @@
   --color-ink-3: var(--ink-3);
   --color-brand: var(--brand);
   --color-brand-weak: var(--brand-weak);
+  --color-brand-soft: var(--brand-soft);
   --color-on-brand: var(--on-brand);
   --color-pay: var(--pay);
   --color-pay-weak: var(--pay-weak);
@@ -228,9 +209,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+@utility headline {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
 @utility eyebrow {
   font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 600;
   color: var(--ink-3);
@@ -239,17 +225,10 @@
 @utility card-surface {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   box-shadow: var(--shadow-card);
 }
 
-@utility site-grid {
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 40%, transparent 100%);
-}
 
 /* Long-form documentation text. */
 .doc-prose {
@@ -263,10 +242,9 @@
 .doc-prose h2 {
   margin-top: 2.5rem;
   color: var(--ink);
-  font-family: var(--font-serif);
   font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   scroll-margin-top: 5rem;
 }
 .doc-prose h3 {
@@ -347,11 +325,3 @@
     transition-duration: 0.01ms !important;
   }
 }
-
-.wavy-highlight {
-  text-decoration: underline wavy;
-  text-decoration-color: var(--brand);
-  text-decoration-thickness: 2.5px;
-  text-underline-offset: 6px;
-}
-

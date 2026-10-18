@@ -7,7 +7,7 @@ export function EmptyInbox() {
     <section aria-labelledby="sin-facturas" className="card-surface flex flex-col items-center gap-4 px-6 py-14 text-center">
       <Inbox aria-hidden className="size-9 text-brand" strokeWidth={1.5} />
       <div className="max-w-[52ch]">
-        <h2 id="sin-facturas" className="font-serif text-2xl font-semibold">
+        <h2 id="sin-facturas" className="headline text-2xl">
           Aún no hay facturas: súbelas o reenvíalas
         </h2>
         <p className="mt-2 text-ink-2">

@@ -65,7 +65,7 @@ function NavLinks({ layout }: { layout: "rail" | "strip" }) {
               href={href}
               aria-current={current ? "page" : undefined}
               className={cn(
-                "flex h-10 items-center gap-2.5 rounded-[10px] px-2.5 font-medium whitespace-nowrap text-ink-2 hover:bg-surface-2 hover:text-ink",
+                "flex h-10 items-center gap-2.5 rounded-full px-3 font-medium whitespace-nowrap text-ink-2 hover:bg-surface-2 hover:text-ink",
                 current && "bg-brand-weak text-ink [&>svg]:text-brand",
               )}
             >

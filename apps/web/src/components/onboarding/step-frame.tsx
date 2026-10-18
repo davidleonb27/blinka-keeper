@@ -63,7 +63,7 @@ export function StepFrame({
           <span className="tabular">{String(number).padStart(2, "0")}</span>
           <ArrowRight aria-hidden className="size-3.5" />
         </p>
-        <h1 data-step-heading tabIndex={-1} className="font-serif text-[30px] outline-none leading-[1.08] font-semibold tracking-[-0.015em] sm:text-[40px]">{title}</h1>
+        <h1 data-step-heading tabIndex={-1} className="headline text-[30px] outline-none leading-[1.08] sm:text-[40px]">{title}</h1>
         {helper ? <div className="mt-3 max-w-[56ch] text-[15px] text-ink-2 sm:text-base">{helper}</div> : null}
       </div>
       {children}
