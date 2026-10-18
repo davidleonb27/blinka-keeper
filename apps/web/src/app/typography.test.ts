@@ -21,8 +21,8 @@ describe("typography", () => {
     const layout = read("app/layout.tsx");
 
     expect(layout).toMatch(/import localFont from "next\/font\/local";/);
-    expect(layout).toMatch(/src: "\.\/fonts\/blinka-inter-latin-variable\.woff2"[^}]*variable: "--font-sans"/s);
-    expect(layout).toMatch(/src: "\.\/fonts\/geist-mono-latin-variable\.woff2"[^}]*variable: "--font-mono"/s);
+    expect(layout).toMatch(/src: "\.\/fonts\/blinka-inter-latin-variable\.woff2"[\s\S]*?variable: "--font-sans"/);
+    expect(layout).toMatch(/src: "\.\/fonts\/geist-mono-latin-variable\.woff2"[\s\S]*?variable: "--font-mono"/);
     expect(layout).not.toMatch(/next\/font\/google/);
   });
 
