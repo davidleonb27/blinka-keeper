@@ -16,7 +16,7 @@ Revisa las facturas, paga sólo lo que cabe en tus reglas, retiene lo indebido y
 
 - **Demo:** <https://blinka-keeper.vercel.app>, sin registro y sin dinero real.
 - **Autoalojar en un comando:** `docker compose up --build` ([guía](docs/SELF_HOSTING.md)) o
-  [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fcustodio-blinka&project-name=custodio&repository-name=custodio&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
+  [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fblinka-keeper&project-name=blinka-keeper&repository-name=blinka-keeper&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
 - **Licencia:** [MIT](LICENSE). Documentación en [/docs](https://blinka-keeper.vercel.app/docs).
 
 **The open-source accounts-payable agent.** *The model reads, code decides, a person authorizes.*
@@ -27,10 +27,26 @@ It reviews invoices, pays only what fits your rules, holds what is clearly impro
   Vercel button above.
 - **License:** [MIT](LICENSE).
 
+## Qué hace, todo en producción
+
+Del correo al cierre de mes, en un solo agente. Cada punto se prueba en un clic en [/jurado](https://blinka-keeper.vercel.app/jurado).
+
+| | Qué hace | Dónde se ve |
+|---|---|---|
+| **Recibe** | Facturas por correo, PDF, foto, **WhatsApp real** (Cloud API de Meta, webhook firmado: mandas la foto y responde con el acta) y **factura electrónica DIAN UBL 2.1 / CFDI 4.0 leída sin IA**, con dígito de verificación del NIT. | Panel → «Recibe facturas por WhatsApp» |
+| **Lee** | **Dos modelos de dos empresas distintas** (Claude y Gemini) leen cada factura; si no coinciden en monto, moneda, beneficiario o cuenta, no se paga. | Acta → «Dos lecturas independientes» |
+| **Decide** | 15 reglas deterministas en código; el modelo nunca decide. Un auditor independiente recalcula cada pago. | Acta con cifras y «qué tendría que cambiar» |
+| **Paga** | **Transferencias reales en Stripe (modo prueba)**, verificadas en vivo campo por campo, y el lote en **ISO 20022 pain.001** listo para que Blinka lo pague. | /pagos → cuadre Registro ↔ Stripe |
+| **Pide permiso** | «Aprobar sólo esta vez» o «Aprobar y actualizar el acuerdo» (con versión y simulación). Si apruebas lo mismo varias veces, **Blinka Keeper sugiere la regla**; nunca la aplica solo. | Acta y /reglas |
+| **Corrige** | Si algo corregible no cuadra, **le pide al proveedor que lo corrija** por un enlace de un solo uso y lo vuelve a decidir con las mismas reglas. Un cambio de cuenta nunca se negocia. | Acta → «Pedir corrección al proveedor» |
+| **Cuida la caja** | Paga el día que vence, respeta la reserva y cada proveedor **gana autonomía** con pagos limpios. | /calendario, /autonomia |
+| **Cierra el mes** | Concilia el extracto del banco, marca en rojo lo que salió sin factura y entrega la evidencia al contador. | /conciliacion |
+| **Lo prueba** | Cada decisión sale con **recibo firmado Ed25519** verificable por cualquiera, en un registro encadenado con SHA-256, y el riel se niega a pagar sin recibo válido. Reto público para intentar engañarlo. | /verificar, /registro, /reto |
+
 ## Pruébalo en 30 segundos
 
 1. Abre **https://blinka-keeper.vercel.app** y pulsa **«Probar la demo»**. No hay registro: recibes tu propio espacio.
-2. En el panel verás una semana de facturas ya decidida: pagado, retenido y pendiente, cada una con su razón.
+2. En el panel pulsa **«Decidir las facturas»**: 39 facturas se deciden en segundos (pagadas, retenidas y las que esperan a una persona), cada una con su razón.
 3. Abre cualquier fila para ver el acta con las 15 reglas. Prueba «Róbale a Blinka Keeper» e intenta que pague algo indebido.
 
 Es dinero de prueba: lo que Blinka Keeper paga sale como una transferencia de Stripe en modo prueba, sin cuentas reales.
@@ -128,7 +144,7 @@ Sin `ANTHROPIC_API_KEY` siguen funcionando el motor, el auditor, el registro, el
 texto y de PDF con texto (por etiquetas `Campo: valor`). Lo que necesita al modelo responde «requiere
 ANTHROPIC_API_KEY» (503, `model_not_configured`) sin decidir nada.
 
-- **Vercel + Neon:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fcustodio-blinka&project-name=custodio&repository-name=custodio&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D) clona el repositorio, crea la base
+- **Vercel + Neon:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fblinka-keeper&project-name=blinka-keeper&repository-name=blinka-keeper&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D) clona el repositorio, crea la base
   en Neon y despliega la web y la API como servicios de un proyecto.
 - **Railway, Fly.io o un VPS:** los mismos Dockerfiles; los pasos están en [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md).
 
