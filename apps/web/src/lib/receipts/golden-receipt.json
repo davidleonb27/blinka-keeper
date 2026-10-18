@@ -1,0 +1,133 @@
+{
+  "key": {
+    "format": "custodio-receipt/1",
+    "algorithm": "Ed25519",
+    "key_id": "cust-56475aa75463474c",
+    "public_key": "A6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg=",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAA6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg=\n-----END PUBLIC KEY-----\n"
+  },
+  "receipt": {
+    "format": "custodio-receipt/1",
+    "algorithm": "Ed25519",
+    "key_id": "cust-56475aa75463474c",
+    "body": {
+      "format": "custodio-receipt/1",
+      "key_id": "cust-56475aa75463474c",
+      "workspace_id": "ws-ejemplo",
+      "issued_at": "2026-10-17T15:00:00Z",
+      "invoice": {
+        "id": "INV-0001",
+        "number": "FE-2291",
+        "received_at": "2026-10-17T14:58:12.5Z",
+        "source": "pdf",
+        "document_id": "doc-1",
+        "document_sha256": "abababababababababababababababababababababababababababababababab"
+      },
+      "reading": {
+        "supplier_name": {
+          "value": "Andes Código S.A.S.",
+          "verified": true
+        },
+        "amount": {
+          "value": "4200.00",
+          "verified": true
+        },
+        "currency": {
+          "value": "USD",
+          "verified": true
+        },
+        "account_number": {
+          "value": "000123456789",
+          "verified": true
+        }
+      },
+      "rules": [
+        {
+          "rule_id": "R1",
+          "outcome": "pass"
+        },
+        {
+          "rule_id": "R4",
+          "outcome": "pass"
+        }
+      ],
+      "policy": {
+        "version": 3,
+        "sha256": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+        "ledger_seq": 2,
+        "ledger_hash": "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef"
+      },
+      "decision": {
+        "verdict": "pay",
+        "status": "paid_auto",
+        "agent_verdict": "pay",
+        "approved_by": null
+      },
+      "payment": {
+        "beneficiary_id": "b-andes",
+        "beneficiary_name": "Andes Código S.A.S.",
+        "account_last4": "6789",
+        "account_sha256": "1212121212121212121212121212121212121212121212121212121212121212",
+        "amount": "4200",
+        "currency": "USD",
+        "amount_base": "4200",
+        "base_currency": "USD",
+        "rail": null,
+        "external_id": null
+      },
+      "ledger": {
+        "seq": 7,
+        "hash": "9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a",
+        "kind": "decision"
+      }
+    },
+    "signature": "o6fIXZmMx1LWv5EnjlFHuXY5HY8DGSzt+Tbh53TfOYAYjnEDS4y3cOdbZiVfAQIPwrriVBkStPYZBe11meciAA==",
+    "field_digests": {
+      "format": "05f3a4baaeeb53e9b1da5d0c8d6aaabf5f55667b195154e8439d7797ebde7e4d",
+      "key_id": "570941d8e35b36a469647eb90c284597b4d58eebfeb63d045729d1ba5f80bf9d",
+      "workspace_id": "81cc59f4de8de7c0ce03eae86a89ad5459fde95b2de3960c379d85e1d50959cb",
+      "issued_at": "ea43ea1ea43bd6a4e3b9e995b277a08e690715eb66405a2057a06735013ec8ad",
+      "invoice.id": "6a9911cbe527a50a98ad6bcd184bc76500bb85e57395e2db7e49176ed4213b2a",
+      "invoice.number": "2a1e79ecdcf68ec81a3387ba3a298a462f1b2ab08980f3fdb724a2b26a7d368a",
+      "invoice.received_at": "5a262c54753fb073f8e16b600853bac800fc76f26a8ed7df9300dba9dd36d404",
+      "invoice.source": "7e79aba9dd5a9e6f2077a55a57f3903c1e4e84b4ef31f80dafad87a52581751d",
+      "invoice.document_id": "b86ac40e73b21f0bf0750104f6fd8fe7135c420d48d741708eae3563e18f9bc2",
+      "invoice.document_sha256": "906dadeb22b9db446465fce444956c3954a738430a9795aef4c44b3a79028f97",
+      "reading.supplier_name.value": "dac8b566bb4b06fe0850d1a531ee7937e881c9cf0911ad5ac884846979740e72",
+      "reading.supplier_name.verified": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+      "reading.amount.value": "cf8e339a443756d6ceac6fdf9e56619c99c99598cfac653a4318cfd86ba06981",
+      "reading.amount.verified": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+      "reading.currency.value": "82bb059ec10744f31e0406b8ef7a7a0f3c30c9b18435120fa859b2c0b9627888",
+      "reading.currency.verified": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+      "reading.account_number.value": "87b97f0a93e05aa32aa4180efd3a2aab485673c33e7d14bc7e741b2938d5d08e",
+      "reading.account_number.verified": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+      "rules.0.rule_id": "5521d24b8cf3e07b14fc0809677f011541551f586aa45b3c2b902d3c3f1ead0f",
+      "rules.0.outcome": "fedce8e8af485c2586f54c43a9b656dc70b41eb9be8c64b69c98391847dd4baf",
+      "rules.1.rule_id": "cb0314876ed8f3ae55780cabf10f4a8b458793c66979d8f2fe4faec57ec463c4",
+      "rules.1.outcome": "fedce8e8af485c2586f54c43a9b656dc70b41eb9be8c64b69c98391847dd4baf",
+      "policy.version": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+      "policy.sha256": "11ceaa020face03077b87b8564c3dd5b982619567385a093dce3aad8dbf69a28",
+      "policy.ledger_seq": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+      "policy.ledger_hash": "8ccb334201f5608c027f1b3e680ca5ce6493f501a3cdb4ed86ce3afc8bb3046a",
+      "decision.verdict": "08ff0df794e6bfb3eccfdc70bcd6c8b8c5e2b1afd6abdb73cc4cc62fd95a7ce9",
+      "decision.status": "0b3a594cf1e621140ac3fed4c5a6463a4153e15f0980bff55cb15d0b32cb8c95",
+      "decision.agent_verdict": "08ff0df794e6bfb3eccfdc70bcd6c8b8c5e2b1afd6abdb73cc4cc62fd95a7ce9",
+      "decision.approved_by": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "payment.beneficiary_id": "7c8f5df585674dbd669215b919618694180022a359563dfb5c4061c2f1f6fd95",
+      "payment.beneficiary_name": "dac8b566bb4b06fe0850d1a531ee7937e881c9cf0911ad5ac884846979740e72",
+      "payment.account_last4": "974306e345deea36031049f041bf8fe56646789d83998740459b882119f13462",
+      "payment.account_sha256": "3df56bf0313677f9772ba6e397424551c07d00b997a2ddfbf1659eba144a84ff",
+      "payment.amount": "7ddf633b3d576df4a9a26dbd5079633f7803b67bcea9c672232e28ae9f8e6e58",
+      "payment.currency": "82bb059ec10744f31e0406b8ef7a7a0f3c30c9b18435120fa859b2c0b9627888",
+      "payment.amount_base": "7ddf633b3d576df4a9a26dbd5079633f7803b67bcea9c672232e28ae9f8e6e58",
+      "payment.base_currency": "82bb059ec10744f31e0406b8ef7a7a0f3c30c9b18435120fa859b2c0b9627888",
+      "payment.rail": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "payment.external_id": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "ledger.seq": "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451",
+      "ledger.hash": "d9473634a9fd5b1f81335b5866b1d744021671c3120af8dea567abd633e1b332",
+      "ledger.kind": "0807ce842aee519403b764131eee1dc3a4848c949a635ffabbf343abab61198e"
+    },
+    "digests_signature": "14pND8xIjN4LPXJ+ARuhzOSVcdrIlCZqIgx2zmjICucqyq3yNvWaZwR43m6tlJGej0d5TBWeFG2sdr/jFYkbCQ=="
+  },
+  "canonical_body": "{\"decision\":{\"agent_verdict\":\"pay\",\"approved_by\":null,\"status\":\"paid_auto\",\"verdict\":\"pay\"},\"format\":\"custodio-receipt/1\",\"invoice\":{\"document_id\":\"doc-1\",\"document_sha256\":\"abababababababababababababababababababababababababababababababab\",\"id\":\"INV-0001\",\"number\":\"FE-2291\",\"received_at\":\"2026-10-17T14:58:12.5Z\",\"source\":\"pdf\"},\"issued_at\":\"2026-10-17T15:00:00Z\",\"key_id\":\"cust-56475aa75463474c\",\"ledger\":{\"hash\":\"9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a\",\"kind\":\"decision\",\"seq\":7},\"payment\":{\"account_last4\":\"6789\",\"account_sha256\":\"1212121212121212121212121212121212121212121212121212121212121212\",\"amount\":\"4200\",\"amount_base\":\"4200\",\"base_currency\":\"USD\",\"beneficiary_id\":\"b-andes\",\"beneficiary_name\":\"Andes Código S.A.S.\",\"currency\":\"USD\",\"external_id\":null,\"rail\":null},\"policy\":{\"ledger_hash\":\"efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef\",\"ledger_seq\":2,\"sha256\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"version\":3},\"reading\":{\"account_number\":{\"value\":\"000123456789\",\"verified\":true},\"amount\":{\"value\":\"4200.00\",\"verified\":true},\"currency\":{\"value\":\"USD\",\"verified\":true},\"supplier_name\":{\"value\":\"Andes Código S.A.S.\",\"verified\":true}},\"rules\":[{\"outcome\":\"pass\",\"rule_id\":\"R1\"},{\"outcome\":\"pass\",\"rule_id\":\"R4\"}],\"workspace_id\":\"ws-ejemplo\"}"
+}
