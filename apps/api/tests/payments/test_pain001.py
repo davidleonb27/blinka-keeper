@@ -86,13 +86,12 @@ def test_each_currency_gets_its_own_payment_block_with_its_own_sums() -> None:
 
 
 def test_special_characters_are_escaped_and_long_texts_cut_to_the_schema_limits() -> None:
-    tricky = "Ñandú & Hijos <S.A.S.> «Café» \"Ltda\" " + "x" * 200
-    document = parsed(
-        render(payment_file(transfer("F-001", "10", creditor_name=tricky, creditor_account="ES12 3456 7890 1234 5678 9012 3456")))
-    )
+    tricky = 'Ñandú & Hijos <S.A.S.> «Café» "Ltda" ' + "x" * 200
+    iban = "ES12 3456 7890 1234 5678 9012 3456"
+    document = parsed(render(payment_file(transfer("F-001", "10", creditor_name=tricky, creditor_account=iban))))
 
     [name] = texts(document, "//p:Cdtr/p:Nm")
-    assert name.startswith("Ñandú & Hijos <S.A.S.> «Café» \"Ltda\"")
+    assert name.startswith('Ñandú & Hijos <S.A.S.> «Café» "Ltda"')
     assert len(name) == 140
     [account] = texts(document, "//p:CdtrAcct/p:Id/p:Othr/p:Id")
     assert len(account) <= 34
