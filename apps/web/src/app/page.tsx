@@ -138,13 +138,13 @@ const COMMUNITY: { title: string; text: string; icon: LucideIcon; href: string }
 function SectionTitle({ id, eyebrow, title, lead }: { id: string; eyebrow: string; title: React.ReactNode; lead?: string }) {
   return (
     <div className="max-w-[60ch]">
-      <p id={`${id}-eyebrow`} className="eyebrow mb-3 text-brand">
+      <p id={`${id}-eyebrow`} className="eyebrow mb-3.5">
         {eyebrow}
       </p>
-      <h2 id={id} className="font-serif text-3xl font-semibold tracking-[-0.015em] text-ink sm:text-4xl">
+      <h2 id={id} className="font-serif text-[33px] leading-[1.1] text-ink [--display-tracking:-0.04em] lg:text-[46px]">
         {title}
       </h2>
-      {lead ? <p className="mt-4 text-[17px] text-ink-2">{lead}</p> : null}
+      {lead ? <p className="mt-5 text-[15px] leading-relaxed text-ink-2">{lead}</p> : null}
     </div>
   );
 }
@@ -155,7 +155,7 @@ function Hero() {
       {/* Background orbital ambient glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-1/2 right-[-5%] -translate-y-1/2 size-[650px] rounded-full bg-brand/10 blur-[130px]"
+        className="pointer-events-none absolute top-1/2 right-[-5%] -translate-y-1/2 size-[650px] rounded-full bg-brand/[0.05] blur-[130px]"
       />
       <div aria-hidden className="site-grid pointer-events-none absolute inset-0 opacity-40" />
 
@@ -166,7 +166,7 @@ function Hero() {
               <span aria-hidden className="size-1.5 rounded-full bg-brand" /> Código abierto · {LICENSE_NAME}
             </p>
 
-            <h1 id="hero-title" className="font-serif text-[42px] leading-[1.05] font-semibold tracking-[-0.025em] text-ink sm:text-[56px] lg:text-[62px]">
+            <h1 id="hero-title" className="font-serif text-[40px] leading-[1.07] text-ink [--display-tracking:-0.047em] sm:text-[52px] lg:text-[63px]">
               Tu analista de <span className="wavy-highlight">cuentas por pagar</span>
             </h1>
 
@@ -293,7 +293,7 @@ function Metrics() {
   return (
     <section aria-labelledby="medido-title" className="border-y border-line bg-surface">
       <div className="mx-auto max-w-6xl px-4 py-14">
-        <h2 id="medido-title" className="eyebrow text-brand">
+        <h2 id="medido-title" className="eyebrow">
           Medido, no prometido
         </h2>
         <dl className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-3">
@@ -302,7 +302,7 @@ function Metrics() {
             return (
               <div key={figure.label} className="flex flex-col gap-1.5">
                 <div className="order-1 flex items-center justify-between">
-                  <dd className="font-serif text-[48px] leading-none font-semibold tracking-[-0.02em] text-brand tabular">
+                  <dd className="font-serif text-[48px] leading-none text-ink tabular">
                     {figure.value}
                   </dd>
                   <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-line-2 bg-background/60 text-brand">
@@ -470,10 +470,10 @@ function SelfHost() {
 
 function FinalCall() {
   return (
-    <section aria-labelledby="final-title" className="mx-auto max-w-6xl px-4 pb-24">
-      <div className="flex flex-col items-start gap-6 rounded-3xl border border-line bg-surface p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
+    <section aria-labelledby="final-title" className="night-section">
+      <div className="mx-auto flex max-w-6xl flex-col items-start gap-8 px-4 py-20 sm:py-24 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 id="final-title" className="font-serif text-3xl font-semibold tracking-[-0.015em] text-ink">
+          <h2 id="final-title" className="font-serif text-[33px] leading-[1.1] text-ink [--display-tracking:-0.04em] lg:text-[46px]">
             Intenta que pague <span className="wavy-highlight">algo indebido</span>
           </h2>
           <p className="mt-2 max-w-[52ch] text-ink-2">
