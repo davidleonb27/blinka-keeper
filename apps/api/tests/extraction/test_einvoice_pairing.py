@@ -72,18 +72,37 @@ def test_hidden_text_found_in_the_pdf_survives_the_merge() -> None:
 def test_a_dian_xml_keeps_its_own_account_over_the_pdf() -> None:
     xml = official(dian_invoice(VALID_DIAN))
     pdf = pdf_of(
-        supplier_name="Distrito Norte Coworking SAS",
-        supplier_tax_id="901.223.610-9",
+        supplier_name="Ruta Legal Abogados SAS",
+        supplier_tax_id="900.771.245-1",
         tax_label="NIT",
-        invoice_number="DNC-1042",
-        amount=Decimal("3800000"),
+        invoice_number="RL-561",
+        amount=Decimal("4100000"),
         currency="COP",
-        account_number="0570-4410",
+        account_number="0612-6614",
     )
 
     merged = merge(xml, pdf)
 
-    assert merged.account_number.value == "0570-4410"
+    assert merged.account_number.value == "0612-6614"
     assert merged.account_number.evidence is not None
     assert "cac:PayeeFinancialAccount" in merged.account_number.evidence.quote
     assert replace(VALID_DIAN).number in merged.visible_text
+
+
+def test_a_pdf_with_another_account_than_the_xml_goes_to_a_person() -> None:
+    xml = official(dian_invoice(VALID_DIAN))
+    pdf = pdf_of(
+        supplier_name="Ruta Legal Abogados SAS",
+        supplier_tax_id="900.771.245-1",
+        tax_label="NIT",
+        invoice_number="RL-561",
+        amount=Decimal("4100000"),
+        currency="COP",
+        account_number="0612-9999",
+    )
+
+    merged = merge(xml, pdf)
+
+    assert merged.account_number.value == "0612-6614"
+    assert not merged.account_number.verified
+    assert any("cuenta" in line for line in merged.visible_text.splitlines() if line.startswith("✗"))
