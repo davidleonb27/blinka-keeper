@@ -31,8 +31,8 @@ function FieldRow({ check }: { check: FieldCrossCheck }) {
         {FIELD_LABELS[check.field]} · {check.agree ? "coinciden" : "no coinciden"}
       </p>
       <dl className="mt-1 grid gap-1">
-        {check.readings.map((reading) => (
-          <div key={reading.reader} className="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)] gap-x-2.5">
+        {check.readings.map((reading, index) => (
+          <div key={`${reading.reader}-${index}`} className="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)] gap-x-2.5">
             <dt className="truncate font-mono text-[11.5px] text-ink-3">{reading.reader}</dt>
             <dd className="min-w-0 break-words">
               <span className="font-semibold tabular">{shown(check.field, reading)}</span>
