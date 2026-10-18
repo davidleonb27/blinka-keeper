@@ -30,4 +30,7 @@ model_free = replace(
     triage_attack=doubles.triage_attack,
     read_statement=FakeStatementReader(),
 )
-app = create_app(replace(runtime, lanes=model_free))
+# Every browser of the walk calls from 127.0.0.1: the per-IP model limit would count all of them as one visitor and
+# refuse whichever test lands in a busy minute. The per-workspace limit still holds.
+limits = replace(runtime.limits, model_calls_per_minute_per_ip=1000)
+app = create_app(replace(runtime, lanes=model_free, limits=limits))
