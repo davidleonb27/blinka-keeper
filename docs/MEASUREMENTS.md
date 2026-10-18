@@ -122,6 +122,28 @@ CUSTODIO_LIVE_TESTS=1 uv run pytest -m live tests/extraction/test_second_reading
 `--local` lee en el mismo proceso, así que además reporta el costo por factura (del tope diario de `llm.py`) y la
 coincidencia entre los lectores reales.
 
+## Pruebas de propiedad (2026-10-18)
+
+**Qué se midió.** Con Hypothesis, 20.000 lotes al azar (compañía, política con topes, presupuesto y reserva, historial
+de pagos, 3 a 12 proveedores, 1 a 12 facturas con duplicados, fraccionamientos, texto oculto y monedas variadas, más
+aprobaciones humanas al azar). En cada lote se verifica a la vez: (a) todo pago no lleva ninguna regla de retención
+fallida y el auditor independiente está de acuerdo con 0 pagos indebidos; (b) la misma entrada da la misma decisión y
+las reglas en el orden del catálogo; (c, d) a una factura que el agente pagaba solo se le cambia un campo crítico a un
+valor indebido (cuenta distinta a la registrada, monto ×1000, moneda no permitida, proveedor fuera de la lista, texto
+oculto, instrucción visible, duplicado reenviado) y nunca queda pagable.
+
+**Resultado.** `20000 passing, 0 failing` (0 contraejemplos), 808,5 s de generación (13 min 28 s en total, una
+máquina de 4 núcleos). En 62 % de los casos hubo una factura pagable y se aplicó una mutación (cada una entre 7,5 % y
+9,2 %); en 38 % el lote no traía nada pagable solo y sólo corrieron (a) y (b).
+
+```bash
+cd apps/api
+CUSTODIO_SLOW_TESTS=1 uv run pytest -q -m slow tests/engine/test_payability_properties.py --hypothesis-show-statistics
+```
+
+La compuerta corre las mismas propiedades con 300 ejemplos cada una (≈18 s). Prueban el motor y el auditor sobre
+lecturas ya hechas, no la lectura del modelo.
+
 ## Lo que medimos y lo que no
 
 | Cifra | Qué prueba | Qué NO prueba |
