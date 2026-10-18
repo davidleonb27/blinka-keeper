@@ -18,6 +18,7 @@ from custodio.contracts import (
     RuleOutcome,
 )
 from custodio.engine import audit, decide_all
+from custodio.engine.cross_check import values_agree
 from tests.engine.builders import ANDES_ACCOUNT, invoice, policy, rule, state
 
 FIRST, SECOND = "claude-sonnet-5-5", "gemini-2.5-flash"
@@ -115,6 +116,13 @@ def test_an_agree_status_with_a_field_marked_in_disagreement_still_escalates() -
 def test_an_agree_status_with_fields_missing_still_escalates() -> None:
     verdict, _ = decided(with_check(ReadingCrossCheck(status=CrossCheckStatus.AGREE, fields=[])))
     assert verdict is AgentVerdict.ESCALATE
+
+
+@pytest.mark.parametrize(
+    ("field", "value"), [("amount", "cuatro mil"), ("amount", "0"), ("supplier_name", "-.-"), ("account_number", "--")]
+)
+def test_the_same_value_that_normalizes_to_nothing_is_not_an_agreement(field: str, value: str) -> None:
+    assert not values_agree(field, [value, value])
 
 
 # The auditor recomputes agreement from the raw values, not from the flags -----------------------------------------
