@@ -101,6 +101,95 @@ ejercitan su codificación, sus cabeceras y su lectura de errores. El falso repi
 una llave ya usada. El test `tests/payments/test_stripe_live.py` (marcado `live`) hace una transferencia real de 1 USD en
 modo prueba con `CUSTODIO_LIVE_TESTS=1` y una `STRIPE_SECRET_KEY` de prueba.
 
+## Ver el pago en Stripe
+
+Un `tr_…` en el acta no prueba nada por sí solo. Custodio se lo pregunta a Stripe en vivo y muestra la respuesta.
+
+### «Pago en Stripe» en el acta
+
+`GET /api/v1/payments/{factura}/stripe` (`custodio/services/stripe_service.py`) lee la transferencia con
+`Transfer.retrieve` (con `expand=balance_transaction`) y coteja cada campo contra el acta:
+
+| Campo | Se compara con |
+|---|---|
+| `amount` (menos lo reversado) | `amount_base` del acta en centavos |
+| `currency` | `usd` |
+| `destination` | la cuenta de prueba que el riel usa para el beneficiario registrado (`stripe_accounts`) |
+| `metadata.invoice_id` | la factura del acta |
+| `livemode` | `false` |
+| `amount_reversed` | 0 |
+
+Responde `status`: `verified` (todo coincide), `mismatch` (algún campo no; el acta lo marca en rojo), `missing` (Stripe
+no tiene ese id), `unavailable` (Stripe no respondió, la clave fue rechazada o se pasó el límite de Stripe) o
+`not_applicable` (el pago no salió por Stripe). La web muestra «Verificado en Stripe hace N s» con la hora en que Stripe
+contestó, el JSON crudo plegable y «Abrir en Stripe» hacia `dashboard.stripe.com/test/…`, que pide iniciar sesión en la
+cuenta de Stripe de Custodio. Si Stripe falla, el bloque dice «No se pudo consultar Stripe ahora» con «Consultar de
+nuevo»; el acta nunca muestra una página de error.
+
+- **Aislamiento.** La factura se busca en el espacio de quien llama (otra da 404). Si la transferencia existe pero su
+  metadata nombra otro espacio, no se muestra nada de ella.
+- **Lectura sola.** `StripeApiLookup` (`custodio/payments/stripe_lookup.py`) usa su propio cliente con 6 s de timeout y
+  sin reintentos, y nunca escribe en Stripe. Cualquier error de Stripe se vuelve `StripeUnavailableError` sin el
+  mensaje original (puede citar parte de la clave).
+- **Caché corta.** `CachedLookup` guarda cada respuesta 10 s por instancia: recargar el acta no vuelve a llamar a
+  Stripe. Los fallos no se guardan.
+- **Límite de tasa.** 30 consultas por minuto por espacio y 60 por IP (`RateLimits.stripe_lookups_per_minute_*`), con
+  los mismos contadores en la base que el resto de los límites.
+
+### /pagos: registro de Custodio ↔ Stripe
+
+`GET /api/v1/payments` lista los pagos del espacio (pagados por el motor o por una persona, con su ejecución) y cuadra
+el registro contra Stripe. Toma los recibos `executed` del riel `stripe_test` y las transferencias de Stripe creadas
+desde que nació el espacio (`Transfer.list` con `created[gte]`, hasta 10 páginas de 100) cuya metadata nombra este
+espacio. El emparejamiento es puro (`custodio/payments/stripe_match.py`):
+
+- cada pago del registro con su transferencia del mismo monto: **cuadra**;
+- monto distinto (o reversado): **monto distinto**;
+- un pago del registro cuyo `tr_…` no aparece: **falta en Stripe**;
+- una transferencia del espacio que nadie registró: **no está en el registro**.
+
+Cada transferencia se usa una sola vez y el resultado no depende del orden en que Stripe responde (propiedad con
+Hypothesis). Los totales (registro, Stripe y diferencia, en USD) van arriba; cualquier diferencia, en rojo. Si Stripe
+tiene más transferencias de las que se leyeron, el cuadre lo dice en vez de darse por bueno. Si el riel activo no es
+Stripe, la página lo dice y sigue mostrando los pagos.
+
+### El momento de la demo
+
+Al aprobar una factura en el acta, la web muestra «Enviando a Stripe…» mientras la aprobación viaja y, cuando el riel
+contesta, lo que de verdad contestó: «Pagado · tr_…», «No salió: …» o «Aprobado · sale el día que vence, no antes». Con
+el mismo movimiento suave que ya usa el onboarding (aparece y sube 8 px; nada si el sistema pide menos movimiento).
+
+## Archivo para Blinka (ISO 20022 pain.001)
+
+`GET /api/v1/payments/pain001.xml` (botón en /pagos: «Listo para que Blinka lo pague») exporta los pagos aprobados del
+lote como `pain.001.001.09`, el mensaje con que los bancos y socios de pago reciben una tanda de transferencias
+(`custodio/payments/pain001.py`). `?decided_on=AAAA-MM-DD` acota el lote a lo decidido ese día.
+
+- **Qué entra.** Las decisiones `paid_auto` o `paid_human` que el auditor no frenó y que tienen beneficiario
+  registrado, hayan salido o no por otro riel.
+- **Cabecera.** `MsgId = CUSTODIO-AAAAMMDD-<hash>` (mismo lote y día, mismo id: Blinka puede rechazar un archivo que ya
+  tomó), `CreDtTm`, `NbOfTxs` y `CtrlSum` de todo el archivo, `InitgPty` = la empresa.
+- **Un bloque `PmtInf` por moneda**, cada uno con su `NbOfTxs` y `CtrlSum`. Deudor = la empresa; su cuenta es
+  `BLINKA-<espacio>` (un identificador provisional hasta que Blinka asigne la cuenta real) y su agente, Blinka.
+- **Cada transferencia**: `EndToEndId` = la factura (si pasa de 35 caracteres, su inicio más un hash), monto y moneda de
+  la factura, banco, nombre, NIT o tax id, país y cuenta del beneficiario **registrado** (nunca los de la factura) y el
+  enlace al acta como referencia.
+- **Texto.** Cortado a los límites del esquema (140 para nombres, 34 para cuentas), sin caracteres de control; el
+  escritor de XML escapa `&`, `<`, `>` y comillas.
+- **Validado contra el XSD oficial.** `apps/api/tests/payments/schemas/pain.001.001.09.xsd` es el esquema de ISO 20022
+  (generado por el Standards Editor de ISO, 2019-02-14), que ISO permite reproducir libremente
+  ([condiciones de uso](https://www.iso20022.org/terms-use)); se tomó del paquete MIT `sepaxml` 2.7.0, que lo
+  redistribuye. Los tests validan con `lxml` (dependencia sólo de desarrollo) cada archivo, sumas y caracteres
+  especiales incluidos.
+
+Sin pagos aprobados no hay archivo: la API responde 409 `nothing_to_export` y el botón queda deshabilitado.
+
+### Probarlo sin clave
+
+`npm run e2e:stripe` (en `apps/web`) levanta la API de e2e con `CUSTODIO_E2E_STRIPE=fake`: el panel paga por el riel de
+Stripe real y lo lee de vuelta con el lector real, ambos sobre el transporte falso de los tests de pagos. Recorre el
+envío, el comprobante del acta, /pagos (también a 390 px) y la descarga del pain.001.
+
 ## Por qué modo prueba
 
 El reto deja fuera el dinero real, las pasarelas y el KYC. El modo prueba de Stripe es un riel real (la misma API, las
