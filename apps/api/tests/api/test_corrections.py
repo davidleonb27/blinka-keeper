@@ -10,9 +10,9 @@ from fastapi.testclient import TestClient
 
 from custodio.db.models import DecisionRow, WorkspaceRow
 from custodio.services import supplier_messaging
+from custodio.services.context import Runtime
 from custodio.services.correction_service import EXPIRY
 from custodio.services.lanes import Lanes
-from custodio.services.context import Runtime
 
 from .conftest import MutableClock
 from .doubles import invoice_text, model_free_lanes
