@@ -13,7 +13,8 @@
     "gen:api": "node scripts/gen-api-schema.mjs",
     "gen:mock": "node scripts/port-prototype-dataset.mjs",
     "check:api": "node scripts/gen-api-schema.mjs --check",
-    "e2e": "playwright test -c e2e/playwright.config.ts"
+    "e2e": "playwright test -c e2e/playwright.config.ts",
+    "e2e:stripe": "playwright test -c e2e/stripe.config.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.3",

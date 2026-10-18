@@ -70,11 +70,17 @@ function Totals({ match }: { match: RailMatchView }) {
     { label: "Diferencia", value: shown ? usd(match.difference) : "—", bad: shown && match.difference !== 0 },
   ];
   return (
-    <dl className="grid grid-cols-3 gap-2">
+    <dl className="grid grid-cols-1 gap-2 sm:grid-cols-3">
       {items.map((item) => (
-        <div key={item.label} className={cn("min-w-0 rounded-xl border border-line px-3 py-2.5", item.bad && "border-crit bg-crit-weak")}>
+        <div
+          key={item.label}
+          className={cn(
+            "flex min-w-0 items-baseline justify-between gap-3 rounded-xl border border-line px-3 py-2.5 sm:block",
+            item.bad && "border-crit bg-crit-weak",
+          )}
+        >
           <dt className="text-[12px] text-ink-3">{item.label}</dt>
-          <dd className={cn("text-[15px] font-semibold break-words tabular", item.bad && "text-crit")}>{item.value}</dd>
+          <dd className={cn("text-[15px] font-semibold whitespace-nowrap tabular", item.bad && "text-crit")}>{item.value}</dd>
         </div>
       ))}
     </dl>
