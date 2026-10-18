@@ -26,8 +26,10 @@ MAX_NAME = 140
 MAX_REMITTANCE = 140
 HASH_LENGTH = 12
 COUNTRY = re.compile(r"[A-Z]{2}")
-CONTROL = re.compile(r"[\x00-\x1f\x7f]")
+# Control characters, plus what XML 1.0 cannot carry at all (lone surrogates, U+FFFE, U+FFFF)
+CONTROL = re.compile(r"[\x00-\x1f\x7f\ud800-\udfff\ufffe\uffff]")
 SPACES = re.compile(r"\s+")
+NO_NAME = "Sin nombre"  # the schema needs at least one character
 EMPTY_BATCH = "El lote no tiene pagos aprobados: sin pagos no hay archivo para Blinka."
 
 ET.register_namespace("", NAMESPACE)
@@ -87,7 +89,7 @@ def _group_header(parent: ET.Element, payment_file: PaymentFile) -> None:
     _child(header, "CreDtTm", created.isoformat(timespec="seconds"))
     _child(header, "NbOfTxs", str(len(payment_file.transfers)))
     _child(header, "CtrlSum", _amount(control_sum(payment_file.transfers)))
-    _child(_child(header, "InitgPty"), "Nm", _text(payment_file.debtor.name, MAX_NAME))
+    _child(_child(header, "InitgPty"), "Nm", _name(payment_file.debtor.name))
 
 
 def _payment_block(parent: ET.Element, payment_file: PaymentFile, block_id: str, block: list[CreditTransfer]) -> None:
@@ -98,7 +100,7 @@ def _payment_block(parent: ET.Element, payment_file: PaymentFile, block_id: str,
     _child(payment, "NbOfTxs", str(len(block)))
     _child(payment, "CtrlSum", _amount(control_sum(block)))
     _child(_child(payment, "ReqdExctnDt"), "Dt", payment_file.execution_date.isoformat())
-    _child(_child(payment, "Dbtr"), "Nm", _text(debtor.name, MAX_NAME))
+    _child(_child(payment, "Dbtr"), "Nm", _name(debtor.name))
     _account(payment, "DbtrAcct", debtor.account_id)
     _agent(payment, "DbtrAgt", debtor.agent_name)
     for transfer in block:
@@ -118,7 +120,7 @@ def _transaction(parent: ET.Element, transfer: CreditTransfer) -> None:
 
 def _creditor(parent: ET.Element, transfer: CreditTransfer) -> None:
     creditor = _child(parent, "Cdtr")
-    _child(creditor, "Nm", _text(transfer.creditor_name, MAX_NAME))
+    _child(creditor, "Nm", _name(transfer.creditor_name))
     country = (transfer.creditor_country or "").strip().upper()
     if COUNTRY.fullmatch(country):
         _child(_child(creditor, "PstlAdr"), "Ctry", country)
@@ -158,6 +160,10 @@ def _tag(name: str) -> str:
 
 def _text(value: str, limit: int) -> str:
     return SPACES.sub(" ", CONTROL.sub(" ", value)).strip()[:limit]
+
+
+def _name(value: str) -> str:
+    return _text(value, MAX_NAME) or NO_NAME
 
 
 def _currency(code: str) -> str:
