@@ -17,7 +17,7 @@ from pydantic import BaseModel
 
 from custodio.contracts import Approval, Decision, PolicyChange, RuleOutcome, SimulationReport
 from custodio.db.models import ApprovalRow, InvoiceRow, WorkspaceRow
-from custodio.services import invoice_service, policy_service, records, trust_service
+from custodio.services import invoice_service, ledger_service, policy_service, records, trust_service
 from custodio.services.agreements import AgreementUpdate, updated
 from custodio.services.context import ServiceContext
 from custodio.services.errors import ApprovalNotAllowed, DecisionNotPending, PolicyChanged
@@ -55,13 +55,17 @@ def decide(
     note: str | None = None,
     mode: ApprovalMode | None = None,
     context: dict[str, object] | None = None,
+    on_policy_version: int | None = None,
 ) -> Decision:
+    """`on_policy_version`: the approval only stands under that version, checked again before anything is paid."""
     stored = records.decision(ctx, workspace.id, invoice_id)  # 404 when this workspace has no such decision
     invoice = records.invoice(ctx, workspace.id, invoice_id)
     if verdict == "approved":
         _refuse_hard_rules(ctx, workspace, stored, invoice)
     if not records.claim_pending(ctx, workspace.id, invoice_id):
         raise DecisionNotPending()
+    if on_policy_version is not None:
+        _hold_policy_version(ctx, workspace.id, on_policy_version)
     approval = Approval(
         invoice_id=invoice_id, decision=verdict, approver=approver, channel=CHANNEL, at=ctx.now(), note=note
     )
@@ -126,10 +130,19 @@ def approve_with_agreement(
         note=reason,
         mode=ApprovalMode.AGREEMENT_UPDATED,
         context={"agreement_policy_version": next_version},
+        on_policy_version=policy.version,
     )
     context: dict[str, object] = {"author": approver, "reason": reason, "invoice_id": invoice_id}
     applied = policy_service.apply_reviewed(ctx, workspace.id, proposed, simulated_on=policy.version, context=context)
     return ApprovedWithAgreement(decision=decision, policy_version=applied.version)
+
+
+def _hold_policy_version(ctx: ServiceContext, workspace_id: str, version: int) -> None:
+    """A rival change to the policy committed after this approval's first check must stop it before the rail is
+    called: once paid, a refused agreement would roll back the record of a payment that already went out."""
+    ledger_service.lock(ctx, workspace_id)  # policy changes write the ledger, so they wait for this approval
+    if policy_service.current(ctx, workspace_id).version != version:
+        raise PolicyChanged()
 
 
 def _refuse_hard_rules(ctx: ServiceContext, workspace: WorkspaceRow, stored: Decision, invoice: InvoiceRow) -> None:

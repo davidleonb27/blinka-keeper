@@ -39,6 +39,11 @@ def append(
     return _append_once(ctx, workspace_id, kind, subject_id, payload)
 
 
+def lock(ctx: ServiceContext, workspace_id: str) -> None:
+    """Makes the other writers of this workspace wait until this unit of work commits."""
+    _lock_chain(ctx, workspace_id)
+
+
 def _lock_chain(ctx: ServiceContext, workspace_id: str) -> None:
     """Postgres: writers of one workspace take turns until they commit, so retries cannot run out under load.
 
