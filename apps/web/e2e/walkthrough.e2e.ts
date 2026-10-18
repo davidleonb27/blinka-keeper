@@ -105,8 +105,10 @@ test("every page and the whole demo work against the real API without a single e
     const suggestions = page.getByRole("region", { name: "Custodio sugiere" });
     await expect(suggestions.getByText(/Aprobaste 3 veces a Nube Austral SpA/)).toBeVisible();
     await suggestions.getByRole("button", { name: /aplicar como versión 2/ }).click();
-    await expect(page.getByText(/la política pasó a la versión 2/)).toBeVisible();
-    await expect(page.getByRole("region", { name: "Versiones de la política" }).getByText("v2")).toBeVisible();
+    const versions = page.getByRole("region", { name: "Versiones de la política" });
+    await expect(versions.getByText("v2")).toBeVisible();
+    await expect(versions.getByText(/sugerencia aceptada/)).toBeVisible();
+    await expect(suggestions).toHaveCount(0);
   });
 
   await test.step("conciliación: el extracto cruza lo pagado, una persona revisa las alertas y se cierra el mes", async () => {
