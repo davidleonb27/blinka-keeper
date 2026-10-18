@@ -60,9 +60,14 @@ TAX_ID_LABEL = re.compile(
 )
 
 
+def strip_tax_id_label(tax_id: str) -> str:
+    """The tax id as written, without a leading document-type label."""
+    return TAX_ID_LABEL.sub("", tax_id, count=1)
+
+
 def normalize_tax_id(tax_id: str) -> str:
     """A tax id as a comparable code: its document-type label dropped, then letters and digits only."""
-    return normalize_code(TAX_ID_LABEL.sub("", fold(tax_id), count=1))
+    return normalize_code(strip_tax_id_label(fold(tax_id)))
 
 
 def _strip_suffixes(tokens: list[str]) -> list[str]:

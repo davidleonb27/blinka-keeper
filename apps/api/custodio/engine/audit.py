@@ -36,7 +36,7 @@ from custodio.engine.bank_details import Check, account_checks, tax_id_check
 from custodio.engine.domains import DomainLikeness, compare_domains, email_domain
 from custodio.engine.injection import find_instruction
 from custodio.engine.sanctions import SanctionsList, bundled_sanctions
-from custodio.engine.text import normalize_code, normalize_name
+from custodio.engine.text import normalize_code, normalize_name, normalize_tax_id
 from custodio.engine.units import as_utc, parse_amount, to_base
 
 SAME_AMOUNT = Decimal("0.005")
@@ -128,10 +128,10 @@ def _identify(name: str | None, tax_id: str | None, policy: Policy) -> Beneficia
     """By tax id when one was read, by name or alias otherwise; any name pointing elsewhere voids the match."""
     wanted_name = normalize_name(name or "")
     named = [b for b in policy.beneficiaries if wanted_name and wanted_name in _names(b)]
-    wanted_tax_id = normalize_code(tax_id or "")
+    wanted_tax_id = normalize_tax_id(tax_id or "")
     if not wanted_tax_id:
         return named[0] if len(named) == 1 else None
-    taxed = [b for b in policy.beneficiaries if normalize_code(b.tax_id) == wanted_tax_id]
+    taxed = [b for b in policy.beneficiaries if normalize_tax_id(b.tax_id) == wanted_tax_id]
     if len(taxed) != 1 or any(b.id != taxed[0].id for b in named):
         return None
     return taxed[0]

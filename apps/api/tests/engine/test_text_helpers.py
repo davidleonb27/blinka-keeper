@@ -191,3 +191,22 @@ def test_a_labelled_tax_id_finds_its_beneficiary_instead_of_a_lookalike() -> Non
     )
     match = match_beneficiary(policy, name="Valentina Ortiz", tax_id="C.C. 1.032.448.902")
     assert match.beneficiary is not None and match.name_lookalike is None
+
+
+def test_the_independent_auditor_also_knows_a_labelled_tax_id() -> None:
+    from custodio.engine.audit import _identify
+
+    policy = Policy(
+        beneficiaries=[
+            Beneficiary(
+                id="b-vo",
+                name="Valentina Ortiz",
+                tax_id="1.032.448.902",
+                bank_name="Bancolombia",
+                account_number="0612-9156",
+                currency="USD",
+            )
+        ]
+    )
+    found = _identify("Valentina Ortiz", "C.C. 1.032.448.902", policy)
+    assert found is not None and found.id == "b-vo"

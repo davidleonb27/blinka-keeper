@@ -16,6 +16,8 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
 
+from custodio.engine.text import strip_tax_id_label
+
 ABA_WEIGHTS = (3, 7, 1)
 ABA_DIGITS = 9
 ACH_DIGITS = range(4, 18)
@@ -256,6 +258,7 @@ def account_checks(value: str, *, currency: str | None, country: str | None) -> 
 
 def tax_id_check(value: str, *, country: str | None) -> Check | None:
     """NIT (CO), CPF or CNPJ (BR), RFC (MX) and EIN (US); None when the country has no scheme checked here."""
+    value = strip_tax_id_label(value)
     if country == "CO":
         return nit(value) if NIT_FORM.fullmatch(value.strip()) else None
     if country == "BR":
