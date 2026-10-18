@@ -3,8 +3,10 @@ import {
   Banknote,
   BookOpenCheck,
   Bot,
+  CheckCircle2,
   Cloud,
   Container,
+  FileCheck,
   FileSearch,
   GitPullRequest,
   Landmark,
@@ -15,6 +17,7 @@ import {
   Server,
   ShieldAlert,
   ShieldCheck,
+  Sliders,
   UserCheck,
   type LucideIcon,
 } from "lucide-react";
@@ -28,6 +31,9 @@ import { SiteHeader } from "@/components/site/site-header";
 import { Button } from "@/components/ui/button";
 import { RAIL_PITCH } from "@/lib/presentation";
 import { LICENSE_NAME, MEASURED_FIGURES, MEASUREMENTS_URL, REPO_URL, VERCEL_DEPLOY_URL, repoFile } from "@/lib/site";
+
+const METRIC_ICONS: LucideIcon[] = [ShieldCheck, CheckCircle2, Sliders];
+
 
 const SELF_HOST_COMMANDS = `# Postgres, API y web en tu máquina
 git clone ${REPO_URL}
@@ -126,7 +132,7 @@ const COMMUNITY: { title: string; text: string; icon: LucideIcon; href: string }
   { title: "Reporta en privado", icon: ShieldAlert, href: repoFile("SECURITY.md"), text: "Cualquier camino que pague algo indebido está en el alcance. Se reporta por GitHub Security Advisories." },
 ];
 
-function SectionTitle({ id, eyebrow, title, lead }: { id: string; eyebrow: string; title: string; lead?: string }) {
+function SectionTitle({ id, eyebrow, title, lead }: { id: string; eyebrow: string; title: React.ReactNode; lead?: string }) {
   return (
     <div className="max-w-[60ch]">
       <p id={`${id}-eyebrow`} className="eyebrow mb-3 text-brand">
@@ -150,7 +156,7 @@ function Hero() {
             <span aria-hidden className="size-1.5 rounded-full bg-brand" /> Código abierto · {LICENSE_NAME}
           </p>
           <h1 id="hero-title" className="font-serif text-[40px] leading-[1.03] font-semibold tracking-[-0.02em] text-ink sm:text-[56px] lg:text-[62px]">
-            Tu analista de cuentas por pagar
+            Tu analista de <span className="wavy-highlight">cuentas por pagar</span>
           </h1>
           <p className="mt-5 max-w-[46ch] text-xl text-ink">
             Lee, decide, paga, concilia y cierra el mes; <b className="font-semibold">tú solo apruebas lo que importa.</b>
@@ -195,18 +201,26 @@ function Metrics() {
     <section aria-labelledby="medido-title" className="border-y border-line bg-surface">
       <div className="mx-auto max-w-6xl px-4 py-14">
         <h2 id="medido-title" className="eyebrow text-brand">
-          Medido, no prometido
+          📊 Medido, no prometido
         </h2>
         <dl className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-3">
-          {MEASURED_FIGURES.map((figure) => (
-            <div key={figure.label} className="flex flex-col gap-1.5">
-              <dt className="order-2 text-[15px] font-semibold text-ink">{figure.label}</dt>
-              <dd className="order-1 font-serif text-[48px] leading-none font-semibold tracking-[-0.02em] text-brand tabular">
-                {figure.value}
-              </dd>
-              <dd className="order-3 text-[13.5px] text-ink-3">{figure.detail}</dd>
-            </div>
-          ))}
+          {MEASURED_FIGURES.map((figure, index) => {
+            const Icon = METRIC_ICONS[index] ?? ShieldCheck;
+            return (
+              <div key={figure.label} className="flex flex-col gap-1.5">
+                <div className="order-1 flex items-center justify-between">
+                  <dd className="font-serif text-[48px] leading-none font-semibold tracking-[-0.02em] text-brand tabular">
+                    {figure.value}
+                  </dd>
+                  <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-line-2 bg-background/60 text-brand">
+                    <Icon aria-hidden className="size-5" strokeWidth={1.8} />
+                  </span>
+                </div>
+                <dt className="order-2 text-[15px] font-semibold text-ink">{figure.label}</dt>
+                <dd className="order-3 text-[13.5px] text-ink-3">{figure.detail}</dd>
+              </div>
+            );
+          })}
         </dl>
         <p className="mt-8 text-[13px] text-ink-3">
           Medido el 17 de octubre de 2026. Lo que no se midió dice «NO MEDIDO».{" "}
@@ -224,8 +238,12 @@ function Features() {
     <section id="funciones" aria-labelledby="funciones-title-eyebrow funciones-title" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:py-24">
       <SectionTitle
         id="funciones-title"
-        eyebrow="Funciones"
-        title="Todo lo que necesita un pago para salir bien"
+        eyebrow="⚙️ Funciones"
+        title={
+          <>
+            Todo lo que necesita un <span className="wavy-highlight">pago</span> para salir bien
+          </>
+        }
         lead="Cada pieza hace una sola cosa y se puede leer en el código. Ninguna factura se paga porque un modelo lo dijo."
       />
       <ul className="mt-10 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
@@ -250,7 +268,15 @@ function HowItDecides() {
     <section aria-labelledby="como-decide-title-eyebrow como-decide-title" className="mx-auto max-w-6xl px-4 pb-20 sm:pb-24">
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <div className="min-w-0">
-          <SectionTitle id="como-decide-title" eyebrow="Cómo decide" title="Lee, decide, explica y pide permiso" />
+          <SectionTitle
+            id="como-decide-title"
+            eyebrow="🧠 Cómo decide"
+            title={
+              <>
+                Lee, decide, explica y <span className="wavy-highlight">pide permiso</span>
+              </>
+            }
+          />
           <ol className="mt-8 flex flex-col gap-4">
             {FLOW.map(({ title, tag, text, icon: Icon }) => (
               <li key={title} className="flex gap-4">
@@ -282,8 +308,12 @@ function OpenSource() {
         <div className="min-w-0">
           <SectionTitle
             id="codigo-abierto-title"
-            eyebrow="Código abierto"
-            title="Revisa cada línea que decide un pago"
+            eyebrow="📖 Código abierto"
+            title={
+              <>
+                Revisa cada línea que <span className="wavy-highlight">decide un pago</span>
+              </>
+            }
             lead={`Custodio se publica bajo licencia ${LICENSE_NAME}: úsalo, cámbialo y llévalo a producción. Las reglas, el auditor, los tests y las cifras medidas están en el repositorio.`}
           />
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -318,8 +348,12 @@ function SelfHost() {
     <section aria-labelledby="autoalojalo-title-eyebrow autoalojalo-title" className="mx-auto max-w-6xl px-4 py-20 sm:py-24">
       <SectionTitle
         id="autoalojalo-title"
-        eyebrow="Autoalójalo"
-        title="Tus facturas, en tu infraestructura"
+        eyebrow="🚀 Autoalójalo"
+        title={
+          <>
+            Tus facturas, en tu <span className="wavy-highlight">infraestructura</span>
+          </>
+        }
         lead="Sin ANTHROPIC_API_KEY siguen funcionando las reglas, el auditor, el registro, el firewall y la lectura de texto y PDF con texto. Lo que necesita al modelo lo dice."
       />
       <ul className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -347,13 +381,14 @@ function FinalCall() {
       <div className="flex flex-col items-start gap-6 rounded-3xl border border-line bg-surface p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 id="final-title" className="font-serif text-3xl font-semibold tracking-[-0.015em] text-ink">
-            Intenta que pague algo indebido
+            🎯 Intenta que pague <span className="wavy-highlight">algo indebido</span>
           </h2>
           <p className="mt-2 max-w-[52ch] text-ink-2">
             Entra con una empresa demo y una semana de facturas con trampas, o escribe tu propia factura en «Róbale a
             Custodio».
           </p>
         </div>
+
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button asChild size="lg">
             <Link href="/panel">Probar con una empresa demo</Link>
