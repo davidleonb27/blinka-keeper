@@ -40,6 +40,7 @@ from custodio.corrections import (
     safe_reference,
 )
 from custodio.db.models import InvoiceRow, SupplierCorrectionRow, WorkspaceRow
+from custodio.engine.beneficiaries import match_beneficiary
 from custodio.services import invoice_service, ledger_service, policy_service, records, supplier_messaging
 from custodio.services.context import ServiceContext
 from custodio.services.errors import (
@@ -49,6 +50,7 @@ from custodio.services.errors import (
     CorrectionLinkInvalid,
     CorrectionLinkUsed,
     CorrectionNotOffered,
+    CorrectionOtherSupplier,
     UnsupportedMediaType,
 )
 from custodio.services.supplier_messaging import WhatsAppDelivery
@@ -301,9 +303,10 @@ def _submit(ctx: ServiceContext, token: str, receive: Receive) -> SupplierReceip
     stored, workspace = _usable(ctx, token)
     original = _extraction(records.invoice(ctx, workspace.id, stored.invoice_id))
     corrected_id: str = receive(workspace, original)  # validates before anything is claimed
+    corrected = records.invoice(ctx, workspace.id, corrected_id)
+    _same_supplier(ctx, workspace.id, stored, corrected)
     _claim(ctx, stored)
     _claim_original(ctx, workspace.id, stored)
-    corrected = records.invoice(ctx, workspace.id, corrected_id)
     decided = invoice_service.decide(ctx, workspace, [corrected], execute_payments=True).batch.decisions[0]
     _supersede(ctx, workspace.id, stored.invoice_id, corrected_id)
     stored.corrected_invoice_id = corrected_id
@@ -466,6 +469,21 @@ def _usable(ctx: ServiceContext, token: str) -> tuple[SupplierCorrectionRow, Wor
     if decision.status.value != stored.original_status or decision.approval is not None:
         raise CorrectionClosed()  # a person decided it meanwhile: the request is moot
     return stored, workspace
+
+
+def _same_supplier(
+    ctx: ServiceContext, workspace_id: str, stored: SupplierCorrectionRow, corrected: InvoiceRow
+) -> None:
+    """A link answers for one supplier's invoice: anything else is refused before it is decided, let alone paid."""
+    expected = records.decision(ctx, workspace_id, stored.invoice_id).beneficiary_id
+    reading = _extraction(corrected)
+    found = match_beneficiary(
+        policy_service.current(ctx, workspace_id),
+        name=reading.supplier_name.value,
+        tax_id=reading.supplier_tax_id.value,
+    ).beneficiary
+    if found is None or found.id != expected:
+        raise CorrectionOtherSupplier()
 
 
 def _claim(ctx: ServiceContext, stored: SupplierCorrectionRow) -> None:

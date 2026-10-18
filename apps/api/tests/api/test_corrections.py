@@ -264,6 +264,8 @@ def test_an_invoice_of_another_supplier_is_refused_and_the_link_stays_usable(
     assert response.status_code == 422
     assert response.json()["code"] == "correction_other_supplier"
     assert overview(client, workspace)["waiting"] == 1
+    summary = client.get("/api/v1/workspaces/current", headers=workspace.headers).json()
+    assert summary["pending_invoices"] == 0  # nothing of it was kept, let alone decided
     assert client.get(f"/api/v1/supplier/corrections/{token}").status_code == 200
 
 

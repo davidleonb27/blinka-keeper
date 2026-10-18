@@ -6,6 +6,7 @@ the registered agreement, never from the document's words, so an invoice cannot 
 
 from __future__ import annotations
 
+import re
 from datetime import date
 from decimal import Decimal
 
@@ -26,6 +27,7 @@ from custodio.engine.formatting import money
 from custodio.extraction.amounts import currencies_named, has_bare_dollar
 
 FAILED = (RuleOutcome.HOLD, RuleOutcome.ESCALATE)
+CURRENCY_CODE = re.compile(r"[A-Z]{3}")
 UPLOAD_ONLY_FIELDS = {"supplier_name": "el nombre del proveedor", "supplier_tax_id": "la identificación fiscal"}
 ACCOUNT_FIELD = "account_number"
 LABELS = {spec.id: spec.label for spec in RULES}
@@ -203,7 +205,7 @@ def _agreement_issues(decision: Decision, known: Beneficiary) -> list[Issue]:
                 kind=IssueKind.CURRENCY_MISMATCH,
                 rule_id="R6",
                 fields=[CorrectableField.AMOUNT, CorrectableField.CURRENCY],
-                problem=f"La factura viene en {currency} y lo acordado con {known.name} es en {deal.currency}.",
+                problem=f"La factura viene en {_code(currency)} y lo acordado con {known.name} es en {deal.currency}.",
                 expected=_agreed(deal.kind, deal.amount, deal.currency),
             )
         ]
@@ -215,7 +217,7 @@ def _agreement_issues(decision: Decision, known: Beneficiary) -> list[Issue]:
             rule_id="R6",
             fields=[CorrectableField.AMOUNT],
             problem=(
-                f"La factura pide {money(amount, currency)} y lo acordado con {known.name} es "
+                f"La factura pide {money(amount, _code(currency))} y lo acordado con {known.name} es "
                 f"{money(deal.amount, deal.currency)} por factura."
             ),
             expected=f"{money(deal.amount, deal.currency)}, el monto acordado",
@@ -230,7 +232,7 @@ def _agreed(kind: AgreementKind, amount: Decimal, currency: str) -> str:
 
 
 def _currency_not_allowed(currency: str | None, allowed: str) -> Issue:
-    invoiced = f"en {currency}, " if currency else ""
+    invoiced = f"en {_code(currency)}, " if currency else ""
     return Issue(
         kind=IssueKind.CURRENCY_NOT_ALLOWED,
         rule_id="R8",
@@ -254,6 +256,11 @@ def _over_monthly_cap(result: RuleResult | None, known: Beneficiary | None) -> b
 
 
 # Helpers ------------------------------------------------------------------------------------------------------------
+
+
+def _code(currency: str) -> str:
+    """A currency as read is quoted only when it is an ISO code: the document never writes into these texts."""
+    return currency if CURRENCY_CODE.fullmatch(currency) else "otra moneda"
 
 
 def _unique(issues: list[Issue]) -> list[Issue]:

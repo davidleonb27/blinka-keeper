@@ -203,3 +203,11 @@ class CorrectionClosed(CorrectionLinkGone):
 class CorrectionInputInvalid(ServiceError):
     code = "correction_input_invalid"
     message = "Envíe la factura corregida (PDF o imagen) o confirme los datos que se piden."
+
+
+class CorrectionOtherSupplier(CorrectionInputInvalid):
+    code = "correction_other_supplier"
+    message = (
+        "La factura enviada no es de este proveedor, o no se pudo leer de quién es. Este enlace sólo recibe la "
+        "corrección de esta factura; envíe una copia legible."
+    )
