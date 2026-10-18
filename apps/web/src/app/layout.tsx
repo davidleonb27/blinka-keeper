@@ -37,7 +37,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" suppressHydrationWarning className={`scroll-smooth ${sans.variable} ${mono.variable}`}>
+    <html lang="es" suppressHydrationWarning className={`${sans.variable} ${mono.variable}`}>
       <body className="min-h-dvh">
         <Providers>{children}</Providers>
       </body>

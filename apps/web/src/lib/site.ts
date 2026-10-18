@@ -2,7 +2,7 @@
 
 export const REPO_SLUG = "davidleonb27/blinka-keeper";
 export const REPO_URL = `https://github.com/${REPO_SLUG}`;
-export const DEMO_URL = "https://custodio-blinka-green.vercel.app";
+export const DEMO_URL = "https://blinka-keeper.vercel.app";
 export const LICENSE_NAME = "MIT";
 
 export function repoFile(path: string): string {
