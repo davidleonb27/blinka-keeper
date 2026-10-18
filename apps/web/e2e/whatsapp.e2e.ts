@@ -56,7 +56,7 @@ test("a phone linked from the panel sends an invoice and the panel shows it on i
   await page.getByRole("link", { name: /Probar la demo/ }).first().click();
   await expect(page).toHaveURL(/\/panel$/);
 
-  const card = page.getByRole("region", { name: "Recibe facturas por WhatsApp" });
+  const card = page.getByRole("region", { name: "Canal de WhatsApp" });
   await card.getByRole("button", { name: "Ligar mi teléfono" }).click();
   const code = (await card.getByLabel("Código de un solo uso").textContent())?.trim() ?? "";
   expect(code).toMatch(/^[A-Z2-9]{6}$/);

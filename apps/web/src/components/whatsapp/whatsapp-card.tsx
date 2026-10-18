@@ -19,7 +19,7 @@ export function WhatsAppCard() {
   const linked = phones.length > 0;
   const requestCode = () => create.mutate(undefined, { onError: (error) => toast.error(messageOf(error)) });
   return (
-    <section aria-label="Recibe facturas por WhatsApp" className="card-surface flex flex-col gap-4 p-5">
+    <section aria-label="Canal de WhatsApp" className="card-surface flex flex-col gap-4 p-5">
       <div className="flex min-w-0 items-start gap-3">
         <MessageCircle aria-hidden className="size-6 shrink-0 text-brand" />
         <div className="min-w-0 flex-1">
