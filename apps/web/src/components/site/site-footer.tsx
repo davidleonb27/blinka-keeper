@@ -32,6 +32,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     title: "Comunidad",
     links: [
       { label: "GitHub", href: REPO_URL, external: true },
+      { label: "Instagram", href: "https://www.instagram.com/blinkakeeper/", external: true },
       { label: "Contribuir", href: repoFile("CONTRIBUTING.md"), external: true },
       { label: "Código de conducta", href: repoFile("CODE_OF_CONDUCT.md"), external: true },
       { label: "Reportar una vulnerabilidad", href: repoFile("SECURITY.md"), external: true },
