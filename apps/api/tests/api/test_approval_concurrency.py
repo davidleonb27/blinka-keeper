@@ -65,7 +65,8 @@ def test_an_approval_whose_agreement_lost_the_race_never_pays(
     a_rival_version_lands_while_claiming(monkeypatch)
 
     body: dict[str, Any] = {"approver": ANA, "reason": REASON, "amount": "2236.00", "expected_policy_version": 1}
-    response = client.post(f"/api/v1/decisions/{invoice_id}/approve-with-agreement", headers=workspace.headers, json=body)
+    url = f"/api/v1/decisions/{invoice_id}/approve-with-agreement"
+    response = client.post(url, headers=workspace.headers, json=body)
 
     assert response.status_code == 409, response.text
     assert response.json()["code"] == "policy_changed"
@@ -74,4 +75,3 @@ def test_an_approval_whose_agreement_lost_the_race_never_pays(
     assert policy(client, workspace)["version"] == 1
     decision = client.get(f"/api/v1/decisions/{invoice_id}", headers=workspace.headers).json()["decision"]
     assert decision["status"] == "pending_approval"
-
