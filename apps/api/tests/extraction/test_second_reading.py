@@ -237,7 +237,7 @@ def test_with_gemini_the_second_reader_is_gemini_and_only_two_readers_vote(
 ) -> None:
     checked = read_text()
     assert checked.status is CrossCheckStatus.AGREE
-    assert [r.reader for r in field_check(checked, "amount").readings] == ["claude-sonnet-5-5", "gemini-2.5-flash"]
+    assert [r.reader for r in field_check(checked, "amount").readings] == ["claude-sonnet-5-5", "gemini-3.8-flash"]
     assert readers.second_calls() == []
     [request] = gemini_reader.requests
     assert "gemini-2.5-flash:generateContent" in request["url"]
@@ -338,3 +338,17 @@ def test_the_reading_check_names_why_gemini_would_fall_back(gemini_reader: FakeG
     status = second_reading.gemini_check()
     assert status.startswith("Gemini respondió con estado 429")
     assert "test-key-for-doubles" not in status
+
+
+def test_flash_models_lists_only_gemini_models_that_generate(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key-for-doubles")
+    listing = {
+        "models": [
+            {"name": "models/gemini-3-flash", "supportedGenerationMethods": ["generateContent"]},
+            {"name": "models/gemini-3-pro", "supportedGenerationMethods": ["generateContent"]},
+            {"name": "models/gemini-embedding", "supportedGenerationMethods": ["embedContent"]},
+            {"name": "models/imagen-4", "supportedGenerationMethods": ["generateContent"]},
+        ]
+    }
+    monkeypatch.setattr(httpx, "get", lambda *args, **kwargs: httpx.Response(200, json=listing))
+    assert gemini.flash_models() == ["gemini-3-flash", "gemini-3-pro"]
