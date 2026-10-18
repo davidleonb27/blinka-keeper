@@ -51,16 +51,17 @@ def issue(ctx: ServiceContext, workspace_id: str, decision: Decision, policy: Po
     if entry.payload.get("status") != decision.status.value:
         raise ReceiptUnavailable()  # the ledger recorded another outcome: nothing is signed that it does not show
     invoice = records.invoice(ctx, workspace_id, decision.invoice_id)
+    receipt_policy, in_force = _policy_in_force(ctx, workspace_id, entry, policy)
     facts = DecisionFacts(
         workspace_id=workspace_id,
         decision=decision,
         invoice=records.as_case(invoice),
         document_id=invoice.document_id,
         document_sha256=_document_digest(ctx, workspace_id, invoice.document_id),
-        policy=_policy_in_force(ctx, workspace_id, entry, policy),
+        policy=receipt_policy,
         entry=entry,
-        beneficiary=next((b for b in policy.beneficiaries if b.id == decision.beneficiary_id), None),
-        base_currency=policy.base_currency,
+        beneficiary=next((b for b in in_force.beneficiaries if b.id == decision.beneficiary_id), None),
+        base_currency=in_force.base_currency,
     )
     signer = ctx.receipt_signer
     return sign_receipt(build_body(facts, signer.key_id), signer)
@@ -75,20 +76,26 @@ def _document_digest(ctx: ServiceContext, workspace_id: str, document_id: str | 
     return hashlib.sha256(data).hexdigest() if data is not None else None
 
 
-def _policy_in_force(ctx: ServiceContext, workspace_id: str, decided: LedgerEntry, current: Policy) -> ReceiptPolicy:
-    """The last policy change written before the decision; the current version if the ledger has none."""
+def _policy_in_force(
+    ctx: ServiceContext, workspace_id: str, decided: LedgerEntry, current: Policy
+) -> tuple[ReceiptPolicy, Policy]:
+    """The last policy change written before the decision; the current version if the ledger has none.
+
+    The beneficiary's account and the base currency come from that version, so a later change never rewrites where an
+    earlier payment went."""
     changes = ledger_service.entries(ctx, workspace_id, kinds=(LedgerKind.POLICY_CHANGED,))
     change = next((entry for entry in reversed(changes) if entry.seq < decided.seq), None)
     version = _version(change.payload, current.version) if change else current.version
     document = ctx.session.scalar(
         select(PolicyRow.document).where(PolicyRow.workspace_id == workspace_id, PolicyRow.version == version)
     )
+    in_force = Policy.model_validate(document) if document is not None else current
     return ReceiptPolicy(
         version=version,
         sha256=policy_digest(document) if document is not None else None,
         ledger_seq=change.seq if change else None,
         ledger_hash=change.hash if change else None,
-    )
+    ), in_force
 
 
 def _version(payload: dict[str, Any], fallback: int) -> int:
