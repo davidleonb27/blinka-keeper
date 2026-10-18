@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-/** The official Blinka / Custodio logo mark. */
+/** The official Blinka Keeper logo mark. */
 export function Seal({ className }: { className?: string }) {
   return (
     <span className={cn("relative inline-flex items-center justify-center shrink-0", className)}>

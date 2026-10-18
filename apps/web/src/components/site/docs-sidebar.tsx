@@ -22,7 +22,7 @@ export function DocsSidebar() {
     <nav
       ref={navRef}
       aria-label="Documentación"
-      className="-mx-4 overflow-x-auto border-b border-line px-4 py-3 lg:sticky lg:top-36 lg:mx-0 lg:max-h-[calc(100dvh-9rem)] lg:overflow-y-auto lg:border-0 lg:px-0 lg:py-8"
+      className="-mx-4 overflow-x-auto border-b border-line px-4 py-3 lg:sticky lg:top-16 lg:mx-0 lg:max-h-[calc(100dvh-4rem)] lg:overflow-y-auto lg:border-0 lg:px-0 lg:py-8"
     >
       <div className="flex gap-1 lg:flex-col lg:gap-6">
         {docsGroups().map(({ group, pages }) => (

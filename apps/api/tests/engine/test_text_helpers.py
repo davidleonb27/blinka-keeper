@@ -7,7 +7,7 @@ from custodio.contracts import Beneficiary, Policy
 from custodio.engine.beneficiaries import match_beneficiary
 from custodio.engine.formatting import day_month, money, percent, signed_percent
 from custodio.engine.injection import find_instruction
-from custodio.engine.text import normalize_code, normalize_name
+from custodio.engine.text import normalize_code, normalize_name, normalize_tax_id
 
 
 @pytest.mark.parametrize(
@@ -155,3 +155,39 @@ def test_instructions_to_the_agent_are_found(text: str) -> None:
 )
 def test_ordinary_invoice_text_is_not_an_instruction(text: str) -> None:
     assert find_instruction(text) is None
+
+
+@pytest.mark.parametrize(
+    ("written", "registered"),
+    [
+        ("C.C. 1.032.448.902", "1.032.448.902"),
+        ("cc. 1032448902", "1.032.448.902"),
+        ("NIT: 900.123.456-7", "900123456-7"),
+        ("RFC: CEA010101AB1", "CEA010101AB1"),
+        ("EIN 12-3456789", "12-3456789"),
+    ],
+)
+def test_a_document_type_label_before_a_tax_id_does_not_change_who_it_is(written: str, registered: str) -> None:
+    assert normalize_tax_id(written) == normalize_tax_id(registered)
+
+
+def test_an_id_that_starts_with_label_letters_is_kept_whole() -> None:
+    assert normalize_tax_id("CEA010101AB1") == "CEA010101AB1"
+    assert normalize_tax_id("NIT900") != normalize_tax_id("900")
+
+
+def test_a_labelled_tax_id_finds_its_beneficiary_instead_of_a_lookalike() -> None:
+    policy = Policy(
+        beneficiaries=[
+            Beneficiary(
+                id="b-vo",
+                name="Valentina Ortiz",
+                tax_id="1.032.448.902",
+                bank_name="Bancolombia",
+                account_number="0612-9156",
+                currency="USD",
+            )
+        ]
+    )
+    match = match_beneficiary(policy, name="Valentina Ortiz", tax_id="C.C. 1.032.448.902")
+    assert match.beneficiary is not None and match.name_lookalike is None

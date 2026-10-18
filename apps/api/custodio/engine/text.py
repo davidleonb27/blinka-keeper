@@ -51,6 +51,20 @@ def normalize_code(code: str) -> str:
     return re.sub(r"[^A-Z0-9]", "", fold(code).upper())
 
 
+# A document-type label written before a tax id («C.C. 1.032.448.902», «NIT: 900.123.456-7»): the label says which
+# kind of id it is, not which person, so it is left out when two ids are compared. It must be followed by a separator,
+# so an id that merely starts with those letters (an RFC such as CEA010101AB1) is kept whole.
+TAX_ID_LABEL = re.compile(
+    r"^\s*(?:C\.?\s?C|C\.?\s?E|T\.?\s?I|NIT|RUT|RUC|RFC|CNPJ|CPF|EIN|DNI|CUIT|NIF|CI)\.?\s*(?:[:#Nº°.-]+\s*|\s+)",
+    re.IGNORECASE,
+)
+
+
+def normalize_tax_id(tax_id: str) -> str:
+    """A tax id as a comparable code: its document-type label dropped, then letters and digits only."""
+    return normalize_code(TAX_ID_LABEL.sub("", fold(tax_id), count=1))
+
+
 def _strip_suffixes(tokens: list[str]) -> list[str]:
     for suffix in COMPANY_SUFFIXES:
         if len(tokens) > len(suffix) and tuple(tokens[-len(suffix) :]) == suffix:
