@@ -152,7 +152,7 @@ function UploadForm({ onDecided }: { onDecided: () => void }) {
       >
         <FileUp aria-hidden className="size-6 text-brand" />
         <span className="font-semibold">Arrastra las facturas aquí o elígelas</span>
-        <span className="text-[13px] text-ink-2">PDF, imagen, .eml o .txt, hasta 4 MB cada una.</span>
+        <span className="text-[13px] text-ink-2">PDF, imagen, XML de la factura electrónica (DIAN o CFDI), .eml o .txt, hasta 4 MB cada una.</span>
         <input
           id={inputId}
           type="file"

@@ -22,6 +22,7 @@ dependencies = [
     "stripe==16.0.0",
     "cryptography>=46",
     "uvicorn>=0.32",
+    "defusedxml>=0.7.1",
 ]
 
 [dependency-groups]
@@ -32,6 +33,7 @@ dev = [
     "ruff>=0.8",
     "mypy>=2.4.0",
     "lxml>=6.1.3",
+    "types-defusedxml>=0.7",
 ]
 
 [tool.ruff]
