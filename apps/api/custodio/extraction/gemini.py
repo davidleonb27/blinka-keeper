@@ -18,7 +18,10 @@ from custodio import llm
 
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 TIMEOUT_SECONDS = 60.0
-MAX_OUTPUT_TOKENS = 2048
+MAX_OUTPUT_TOKENS = 4096
+# Gemini 2.5 thinks by default and its thoughts count against MAX_OUTPUT_TOKENS: an unbounded budget can end the
+# answer with MAX_TOKENS, and every reading would become `unavailable`.
+THINKING_BUDGET = 1024
 # USD per million tokens (input, output), Gemini Flash list price; thinking tokens are billed as output.
 PRICE_PER_MILLION = (0.30, 2.50)
 _QUOTED_VALUE = {
@@ -55,6 +58,7 @@ def generate_json(
             "responseSchema": schema,
             "temperature": 0,
             "maxOutputTokens": MAX_OUTPUT_TOKENS,
+            "thinkingConfig": {"thinkingBudget": THINKING_BUDGET},
         },
     }
     payload = _post(model, body)

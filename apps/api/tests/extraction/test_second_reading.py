@@ -242,6 +242,8 @@ def test_with_gemini_the_second_reader_is_gemini_and_only_two_readers_vote(
     [request] = gemini_reader.requests
     assert "gemini-2.5-flash:generateContent" in request["url"]
     assert request["headers"]["x-goog-api-key"] == "test-key-for-doubles"
+    config = request["json"]["generationConfig"]
+    assert config["thinkingConfig"]["thinkingBudget"] < config["maxOutputTokens"]
 
 
 def test_gemini_spend_counts_against_the_daily_budget(gemini_reader: FakeGemini) -> None:
