@@ -39,7 +39,7 @@ from custodio.corrections import (
     corrected_text,
     safe_reference,
 )
-from custodio.db.models import InvoiceRow, SupplierCorrectionRow, WorkspaceRow
+from custodio.db.models import DecisionRow, InvoiceRow, SupplierCorrectionRow, WorkspaceRow
 from custodio.engine.beneficiaries import match_beneficiary
 from custodio.services import invoice_service, ledger_service, policy_service, records, supplier_messaging
 from custodio.services.context import ServiceContext
@@ -346,6 +346,8 @@ def _why_not(
         return "Esta factura ya se reemplazó por la corrección del proveedor."
     if decision.status not in STOPPED or decision.approval is not None:
         return "Sólo se pide una corrección para una factura retenida o en espera que nadie haya decidido."
+    if _audit_blocked(ctx, workspace_id, decision.invoice_id):
+        return "El auditor independiente frenó este pago; lo revisa una persona, no el proveedor."
     if _extraction(row).source is InvoiceSource.INTENT:
         return "La pidió otro agente por el firewall: se corrige en el sistema que la envió, no con el proveedor."
     if assessment.blockers:
@@ -355,6 +357,11 @@ def _why_not(
     if next_round > MAX_ROUNDS:
         return f"Ya hubo {MAX_ROUNDS} rondas de corrección con el proveedor; ahora decide una persona."
     return None
+
+
+def _audit_blocked(ctx: ServiceContext, workspace_id: str, invoice_id: str) -> bool:
+    row = ctx.session.get(DecisionRow, (workspace_id, invoice_id))
+    return row is not None and bool(row.audit_blocked)
 
 
 def _assess(ctx: ServiceContext, workspace: WorkspaceRow, decision: Decision, row: InvoiceRow) -> Assessment:
