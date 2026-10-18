@@ -54,6 +54,11 @@ def two_decimals(value: float) -> str:
     return _es_number(Decimal(str(value)), 2)
 
 
+def with_cents(amount: Decimal) -> str:
+    """`4.800,00`: an amount as read, cents always shown."""
+    return _es_number(amount, 2)
+
+
 def thousands(count: int) -> str:
     """`19.457`."""
     return _es_number(Decimal(count), 0)

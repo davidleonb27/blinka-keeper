@@ -39,7 +39,9 @@ def comparison(field: str, first: str | None, second: str | None, *, agree: bool
 
 def checked(**second: str | None) -> ReadingCrossCheck:
     """The second reader gives CLEAN values except the ones passed; `agree` is what an honest comparer would say."""
-    fields = [comparison(name, value, second.get(name, value), agree=name not in second) for name, value in CLEAN.items()]
+    fields = [
+        comparison(name, value, second.get(name, value), agree=name not in second) for name, value in CLEAN.items()
+    ]
     status = CrossCheckStatus.DISAGREE if second else CrossCheckStatus.AGREE
     return ReadingCrossCheck(status=status, fields=fields)
 
