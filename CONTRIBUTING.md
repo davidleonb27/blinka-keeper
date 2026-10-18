@@ -17,7 +17,7 @@ Por eso las reglas para contribuir son pocas pero firmes.
 Requisitos: Python 3.12 con [uv](https://docs.astral.sh/uv/), Node.js 24 y, si quieres probar el autoalojado, Docker.
 
 ```bash
-git clone https://github.com/davidleonb27/custodio-blinka.git
+git clone https://github.com/davidleonb27/blinka-keeper.git
 cd custodio-blinka
 cp .env.example .env                      # todas las variables son opcionales para desarrollar
 cd apps/api && uv sync && cd ../..

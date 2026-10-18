@@ -39,7 +39,7 @@ Este código de conducta aplica tanto a espacios del proyecto como a espacios p�
 
 ## Aplicación
 
-Instancias de comportamiento abusivo, acosador o inaceptable de otro modo podrán ser reportadas a los administradores de la comunidad responsables del cumplimiento a través de un reporte privado a los mantenedores en https://github.com/davidleonb27/custodio-blinka/security/advisories/new (empieza el título con «Conducta:»; no es público) o un mensaje a [@davidleonb27](https://github.com/davidleonb27) en GitHub. Todas las quejas serán evaluadas e investigadas de una manera puntual y justa.
+Instancias de comportamiento abusivo, acosador o inaceptable de otro modo podrán ser reportadas a los administradores de la comunidad responsables del cumplimiento a través de un reporte privado a los mantenedores en https://github.com/davidleonb27/blinka-keeper/security/advisories/new (empieza el título con «Conducta:»; no es público) o un mensaje a [@davidleonb27](https://github.com/davidleonb27) en GitHub. Todas las quejas serán evaluadas e investigadas de una manera puntual y justa.
 
 Todos los administradores de la comunidad están obligados a respetar la privacidad y la seguridad de quienes reporten incidentes.
 

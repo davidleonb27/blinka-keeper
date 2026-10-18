@@ -9,7 +9,7 @@ issue. Any path that leads Custodio to pay something it should not is in scope.*
 
 **No abras un issue público ni un PR.** Repórtalo en privado con GitHub Security Advisories:
 
-1. Entra a <https://github.com/davidleonb27/custodio-blinka/security/advisories/new>.
+1. Entra a <https://github.com/davidleonb27/blinka-keeper/security/advisories/new>.
 2. Describe qué hiciste, qué esperabas y qué pasó. Incluye los pasos mínimos para reproducirlo (la factura, el texto o
    la intención de pago exactos) y la versión o el commit.
 3. Si lo probaste en la demo pública, di la hora aproximada y el ID de la decisión o del intento.

@@ -88,7 +88,7 @@ const SCENES = {
     const chips = ["En producción", "Pagos reales · Stripe modo prueba", "Bajo ataque"].map((text, i) =>
       put(el(`<div class="chip"><i class="dot"></i>${text}</div>`), { position: "absolute",
         left: (v ? 80 : 120 + [0, 330, 930][i]) + "px", top: (v ? 1220 + i * 110 : 720) + "px" }));
-    const url = put(el(`<div class="mono" style="font-size:26px;color:var(--ink-3)">custodio-blinka-green.vercel.app</div>`), {
+    const url = put(el(`<div class="mono" style="font-size:26px;color:var(--ink-3)">blinka-keeper.vercel.app</div>`), {
       position: "absolute", left: (v ? 80 : 120) + "px", top: (v ? 1600 : 860) + "px" });
     return (t) => {
       rise(a, prog(t, 0.2));
@@ -236,8 +236,8 @@ const SCENES = {
     const tag = put(el(`<div style="font-size:${v ? 38 : 36}px;color:var(--ink-2)">El modelo lee, el código decide, la persona autoriza.</div>`),
       { position: "absolute", left: x + "px", top: (v ? 870 : 640) + "px", maxWidth: (v ? 900 : 1600) + "px" });
     const meta = put(el(`<div style="display:flex;flex-direction:column;gap:12px;font-size:26px;color:var(--ink-3)">
-      <span class="mono" style="color:var(--ink)">custodio-blinka-green.vercel.app</span>
-      <span class="mono">github.com/davidleonb27/custodio-blinka · MIT</span>
+      <span class="mono" style="color:var(--ink)">blinka-keeper.vercel.app</span>
+      <span class="mono">github.com/davidleonb27/blinka-keeper · MIT</span>
       <span>DreamMakers · Adriano Joao Souza Reyna · Juan David Leon · Leober Ramos · Hackathon 30X, Reto Blinka</span></div>`),
       { position: "absolute", left: x + "px", top: (v ? 1040 : 740) + "px", maxWidth: (v ? 920 : 1700) + "px" });
     return (t) => {

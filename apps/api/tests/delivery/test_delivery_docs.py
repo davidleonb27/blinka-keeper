@@ -25,7 +25,7 @@ OWNED_DOCS = (
 MAX_SPOKEN_WORDS_PER_SECOND = 2.6
 X_MAX_CHARS = 280
 X_LINK_CHARS = 23
-DEMO_URL = "https://custodio-blinka-green.vercel.app"
+DEMO_URL = "https://blinka-keeper.vercel.app"
 URL_PLACEHOLDER = "{{DEMO_URL}}"
 MEASURED_ON = "2026-10-17"
 MEASURED_FIGURES = ("61,1 %", "36", "25.139", "8.136", "4,2 s", "6,0 s")
@@ -370,7 +370,7 @@ def test_readme_opens_in_spanish_and_english_with_the_demo_self_hosting_and_lice
     for phrase in (
         "El agente de cuentas por pagar de código abierto",
         "The open-source accounts-payable agent",
-        "https://custodio-blinka-green.vercel.app",
+        "https://blinka-keeper.vercel.app",
         "docker compose up --build",
         "vercel.com/new/clone",
         "actions/workflows/ci.yml/badge.svg",

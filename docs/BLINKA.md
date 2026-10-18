@@ -3,7 +3,7 @@
 > **Custodio decide; Blinka paga.** Una página para el equipo de Blinka: qué problema resuelve en sus clientes, dónde
 > se conecta, qué está medido y qué falta.
 
-Demo desplegada: https://custodio-blinka-green.vercel.app · Código: este repositorio (MIT).
+Demo desplegada: https://blinka-keeper.vercel.app · Código: este repositorio (MIT).
 
 ## El problema de sus clientes
 
@@ -70,7 +70,7 @@ La instrucción viaja en el acta (`decision.execution.instruction`):
   "beneficiary_country": "US",
   "bank_name": "Mercury",
   "account_number": "202211887766",
-  "reference": "https://custodio-blinka-green.vercel.app/acta/F05",
+  "reference": "https://blinka-keeper.vercel.app/acta/F05",
   "idempotency_key": "ws-1:F05"
 }
 ```

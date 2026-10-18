@@ -38,7 +38,7 @@ def main() -> None:
             lanes=production_lanes(),
             clock=lambda: demo_moment,
             limits=RateLimits(),
-            public_base_url="https://custodio-blinka-green.vercel.app",
+            public_base_url="https://blinka-keeper.vercel.app",
         )
         with TestClient(create_app(runtime)) as client:
             workspace = client.post("/api/v1/workspaces", json={"mode": "demo"}).json()["workspace_id"]

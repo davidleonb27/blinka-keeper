@@ -5,7 +5,7 @@ bloque se muestra algo que ningún otro equipo del reto tiene funcionando (ver �
 el diferencial que sostiene todo, no el tema único.
 
 Duración objetivo: 3:00 o menos. Doce bloques, unas 410 palabras, alrededor de 2,3 palabras por segundo.
-Se graba en producción (https://custodio-blinka-green.vercel.app) con una toma continua por bloque, el mouse real a
+Se graba en producción (https://blinka-keeper.vercel.app) con una toma continua por bloque, el mouse real a
 velocidad humana y sin acelerar. Las cifras entre corchetes se confirman en pantalla justo antes de grabar; si cambian,
 se ajusta la frase. Los bloques marcados con un carril se graban sólo cuando ese carril está en producción.
 

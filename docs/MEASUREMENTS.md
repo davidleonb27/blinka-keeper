@@ -1,6 +1,6 @@
 # Mediciones
 
-Cifras medidas sobre la versión desplegada en https://custodio-blinka-green.vercel.app. Lo que no aparece aquí ni en
+Cifras medidas sobre la versión desplegada en https://blinka-keeper.vercel.app. Lo que no aparece aquí ni en
 [`DATASET.md`](DATASET.md) no se midió.
 
 ## Lectura con el modelo real (2026-10-17)
@@ -13,7 +13,7 @@ documento. Cada una de las 36 especificaciones de `custodio.dataset.demo_specs()
 **Cómo.** Desde `apps/api`, sin clave de modelo local (las llamadas a Claude las hace la API desplegada):
 
 ```bash
-uv run python scripts/measure_reading.py --base-url https://custodio-blinka-green.vercel.app --max-uploads 40
+uv run python scripts/measure_reading.py --base-url https://blinka-keeper.vercel.app --max-uploads 40
 ```
 
 El script crea un espacio demo (`POST /api/v1/workspaces` con `{"mode": "demo"}`), usa sólo su `workspace_id` en la

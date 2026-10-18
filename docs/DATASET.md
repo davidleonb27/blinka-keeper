@@ -94,7 +94,7 @@ tiempo. Con la misma semilla los conteos son los mismos; el tiempo cambia. Sale 
 
 Todo se midió el 2026-10-17. Lo que no aparece aquí no se midió.
 
-**Dataset dorado en producción.** Un espacio demo en https://custodio-blinka-green.vercel.app
+**Dataset dorado en producción.** Un espacio demo en https://blinka-keeper.vercel.app
 (`POST /api/v1/workspaces` con `{"mode": "demo"}`) nace con las 36 facturas del dataset sembradas como pendientes; las
 cifras son las métricas del lote una vez decidido por la API desplegada. El mismo resultado sale en local con
 `decide_all(demo_cases(), *demo_company())` y `audit` (17 pagos re-auditados, 0 indebidos).

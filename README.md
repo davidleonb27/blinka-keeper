@@ -1,27 +1,27 @@
 # Custodio
 
-[![CI](https://github.com/davidleonb27/custodio-blinka/actions/workflows/ci.yml/badge.svg)](https://github.com/davidleonb27/custodio-blinka/actions/workflows/ci.yml)
+[![CI](https://github.com/davidleonb27/blinka-keeper/actions/workflows/ci.yml/badge.svg)](https://github.com/davidleonb27/blinka-keeper/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-047857.svg)](LICENSE)
 
 **El agente de cuentas por pagar de código abierto.** *El modelo lee, el código decide, la persona autoriza.*
 Revisa las facturas, paga sólo lo que cabe en tus reglas, retiene lo indebido y le pregunta a una persona lo demás.
 
-- **Demo:** <https://custodio-blinka-green.vercel.app>, sin registro y sin dinero real.
+- **Demo:** <https://blinka-keeper.vercel.app>, sin registro y sin dinero real.
 - **Autoalojar en un comando:** `docker compose up --build` ([guía](docs/SELF_HOSTING.md)) o
   [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fcustodio-blinka&project-name=custodio&repository-name=custodio&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
-- **Licencia:** [MIT](LICENSE). Documentación en [/docs](https://custodio-blinka-green.vercel.app/docs).
+- **Licencia:** [MIT](LICENSE). Documentación en [/docs](https://blinka-keeper.vercel.app/docs).
 
 **The open-source accounts-payable agent.** *The model reads, code decides, a person authorizes.*
 It reviews invoices, pays only what fits your rules, holds what is clearly improper and asks a person about the rest.
 
-- **Demo:** <https://custodio-blinka-green.vercel.app>, no sign-up, no real money.
+- **Demo:** <https://blinka-keeper.vercel.app>, no sign-up, no real money.
 - **Self-host in one command:** `docker compose up --build` ([guide, in Spanish](docs/SELF_HOSTING.md)) or the
   Vercel button above.
 - **License:** [MIT](LICENSE).
 
 ## Pruébalo en 30 segundos
 
-1. Abre **https://custodio-blinka-green.vercel.app** y pulsa **«Probar la demo»**. No hay registro: recibes tu propio espacio.
+1. Abre **https://blinka-keeper.vercel.app** y pulsa **«Probar la demo»**. No hay registro: recibes tu propio espacio.
 2. En el panel verás una semana de facturas ya decidida: pagado, retenido y pendiente, cada una con su razón.
 3. Abre cualquier fila para ver el acta con las 15 reglas. Prueba «Róbale a Custodio» e intenta que pague algo indebido.
 
@@ -111,7 +111,7 @@ Custodio corre en tu infraestructura con un comando. Todas las variables son opc
 [`.env.example`](.env.example).
 
 ```bash
-git clone https://github.com/davidleonb27/custodio-blinka.git && cd custodio-blinka
+git clone https://github.com/davidleonb27/blinka-keeper.git && cd custodio-blinka
 docker compose up --build            # Postgres 16, API en :8000 y web en :3000; migraciones al arrancar
 curl http://localhost:8000/api/v1/health
 ```
@@ -188,7 +188,7 @@ the text behind every value; deterministic code (12 pure rules) decides pay, hol
 is ambiguous. An independent auditor recomputes every payment through a different code path and overrides the engine if
 they disagree. Every decision ships with a plain-language record and a SHA-256 hash chain that shows where it was
 altered. Other agents can use Custodio as a payment firewall through an API or an MCP server, and anyone can try to
-break it on the public "Róbale a Custodio" challenge. Try it: **https://custodio-blinka-green.vercel.app**. Figures are published only when
+break it on the public "Róbale a Custodio" challenge. Try it: **https://blinka-keeper.vercel.app**. Figures are published only when
 measured (2026-10-17: 36 golden invoices in production, 0 improper payments, 61.1 % autonomy; 1,000 simulated companies
 and 25,139 invoices in the stress run, 0 improper payments); the rest reads NO MEDIDO ("not measured"). Built by team DreamMakers for the 30X hackathon, Blinka
 challenge. MIT licensed.

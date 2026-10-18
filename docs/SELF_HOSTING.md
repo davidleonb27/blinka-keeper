@@ -16,7 +16,7 @@ completa, con qué hace cada una, está en [`.env.example`](../.env.example).
 Requisitos: Docker con Compose v2.
 
 ```bash
-git clone https://github.com/davidleonb27/custodio-blinka.git
+git clone https://github.com/davidleonb27/blinka-keeper.git
 cd custodio-blinka
 cp .env.example .env        # opcional
 docker compose up --build
