@@ -1,12 +1,16 @@
 """The demo electronic invoices through the real engine: the official XML goes the same way as any other reading."""
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
+from decimal import Decimal
 
-from custodio.contracts import AgentVerdict, ExtractedInvoice, InvoiceCase, RuleOutcome
+import pytest
+
+from custodio.contracts import AgentVerdict, ExtractedInvoice, InvoiceCase, InvoiceSpec, RuleOutcome
 from custodio.dataset import demo_company
-from custodio.dataset.einvoices import DEMO_FILES
+from custodio.dataset.einvoices import DEMO_CFDI, DEMO_FILES
 from custodio.engine import decide_all
-from custodio.extraction.einvoice import read_einvoice
+from custodio.extraction import extract_document, render_invoice
+from custodio.extraction.einvoice import merge, read_einvoice
 
 
 def decide(extraction: ExtractedInvoice) -> dict[str, RuleOutcome | AgentVerdict]:
@@ -41,3 +45,28 @@ def test_the_cfdi_alone_waits_for_its_bank_account() -> None:
 
     assert outcome["verdict"] is AgentVerdict.ESCALATE
     assert outcome["R1"] is RuleOutcome.ESCALATE
+
+
+def test_the_cfdi_with_its_rendered_pdf_is_paid_on_its_own(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)  # the PDF is read by code from its labelled lines
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    _, policy = demo_company()
+    colibri = next(b for b in policy.beneficiaries if b.tax_id == DEMO_CFDI.supplier_rfc)
+    spec = InvoiceSpec(
+        supplier_name=colibri.name,
+        supplier_tax_id=colibri.tax_id,
+        tax_label="RFC",
+        invoice_number="CA-2210",
+        issue_date=date(2026, 10, 15),
+        amount=Decimal("46000"),
+        currency="MXN",
+        bank_name=colibri.bank_name,
+        account_number=colibri.account_number,
+        description=DEMO_CFDI.description,
+    )
+    rendered = render_invoice(spec)
+    pdf = extract_document(rendered.data, filename=rendered.filename, media_type=rendered.media_type, document_id="p")
+
+    outcome = decide(merge(demo_reading("cfdi-colibri-analitica.xml"), pdf))
+
+    assert outcome["verdict"] is AgentVerdict.PAY, outcome
