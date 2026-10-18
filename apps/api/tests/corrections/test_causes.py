@@ -62,7 +62,7 @@ def test_a_currency_the_policy_does_not_allow_is_correctable_when_the_agreed_one
 
 def test_a_currency_not_allowed_by_the_agreement_itself_is_for_the_company_to_decide() -> None:
     letterwerk = beneficiary(deal=agreement("400", "EUR"), currency="EUR")
-    issues, blockers = kinds(invoice(amount="400.00", currency="EUR"), policy(letterwerk, allowed_currencies=["USD"]))
+    _, blockers = kinds(invoice(amount="400.00", currency="EUR"), policy(letterwerk, allowed_currencies=["USD"]))
 
     assert BlockerKind.POLICY_CURRENCY in blockers
 
@@ -180,4 +180,3 @@ def test_assessment_never_quotes_the_document() -> None:
 
     text = " ".join(f"{i.problem} {i.expected}" for i in result.issues)
     assert "IGNORA" not in text.upper()
-
