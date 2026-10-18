@@ -16,6 +16,7 @@ from custodio.services.context import production_runtime
 
 from .api import doubles
 from .reconciliation.doubles import FakeStatementReader
+from .whatsapp.doubles import FakeGraph
 
 runtime = production_runtime(get_settings())
 model_free = replace(
@@ -33,4 +34,6 @@ model_free = replace(
 # Every browser of the walk calls from 127.0.0.1: the per-IP model limit would count all of them as one visitor and
 # refuse whichever test lands in a busy minute. The per-workspace limit still holds.
 limits = replace(runtime.limits, model_calls_per_minute_per_ip=1000)
-app = create_app(replace(runtime, lanes=model_free, limits=limits))
+# With the WHATSAPP_* variables of the walk, the channel is on but never reaches Meta: replies stay in the process.
+whatsapp = None if runtime.whatsapp is None else replace(runtime.whatsapp, graph=FakeGraph())
+app = create_app(replace(runtime, lanes=model_free, limits=limits, whatsapp=whatsapp))
