@@ -1,0 +1,101 @@
+/* Blinka design system — colors, type, spacing, radius, shadows.
+   Values extracted from assets/main-CqMgimik.css (blinka.co). */
+@font-face {
+  font-family: "Blinka Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("assets/inter-latin-variable-Dx4kXJAl.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "Geist Mono Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("assets/geist-mono-latin-wght-normal-XN7g48iV.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  /* Core palette */
+  --bk-ink: #1c253a;
+  --bk-muted: #656975;
+  --bk-paper: #f7f7f4;
+  --bk-accent: #2a4bd0;
+  --bk-line: #dedfdc;
+
+  /* Extended neutrals */
+  --bk-white: #ffffff;
+  --bk-surface: #fdfdfd;
+  --bk-nav: #505563;
+  --bk-slate: #47525d;
+  --bk-eyebrow: #5c6474;
+  --bk-accent-soft: #b9c8ff;
+  --bk-accent-wash: #f3f5fd;
+
+  /* Dark section (footer, onboarding) */
+  --bk-night: #111720;
+  --bk-night-ink: #e9edf1;
+  --bk-night-muted: #b2bbc7;
+  --bk-night-line: #b9c7da2b;
+
+  /* Typography */
+  --bk-font-sans: "Blinka Inter", ui-sans-serif, system-ui, sans-serif;
+  --bk-font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --bk-h1: clamp(48px, 4.4vw, 63px);
+  --bk-h1-tracking: -0.047em;
+  --bk-h2: clamp(33px, 3.3vw, 46px);
+  --bk-body: 15px;
+  --bk-small: 13px;
+  --bk-caption: 11px;
+  --bk-eyebrow-tracking: 0.1em;
+
+  /* Spacing */
+  --bk-space-1: 4px;
+  --bk-space-2: 8px;
+  --bk-space-3: 12px;
+  --bk-space-4: 16px;
+  --bk-space-5: 25px;
+  --bk-space-6: 43px;
+  --bk-space-7: 66px;
+  --bk-space-8: 100px;
+  --bk-container: min(1180px, 100% - 96px);
+
+  /* Radius */
+  --bk-radius-xs: 2px;
+  --bk-radius-sm: 8px;
+  --bk-radius-md: 12px;
+  --bk-radius-lg: 16px;
+  --bk-radius-xl: 20px;
+  --bk-radius-pill: 999px;
+
+  /* Shadows */
+  --bk-shadow-sm: 0 3px 12px #1c253a14;
+  --bk-shadow-md: 0 2px 3px #1c253a05, 0 22px 55px -28px #3948613b;
+  --bk-shadow-lg: 0 2px 3px #17243533, 0 20px 32px -17px #1c253a77;
+}
+
+html {
+  color: var(--bk-ink);
+  background: var(--bk-paper);
+  font-family: var(--bk-font-sans);
+  font-synthesis: none;
+  text-rendering: optimizelegibility;
+  -webkit-font-smoothing: antialiased;
+}
+h1 { font-size: var(--bk-h1); font-weight: 450; line-height: 1.07; letter-spacing: var(--bk-h1-tracking); margin: 0; }
+h2 { font-size: var(--bk-h2); font-weight: 450; line-height: 1.1; letter-spacing: -0.04em; margin: 0; }
+.bk-eyebrow { font-size: 11px; font-weight: 500; line-height: 1.5; letter-spacing: var(--bk-eyebrow-tracking); text-transform: uppercase; color: var(--bk-muted); }
+.bk-mono { font-family: var(--bk-font-mono); font-variant-numeric: tabular-nums; }
+
+.bk-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 25px;
+  min-height: 48px; padding: 0 25px; border: 1px solid transparent; border-radius: var(--bk-radius-pill);
+  background: var(--bk-ink); color: #fff; font: 500 14px/1 var(--bk-font-sans); white-space: nowrap; cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+}
+.bk-button:hover { background: var(--bk-accent); }
+.bk-button:focus-visible { outline: 2px solid var(--bk-accent); outline-offset: 3px; }
+.bk-button--primary { background: var(--bk-accent); }
+.bk-button--primary:hover { background: #1f3bb0; }
+.bk-button--small { min-height: 38px; padding: 0 18px; gap: 14px; font-size: 12px; }
