@@ -617,6 +617,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/whatsapp/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Link */
+        get: operations["read_link_api_v1_whatsapp_link_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/whatsapp/link-codes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Link Code */
+        post: operations["create_link_code_api_v1_whatsapp_link_codes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1232,6 +1266,32 @@ export interface components {
             first_broken_seq: number | null;
             /** Head Hash */
             head_hash: string | null;
+        };
+        /** LinkCodeView */
+        LinkCodeView: {
+            /** Code */
+            code: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Message */
+            message: string;
+            /** Link Url */
+            link_url: string;
+            /** Display Number */
+            display_number: string;
+        };
+        /** LinkedPhone */
+        LinkedPhone: {
+            /** Masked */
+            masked: string;
+            /**
+             * Linked At
+             * Format: date-time
+             */
+            linked_at: string;
         };
         /**
          * MatchLevel
@@ -2183,6 +2243,17 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** WhatsAppStatus */
+        WhatsAppStatus: {
+            /** Enabled */
+            enabled: boolean;
+            /** Display Number */
+            display_number: string | null;
+            /** Phones */
+            phones: components["schemas"]["LinkedPhone"][];
+            /** Last Received At */
+            last_received_at: string | null;
         };
         /** WorkspaceCreated */
         WorkspaceCreated: {
@@ -3411,6 +3482,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["IntentVerdict"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_link_api_v1_whatsapp_link_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WhatsAppStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_link_code_api_v1_whatsapp_link_codes_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LinkCodeView"];
                 };
             };
             /** @description Validation Error */

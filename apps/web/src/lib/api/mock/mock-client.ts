@@ -418,6 +418,12 @@ respond(() => decided().map(listItemOf)),
       ),
     downloadEvidence: () => respond(() => reconciliations.files()),
     downloadDemoStatement: () => respond(() => reconciliations.files()),
+    // The demo has no WhatsApp number: the panel hides the card.
+    getWhatsAppStatus: () => respond(() => ({ enabled: false, display_number: null, phones: [], last_received_at: null })),
+    createWhatsAppCode: () =>
+      respond(() => {
+        throw new InvalidRequestError("WhatsApp funciona con la API real, no en el modo de prueba.", CONFLICT);
+      }),
     runRedTeam: async ({ rounds }, onEvent, signal) => {
       const script = RED_TEAM_SCRIPT.slice(0, rounds);
       for (const [index, round] of script.entries()) {

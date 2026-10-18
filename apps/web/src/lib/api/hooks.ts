@@ -1,6 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient, type QueryKey } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type Query, type QueryKey } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { useApi } from "@/components/providers/api-provider";
 import { useHydrated } from "@/lib/hydration";
 import type {
@@ -19,6 +20,8 @@ import { markTourStep } from "@/lib/tour";
 import { browserWorkspaceStore, forgetFreshBlank, isFreshBlank, type WorkspaceStore } from "./workspace";
 
 const CHALLENGE_POLL_MS = 5_000;
+/** Short enough that a photo sent on WhatsApp shows up in the panel a few seconds later, live, during the demo. */
+const WHATSAPP_POLL_MS = 4_000;
 
 const queryKeys = {
   workspace: ["workspace"] as const,
@@ -31,6 +34,7 @@ const queryKeys = {
   schedule: ["schedule"] as const,
   reconciliations: ["reconciliations"] as const,
   reconciliation: (id: string) => ["reconciliations", id] as const,
+  whatsapp: ["whatsapp"] as const,
 };
 
 const HYDRATING = "hydrating";
@@ -39,7 +43,7 @@ interface ClientQuery<T> {
   queryKey: QueryKey;
   queryFn: () => Promise<T>;
   enabled?: boolean;
-  refetchInterval?: number;
+  refetchInterval?: number | ((query: Query<T, Error, T, QueryKey>) => number | false);
 }
 
 /**
@@ -267,6 +271,37 @@ export function useProcessInvoices() {
       markTourStep("decide");
       return invalidate();
     },
+  });
+}
+
+/**
+ * The WhatsApp card's state, polled while the channel is on. When an invoice arrives on WhatsApp the API has already
+ * read and decided it, so the panel refreshes everything that decision touched.
+ */
+export function useWhatsAppStatus(pollMs = WHATSAPP_POLL_MS) {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  const status = useClientQuery({
+    queryKey: queryKeys.whatsapp,
+    queryFn: () => api.getWhatsAppStatus(),
+    refetchInterval: (query) => (query.state.data?.enabled ? pollMs : false),
+  });
+  const lastSeen = useRef<string | null | undefined>(undefined);
+  const latest = status.data ? status.data.last_received_at : undefined;
+  useEffect(() => {
+    if (latest === undefined) return;
+    if (lastSeen.current !== undefined && lastSeen.current !== latest) void invalidate();
+    lastSeen.current = latest;
+  }, [latest, invalidate]);
+  return status;
+}
+
+export function useCreateWhatsAppCode() {
+  const api = useApi();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.createWhatsAppCode(),
+    onSuccess: () => client.invalidateQueries({ queryKey: queryKeys.whatsapp }),
   });
 }
 

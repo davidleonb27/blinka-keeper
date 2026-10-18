@@ -58,6 +58,8 @@ export type ReconciliationItem = ResponseOf<"/api/v1/reconciliations", "get">[nu
 export type ResolveInput = JsonBodyOf<"/api/v1/reconciliations/{reconciliation_id}/resolve", "post">;
 export type PeriodCloseView = ResponseOf<"/api/v1/periods/{period}/close", "post">;
 export type DemoStatementFormat = "csv" | "pdf";
+export type WhatsAppStatus = ResponseOf<"/api/v1/whatsapp/link", "get">;
+export type WhatsAppLinkCode = ResponseOf<"/api/v1/whatsapp/link-codes", "post">;
 
 /** An invoice of the company's own: a PDF or image, or the text of an email. */
 export interface InvoiceInput {
@@ -131,4 +133,8 @@ export interface CustodioApi {
   closePeriod(period: string, closedBy: string): Promise<PeriodCloseView>;
   downloadEvidence(period: string): Promise<Blob>;
   downloadDemoStatement(format: DemoStatementFormat): Promise<Blob>;
+  /** Whether invoices can arrive on WhatsApp here, the phones linked (masked) and when the last one arrived. */
+  getWhatsAppStatus(): Promise<WhatsAppStatus>;
+  /** A one-time code that links the phone that sends it to this workspace. */
+  createWhatsAppCode(): Promise<WhatsAppLinkCode>;
 }

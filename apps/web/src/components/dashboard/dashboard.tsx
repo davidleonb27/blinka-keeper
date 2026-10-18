@@ -8,6 +8,7 @@ import { RailBadge } from "@/components/shell/rail-badge";
 import { UploadDialog } from "@/components/intake/upload-dialog";
 import { EmptyInbox } from "@/components/panel/empty-inbox";
 import { ErrorState, LoadingBlock } from "@/components/states";
+import { WhatsAppCard } from "@/components/whatsapp/whatsapp-card";
 import { useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
 import { formatDate, formatMoney } from "@/lib/format";
 import { DecisionList } from "./decision-list";
@@ -77,7 +78,18 @@ export function Dashboard() {
 
   const base = summary.data.base_currency;
   const totals = statusTotals(decisions.data);
-  if (!decisions.data.length && !summary.data.pending_invoices) return <>{header}<UploadDialog /><EmptyInbox /></>;
+  if (!decisions.data.length && !summary.data.pending_invoices) {
+    return (
+      <>
+        {header}
+        <UploadDialog />
+        <div className="flex flex-col gap-4">
+          <WhatsAppCard />
+          <EmptyInbox />
+        </div>
+      </>
+    );
+  }
   const pending = summary.data.pending_invoices;
   const firstActa = decisions.data[0]?.decision.invoice_id ?? null;
   const tour = <GuidedTour decided={decisions.data.length > 0} firstActa={firstActa} />;
@@ -89,6 +101,7 @@ export function Dashboard() {
         <UploadDialog />
         <div className="flex flex-col gap-4">
           <ReceivedInvoices count={pending} first />
+          <WhatsAppCard />
           {tour}
           <p className="text-[13px] text-ink-3">
             Las métricas aparecen aquí en cuanto Custodio decida: pagos indebidos, autonomía y lo que espera tu aprobación.
@@ -103,6 +116,7 @@ export function Dashboard() {
       <UploadDialog />
       <div className="flex flex-col gap-4">
         {pending > 0 ? <ReceivedInvoices count={pending} /> : null}
+        <WhatsAppCard />
         {tour}
         <Overview summary={summary.data} pendingTotal={totals.pending.total} onShowPending={() => setFilter("pending")} />
         <section aria-label="Pagado, retenido y pendiente" className="grid grid-cols-3 gap-2 sm:gap-4">
