@@ -55,7 +55,7 @@ function FooterLinkItem({ label, href, external }: FooterLink) {
 export function SiteFooter() {
   return (
     <footer className="night-section">
-      <nav aria-label="Pie de página" className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-14 text-[13px] md:grid-cols-[1.4fr_repeat(3,1fr)]">
+      <nav aria-label="Pie de página" className="mx-auto grid max-w-6xl grid-cols-2 gap-8 border-t border-line px-4 py-14 text-[13px] md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="col-span-2 flex flex-col gap-3 md:col-span-1">
           <Wordmark />
           <p className="max-w-[34ch] text-[13px] leading-relaxed text-ink-3">
