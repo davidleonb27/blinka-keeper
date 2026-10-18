@@ -7,9 +7,13 @@ import copy
 import hashlib
 from typing import Any
 
+import pytest
 from fastapi.testclient import TestClient
 
 from custodio.receipts import ReceiptPublicKey, verify_receipt
+from custodio.services import policy_service, receipt_service, records
+from custodio.services.context import Runtime
+from custodio.services.errors import ReceiptUnavailable
 
 from .doubles import invoice_text
 from .helpers import assert_ledger_valid, new_workspace, process, upload_text
@@ -181,3 +185,16 @@ def test_a_later_policy_change_does_not_rewrite_where_an_earlier_payment_went(cl
     assert changed.status_code == 200, changed.text
 
     assert receipt(client, workspace, "F01") == before
+
+
+def test_no_receipt_is_signed_for_more_than_the_ledger_recorded(client: TestClient, runtime: Runtime) -> None:
+    workspace = new_workspace(client)
+    process(client, workspace)
+    with runtime.database.session() as session:
+        ctx = runtime.context(session)
+        decision = records.decision(ctx, workspace.id, "F01")
+        assert decision.amount is not None and decision.amount_base is not None
+        inflated = decision.model_copy(update={"amount": decision.amount * 10, "amount_base": decision.amount_base * 10})
+
+        with pytest.raises(ReceiptUnavailable):
+            receipt_service.issue(ctx, workspace.id, inflated, policy_service.current(ctx, workspace.id))
