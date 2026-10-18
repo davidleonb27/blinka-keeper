@@ -6,6 +6,7 @@ import { useApi } from "@/components/providers/api-provider";
 import { useHydrated } from "@/lib/hydration";
 import type {
   ApprovalInput,
+  CorrectionRequestInput,
   CustodioApi,
   ChallengeInput,
   InvoiceInput,
@@ -14,6 +15,7 @@ import type {
   ReconciliationView,
   ResolveInput,
   StatementInput,
+  SupplierConfirmation,
 } from "./client";
 import type { Beneficiary, Policy } from "./contracts";
 import { markTourStep } from "@/lib/tour";
@@ -38,6 +40,9 @@ const queryKeys = {
   reconciliation: (id: string) => ["reconciliations", id] as const,
   whatsapp: ["whatsapp"] as const,
   receiptKey: ["receipt-key"] as const,
+  corrections: ["corrections"] as const,
+  correction: (id: string) => ["corrections", id] as const,
+  supplierCorrection: (token: string) => ["supplier-correction", token] as const,
 };
 
 const HYDRATING = "hydrating";
@@ -154,6 +159,7 @@ function useInvalidateWorkspace() {
         queryKeys.trust,
         queryKeys.schedule,
         queryKeys.payments,
+        queryKeys.corrections,
       ].map((queryKey) =>
         client.invalidateQueries({ queryKey }),
       ),
@@ -380,5 +386,41 @@ export function useClosePeriod(id: string) {
           client.invalidateQueries({ queryKey }),
         ),
       ),
+  });
+}
+
+export function useCorrections() {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.corrections, queryFn: () => api.listCorrections() });
+}
+
+export function useCorrectionOffer(invoiceId: string) {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.correction(invoiceId), queryFn: () => api.getCorrectionOffer(invoiceId) });
+}
+
+export function useRequestCorrection(invoiceId: string) {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({
+    mutationFn: (input: CorrectionRequestInput) => api.requestCorrection(invoiceId, input),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSupplierCorrection(token: string) {
+  const api = useApi();
+  return useClientQuery({
+    queryKey: queryKeys.supplierCorrection(token),
+    queryFn: () => api.getSupplierCorrection(token),
+  });
+}
+
+/** The supplier sends a corrected document or confirms the data; either way the link is spent. */
+export function useSubmitSupplierCorrection(token: string) {
+  const api = useApi();
+  return useMutation({
+    mutationFn: (input: { file: File } | { values: SupplierConfirmation }) =>
+      "file" in input ? api.submitSupplierDocument(token, input.file) : api.confirmSupplierCorrection(token, input.values),
   });
 }

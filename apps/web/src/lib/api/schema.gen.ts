@@ -320,6 +320,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Corrections */
+        get: operations["list_corrections_api_v1_corrections_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/correction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Correction */
+        get: operations["read_correction_api_v1_decisions__invoice_id__correction_get"];
+        put?: never;
+        /** Request Correction */
+        post: operations["request_correction_api_v1_decisions__invoice_id__correction_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/supplier/corrections/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Supplier Correction */
+        get: operations["read_supplier_correction_api_v1_supplier_corrections__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/supplier/corrections/{token}/document": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Corrected Document */
+        post: operations["submit_corrected_document_api_v1_supplier_corrections__token__document_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/supplier/corrections/{token}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Confirmation */
+        post: operations["submit_confirmation_api_v1_supplier_corrections__token__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/ledger": {
         parameters: {
             query?: never;
@@ -1045,6 +1131,19 @@ export interface components {
             /** Email Domain */
             email_domain?: string | null;
         };
+        /** Blocker */
+        Blocker: {
+            kind: components["schemas"]["BlockerKind"];
+            /** Rule Id */
+            rule_id: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * BlockerKind
+         * @enum {string}
+         */
+        BlockerKind: "account_changed" | "bank_details" | "duplicate" | "hidden_instruction" | "unregistered_supplier" | "sanctions" | "sender_domain" | "split" | "reserve" | "policy_currency";
         /** Body_create_reconciliation_api_v1_reconciliations_post */
         Body_create_reconciliation_api_v1_reconciliations_post: {
             /** File */
@@ -1074,6 +1173,11 @@ export interface components {
             alias?: string | null;
             /** Technique */
             technique?: string | null;
+        };
+        /** Body_submit_corrected_document_api_v1_supplier_corrections__token__document_post */
+        Body_submit_corrected_document_api_v1_supplier_corrections__token__document_post: {
+            /** File */
+            file: string;
         };
         /** Body_upload_invoice_api_v1_invoices_post */
         Body_upload_invoice_api_v1_invoices_post: {
@@ -1178,6 +1282,113 @@ export interface components {
             text: string;
             base?: components["schemas"]["Policy-Input"] | null;
         };
+        /** ConfirmationBody */
+        ConfirmationBody: {
+            /** Values */
+            values: {
+                [key: string]: string;
+            };
+        };
+        /**
+         * CorrectableField
+         * @description What a supplier may type instead of sending a new document. Never an account or a supplier identity.
+         * @enum {string}
+         */
+        CorrectableField: "amount" | "currency" | "invoice_number" | "issue_date";
+        /** CorrectionIssued */
+        CorrectionIssued: {
+            request: components["schemas"]["CorrectionRequest"];
+            /** Link */
+            link: string;
+            /** Message */
+            message: string;
+            whatsapp: components["schemas"]["WhatsAppDelivery"];
+        };
+        /** CorrectionOffer */
+        CorrectionOffer: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Offered */
+            offered: boolean;
+            /** Reason */
+            reason: string | null;
+            /** Issues */
+            issues: components["schemas"]["Issue"][];
+            /** Blockers */
+            blockers: components["schemas"]["Blocker"][];
+            /** Still For A Person */
+            still_for_a_person: string[];
+            /** Confirmable Fields */
+            confirmable_fields: components["schemas"]["CorrectableField"][];
+            /** Next Round */
+            next_round: number;
+            /** Max Rounds */
+            max_rounds: number;
+            open_request: components["schemas"]["CorrectionRequest"] | null;
+            /** History */
+            history: components["schemas"]["CorrectionRequest"][];
+        };
+        /** CorrectionOverview */
+        CorrectionOverview: {
+            /** Requests */
+            requests: components["schemas"]["CorrectionRequest"][];
+            /** Requested */
+            requested: number;
+            /** Waiting */
+            waiting: number;
+            /** Resolved With Supplier */
+            resolved_with_supplier: number;
+            /** Blocked After Correction */
+            blocked_after_correction: number;
+        };
+        /** CorrectionRequest */
+        CorrectionRequest: {
+            /** Id */
+            id: string;
+            /** Invoice Id */
+            invoice_id: string;
+            /** Root Invoice Id */
+            root_invoice_id: string;
+            /** Round */
+            round: number;
+            status: components["schemas"]["CorrectionStatus"];
+            /** Issues */
+            issues: components["schemas"]["Issue"][];
+            /** Message */
+            message: string;
+            /** Channels */
+            channels: string[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Submitted At */
+            submitted_at: string | null;
+            /** Corrected Invoice Id */
+            corrected_invoice_id: string | null;
+            outcome: components["schemas"]["DecisionStatus"] | null;
+            /** Alert */
+            alert: string | null;
+        };
+        /** CorrectionRequestBody */
+        CorrectionRequestBody: {
+            /**
+             * Whatsapp
+             * @default false
+             */
+            whatsapp: boolean;
+        };
+        /**
+         * CorrectionStatus
+         * @enum {string}
+         */
+        CorrectionStatus: "open" | "received" | "closed" | "expired";
         /** CreateWorkspace */
         CreateWorkspace: {
             /** @default demo */
@@ -1409,6 +1620,23 @@ export interface components {
             read_ok: boolean;
             extraction: components["schemas"]["ExtractedInvoice"];
         };
+        /** Issue */
+        Issue: {
+            kind: components["schemas"]["IssueKind"];
+            /** Rule Id */
+            rule_id: string | null;
+            /** Fields */
+            fields: components["schemas"]["CorrectableField"][];
+            /** Problem */
+            problem: string;
+            /** Expected */
+            expected: string;
+        };
+        /**
+         * IssueKind
+         * @enum {string}
+         */
+        IssueKind: "amount_mismatch" | "currency_mismatch" | "currency_not_allowed" | "amount_unreadable" | "currency_unclear" | "field_unreadable" | "missing_invoice_number" | "invalid_date" | "total_mismatch";
         JsonValue: unknown;
         /** LedgerEntry */
         LedgerEntry: {
@@ -2542,6 +2770,39 @@ export interface components {
             amount_reversed: number;
             balance_transaction: components["schemas"]["BalanceView"] | null;
         };
+        /**
+         * SupplierCorrectionView
+         * @description All a supplier sees: this one invoice, what to fix and what is expected. Never a status or another invoice.
+         */
+        SupplierCorrectionView: {
+            /** Company Name */
+            company_name: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Reference */
+            reference: string | null;
+            /** Amount */
+            amount: number | null;
+            /** Currency */
+            currency: string | null;
+            /** Issues */
+            issues: components["schemas"]["SupplierIssue"][];
+            /** Fields */
+            fields: components["schemas"]["CorrectableField"][];
+            /** Confirmable */
+            confirmable: boolean;
+            /** Round */
+            round: number;
+            /** Max Rounds */
+            max_rounds: number;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Accepted Media Types */
+            accepted_media_types: string[];
+        };
         /** SupplierImport */
         SupplierImport: {
             /** Beneficiaries */
@@ -2551,6 +2812,22 @@ export interface components {
              * @default []
              */
             warnings: string[];
+        };
+        /** SupplierIssue */
+        SupplierIssue: {
+            /** Problem */
+            problem: string;
+            /** Expected */
+            expected: string;
+            /** Fields */
+            fields: components["schemas"]["CorrectableField"][];
+        };
+        /** SupplierReceipt */
+        SupplierReceipt: {
+            /** Received */
+            received: boolean;
+            /** Message */
+            message: string;
         };
         /** SupplierTrust */
         SupplierTrust: {
@@ -2724,6 +3001,11 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /**
+         * WhatsAppDelivery
+         * @enum {string}
+         */
+        WhatsAppDelivery: "sent" | "off" | "unavailable" | "not_whatsapp" | "no_phone" | "failed";
         /** WhatsAppStatus */
         WhatsAppStatus: {
             /** Enabled */
@@ -3409,6 +3691,208 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Narrative"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_corrections_api_v1_corrections_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrectionOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_correction_api_v1_decisions__invoice_id__correction_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrectionOffer"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_correction_api_v1_decisions__invoice_id__correction_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionRequestBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrectionIssued"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_supplier_correction_api_v1_supplier_corrections__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierCorrectionView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_corrected_document_api_v1_supplier_corrections__token__document_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_submit_corrected_document_api_v1_supplier_corrections__token__document_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierReceipt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_confirmation_api_v1_supplier_corrections__token__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmationBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierReceipt"];
                 };
             };
             /** @description Validation Error */

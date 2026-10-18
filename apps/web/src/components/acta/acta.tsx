@@ -26,6 +26,8 @@ export interface ActaProps {
   paymentStep?: PaymentStep | null;
   /** The signed receipt of this decision, shown next to the ledger seal. */
   receipt?: ReactNode;
+  /** The supplier-correction section, when the acta has one (the drawer passes it; it needs the API). */
+  correction?: ReactNode;
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -94,6 +96,7 @@ export function Acta({
   retryingPayment,
   paymentStep = null,
   receipt,
+  correction,
 }: ActaProps) {
   const [activeField, setActiveField] = useState<ExtractedFieldName | null>(null);
   const { decision, invoice } = detail;
@@ -115,12 +118,14 @@ export function Acta({
         {decision.blocked_reason ? (
           <p className="mt-3 flex gap-2 rounded-xl bg-crit-weak px-3.5 py-3 text-[14px]">
             <ShieldAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-crit" />
-            Aprobada, pero no se paga: {decision.blocked_reason}
+            {decision.approval ? "Aprobada, pero no se paga: " : ""}
+            {decision.blocked_reason}
           </p>
         ) : null}
       </Section>
 
       <PaymentProgress step={paymentStep} />
+      {correction}
 
       <PaymentExecutionBlock
         decision={decision}

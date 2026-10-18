@@ -26,9 +26,11 @@ interface DecisionListProps {
   query: string;
   onFilterChange: (filter: StatusFilter) => void;
   onQueryChange: (query: string) => void;
+  /** Invoices whose supplier was asked for a correction and has not answered yet. */
+  waitingCorrection?: ReadonlySet<string>;
 }
 
-function Row({ item, baseCurrency }: { item: DecisionListItem; baseCurrency: string }) {
+function Row({ item, baseCurrency, waiting }: { item: DecisionListItem; baseCurrency: string; waiting: boolean }) {
   const { decision } = item;
   const base = baseAmountText(decision, baseCurrency);
   return (
@@ -38,8 +40,13 @@ function Row({ item, baseCurrency }: { item: DecisionListItem; baseCurrency: str
         scroll={false}
         className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 rounded-xl px-3 py-3 hover:bg-surface-2 sm:grid-cols-[170px_minmax(0,1fr)_auto_20px]"
       >
-        <span className="col-span-2 sm:col-span-1">
+        <span className="col-span-2 flex flex-wrap gap-1 sm:col-span-1">
           <StatusPill status={decision.status} />
+          {waiting ? (
+            <span className="inline-flex h-6 items-center rounded-full bg-esc-weak px-2.5 text-xs font-semibold text-esc">
+              Esperando corrección del proveedor
+            </span>
+          ) : null}
         </span>
         <span className="min-w-0">
           <b className="block truncate font-semibold">{supplierText(decision)}</b>
@@ -57,7 +64,15 @@ function Row({ item, baseCurrency }: { item: DecisionListItem; baseCurrency: str
   );
 }
 
-export function DecisionList({ items, baseCurrency, filter, query, onFilterChange, onQueryChange }: DecisionListProps) {
+export function DecisionList({
+  items,
+  baseCurrency,
+  filter,
+  query,
+  onFilterChange,
+  onQueryChange,
+  waitingCorrection = new Set(),
+}: DecisionListProps) {
   const counts = Object.fromEntries(FILTERS.map((f) => [f.id, items.filter((i) => matchesFilter(i, f.id, "")).length]));
   const visible = items.filter((item) => matchesFilter(item, filter, query)).toReversed();
   return (
@@ -100,7 +115,12 @@ export function DecisionList({ items, baseCurrency, filter, query, onFilterChang
       {visible.length ? (
         <ul className="divide-y divide-line">
           {visible.map((item) => (
-            <Row key={item.decision.invoice_id} item={item} baseCurrency={baseCurrency} />
+            <Row
+              key={item.decision.invoice_id}
+              item={item}
+              baseCurrency={baseCurrency}
+              waiting={waitingCorrection.has(item.decision.invoice_id)}
+            />
           ))}
         </ul>
       ) : (

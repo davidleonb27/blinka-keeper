@@ -198,6 +198,20 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
         scoped: false,
       }),
     getExampleReceipt: () => call("get", "/api/v1/receipts/example", { scoped: false }),
+    listCorrections: () => call("get", "/api/v1/corrections"),
+    getCorrectionOffer: (id) => call("get", "/api/v1/decisions/{invoice_id}/correction", { params: { invoice_id: id } }),
+    requestCorrection: (id, input) =>
+      call("post", "/api/v1/decisions/{invoice_id}/correction", { params: { invoice_id: id }, json: input }),
+    getSupplierCorrection: (token) =>
+      call("get", "/api/v1/supplier/corrections/{token}", { params: { token }, scoped: false }),
+    submitSupplierDocument: (token, file) =>
+      call("post", "/api/v1/supplier/corrections/{token}/document", {
+        params: { token },
+        form: formOf<FormOf<"/api/v1/supplier/corrections/{token}/document", "post">>({ file }),
+        scoped: false,
+      }),
+    confirmSupplierCorrection: (token, values) =>
+      call("post", "/api/v1/supplier/corrections/{token}/confirm", { params: { token }, json: { values }, scoped: false }),
     runRedTeam: async (input, onEvent, signal) => {
       const response = await send("post", "/api/v1/redteam/runs", { json: input, signal });
       if (!response.body) throw new UnexpectedResponseError(response.status);

@@ -178,3 +178,46 @@ class PeriodNotClosed(ReconciliationConflict):
 class NothingToExport(ServiceError):
     code = "nothing_to_export"
     message = "No hay pagos aprobados en este lote: no se armó ningún archivo para Blinka."
+
+
+class CorrectionNotOffered(ServiceError):
+    code = "correction_not_offered"
+    message = "Esta factura no tiene una causa que el proveedor pueda corregir."
+
+
+class CorrectionLinkInvalid(NotFound):
+    code = "correction_link_invalid"
+    message = "Este enlace de corrección no existe."
+
+
+class CorrectionLinkGone(ServiceError):
+    code = "correction_link_gone"
+    message = "Este enlace ya no sirve. Pídale a la empresa uno nuevo si aún hace falta."
+
+
+class CorrectionLinkExpired(CorrectionLinkGone):
+    code = "correction_link_expired"
+    message = "Este enlace venció. Pídale a la empresa uno nuevo si aún hace falta."
+
+
+class CorrectionLinkUsed(CorrectionLinkGone):
+    code = "correction_link_used"
+    message = "Con este enlace ya se envió una corrección. Cada enlace sirve una sola vez."
+
+
+class CorrectionClosed(CorrectionLinkGone):
+    code = "correction_closed"
+    message = "La empresa ya resolvió esta factura por otro camino; no hace falta corregirla."
+
+
+class CorrectionInputInvalid(ServiceError):
+    code = "correction_input_invalid"
+    message = "Envíe la factura corregida (PDF o imagen) o confirme los datos que se piden."
+
+
+class CorrectionOtherSupplier(CorrectionInputInvalid):
+    code = "correction_other_supplier"
+    message = (
+        "La factura enviada no es de este proveedor, o no se pudo leer de quién es. Este enlace sólo recibe la "
+        "corrección de esta factura; envíe una copia legible."
+    )

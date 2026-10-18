@@ -51,6 +51,10 @@ def check_stripe_lookup(runtime: Runtime, *, ip: str, workspace_id: str) -> None
     _hit(runtime, f"stripe:ws:{workspace_id}", limits.stripe_lookups_per_minute_per_workspace, MINUTE)
 
 
+def check_supplier_link_read(runtime: Runtime, *, ip: str) -> None:
+    _hit(runtime, f"supplier-link:ip:{_anonymous(ip)}", runtime.limits.supplier_link_reads_per_minute_per_ip, MINUTE)
+
+
 def _hit(runtime: Runtime, key: str, limit: int, window_seconds: int, message: str | None = None) -> None:
     now = runtime.clock()
     window = _window_start(now, window_seconds)

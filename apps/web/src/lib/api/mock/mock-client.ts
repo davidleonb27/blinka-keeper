@@ -6,6 +6,8 @@
  */
 import type {
   ApprovalInput,
+  CorrectionOffer,
+  CorrectionOverview,
   CustodioApi,
   OnboardingRequest,
   OnboardingResult,
@@ -47,6 +49,14 @@ export const MOCK_API_KEY = "cus_demo_7f3a91c2e4b0";
 const BLANK_COMPANY_NAME = "Mi empresa";
 const TAMPER_MARK = "alterado";
 const CONFLICT = 409;
+const REAL_API_ONLY = "La corrección con el proveedor corre en la API real, no en el modo de prueba.";
+const NO_CORRECTIONS: CorrectionOverview = {
+  requests: [],
+  requested: 0,
+  waiting: 0,
+  resolved_with_supplier: 0,
+  blocked_after_correction: 0,
+};
 const NOTHING_AUDITED: AuditReport = { agrees: true, checked: 0, improper_payments: 0, findings: [] };
 
 export interface MockClientOptions {
@@ -113,6 +123,27 @@ function policyFrom(input: PolicyInput): Policy {
     beneficiaries: input.beneficiaries.map(beneficiaryFrom),
     trust: { floor: Number(input.trust?.floor ?? 0), hard_ceiling: input.trust?.hard_ceiling ?? false },
   };
+}
+
+/** The mock has no engine to decide a corrected invoice with: it says so instead of pretending. */
+function correctionOffer(invoiceId: string): CorrectionOffer {
+  return {
+    invoice_id: invoiceId,
+    offered: false,
+    reason: REAL_API_ONLY,
+    issues: [],
+    blockers: [],
+    still_for_a_person: [],
+    confirmable_fields: [],
+    next_round: 1,
+    max_rounds: 2,
+    open_request: null,
+    history: [],
+  };
+}
+
+function realApiOnly(): never {
+  throw new InvalidRequestError(REAL_API_ONLY, CONFLICT);
 }
 
 function demoWorkspace(): MockWorkspace {
@@ -444,6 +475,12 @@ respond(() => decided().map(listItemOf)),
       respond(() => {
         throw new InvalidRequestError("El archivo para Blinka se arma en la API real, no en el modo de prueba.", CONFLICT);
       }),
+    listCorrections: () => respond(() => NO_CORRECTIONS),
+    getCorrectionOffer: (id) => respond(() => correctionOffer(findItem(id).decision.invoice_id)),
+    requestCorrection: () => respond(() => realApiOnly()),
+    getSupplierCorrection: () => respond(() => realApiOnly()),
+    submitSupplierDocument: () => respond(() => realApiOnly()),
+    confirmSupplierCorrection: () => respond(() => realApiOnly()),
     runRedTeam: async ({ rounds }, onEvent, signal) => {
       const script = RED_TEAM_SCRIPT.slice(0, rounds);
       for (const [index, round] of script.entries()) {

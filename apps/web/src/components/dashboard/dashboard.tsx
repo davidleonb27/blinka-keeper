@@ -8,8 +8,10 @@ import { RailBadge } from "@/components/shell/rail-badge";
 import { UploadDialog } from "@/components/intake/upload-dialog";
 import { EmptyInbox } from "@/components/panel/empty-inbox";
 import { ErrorState, LoadingBlock } from "@/components/states";
+import { CorrectionsStat } from "@/components/corrections/corrections-stat";
+import { waitingInvoices } from "@/components/corrections/labels";
 import { WhatsAppCard } from "@/components/whatsapp/whatsapp-card";
-import { useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
+import { useCorrections, useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
 import { formatDate, formatMoney } from "@/lib/format";
 import { DecisionList } from "./decision-list";
 import { GuidedTour } from "./guided-tour";
@@ -38,6 +40,7 @@ function TotalTile({ label, total, tone, base }: { label: string; total: Total; 
 export function Dashboard() {
   const summary = useWorkspaceSummary();
   const decisions = useDecisions();
+  const corrections = useCorrections();
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [query, setQuery] = useState("");
 
@@ -124,6 +127,7 @@ export function Dashboard() {
           <TotalTile label="Retenido" total={totals.held} tone="bg-hold" base={base} />
           <TotalTile label="Pendiente" total={totals.pending} tone="bg-esc" base={base} />
         </section>
+        {corrections.data ? <CorrectionsStat overview={corrections.data} /> : null}
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
           <DecisionList
             items={decisions.data}
@@ -132,6 +136,7 @@ export function Dashboard() {
             query={query}
             onFilterChange={setFilter}
             onQueryChange={setQuery}
+            waitingCorrection={waitingInvoices(corrections.data?.requests ?? [])}
           />
           <div className="xl:sticky xl:top-6 xl:self-start">
             <DecisionsChart days={decisionsByDay(decisions.data)} />
