@@ -2,42 +2,57 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* Theme is a concrete data-theme on <html> (next-themes resolves "system"). */
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+/*
+ * Theme is a concrete data-theme on <html> (next-themes resolves "system"). A night section is a dark surface in both
+ * themes, so dark: styles (the light logo, for one) apply inside it too.
+ */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .night-section, .night-section *));
 
 /*
- * Custodio identity, ported from prototype/index.html: ledger teal on deep slate, security-print guilloche,
- * Inter for text, Source Serif 4 for large titles (tokens below), tabular figures everywhere money appears.
- * Light values are darkened from the prototype so every text pairing clears WCAG AA (4.5:1).
+ * Visual identity: Blinka's design system (docs/design-system/blinka), with Custodio's own logo. Warm paper, navy ink,
+ * one cobalt accent used sparingly (primary action, selection, focus), hairlines, soft long shadows, and a night
+ * palette for dark mode and closing sections. The status colors (pay, hold, escalate, critical) are Custodio's, tuned
+ * to sit on that paper; every text pairing, including on its own weak tint, clears WCAG AA (4.5:1) in both themes.
  */
 :root {
-  --bg: #edf2f2;
+  --bg: #f7f7f4;
   --surface: #ffffff;
-  --surface-2: #f3f7f7;
-  --surface-3: #e6eeef;
-  --line: rgb(12 48 54 / 0.1);
-  --line-2: rgb(12 48 54 / 0.18);
-  --grid: rgb(12 48 54 / 0.07);
-  --ink: #0b1618;
-  --ink-2: #3b4c4f;
-  --ink-3: #56696c;
-  --brand: #08707e;
-  --brand-weak: rgb(10 132 148 / 0.1);
+  --surface-2: #f2f2ee;
+  --surface-3: #eaeae5;
+  --line: #dedfdc;
+  --line-2: #cbccc8;
+  --grid: rgb(28 37 58 / 0.05);
+  --ink: #1c253a;
+  --ink-2: #47525d;
+  --ink-3: #5c6474;
+  --brand: #2a4bd0;
+  --brand-weak: #f0f3fd;
   --on-brand: #ffffff;
-  --pay: #0f7443;
-  --pay-weak: rgb(19 128 75 / 0.1);
+  --action: #2a4bd0;
+  --action-hover: #1f3bb0;
+  --pay: #1a7349;
+  --pay-weak: rgb(26 115 73 / 0.1);
   --on-pay: #ffffff;
-  --esc: #8a5900;
-  --esc-weak: rgb(214 150 20 / 0.15);
-  --hold: #a8411f;
-  --hold-weak: rgb(189 75 37 / 0.1);
-  --crit: #c42b31;
-  --crit-weak: rgb(196 43 49 / 0.1);
-  --chart-paid: #15834f;
-  --chart-pending: #d39b1c;
-  --chart-held: #c0392b;
-  --scrim: rgb(10 30 34 / 0.35);
-  --shadow-card: 0 1px 2px rgb(10 40 45 / 0.05), 0 18px 40px -28px rgb(10 40 45 / 0.35);
+  --esc: #8a5a00;
+  --esc-weak: rgb(196 140 20 / 0.14);
+  --hold: #b03d22;
+  --hold-weak: rgb(176 61 34 / 0.09);
+  --crit: #c0303a;
+  --crit-weak: rgb(192 48 58 / 0.09);
+  --chart-paid: #2f8a5f;
+  --chart-pending: #c9962a;
+  --chart-held: #c4473a;
+  --night: #111720;
+  --night-2: #19212d;
+  --night-ink: #e9edf1;
+  --night-muted: #b2bbc7;
+  --night-line: rgb(185 199 218 / 0.17);
+  --night-accent: #b9c8ff;
+  --header: rgb(247 247 244 / 0.93);
+  --scrim: rgb(17 23 32 / 0.38);
+  --shadow-sm: 0 3px 12px rgb(28 37 58 / 0.08);
+  --shadow-card: 0 2px 3px rgb(28 37 58 / 0.02), 0 22px 55px -28px rgb(57 72 97 / 0.23);
+  --shadow-lg: 0 2px 3px rgb(23 36 53 / 0.2), 0 20px 32px -17px rgb(28 37 58 / 0.47);
 
   --background: var(--bg);
   --foreground: var(--ink);
@@ -45,8 +60,8 @@
   --card-foreground: var(--ink);
   --popover: var(--surface);
   --popover-foreground: var(--ink);
-  --primary: var(--brand);
-  --primary-foreground: var(--on-brand);
+  --primary: var(--action);
+  --primary-foreground: #ffffff;
   --secondary: var(--surface-2);
   --secondary-foreground: var(--ink);
   --muted: var(--surface-2);
@@ -61,87 +76,63 @@
   color-scheme: light;
 }
 
+/* Dark mode is Blinka's night palette; the accent turns to its soft tint for text, icons and focus. */
 [data-theme="dark"] {
-  --bg: #0a1012;
-  --surface: #0f171a;
-  --surface-2: #142024;
-  --surface-3: #1a282d;
-  --line: rgb(170 215 222 / 0.09);
-  --line-2: rgb(170 215 222 / 0.17);
-  --grid: rgb(170 215 222 / 0.07);
-  --ink: #e4eded;
-  --ink-2: #a3b3b5;
-  --ink-3: #8a9ca0;
-  --brand: #38c3d2;
-  --brand-weak: rgb(56 195 210 / 0.13);
-  --on-brand: #032529;
-  --pay: #34b977;
-  --pay-weak: rgb(52 185 119 / 0.14);
-  --on-pay: #03200f;
-  --esc: #eeb03c;
-  --esc-weak: rgb(238 176 60 / 0.14);
-  --hold: #ee7b56;
-  --hold-weak: rgb(238 123 86 / 0.14);
-  --crit: #f0676b;
-  --crit-weak: rgb(229 72 77 / 0.16);
-  --chart-paid: #2a9d63;
-  --chart-pending: #b8862a;
-  --chart-held: #e0607e;
-  --scrim: rgb(3 8 10 / 0.6);
-  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.035) inset, 0 18px 40px -24px rgb(0 0 0 / 0.75);
+  --bg: #111720;
+  --surface: #171e29;
+  --surface-2: #1c2431;
+  --surface-3: #242d3c;
+  --line: rgb(185 199 218 / 0.13);
+  --line-2: rgb(185 199 218 / 0.22);
+  --grid: rgb(185 199 218 / 0.05);
+  --ink: #e9edf1;
+  --ink-2: #b2bbc7;
+  --ink-3: #949eae;
+  --brand: #a3b4ff;
+  --brand-weak: rgb(163 180 255 / 0.12);
+  --on-brand: #111720;
+  --action: #3a58d8;
+  --action-hover: #4a67e2;
+  --pay: #4fc48d;
+  --pay-weak: rgb(79 196 141 / 0.14);
+  --on-pay: #0b1a12;
+  --esc: #e5b04f;
+  --esc-weak: rgb(229 176 79 / 0.14);
+  --hold: #f39272;
+  --hold-weak: rgb(243 146 114 / 0.14);
+  --crit: #f5848a;
+  --crit-weak: rgb(245 132 138 / 0.15);
+  --chart-paid: #3fa874;
+  --chart-pending: #c99a3c;
+  --chart-held: #e0705f;
+  --night: #0b1017;
+  --night-2: #131a24;
+  --header: rgb(17 23 32 / 0.9);
+  --scrim: rgb(5 8 12 / 0.62);
+  --shadow-sm: 0 3px 12px rgb(0 0 0 / 0.3);
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 22px 55px -28px rgb(0 0 0 / 0.8);
+  --shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 20px 32px -17px rgb(0 0 0 / 0.85);
   color-scheme: dark;
 }
 
-/*
- * The public site (landing and docs): developer-first, an emerald accent and a near-black dark canvas. The rest of the
- * identity (type, status colors, cards) is shared with the app. shadcn tokens are restated because they resolve where
- * they are declared. Pairings clear WCAG AA in both themes.
- */
+/* The public site (landing and docs) speaks the same system as the app; the class stays as the hook for its canvas. */
 .site {
-  --bg: #f5f8f6;
-  --surface-2: #eef3f0;
-  --surface-3: #e3ebe7;
-  --brand: #047857;
-  --brand-weak: rgb(4 120 87 / 0.1);
-  --on-brand: #ffffff;
-  --background: var(--bg);
-  --primary: var(--brand);
-  --primary-foreground: var(--on-brand);
-  --secondary: var(--surface-2);
-  --muted: var(--surface-2);
-  --accent: var(--surface-3);
-  --ring: var(--brand);
   background: var(--bg);
   color: var(--ink);
 }
 
-[data-theme="dark"] .site {
-  --bg: #0b0d0c;
-  --surface: #111413;
-  --surface-2: #161a18;
-  --surface-3: #1d2220;
-  --line: rgb(214 236 226 / 0.08);
-  --line-2: rgb(214 236 226 / 0.15);
-  --grid: rgb(214 236 226 / 0.05);
-  --ink: #ecf1ee;
-  --ink-2: #a9b5af;
-  --ink-3: #8b9891;
-  --brand: #34d399;
-  --brand-weak: rgb(52 211 153 / 0.12);
-  --on-brand: #022c22;
-  --card: var(--surface);
-  --popover: var(--surface);
-}
-
 /*
- * Typography, the single source of truth. layout.tsx loads Inter into --font-sans and Source Serif 4 into --font-serif
- * on <html> with next/font, whose unlayered declarations win over these layered ones; the values here are what the
- * page falls back to. Code and technical labels use the system monospace.
+ * Typography, the single source of truth. layout.tsx self-hosts Blinka Inter into --font-sans and Geist Mono into
+ * --font-mono on <html> with next/font/local, whose unlayered declarations win over these layered ones; the values
+ * here are what the page falls back to. Titles are the same Inter at weight 450 with closed tracking: the display
+ * role keeps the name font-serif so existing markup keeps working. Figures, codes and ids use Geist Mono.
  */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Source Serif 4", ui-serif, Georgia, serif;
-  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-sans: "Blinka Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-sans);
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-weight-semibold: 550;
+  --font-weight-bold: 620;
 }
 
 @theme inline {
@@ -186,15 +177,25 @@
   --color-crit-weak: var(--crit-weak);
   --color-scrim: var(--scrim);
 
-  --shadow-card: var(--shadow-card);
+  --color-night: var(--night);
+  --color-night-2: var(--night-2);
+  --color-night-ink: var(--night-ink);
+  --color-night-muted: var(--night-muted);
+  --color-night-line: var(--night-line);
+  --color-night-accent: var(--night-accent);
 
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-card: var(--shadow-card);
+  --shadow-lg: var(--shadow-lg);
+
+  /* Blinka's radii: chips 8, rows 12, cards 16-20, buttons are pills. */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-4xl: 28px;
 }
 
 @layer base {
@@ -214,6 +215,10 @@
   h3 {
     text-wrap: balance;
   }
+  h1,
+  h2 {
+    font-weight: 450;
+  }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -222,25 +227,76 @@
     outline: 2px solid var(--brand);
     outline-offset: 2px;
   }
+  ::selection {
+    background: color-mix(in oklab, var(--brand) 22%, transparent);
+  }
 }
 
-@utility tabular {
+/*
+ * Unlayered on purpose, so they win over a weight or tracking utility next to them: a display title is Inter 450 with
+ * closed tracking, and a figure is Geist Mono with tabular digits, wherever the markup puts them.
+ */
+.font-serif {
+  font-weight: 450;
+  letter-spacing: -0.035em;
+}
+.tabular {
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+/* A display-size figure stays in Inter: Geist Mono's slashed zero reads as a symbol at that size. */
+.font-serif.tabular {
+  font-family: var(--font-sans);
+  letter-spacing: -0.045em;
 }
 
 @utility eyebrow {
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink-3);
 }
 
 @utility card-surface {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 1rem;
+  border-radius: 18px;
   box-shadow: var(--shadow-card);
+}
+
+/* Blinka's closing band: night canvas, its own ink, hairlines and soft accent, in both themes. */
+@utility night-section {
+  --ink: var(--night-ink);
+  --ink-2: var(--night-muted);
+  --ink-3: var(--night-muted);
+  --line: var(--night-line);
+  --line-2: var(--night-line);
+  --brand: var(--night-accent);
+  --brand-weak: rgb(185 200 255 / 0.12);
+  --surface: var(--night-2);
+  --surface-2: rgb(255 255 255 / 0.04);
+  --surface-3: rgb(255 255 255 / 0.07);
+  /* Derived tokens resolve where they are declared, so they are restated here. */
+  --foreground: var(--night-ink);
+  --background: var(--night);
+  --card: var(--night-2);
+  --card-foreground: var(--night-ink);
+  --popover: var(--night-2);
+  --popover-foreground: var(--night-ink);
+  --secondary: rgb(255 255 255 / 0.06);
+  --secondary-foreground: var(--night-ink);
+  --muted: rgb(255 255 255 / 0.04);
+  --muted-foreground: var(--night-muted);
+  --accent: rgb(255 255 255 / 0.07);
+  --accent-foreground: var(--night-ink);
+  --border: var(--night-line);
+  --input: var(--night-line);
+  --ring: var(--night-accent);
+  background: var(--night);
+  color: var(--night-ink);
 }
 
 @utility site-grid {
@@ -263,10 +319,9 @@
 .doc-prose h2 {
   margin-top: 2.5rem;
   color: var(--ink);
-  font-family: var(--font-serif);
   font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-weight: 450;
+  letter-spacing: -0.03em;
   scroll-margin-top: 5rem;
 }
 .doc-prose h3 {
@@ -348,10 +403,11 @@
   }
 }
 
+/* Marks the words a title turns on: a quiet hairline in the accent, not an ornament. */
 .wavy-highlight {
-  text-decoration: underline wavy;
-  text-decoration-color: var(--brand);
-  text-decoration-thickness: 2.5px;
-  text-underline-offset: 6px;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--brand) 55%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.16em;
 }
 
