@@ -21,7 +21,7 @@ cuadra con el banco y cierra el mes. La IA solo lee; **decide el código**, con 
 ## 3. La demo (0:45–2:15)
 
 1. **WhatsApp real.** Mandas la foto de una factura al número de la empresa. En segundos aparece en el panel, decidida,
-   y responde con su acta. *(Ningún otro equipo tiene WhatsApp funcionando de verdad.)*
+   y responde con su acta. *(Casi ningún equipo lo tiene funcionando de verdad: la mayoría lo simula.)*
 2. **Decide el lote.** Treinta y nueve facturas: diecisiete se pagan solas, siete se frenan, quince esperan a una
    persona. **Cero pagos indebidos**, y un auditor independiente lo confirma.
 3. **El acta.** Cada decisión explica por qué, con cifras, y qué tendría que cambiar. **Dos modelos de dos empresas
@@ -39,10 +39,10 @@ cuadra con el banco y cierra el mes. La IA solo lee; **decide el código**, con 
 
 ## 4. Por qué es el mejor (2:15–2:45)
 
-«Revisamos los cuarenta y tres proyectos públicos de este reto. **Todos deciden. Ninguno paga de verdad.**
+«Revisamos los cerca de cincuenta proyectos públicos de este reto. **Todos deciden. Ninguno paga de verdad.**
 
 - Somos los únicos con **pagos reales en Stripe** verificados en vivo, y con el ciclo completo hasta el cierre de mes.
-- Somos los únicos con **WhatsApp real**: los demás lo simulan o lo dejaron pendiente.
+- Tenemos **WhatsApp real** en producción: casi todos los demás lo simulan o usan Telegram.
 - Lo mejor de cada rival lo tenemos junto: doble lectura con dos empresas, recibos firmados, corrección con el
   proveedor, factura electrónica sin IA y aprobaciones que enseñan.
 - Y está en producción, con más de mil seiscientas pruebas automáticas y código abierto.»
@@ -65,7 +65,7 @@ todavía pagan a mano. **Blinka Keeper decide. Blinka paga.** Escaneen el QR y p
 
 ## La competencia, en corto
 
-43 repositorios públicos del reto (revisados el 18 de octubre de 2026). Los más fuertes y qué tenemos frente a cada uno:
+Unos 50 repositorios públicos del reto (revisados la mañana del 18 de octubre de 2026). Los más fuertes y qué tenemos frente a cada uno:
 
 | Rival | Su mejor carta | Nosotros |
 |---|---|---|
@@ -74,6 +74,8 @@ todavía pagan a mano. **Blinka Keeper decide. Blinka paga.** Escaneen el QR y p
 | Pulso | Doble lectura Claude + Gemini, 400 pruebas | Doble lectura Claude + Gemini, más de 1.600 pruebas |
 | Bullao | XML DIAN/CFDI, aprobar una vez vs. acuerdo | Lo mismo, más pago real y conciliación |
 | Centinela | Doble lectura con intervalo de confianza | Doble lectura y medición honesta con «lo que no medimos» |
+| Alinka | Evaluación de 175 facturas, 0 de 85 indebidos, costo 0,023 USD por factura | Más de 25.000 facturas simuladas con 0 indebidos, y además pago real y cierre de mes |
+| HackRadar | Doble lectura y webhook de WhatsApp agregado la última noche | WhatsApp real ya probado en producción, más pago real en Stripe |
 
 **¿Ganamos?** No hay garantía: decide el jurado. Pero hoy somos el producto más completo del reto y el único que cierra
 el ciclo con dinero real. Lo que puede costarnos es un error en vivo o un video flojo; por eso cada pantalla está

@@ -55,11 +55,11 @@ Preguntas probables y respuesta corta:
 
 ## Por qué gana (lo que nadie más tiene funcionando)
 
-Revisamos los 43 repositorios públicos del reto (18 oct 2026).
+Revisamos los cerca de 50 repositorios públicos del reto (mañana del 18 oct 2026).
 
 | Momento | Blinka Keeper | Mejor rival |
 |---|---|---|
-| WhatsApp | Real (Cloud API): foto → decisión → respuesta con acta | Simulado (Clearhold, Bullao) o pendiente (hackradar) |
+| WhatsApp | Real (Cloud API): foto → decisión → respuesta con acta | Simulado (Clearhold, Bullao); HackRadar agregó un webhook la última noche |
 | Pago | Stripe modo prueba, consultado en vivo y cuadrado | Todos simulan; Clearhold genera pain.001 |
 | Ciclo | Recibir, decidir, pagar, conciliar con el banco y cerrar el mes | Llegan hasta «decidir» |
 | Proveedor | Corrige por enlace y se repaga con las mismas reglas | ORBIT negocia; no paga de verdad |
