@@ -1,6 +1,6 @@
 /** Where the project lives and the figures the public site may state. Only measured figures go here. */
 
-export const REPO_SLUG = "davidleonb27/custodio-blinka";
+export const REPO_SLUG = "davidleonb27/blinka-keeper";
 export const REPO_URL = `https://github.com/${REPO_SLUG}`;
 export const DEMO_URL = "https://blinka-keeper.vercel.app";
 export const LICENSE_NAME = "MIT";

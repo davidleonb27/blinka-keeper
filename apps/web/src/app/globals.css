@@ -17,16 +17,16 @@
 :root {
   --bg: #f7f7f4;
   --surface: #ffffff;
-  --surface-2: #f2f2ee;
-  --surface-3: #eaeae5;
-  --line: #dedfdc;
-  --line-2: #cbccc8;
-  --grid: rgb(28 37 58 / 0.05);
-  --ink: #1c253a;
-  --ink-2: #47525d;
-  --ink-3: #5c6474;
-  --brand: #2a4bd0;
-  --brand-weak: #f0f3fd;
+  --surface-2: #f3f7f7;
+  --surface-3: #e6eeef;
+  --line: rgb(12 48 54 / 0.1);
+  --line-2: rgb(12 48 54 / 0.18);
+  --grid: rgb(12 48 54 / 0.07);
+  --ink: #0b1618;
+  --ink-2: #3b4c4f;
+  --ink-3: #56696c;
+  --brand: #0f172a;
+  --brand-weak: rgb(15 23 42 / 0.1);
   --on-brand: #ffffff;
   --action: #2a4bd0;
   --action-hover: #1f3bb0;
@@ -60,7 +60,7 @@
   --card-foreground: var(--ink);
   --popover: var(--surface);
   --popover-foreground: var(--ink);
-  --primary: var(--action);
+  --primary: #000000;
   --primary-foreground: #ffffff;
   --secondary: var(--surface-2);
   --secondary-foreground: var(--ink);
@@ -78,45 +78,51 @@
 
 /* Dark mode is Blinka's night palette; the accent turns to its soft tint for text, icons and focus. */
 [data-theme="dark"] {
-  --bg: #111720;
-  --surface: #171e29;
-  --surface-2: #1c2431;
-  --surface-3: #242d3c;
-  --line: rgb(185 199 218 / 0.13);
-  --line-2: rgb(185 199 218 / 0.22);
-  --grid: rgb(185 199 218 / 0.05);
-  --ink: #e9edf1;
-  --ink-2: #b2bbc7;
-  --ink-3: #949eae;
-  --brand: #a3b4ff;
-  --brand-weak: rgb(163 180 255 / 0.12);
-  --on-brand: #111720;
-  --action: #3a58d8;
-  --action-hover: #4a67e2;
-  --pay: #4fc48d;
-  --pay-weak: rgb(79 196 141 / 0.14);
-  --on-pay: #0b1a12;
-  --esc: #e5b04f;
-  --esc-weak: rgb(229 176 79 / 0.14);
-  --hold: #f39272;
-  --hold-weak: rgb(243 146 114 / 0.14);
-  --crit: #f5848a;
-  --crit-weak: rgb(245 132 138 / 0.15);
-  --chart-paid: #3fa874;
-  --chart-pending: #c99a3c;
-  --chart-held: #e0705f;
-  --night: #0b1017;
-  --night-2: #131a24;
-  --header: rgb(17 23 32 / 0.9);
-  --scrim: rgb(5 8 12 / 0.62);
-  --shadow-sm: 0 3px 12px rgb(0 0 0 / 0.3);
-  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 22px 55px -28px rgb(0 0 0 / 0.8);
-  --shadow-lg: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 20px 32px -17px rgb(0 0 0 / 0.85);
+  --bg: #0a1012;
+  --surface: #0f171a;
+  --surface-2: #142024;
+  --surface-3: #1a282d;
+  --line: rgb(170 215 222 / 0.09);
+  --line-2: rgb(170 215 222 / 0.17);
+  --grid: rgb(170 215 222 / 0.07);
+  --ink: #e4eded;
+  --ink-2: #a3b3b5;
+  --ink-3: #8a9ca0;
+  --brand: #ffffff;
+  --brand-weak: rgb(255 255 255 / 0.13);
+  --on-brand: #000000;
+  --pay: #34b977;
+  --pay-weak: rgb(52 185 119 / 0.14);
+  --on-pay: #03200f;
+  --esc: #eeb03c;
+  --esc-weak: rgb(238 176 60 / 0.14);
+  --hold: #ee7b56;
+  --hold-weak: rgb(238 123 86 / 0.14);
+  --crit: #f0676b;
+  --crit-weak: rgb(229 72 77 / 0.16);
+  --chart-paid: #2a9d63;
+  --chart-pending: #b8862a;
+  --chart-held: #e0607e;
+  --scrim: rgb(3 8 10 / 0.6);
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.035) inset, 0 18px 40px -24px rgb(0 0 0 / 0.75);
   color-scheme: dark;
 }
 
 /* The public site (landing and docs) speaks the same system as the app; the class stays as the hook for its canvas. */
 .site {
+  --bg: #f5f8f6;
+  --surface-2: #eef3f0;
+  --surface-3: #e3ebe7;
+  --brand: #000000;
+  --brand-weak: rgb(0 0 0 / 0.1);
+  --on-brand: #ffffff;
+  --background: var(--bg);
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: var(--surface-2);
+  --muted: var(--surface-2);
+  --accent: var(--surface-3);
+  --ring: #000000;
   background: var(--bg);
   color: var(--ink);
 }
@@ -409,5 +415,26 @@
   text-decoration-color: color-mix(in oklab, var(--brand) 55%, transparent);
   text-decoration-thickness: 1.5px;
   text-underline-offset: 0.16em;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee {
+  display: flex !important;
+  width: max-content !important;
+  flex-wrap: nowrap !important;
+  animation: marquee 25s linear infinite !important;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused !important;
 }
 
