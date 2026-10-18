@@ -1,0 +1,32 @@
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "102290129340398",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": { "display_phone_number": "15550783881", "phone_number_id": "106540352242922" },
+            "contacts": [{ "profile": { "name": "Sheena Nelson" }, "wa_id": "573001234567" }],
+            "messages": [
+              {
+                "from": "573001234567",
+                "id": "wamid.HBgLMTY1MDM4Nzk0MzkVAgASGBQzQjMxMzQ5QTVGNTVBN0U1RjQA",
+                "timestamp": "1760749440",
+                "type": "sticker",
+                "sticker": {
+                  "mime_type": "image/webp",
+                  "sha256": "+lDtW9vCjQFT3dqyZhFv9Jsk5FpW/uYNsPNmUZLX1Tg=",
+                  "id": "1240513566814149",
+                  "animated": false
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
