@@ -76,7 +76,8 @@ def render(payment_file: PaymentFile) -> bytes:
     blocks = groupby(by_currency, key=lambda t: _currency(t.currency))
     for index, (_, block) in enumerate(blocks, start=1):
         _payment_block(initiation, payment_file, f"{_text(payment_file.message_id, MAX_ID - 4)}-{index}", list(block))
-    return ET.tostring(document, encoding="utf-8", xml_declaration=True)
+    xml: bytes = ET.tostring(document, encoding="utf-8", xml_declaration=True)
+    return xml
 
 
 def _group_header(parent: ET.Element, payment_file: PaymentFile) -> None:
