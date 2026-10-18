@@ -31,6 +31,8 @@ class RateLimits:
     test_transfers_per_workspace: int = 40  # Stripe test-mode transfers: keep the shared test account tidy
     test_transfers_per_day: int = 2000  # per UTC day, across the whole deployment
     payment_attempts_per_invoice: int = 5  # each retry of a failed payment calls Stripe; a click loop must not
+    stripe_lookups_per_minute_per_ip: int = 60  # live reads behind «Pago en Stripe» and /pagos
+    stripe_lookups_per_minute_per_workspace: int = 30
 
 
 @dataclass(frozen=True)
