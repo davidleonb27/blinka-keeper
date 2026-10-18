@@ -43,7 +43,7 @@ from custodio.reconciliation.models import (
     StatementMovement,
     UnpaidInvoice,
 )
-from custodio.services import invoice_service, ledger_service, policy_service, records
+from custodio.services import invoice_service, ledger_service, policy_service, receipt_service, records
 from custodio.services.context import ServiceContext
 from custodio.services.errors import (
     MovementNotReviewable,
@@ -279,6 +279,13 @@ def evidence(ctx: ServiceContext, workspace: WorkspaceRow, period: str) -> bytes
         ledger=ledger,
         verification=ctx.lanes.verify_ledger(ledger),
         closed=closed,
+        receipts={
+            item.decision.invoice_id: receipt_service.for_invoice(
+                ctx, workspace.id, item.decision.invoice_id
+            ).model_dump(mode="json")
+            for item in decided
+        },
+        receipt_key=receipt_service.key(ctx).model_dump(mode="json"),
     )
     return reconciliation.evidence_pack(source, ctx.now())
 
