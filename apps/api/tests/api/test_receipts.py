@@ -134,7 +134,8 @@ def test_the_server_check_says_valid_and_names_an_altered_amount(client: TestCli
 
 
 def test_the_server_check_takes_anything_and_never_fails(client: TestClient) -> None:
-    for junk in ([], "hola", 3, {"format": "custodio-receipt/1"}):
+    junks: list[object] = [[], "hola", 3, {"format": "custodio-receipt/1"}]
+    for junk in junks:
         response = client.post(f"{API}/receipts/verify", json=junk)
         assert response.status_code == 200, junk
         assert response.json()["valid"] is False

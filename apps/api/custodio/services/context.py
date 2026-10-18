@@ -18,7 +18,7 @@ from custodio.services.lanes import Lanes, production_lanes
 
 Clock = Callable[[], datetime]
 SIGNING_KEY_VARIABLE = "CUSTODIO_RECEIPT_SIGNING_KEY"
-DEVELOPMENT_KEY_SOURCE = "custodio-local-development"  # tests and local runs only: production derives from its database URL
+DEVELOPMENT_KEY_SOURCE = "custodio-local-development"  # tests and local runs; production derives from DATABASE_URL
 
 
 def utc_now() -> datetime:
