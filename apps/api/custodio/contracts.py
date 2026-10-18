@@ -233,6 +233,32 @@ class InvoiceSource(StrEnum):
     INTENT = "intent"  # a payment intent submitted by another agent through the firewall
 
 
+class CrossCheckStatus(StrEnum):
+    AGREE = "agree"  # every reader gave the same normalized value for every compared field
+    DISAGREE = "disagree"
+    UNAVAILABLE = "unavailable"  # the second reading failed, timed out or had no budget: fail closed
+
+
+class ReaderValue(Model):
+    reader: str  # e.g. "claude-sonnet-5-5", "gemini-2.5-flash", "etiquetas"
+    value: str | None  # normalized like ExtractedField.value; None when that reader did not state it
+    quote: str | None = None
+
+
+class FieldCrossCheck(Model):
+    field: Literal["supplier_name", "amount", "currency", "account_number"]
+    readings: list[ReaderValue]
+    agree: bool
+
+
+class ReadingCrossCheck(Model):
+    """Two independent readings of the same document, compared field by field by code (R1 and the auditor)."""
+
+    status: CrossCheckStatus
+    fields: list[FieldCrossCheck] = []
+    error: str | None = None  # why the second reading is missing, in Spanish
+
+
 class ExtractedInvoice(Model):
     document_id: str
     source: InvoiceSource
@@ -251,6 +277,7 @@ class ExtractedInvoice(Model):
     hidden_findings: list[HiddenTextFinding] = []
     reader: str  # pipeline that produced it, e.g. "pdfplumber+claude-sonnet-5-5"
     overall_confidence: float = Field(ge=0, le=1)
+    cross_check: ReadingCrossCheck | None = None  # None: read without a model (labels), no second reading to compare
 
 
 class InvoiceSpec(Model):

@@ -11,6 +11,7 @@ import { ExtractedFields } from "./extracted-fields";
 import { OriginalDocument } from "./original-document";
 import { PaymentExecutionBlock } from "./payment-execution";
 import { PaymentProgress, type PaymentStep } from "./payment-progress";
+import { ReadingCrossCheckBlock } from "./reading-cross-check";
 import { UnknownSupplierHint } from "@/components/suppliers/unknown-supplier-hint";
 import { ApprovalChoices, type HumanChoice } from "./approval-choices";
 import { PolicyVersionNote } from "./policy-version-note";
@@ -122,6 +123,11 @@ export function Acta({
       <Section title="Lo que leyó del documento">
         <ExtractedFields extraction={extraction} minConfidence={policy.min_confidence} onFocusField={setActiveField} />
       </Section>
+      {extraction.cross_check ? (
+        <Section title="Dos lecturas independientes">
+          <ReadingCrossCheckBlock crossCheck={extraction.cross_check} />
+        </Section>
+      ) : null}
       <Section title="Documento original">
         <OriginalDocument extraction={extraction} activeField={activeField} />
       </Section>

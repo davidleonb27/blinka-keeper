@@ -11,6 +11,7 @@ const INVARIANTS = [
   "El motor nunca lee las etiquetas del dataset (lo esperado y la trampa).",
   "Ningún texto de un documento cambia una regla ni autoriza nada; el texto dirigido al agente escala (R2).",
   "Un valor extraído sin una cita verificada por código cuenta como no leído (R1).",
+  "Con modelo, dos lecturas independientes deben coincidir en proveedor, monto, moneda y cuenta; si no coinciden o la segunda falla, la factura no se paga sola (R1).",
   "El auditor recalcula cada pago por un camino de código distinto al del motor; si discrepa, gana el auditor y el pago no se hace.",
   "Toda escritura queda en el registro encadenado con SHA-256; verificarlo detecta cualquier alteración y dice dónde.",
   "Secretos sólo por variable de entorno; nunca en logs, errores, prompts ni respuestas de la API.",
@@ -42,6 +43,16 @@ export default function SecurityPage() {
         puntos, fuera de la página, tapado por una figura o en los metadatos. Ese texto nunca llega al modelo como si fuera
         visible y R2 lo escala. Los PDF escaneados se envían al modelo como imágenes, nunca con su capa de texto, que es
         donde vive el texto oculto.
+      </p>
+      <p>
+        <strong>Dos lecturas independientes.</strong> Cada documento lo lee también un segundo lector, en paralelo y desde
+        el documento mismo (la imagen, no la transcripción del primero): Gemini si hay <code>GEMINI_API_KEY</code>, otra
+        empresa con errores que no se parecen a los de Claude; si no, otro modelo de Claude con otro prompt, más el lector
+        por etiquetas cuando el documento trae texto propio. El código compara proveedor, monto, moneda y cuenta ya
+        normalizados (<code>1.200,00</code> y <code>1200.00</code> son lo mismo; mayúsculas, tildes y espacios no cuentan).
+        Si no coinciden, R1 escala y el acta muestra las dos lecturas con su cita; si el segundo lector falla, tarda o no
+        tiene presupuesto, también escala: nunca se paga con una sola lectura. El auditor lo recalcula por su cuenta.
+        Qué se midió y qué no, en <a href={repoFile("docs/MEASUREMENTS.md")}>MEASUREMENTS.md</a>.
       </p>
       <p>
         Sin <code>ANTHROPIC_API_KEY</code>, el texto y los PDF con texto se leen por etiquetas (<code>Proveedor:</code>,{" "}

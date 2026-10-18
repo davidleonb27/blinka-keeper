@@ -1,0 +1,141 @@
+{
+  "mode": "remote",
+  "base_url": "https://custodio-blinka-green.vercel.app",
+  "measured_at": "2026-10-18T03:16:34+00:00",
+  "invoices": 20,
+  "decisions_correct": 19,
+  "decisions_correct_ci95": [
+    0.751,
+    0.999
+  ],
+  "paid_alone": 9,
+  "improper_payments": [],
+  "improper_payment_rate_upper95": 0.15,
+  "not_read": [],
+  "cross_check_status": {
+    "none": 20
+  },
+  "fields_right_by_reader": {
+    "claude-sonnet-5-5:account_number": "20/20",
+    "claude-sonnet-5-5:amount": "20/20",
+    "claude-sonnet-5-5:currency": "20/20",
+    "claude-sonnet-5-5:supplier_name": "20/20",
+    "etiquetas:account_number": "13/14",
+    "etiquetas:amount": "4/14",
+    "etiquetas:currency": "4/14",
+    "etiquetas:supplier_name": "13/14"
+  },
+  "model_vs_code_reader_agreement": {
+    "supplier_name": "13/13",
+    "amount": "4/4",
+    "currency": "4/4",
+    "account_number": "13/13"
+  },
+  "cost_usd_per_invoice": "NO MEDIDO",
+  "latency_seconds": {
+    "p50": 3.28,
+    "p95": 6.26
+  },
+  "verdicts": [
+    {
+      "id": "B-01",
+      "expected": "pay",
+      "verdict": "pay"
+    },
+    {
+      "id": "B-02",
+      "expected": "pay",
+      "verdict": "pay"
+    },
+    {
+      "id": "B-03",
+      "expected": "pay",
+      "verdict": "pay"
+    },
+    {
+      "id": "B-04",
+      "expected": "pay",
+      "verdict": "pay"
+    },
+    {
+      "id": "B-05",
+      "expected": "pay",
+      "verdict": "pay"
+    },
+    {
+      "id": "B-06",
+      "expected": "pay",
+      "verdict": "pay"
+    },
+    {
+      "id": "B-07",
+      "expected": "pay",
+      "verdict": "pay"
+    },
+    {
+      "id": "B-08",
+      "expected": "pay",
+      "verdict": "escalate"
+    },
+    {
+      "id": "B-09",
+      "expected": "pay",
+      "verdict": "pay"
+    },
+    {
+      "id": "B-10",
+      "expected": "pay",
+      "verdict": "pay"
+    },
+    {
+      "id": "B-11",
+      "expected": "hold",
+      "verdict": "hold"
+    },
+    {
+      "id": "B-12",
+      "expected": "escalate",
+      "verdict": "escalate"
+    },
+    {
+      "id": "B-13",
+      "expected": "escalate",
+      "verdict": "escalate"
+    },
+    {
+      "id": "B-14",
+      "expected": "escalate",
+      "verdict": "escalate"
+    },
+    {
+      "id": "B-15",
+      "expected": "escalate",
+      "verdict": "escalate"
+    },
+    {
+      "id": "B-16",
+      "expected": "escalate",
+      "verdict": "escalate"
+    },
+    {
+      "id": "B-17",
+      "expected": "escalate",
+      "verdict": "escalate"
+    },
+    {
+      "id": "B-18",
+      "expected": "escalate",
+      "verdict": "escalate"
+    },
+    {
+      "id": "B-19",
+      "expected": "escalate",
+      "verdict": "escalate"
+    },
+    {
+      "id": "B-20",
+      "expected": "hold",
+      "verdict": "hold"
+    }
+  ]
+}

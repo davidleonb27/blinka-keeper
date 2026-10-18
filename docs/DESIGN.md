@@ -89,7 +89,7 @@ Se porta la semántica de `prototype/engine.js` (`decideAll` desde la línea 289
 
 | Regla | Efecto | Falla cuando |
 |---|---|---|
-| R1 Lectura confiable | escalar | proveedor, monto, moneda o cuenta con `confidence < min_confidence` o `verified = false`; caso especial: moneda ambigua («$» sin ISO) |
+| R1 Lectura confiable | escalar | proveedor, monto, moneda o cuenta con `confidence < min_confidence` o `verified = false`; caso especial: moneda ambigua («$» sin ISO); con doble lectura, las dos lecturas independientes no coinciden en esos cuatro campos o la segunda no se pudo hacer (§6.6) |
 | R2 Sin instrucciones escondidas | escalar | hay `hidden_findings`, o el texto visible trae instrucciones al agente (patrón del prototipo, ampliado) |
 | R3 Beneficiario permitido | escalar | el proveedor no casa con un beneficiario por NIT/tax id o nombre normalizado/alias, o está bloqueado |
 | R4 Cuenta registrada | retener | la cuenta leída no es la registrada del beneficiario |
@@ -129,12 +129,19 @@ Ledger: `hash = sha256(prev_hash + canonical_json({seq, at, kind, subject_id, pa
 1. PDF: `pdfplumber` extrae texto visible por carácter con color, tamaño y posición. Texto oculto = color igual al fondo
    (blanco o casi), tamaño < 2 pt, fuera de la página, tapado por un rectángulo o imagen, o en metadatos/anotaciones.
    PDF sin texto → se rasteriza y va a OCR.
-2. Imagen o PDF escaneado: Claude (`model_fast`) lo lee directamente con visión (bloque `image` o `document`). **No usamos Gemini**: un solo proveedor y una sola clave.
+2. Imagen o PDF escaneado: Claude (`model_fast`) lo lee directamente con visión (bloque `image` o `document`).
 3. Claude (`model_fast`, esfuerzo bajo) estructura los campos con salida estructurada y devuelve, por campo, el valor
    normalizado y la cita exacta.
 4. Código verifica cada cita contra el texto fuente (normalizando espacios) y que la cita respalde el valor (el monto
    citado parsea al mismo número; la fecha, a la misma fecha). Sin verificación → `verified = false`.
 5. Montos: se respetan los formatos latinos (`4.200.000,00`) y anglosajones (`4,200,000.00`); «$» solo es ambiguo.
+6. **Doble lectura independiente (L21).** Con modelo, cada documento lo lee también un segundo lector, en paralelo y
+   desde el documento mismo (la imagen, no la transcripción del primero): Gemini (`gemini_model`) si hay
+   `GEMINI_API_KEY`, otra empresa y errores no correlacionados; si no, otro modelo de Claude (`model_second_reader`)
+   con otro prompt, y además el lector por etiquetas cuando el documento trae texto propio. Código compara proveedor,
+   monto, moneda y cuenta ya normalizados (`ExtractedInvoice.cross_check`); R1 escala si no coinciden o si la segunda
+   lectura falló, tardó o no tuvo presupuesto, y el auditor lo recalcula por su cuenta. Sin modelo no hay segunda
+   lectura (`cross_check = null`) y R1 queda como antes.
 
 ## 7. Claude en Custodio (L3) — modelos por tarea
 
@@ -232,7 +239,8 @@ shadcn/ui, tema claro y oscuro, móvil primero.
 
 ## 11. Variables de entorno
 
-`ANTHROPIC_API_KEY`, `DATABASE_URL` (Neon; normalizar `postgresql://` a `postgresql+psycopg://`),
+`ANTHROPIC_API_KEY`, `GEMINI_API_KEY` (opcional: segundo lector), `CUSTODIO_MODEL_SECOND_READER`,
+`CUSTODIO_GEMINI_MODEL`, `CUSTODIO_SECOND_READING_TIMEOUT_SECONDS`, `DATABASE_URL` (Neon; normalizar `postgresql://` a `postgresql+psycopg://`),
 `CUSTODIO_PUBLIC_BASE_URL`, `CUSTODIO_LLM_DAILY_BUDGET_USD`, `CUSTODIO_MODEL_FAST`,
 `CUSTODIO_MODEL_SMART`, `CUSTODIO_MODEL_CHEAP`, `CUSTODIO_LIVE_TESTS`, `CUSTODIO_TREASURY_YIELD_APY` (rendimiento anual
 supuesto del saldo, 4.0 por defecto; un supuesto, no un dato de Blinka), `CUSTODIO_PAYMENT_RAIL` (`simulated` por
@@ -247,7 +255,8 @@ defecto, `stripe_test` o `blinka_simulated`) y `STRIPE_SECRET_KEY` (sólo `sk_te
 
 ## 13. Cambios de alcance (2026-10-17)
 
-- **Sin Gemini**: Claude lee imágenes y PDFs escaneados con visión. Quitar `google-genai`, `gemini_model` y `gemini_configured`.
+- **Sin Gemini como lector principal**: Claude lee imágenes y PDFs escaneados con visión; `google-genai` no se usa. Desde
+  L21 Gemini vuelve sólo como segundo lector opcional (REST con `httpx`, `GEMINI_API_KEY`), ver §6.6.
 - **Sin Telegram por ahora**: las aprobaciones son sólo por la web. Desde L7 no queda código de Telegram: `Approver`
   ya no tiene `telegram_chat_id`, el canal de `Approval` es `web` o `api` y la migración `0002` quita ese campo de las
   políticas guardadas.

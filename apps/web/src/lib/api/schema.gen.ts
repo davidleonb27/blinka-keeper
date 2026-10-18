@@ -1582,6 +1582,11 @@ export interface components {
             /** @default demo */
             mode: components["schemas"]["WorkspaceMode"];
         };
+        /**
+         * CrossCheckStatus
+         * @enum {string}
+         */
+        CrossCheckStatus: "agree" | "disagree" | "unavailable";
         /** Decision */
         Decision: {
             /** Invoice Id */
@@ -1738,6 +1743,19 @@ export interface components {
             reader: string;
             /** Overall Confidence */
             overall_confidence: number;
+            cross_check?: components["schemas"]["ReadingCrossCheck"] | null;
+        };
+        /** FieldCrossCheck */
+        FieldCrossCheck: {
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "supplier_name" | "amount" | "currency" | "account_number";
+            /** Readings */
+            readings: components["schemas"]["ReaderValue"][];
+            /** Agree */
+            agree: boolean;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -2515,6 +2533,29 @@ export interface components {
             value: string | null;
             /** Verified */
             verified: boolean;
+        };
+        /** ReaderValue */
+        ReaderValue: {
+            /** Reader */
+            reader: string;
+            /** Value */
+            value: string | null;
+            /** Quote */
+            quote?: string | null;
+        };
+        /**
+         * ReadingCrossCheck
+         * @description Two independent readings of the same document, compared field by field by code (R1 and the auditor).
+         */
+        ReadingCrossCheck: {
+            status: components["schemas"]["CrossCheckStatus"];
+            /**
+             * Fields
+             * @default []
+             */
+            fields: components["schemas"]["FieldCrossCheck"][];
+            /** Error */
+            error?: string | null;
         };
         /** ReceiptBody */
         ReceiptBody: {

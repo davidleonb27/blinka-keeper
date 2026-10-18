@@ -168,6 +168,54 @@ describe("Acta", () => {
     expect(payment).not.toHaveTextContent(/sin riel real/);
   });
 
+  it("shows both independent readings field by field and marks the one that disagrees", () => {
+    const item = structuredClone(demoItem("F-020"));
+    const reading = (reader: string, value: string | null, quote: string | null = value) => ({ reader, value, quote });
+    item.invoice.extraction.cross_check = {
+      status: "disagree",
+      error: null,
+      fields: [
+        {
+          field: "supplier_name",
+          agree: true,
+          readings: [reading("claude-sonnet-5-5", "Andes Code SAS"), reading("gemini-2.5-flash", "ANDES CODE S.A.S.")],
+        },
+        {
+          field: "amount",
+          agree: false,
+          readings: [
+            reading("claude-sonnet-5-5", "1200.00", "USD 1.200,00"),
+            reading("gemini-2.5-flash", "12000.00", "USD 12.000,00"),
+          ],
+        },
+      ],
+    };
+    render(item);
+
+    const block = screen.getByRole("list", { name: "Dos lecturas independientes" });
+    const [supplier, amount] = within(block).getAllByRole("listitem");
+    expect(supplier).toHaveTextContent("Proveedor · coinciden");
+    expect(amount).toHaveTextContent("Monto · no coinciden");
+    expect(amount).toHaveTextContent("1.200,00");
+    expect(amount).toHaveTextContent("USD 12.000,00");
+    expect(screen.getByText(/no se paga sola, la revisa una persona/)).toBeInTheDocument();
+  });
+
+  it("says why there was no second reading", () => {
+    const item = structuredClone(demoItem("F-020"));
+    item.invoice.extraction.cross_check = { status: "unavailable", error: "no queda presupuesto diario", fields: [] };
+    render(item);
+
+    expect(screen.getByText(/No hubo segunda lectura.*Motivo: no queda presupuesto diario\./)).toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: "Dos lecturas independientes" })).not.toBeInTheDocument();
+  });
+
+  it("shows no second-reading block for a reading without one", () => {
+    render(demoItem("F-020"));
+
+    expect(screen.queryByRole("heading", { name: "Dos lecturas independientes" })).not.toBeInTheDocument();
+  });
+
   it("shows no payment block for an invoice that was not paid", () => {
     render(demoItem("F-020"));
 

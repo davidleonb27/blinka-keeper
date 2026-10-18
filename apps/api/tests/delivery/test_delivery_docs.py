@@ -46,7 +46,7 @@ INFLATED_WORDS = (
     "game-changer",
     "cutting-edge",
 )
-OUT_OF_SCOPE_SERVICES = ("telegram", "gemini", "celular")
+OUT_OF_SCOPE_SERVICES = ("telegram", "celular")  # Gemini came back in L21, only as the optional second reader
 FORBIDDEN_TRAILERS = ("Co-Authored-By", "Generated with")
 BLINKA_SECTIONS = (
     "El problema de sus clientes",
