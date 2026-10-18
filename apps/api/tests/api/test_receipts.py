@@ -166,3 +166,18 @@ def test_the_key_id_is_the_hash_of_the_public_key(client: TestClient) -> None:
     view = client.get(f"{API}/.well-known/custodio-receipt-key").json()
 
     assert view["key_id"] == "cust-" + hashlib.sha256(key.raw).hexdigest()[:16]
+
+
+def test_a_later_policy_change_does_not_rewrite_where_an_earlier_payment_went(client: TestClient) -> None:
+    workspace = new_workspace(client)
+    process(client, workspace)
+    before = receipt(client, workspace, "F01")
+    policy = client.get(f"{API}/policy", headers=workspace.headers).json()
+    paid_to = before["body"]["payment"]["beneficiary_id"]
+    for beneficiary in policy["beneficiaries"]:
+        if beneficiary["id"] == paid_to:
+            beneficiary["account_number"] = "000111222333"
+    changed = client.put(f"{API}/policy", headers=workspace.headers, json=policy)
+    assert changed.status_code == 200, changed.text
+
+    assert receipt(client, workspace, "F01") == before
