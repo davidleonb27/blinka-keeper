@@ -55,12 +55,23 @@ describe("ApprovalChoices", () => {
     const { onDecide } = renderChoices("F-019");
     const once = screen.getByRole("button", { name: /Aprobar sólo esta vez/ });
 
-    expect(once).toBeDisabled();
+    await userEvent.click(once);
+    expect(onDecide).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent(/motivo/);
+    expect(screen.getByLabelText(/Motivo/)).toHaveFocus();
+
     await userEvent.type(screen.getByLabelText(/Motivo/), "Subió el precio");
-    expect(once).toBeEnabled();
     await userEvent.click(once);
 
     expect(onDecide).toHaveBeenCalledWith({ kind: "once", approver: "Ana Gómez", reason: "Subió el precio" });
+  });
+
+  it("offers one-click reasons that approve only this once", async () => {
+    const { onDecide } = renderChoices("F-019");
+    await userEvent.click(screen.getByRole("button", { name: "Confirmado con el proveedor" }));
+    await userEvent.click(screen.getByRole("button", { name: /Aprobar sólo esta vez/ }));
+
+    expect(onDecide).toHaveBeenCalledWith({ kind: "once", approver: "Ana Gómez", reason: "Confirmado con el proveedor" });
   });
 
   it("simulates the new agreement before it can be confirmed, and confirms against the simulated version", async () => {
