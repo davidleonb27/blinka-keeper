@@ -10,6 +10,15 @@ const WEB_PORT = 3100;
 const API_URL = `http://127.0.0.1:${API_PORT}`;
 const DATABASE = path.join(tmpdir(), `custodio-e2e-${process.pid}.db`);
 const WEB_URL = `http://127.0.0.1:${WEB_PORT}`;
+// The WhatsApp channel of the walk (whatsapp.e2e.ts signs its deliveries with this app secret). Test values, not secrets.
+export const WHATSAPP_E2E = {
+  WHATSAPP_VERIFY_TOKEN: "e2e-verify-token",
+  WHATSAPP_APP_SECRET: "e2e-app-secret",
+  WHATSAPP_ACCESS_TOKEN: "e2e-access-token",
+  WHATSAPP_PHONE_NUMBER_ID: "106540352242922",
+  WHATSAPP_DISPLAY_NUMBER: "15550783881",
+};
+export const E2E_API_URL = API_URL;
 // Like Vercel: both servers run in UTC while the browsers below live in other zones.
 const SERVER_TIME_ZONE = "UTC";
 
@@ -59,7 +68,7 @@ export default defineConfig({
       command: `rm -f ${DATABASE} && uv run --frozen --directory ../api uvicorn tests.e2e_app:app --host 127.0.0.1 --port ${API_PORT}`,
       cwd: WEB_ROOT,
       url: `${API_URL}/api/v1/health`,
-      env: { CUSTODIO_DATABASE_URL: `sqlite:///${DATABASE}`, TZ: SERVER_TIME_ZONE },
+      env: { CUSTODIO_DATABASE_URL: `sqlite:///${DATABASE}`, TZ: SERVER_TIME_ZONE, ...WHATSAPP_E2E },
       reuseExistingServer: false,
       timeout: 120_000,
     },

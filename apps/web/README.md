@@ -1,4 +1,4 @@
-# Custodio · web
+# Blinka Keeper · web
 
 Next.js (App Router) + TypeScript estricto + Tailwind + shadcn/ui.
 

@@ -22,7 +22,7 @@ export function ProposalView({ proposal, currency }: { proposal: PolicyProposal;
       {proposal.changes.length ? (
         <section className="card-surface p-4">
           <h2 className="mb-3 flex items-center gap-2 text-[14px] font-semibold">
-            <Sparkles aria-hidden className="size-4 text-brand" /> Así lo entendió Custodio
+            <Sparkles aria-hidden className="size-4 text-brand" /> Así lo entendió Blinka Keeper
           </h2>
           <ul className="flex flex-col gap-2.5">
             {proposal.changes.map((change) => (

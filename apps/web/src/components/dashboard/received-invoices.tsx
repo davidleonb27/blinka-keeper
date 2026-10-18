@@ -12,7 +12,7 @@ const CHANNELS = "correo, PDF, foto, WhatsApp";
 const PROGRESS_STEPS = ["Leyendo cada documento", "Revisando las quince reglas", "Pagando lo que cumple", "Recalculando con el auditor"];
 const PROGRESS_STEP_MS = 1_400;
 
-/** Invoices the workspace received and Custodio has not decided yet; one click runs them through the rules. */
+/** Invoices the workspace received and Blinka Keeper has not decided yet; one click runs them through the rules. */
 export function ReceivedInvoices({ count, first = false }: { count: number; first?: boolean }) {
   const process = useProcessInvoices();
   const one = count === 1;
@@ -20,7 +20,7 @@ export function ReceivedInvoices({ count, first = false }: { count: number; firs
   // and React Query drops the callbacks of an unmounted caller.
   const decide = () =>
     process.mutateAsync().then(
-      ({ batch }) => toast.success(`Custodio decidió ${batch.metrics.total} ${batch.metrics.total === 1 ? "factura" : "facturas"}.`),
+      ({ batch }) => toast.success(`Blinka Keeper decidió ${batch.metrics.total} ${batch.metrics.total === 1 ? "factura" : "facturas"}.`),
       (error: unknown) => toast.error(messageOf(error)),
     );
   return (
@@ -38,8 +38,8 @@ export function ReceivedInvoices({ count, first = false }: { count: number; firs
           </p>
           <p className="mt-1 text-ink-2">
             {first
-              ? "Custodio las lee, las pasa por tus quince reglas y paga lo que cumple. Lo que importa te lo pide a ti."
-              : `${one ? "Espera" : "Esperan"} que Custodio ${one ? "la decida" : "las decida"} con tus reglas: pagar, retener o pedirte permiso.`}
+              ? "Blinka Keeper las lee, las pasa por tus quince reglas y paga lo que cumple. Lo que importa te lo pide a ti."
+              : `${one ? "Espera" : "Esperan"} que Blinka Keeper ${one ? "la decida" : "las decida"} con tus reglas: pagar, retener o pedirte permiso.`}
           </p>
           {process.isPending ? <DecidingProgress count={count} /> : null}
         </div>

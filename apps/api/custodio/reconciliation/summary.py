@@ -1,4 +1,4 @@
-"""The month in figures: what Custodio decided and what the bank confirmed. Pure."""
+"""The month in figures: what Blinka Keeper decided and what the bank confirmed. Pure."""
 
 from __future__ import annotations
 

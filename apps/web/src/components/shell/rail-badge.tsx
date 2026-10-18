@@ -5,7 +5,7 @@ import { Chip } from "@/components/shell/page-header";
 import { useHealth } from "@/lib/api/hooks";
 import { RAIL_LABEL } from "@/lib/presentation";
 
-/** Which rail carries out the payments Custodio decides, as /health reports it. */
+/** Which rail carries out the payments Blinka Keeper decides, as /health reports it. */
 export function RailBadge() {
   const health = useHealth();
   if (!health.data) return null;

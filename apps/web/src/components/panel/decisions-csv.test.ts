@@ -41,4 +41,18 @@ describe("decisionsCsv", () => {
       expect(line.startsWith(`${quoted},${quoted},-5,`)).toBe(true);
     }
   });
+
+  it("never leaves the transfer id blank: the rail's id, else the instruction's key, else «—»", () => {
+    const paid = ITEMS.find((item) => item.decision.status === "paid_auto")!;
+    const at = "2026-10-17T12:00:00Z";
+    const instruction = { network: "ach", amount: 1, currency: "USD", beneficiary_name: "x", beneficiary_tax_id: "1",
+      beneficiary_country: null, bank_name: "b", account_number: "1", reference: "r", idempotency_key: "pay-F-001" };
+    const withExecution = (execution: object | null) => ({ ...paid, decision: { ...paid.decision, execution } }) as typeof paid;
+    const transferOf = (item: typeof paid) => decisionsCsv([item]).trimEnd().split("\r\n")[1].split(",").at(-1);
+
+    expect(transferOf(withExecution({ rail: "stripe_test", status: "executed", external_id: "tr_123", executed_at: at }))).toBe("tr_123");
+    expect(transferOf(withExecution({ rail: "blinka_simulated", status: "simulated", executed_at: at, instruction }))).toBe("pay-F-001");
+    expect(transferOf(withExecution({ rail: "simulated", status: "simulated", executed_at: at }))).toBe("—");
+    expect(transferOf(withExecution(null))).toBe("—");
+  });
 });

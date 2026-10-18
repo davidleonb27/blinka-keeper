@@ -1,4 +1,4 @@
-"""The panel's payments become the exact instruction Blinka would receive; nothing leaves Custodio."""
+"""The panel's payments become the exact instruction Blinka would receive; nothing leaves Blinka Keeper."""
 
 from dataclasses import replace
 from typing import Any
@@ -86,7 +86,8 @@ def test_the_ledger_records_the_blinka_rail_and_stays_valid(client: TestClient) 
 
 
 def test_a_payment_blinka_cannot_take_stops_after_its_last_allowed_attempt(runtime: Runtime) -> None:
-    # Blinka refuses a currency it does not pay every time, so without the cap each click writes another attempt.
+    # A decision the ledger never recorded is refused every time (the guard finds no receipt for it), so without the
+    # cap each click would write another attempt.
     capped = replace(runtime, limits=replace(runtime.limits, payment_attempts_per_invoice=2))
     with TestClient(create_app(capped)) as capped_client:
         workspace = new_workspace(capped_client)
@@ -99,7 +100,7 @@ def test_a_payment_blinka_cannot_take_stops_after_its_last_allowed_attempt(runti
             attempts = [payment_service.execute(ctx, workspace.id, in_euros, policy) for _ in range(3)]
 
     assert [a.status for a in attempts] == ["failed", "failed", "failed"]
-    assert "EUR" in (attempts[1].error or "")
+    assert "Guardián del pago" in (attempts[1].error or "")
     assert "máximo de 2 intentos" in (attempts[2].error or "")
 
 

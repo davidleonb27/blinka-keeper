@@ -67,6 +67,19 @@ describe("useCompleteOnboarding", () => {
     expect(store.current()).toEqual(NEW_COMPANY);
   });
 
+  it("sets the company up in an unused blank workspace even after a reload lost this tab's memory of it", async () => {
+    const api = createMockClient({ latencyMs: 0 });
+    await api.createWorkspace("blank"); // the API already holds an unused blank workspace, as after a reload
+    vi.spyOn(api, "createWorkspace").mockResolvedValue(NEW_COMPANY);
+    const store = memoryStore(VISITOR);
+    const complete = completeWith(api, store);
+
+    await act(() => complete.current.mutateAsync(onboardingRequest(INITIAL_ANSWERS)));
+
+    expect(api.createWorkspace).not.toHaveBeenCalled();
+    expect(store.current()).toEqual(VISITOR);
+  });
+
   it("brings the browser back to the workspace it had when the API refuses the company", async () => {
     const api = apiCreating(NEW_COMPANY);
     vi.spyOn(api, "completeOnboarding").mockRejectedValue(new InvalidRequestError(null, 422));

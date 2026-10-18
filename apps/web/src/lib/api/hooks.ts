@@ -1,10 +1,17 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient, type QueryKey } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type Query, type QueryKey } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { useApi } from "@/components/providers/api-provider";
 import { useHydrated } from "@/lib/hydration";
 import type {
+  AcceptSuggestionInput,
+  AgreementInput,
   ApprovalInput,
+  CorrectionRequestInput,
+  ApproveOnceInput,
+  ApproveWithAgreementInput,
+  CustodioApi,
   ChallengeInput,
   InvoiceInput,
   OnboardingRequest,
@@ -12,12 +19,15 @@ import type {
   ReconciliationView,
   ResolveInput,
   StatementInput,
+  SupplierConfirmation,
 } from "./client";
 import type { Beneficiary, Policy } from "./contracts";
 import { markTourStep } from "@/lib/tour";
 import { browserWorkspaceStore, forgetFreshBlank, isFreshBlank, type WorkspaceStore } from "./workspace";
 
 const CHALLENGE_POLL_MS = 5_000;
+/** Short enough that a photo sent on WhatsApp shows up in the panel a few seconds later, live, during the demo. */
+const WHATSAPP_POLL_MS = 4_000;
 
 const queryKeys = {
   workspace: ["workspace"] as const,
@@ -28,8 +38,17 @@ const queryKeys = {
   challenge: ["challenge-stats"] as const,
   trust: ["trust"] as const,
   schedule: ["schedule"] as const,
+  payments: ["payments"] as const,
+  stripeProof: (id: string) => ["payments", id, "stripe"] as const,
   reconciliations: ["reconciliations"] as const,
   reconciliation: (id: string) => ["reconciliations", id] as const,
+  whatsapp: ["whatsapp"] as const,
+  receiptKey: ["receipt-key"] as const,
+  corrections: ["corrections"] as const,
+  correction: (id: string) => ["corrections", id] as const,
+  supplierCorrection: (token: string) => ["supplier-correction", token] as const,
+  suggestions: ["suggestions"] as const,
+  policyVersions: ["policy", "versions"] as const,
 };
 
 const HYDRATING = "hydrating";
@@ -38,7 +57,7 @@ interface ClientQuery<T> {
   queryKey: QueryKey;
   queryFn: () => Promise<T>;
   enabled?: boolean;
-  refetchInterval?: number;
+  refetchInterval?: number | ((query: Query<T, Error, T, QueryKey>) => number | false);
 }
 
 /**
@@ -76,6 +95,12 @@ export function useDecision(invoiceId: string | null) {
   });
 }
 
+/** The public key that checks every receipt: the acta shows its id on the seal. */
+export function useReceiptKey() {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.receiptKey, queryFn: () => api.getReceiptKey() });
+}
+
 export function usePolicy() {
   const api = useApi();
   return useClientQuery({ queryKey: queryKeys.policy, queryFn: () => api.getPolicy() });
@@ -94,6 +119,17 @@ export function useTrust() {
 export function useSchedule() {
   const api = useApi();
   return useQuery({ queryKey: queryKeys.schedule, queryFn: () => api.getSchedule() });
+}
+
+export function usePayments() {
+  const api = useApi();
+  return useQuery({ queryKey: queryKeys.payments, queryFn: () => api.getPayments() });
+}
+
+/** Asked live each time the acta opens; the API keeps Stripe's answer a few seconds. */
+export function useStripeProof(invoiceId: string, enabled: boolean) {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.stripeProof(invoiceId), queryFn: () => api.getStripeProof(invoiceId), enabled });
 }
 
 export function useSimulateMonth() {
@@ -128,6 +164,9 @@ function useInvalidateWorkspace() {
         queryKeys.policy,
         queryKeys.trust,
         queryKeys.schedule,
+        queryKeys.payments,
+        queryKeys.corrections,
+        queryKeys.suggestions,
       ].map((queryKey) =>
         client.invalidateQueries({ queryKey }),
       ),
@@ -142,6 +181,46 @@ export function useHumanDecision(invoiceId: string) {
       approve ? api.approveDecision(invoiceId, input) : api.rejectDecision(invoiceId, input),
     onSuccess: invalidate,
   });
+}
+
+export function useApproveOnce(invoiceId: string) {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({ mutationFn: (input: ApproveOnceInput) => api.approveOnce(invoiceId, input), onSuccess: invalidate });
+}
+
+/** A simulation only: nothing changes until `useApproveWithAgreement` confirms it. */
+export function useAgreementPreview(invoiceId: string) {
+  const api = useApi();
+  return useMutation({ mutationFn: (input: AgreementInput) => api.previewAgreement(invoiceId, input) });
+}
+
+export function useApproveWithAgreement(invoiceId: string) {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({
+    mutationFn: (input: ApproveWithAgreementInput) => api.approveWithAgreement(invoiceId, input),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSuggestions() {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.suggestions, queryFn: () => api.listSuggestions() });
+}
+
+export function useAcceptSuggestion() {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: AcceptSuggestionInput }) => api.acceptSuggestion(id, input),
+    onSuccess: invalidate,
+  });
+}
+
+export function usePolicyVersions() {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.policyVersions, queryFn: () => api.listPolicyVersions() });
 }
 
 export function useRetryPayment(invoiceId: string) {
@@ -209,6 +288,16 @@ export function useImportSuppliers() {
   });
 }
 
+/** A blank workspace no company was set up in yet and nothing arrived to: the onboarding can use it as is. */
+async function isUnusedBlank(api: CustodioApi): Promise<boolean> {
+  try {
+    const summary = await api.getWorkspace();
+    return summary.mode === "blank" && summary.policy_version === 1 && summary.metrics.total === 0 && summary.pending_invoices === 0;
+  } catch {
+    return false; // no workspace yet, or it is gone: make one
+  }
+}
+
 /**
  * The new company gets a blank workspace of its own (the visitor's demo keeps its invoices out of it); the browser
  * switches to it before the API sets it up, and back to the one it had if the API refuses the company. A blank
@@ -220,7 +309,8 @@ export function useCompleteOnboarding(store: WorkspaceStore = browserWorkspaceSt
   return useMutation({
     mutationFn: async (request: OnboardingRequest) => {
       const previous = { workspace_id: store.read(), api_key: store.readApiKey() };
-      const fresh = previous.workspace_id !== null && isFreshBlank(previous.workspace_id);
+      const fresh =
+        (previous.workspace_id !== null && isFreshBlank(previous.workspace_id)) || (await isUnusedBlank(api));
       if (!fresh) store.write(await api.createWorkspace("blank"));
       try {
         const result = await api.completeOnboarding(request);
@@ -255,6 +345,37 @@ export function useProcessInvoices() {
       markTourStep("decide");
       return invalidate();
     },
+  });
+}
+
+/**
+ * The WhatsApp card's state, polled while the channel is on. When an invoice arrives on WhatsApp the API has already
+ * read and decided it, so the panel refreshes everything that decision touched.
+ */
+export function useWhatsAppStatus(pollMs = WHATSAPP_POLL_MS) {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  const status = useClientQuery({
+    queryKey: queryKeys.whatsapp,
+    queryFn: () => api.getWhatsAppStatus(),
+    refetchInterval: (query) => (query.state.data?.enabled ? pollMs : false),
+  });
+  const lastSeen = useRef<string | null | undefined>(undefined);
+  const latest = status.data ? status.data.last_received_at : undefined;
+  useEffect(() => {
+    if (latest === undefined) return;
+    if (lastSeen.current !== undefined && lastSeen.current !== latest) void invalidate();
+    lastSeen.current = latest;
+  }, [latest, invalidate]);
+  return status;
+}
+
+export function useCreateWhatsAppCode() {
+  const api = useApi();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.createWhatsAppCode(),
+    onSuccess: () => client.invalidateQueries({ queryKey: queryKeys.whatsapp }),
   });
 }
 
@@ -312,5 +433,41 @@ export function useClosePeriod(id: string) {
           client.invalidateQueries({ queryKey }),
         ),
       ),
+  });
+}
+
+export function useCorrections() {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.corrections, queryFn: () => api.listCorrections() });
+}
+
+export function useCorrectionOffer(invoiceId: string) {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.correction(invoiceId), queryFn: () => api.getCorrectionOffer(invoiceId) });
+}
+
+export function useRequestCorrection(invoiceId: string) {
+  const api = useApi();
+  const invalidate = useInvalidateWorkspace();
+  return useMutation({
+    mutationFn: (input: CorrectionRequestInput) => api.requestCorrection(invoiceId, input),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSupplierCorrection(token: string) {
+  const api = useApi();
+  return useClientQuery({
+    queryKey: queryKeys.supplierCorrection(token),
+    queryFn: () => api.getSupplierCorrection(token),
+  });
+}
+
+/** The supplier sends a corrected document or confirms the data; either way the link is spent. */
+export function useSubmitSupplierCorrection(token: string) {
+  const api = useApi();
+  return useMutation({
+    mutationFn: (input: { file: File } | { values: SupplierConfirmation }) =>
+      "file" in input ? api.submitSupplierDocument(token, input.file) : api.confirmSupplierCorrection(token, input.values),
   });
 }

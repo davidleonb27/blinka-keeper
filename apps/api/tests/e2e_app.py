@@ -4,18 +4,39 @@ Everything the web depends on is real: the demo company and its cases, the decis
 the simulator, the hash-chained ledger and the database (SQLite from CUSTODIO_DATABASE_URL). Only the lanes that
 call Claude are swapped for the deterministic doubles of the API tests, so the walk needs no key, spends nothing
 and gets the same answers every run. Run: `uvicorn tests.e2e_app:app` from apps/api.
+
+With CUSTODIO_E2E_STRIPE=fake the panel pays through the real Stripe rail and reads transfers back through the real
+lookup, both over the fake Stripe transport of the payment tests: the acta's «Pago en Stripe» and /pagos without a key.
 """
 
 from __future__ import annotations
 
+import os
+import time
 from dataclasses import replace
+
+from sqlalchemy.orm import Session
 
 from custodio.api.app import create_app
 from custodio.config import get_settings
+from custodio.payments import STRIPE_TEST, RailChoice, StripeAccountTable, StripeApiLookup, StripeTestRail
+from custodio.payments.port import Clock, PaymentRail
 from custodio.services.context import production_runtime
 
 from .api import doubles
+from .payments.stripe_fake import FakeStripe
 from .reconciliation.doubles import FakeStatementReader
+from .whatsapp.doubles import FakeGraph
+
+
+def fake_stripe_rail() -> RailChoice:
+    client = FakeStripe(seconds=lambda: int(time.time())).client()
+
+    def build(session: Session, clock: Clock) -> PaymentRail:
+        return StripeTestRail(client, StripeAccountTable(session, clock), clock=clock)
+
+    return RailChoice(name=STRIPE_TEST, build=build, lookup=StripeApiLookup(client))
+
 
 runtime = production_runtime(get_settings())
 model_free = replace(
@@ -30,4 +51,10 @@ model_free = replace(
     triage_attack=doubles.triage_attack,
     read_statement=FakeStatementReader(),
 )
-app = create_app(replace(runtime, lanes=model_free))
+# Every browser of the walk calls from 127.0.0.1: the per-IP model limit would count all of them as one visitor and
+# refuse whichever test lands in a busy minute. The per-workspace limit still holds.
+limits = replace(runtime.limits, model_calls_per_minute_per_ip=1000)
+# With the WHATSAPP_* variables of the walk, the channel is on but never reaches Meta: replies stay in the process.
+whatsapp = None if runtime.whatsapp is None else replace(runtime.whatsapp, graph=FakeGraph())
+rail = fake_stripe_rail() if os.environ.get("CUSTODIO_E2E_STRIPE") == "fake" else runtime.payment_rail
+app = create_app(replace(runtime, lanes=model_free, limits=limits, whatsapp=whatsapp, payment_rail=rail))

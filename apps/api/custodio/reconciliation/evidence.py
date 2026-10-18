@@ -18,6 +18,7 @@ from decimal import Decimal
 from importlib.resources import files
 from typing import Any
 
+from pydantic import Field
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import simpleSplit
 from reportlab.pdfgen.canvas import Canvas
@@ -45,6 +46,7 @@ FILE_MODE = 0o644 << 16
 COMPRESSION_LEVEL = 9
 FORMULA_STARTS = ("=", "+", "-", "@", "\t", "\r")  # a spreadsheet would run a cell that starts like this
 VERIFIER = "ledger_verifier.py"
+RECEIPT_VERIFIER = "verificar_recibo.py"
 CSV_COLUMNS = (
     "fila",
     "fecha",
@@ -86,6 +88,8 @@ class EvidenceSource(Model):
     ledger: list[LedgerEntry]
     verification: LedgerVerification
     closed: PeriodClose
+    receipts: dict[str, dict[str, Any]] = Field(default_factory=dict)  # invoice id → its signed receipt
+    receipt_key: dict[str, Any] | None = None  # the public key that checks them, as /.well-known serves it
 
 
 def evidence_pack(source: EvidenceSource, generated_at: datetime) -> bytes:
@@ -118,6 +122,16 @@ def _contents(source: EvidenceSource) -> Iterator[tuple[str, bytes]]:
     yield "registro/registro.json", _json([json.loads(canonical_json(entry.model_dump())) for entry in source.ledger])
     yield "registro/verificacion.json", _json(source.verification.model_dump(mode="json"))
     yield "registro/verificar_registro.py", files("custodio.reconciliation").joinpath(VERIFIER).read_bytes()
+    yield from _receipts(source)
+
+
+def _receipts(source: EvidenceSource) -> Iterator[tuple[str, bytes]]:
+    if source.receipt_key is None:
+        return
+    for invoice_id, receipt in sorted(source.receipts.items()):
+        yield f"recibos/{invoice_id}.json", _json(receipt)
+    yield "recibos/clave_publica.json", _json(source.receipt_key)
+    yield f"recibos/{RECEIPT_VERIFIER}", files("custodio.receipts").joinpath(RECEIPT_VERIFIER).read_bytes()
 
 
 def _json(value: object) -> bytes:
@@ -131,11 +145,13 @@ resumen.pdf             Lo pagado, retenido y rechazado en el mes, lo conciliado
                         cambio, las comisiones y cada alerta con la nota de quien la revisó.
 conciliacion.csv        Un movimiento del extracto por fila: cómo se emparejó, con qué factura y por qué.
 actas/                  El acta de cada factura decidida en el mes: las 12 reglas, la razón y la ejecución del pago.
-registro/registro.json  El registro encadenado completo (SHA-256), tal como lo guarda Custodio.
+registro/registro.json  El registro encadenado completo (SHA-256), tal como lo guarda Blinka Keeper.
 registro/verificacion.json
-                        Lo que responde el verificador público de Custodio sobre ese registro.
+                        Lo que responde el verificador público de Blinka Keeper sobre ese registro.
 registro/verificar_registro.py
                         El mismo algoritmo, sin dependencias: python3 verificar_registro.py registro.json
+recibos/                El recibo firmado (Ed25519) de cada decisión del mes y la clave pública que lo comprueba:
+                        python3 verificar_recibo.py F-001.json clave_publica.json
 manifiesto.json         El SHA-256 de cada archivo y la fecha en que se generó este paquete (el único dato que
                         cambia si se vuelve a descargar).
 
@@ -225,7 +241,7 @@ def _summary_pdf(source: EvidenceSource) -> bytes:
     buffer = io.BytesIO()
     canvas = Canvas(buffer, pagesize=letter, invariant=1)
     canvas.setTitle(f"Cierre de {_month(source.period)}")
-    canvas.setAuthor("Custodio")
+    canvas.setAuthor("Blinka Keeper")
     page = _Page(canvas)
     _draw_title(page, source)
     _draw_decisions(page, source.summary)

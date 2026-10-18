@@ -86,7 +86,7 @@ _AGREEMENT_KINDS = {
 
 
 class UnsupportedSupplierFile(ValueError):
-    """The file type is not one Custodio imports suppliers from."""
+    """The file type is not one Blinka Keeper imports suppliers from."""
 
 
 class UnreadableSupplierFile(ValueError):
@@ -121,7 +121,7 @@ class SupplierRow:
 
 
 SYSTEM = """\
-You read a supplier contract, an old invoice or a supplier list (PDF) for Custodio, an accounts-payable agent, \
+You read a supplier contract, an old invoice or a supplier list (PDF) for Blinka Keeper, an accounts-payable agent, \
 and list every supplier that is paid in it with its payment data. Copy values exactly as written; code checks \
 and normalizes them.
 
@@ -221,7 +221,7 @@ def _xml(archive: zipfile.ZipFile, path: str) -> ElementTree.Element:
         raise UnreadableSupplierFile("La hoja de cálculo es demasiado grande para una lista de proveedores.")
     content = archive.read(info)
     if b"<!DOCTYPE" in content or b"<!ENTITY" in content:
-        raise UnreadableSupplierFile("La hoja de cálculo trae declaraciones XML que Custodio no acepta.")
+        raise UnreadableSupplierFile("La hoja de cálculo trae declaraciones XML que Blinka Keeper no acepta.")
     # Safe without defusedxml: DTDs are refused above, and ElementTree never resolves external entities.
     return ElementTree.fromstring(content)  # noqa: S314
 

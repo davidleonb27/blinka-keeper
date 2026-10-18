@@ -2,7 +2,7 @@
 <html lang="es">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Custodio</title>
+<title>Blinka Keeper</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -500,7 +500,7 @@ tr.tampered td { background: var(--crit-weak); }
   <aside class="nav" aria-label="Secciones">
     <div class="brand">
       <svg style="color:var(--accent)" aria-hidden="true"><use href="#i-seal"/></svg>
-      <div><b>Custodio</b><span>Agente de pagos</span></div>
+      <div><b>Blinka Keeper</b><span>Agente de pagos</span></div>
     </div>
     <nav class="nav-list" id="nav"></nav>
     <div class="nav-foot">
@@ -640,7 +640,7 @@ tr.tampered td { background: var(--crit-weak); }
       if (r.inv.receivedAt !== day) { day = r.inv.receivedAt; minute = 0; }
       minute += 7;
       const ts = r.inv.receivedAt + ' ' + String(9 + Math.floor(minute / 60)).padStart(2, '0') + ':' + String(minute % 60).padStart(2, '0');
-      S.seqOf[r.id] = ledgerAppend({ ts, type: 'Decisión', ref: r.id, decision: AGENT[r.agent], summary: shortSummary(r), actor: 'Custodio (agente)' });
+      S.seqOf[r.id] = ledgerAppend({ ts, type: 'Decisión', ref: r.id, decision: AGENT[r.agent], summary: shortSummary(r), actor: 'Blinka Keeper (agente)' });
     });
   }
 
@@ -653,10 +653,10 @@ tr.tampered td { background: var(--crit-weak); }
     S.results.forEach(r => {
       const p = prev.get(r.id);
       if (!p) {
-        S.seqOf[r.id] = ledgerAppend({ ts: nowTs(), type: 'Decisión', ref: r.id, decision: AGENT[r.agent], summary: shortSummary(r), actor: 'Custodio (agente)' });
+        S.seqOf[r.id] = ledgerAppend({ ts: nowTs(), type: 'Decisión', ref: r.id, decision: AGENT[r.agent], summary: shortSummary(r), actor: 'Blinka Keeper (agente)' });
       } else if (p !== r.status && !(cause.skip || []).includes(r.id)) {
         changed++;
-        S.seqOf[r.id] = ledgerAppend({ ts: nowTs(), type: 'Nueva decisión', ref: r.id, decision: DEC[r.status].label, summary: DEC[p].label + ' → ' + DEC[r.status].label + ' por ' + cause.why + '.', actor: 'Custodio (agente)' });
+        S.seqOf[r.id] = ledgerAppend({ ts: nowTs(), type: 'Nueva decisión', ref: r.id, decision: DEC[r.status].label, summary: DEC[p].label + ' → ' + DEC[r.status].label + ' por ' + cause.why + '.', actor: 'Blinka Keeper (agente)' });
       }
     });
     return changed;
@@ -1170,7 +1170,7 @@ tr.tampered td { background: var(--crit-weak); }
     const phone = first ? (() => {
       const f = first.checks.filter(c => c.status === 'fail')[0];
       return '<div class="phone" aria-label="Así llega la solicitud por WhatsApp">' +
-        '<div class="phone-h"><span class="av"><svg style="color:var(--accent)"><use href="#i-seal"/></svg></span><div><b>Custodio · Cobalto Labs</b><span>Solicitudes de aprobación</span></div></div>' +
+        '<div class="phone-h"><span class="av"><svg style="color:var(--accent)"><use href="#i-seal"/></svg></span><div><b>Blinka Keeper · Cobalto Labs</b><span>Solicitudes de aprobación</span></div></div>' +
         '<div class="bubble in">' + esc(vendorOf(first)) + ' cobra ' + esc(amountOf(first)) + (first.inv.currency !== 'USD' && isFinite(first.usd) ? ' (≈ ' + usd(first.usd) + ')' : '') + '.<br><br>' + esc(f.detail) + '<br><br>Responde <b>1</b> para aprobar o <b>2</b> para rechazar. El acta completa está en el panel.<small>' + nowTs().slice(11) + '</small></div>' +
         '<div class="bubble out">1<small>' + esc(S.approver.split(' (')[0]) + '</small></div>' +
         '<div class="bubble in">Listo. Queda registrado en el asiento siguiente del registro, con tu nombre y la hora.<small>' + nowTs().slice(11) + '</small></div>' +

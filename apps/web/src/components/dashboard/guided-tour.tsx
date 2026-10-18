@@ -40,7 +40,7 @@ export function GuidedTour({ decided, firstActa }: { decided: boolean; firstActa
         <div className="min-w-0">
           <h2 id="recorrido-title" className="font-semibold">Recorrido en 5 pasos</h2>
           <p className="text-[12.5px] text-ink-3">
-            {completed === required.length ? "Recorrido completo: ya viste todo lo que hace Custodio." : `${completed} de ${required.length} hechos.`}
+            {completed === required.length ? "Recorrido completo: ya viste todo lo que hace Blinka Keeper." : `${completed} de ${required.length} hechos.`}
           </p>
         </div>
         <button

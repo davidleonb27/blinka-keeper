@@ -56,7 +56,7 @@ function StageScoreboard({ stats }: { stats: ChallengeStats }) {
         className={cn("rounded-2xl px-5 py-4", broken ? "bg-crit-weak" : "bg-pay-weak")}
       >
         <span className="block text-[18px] font-semibold text-ink-2 sm:text-[22px]">Pagos indebidos</span>
-        <b className={cn("block text-[88px] leading-none font-semibold tracking-[-0.04em] tabular sm:text-[132px]", broken ? "text-crit" : "text-pay")}>
+        <b className={cn("block font-serif text-[88px] leading-none tabular sm:text-[132px]", broken ? "text-crit" : "text-pay")}>
           {formatCount(stats.improper_payments)}
         </b>
       </div>
@@ -102,7 +102,7 @@ export function ChallengeStage() {
   return (
     <div className="grid grid-cols-1 items-start gap-6 pt-2 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
       <section aria-label="Entra al reto" className="flex flex-col items-center gap-3 text-center">
-        <h1 className="font-serif text-[30px] leading-[1.1] font-semibold tracking-[-0.02em] sm:text-[44px]">Róbale a Custodio</h1>
+        <h1 className="font-serif text-[30px] leading-[1.1] font-semibold tracking-[-0.02em] sm:text-[44px]">Róbale a Blinka Keeper</h1>
         <p className="max-w-[40ch] text-[16px] text-ink-2 sm:text-[18px]">Escanea y pruébalo con una empresa demo.</p>
         <StageQr />
       </section>

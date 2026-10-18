@@ -36,5 +36,3 @@ export function Wordmark({ className, subtitle }: { className?: string; subtitle
     </span>
   );
 }
-
-

@@ -1,6 +1,6 @@
-# Autoalojar Custodio
+# Autoalojar Blinka Keeper
 
-Custodio es código abierto (licencia MIT). Puedes usar la demo pública o correrlo en tu propia infraestructura. Todas
+Blinka Keeper es código abierto (licencia MIT). Puedes usar la demo pública o correrlo en tu propia infraestructura. Todas
 las variables son opcionales: sin ninguna arranca con la empresa demo, el riel de pago simulado y sin modelo. La lista
 completa, con qué hace cada una, está en [`.env.example`](../.env.example).
 
@@ -16,7 +16,7 @@ completa, con qué hace cada una, está en [`.env.example`](../.env.example).
 Requisitos: Docker con Compose v2.
 
 ```bash
-git clone https://github.com/davidleonb27/custodio-blinka.git
+git clone https://github.com/davidleonb27/blinka-keeper.git
 cd custodio-blinka
 cp .env.example .env        # opcional
 docker compose up --build

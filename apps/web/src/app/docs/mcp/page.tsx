@@ -32,7 +32,7 @@ export default function McpPage() {
   return (
     <DocPage
       href="/docs/mcp"
-      lead="Custodio es también un servidor MCP: cualquier agente compatible, como Claude, le pregunta antes de pagar."
+      lead="Blinka Keeper es también un servidor MCP: cualquier agente compatible, como Claude, le pregunta antes de pagar."
     >
       <p>
         El servidor está en <code>/api/v1/mcp</code> (HTTP transmisible, sin estado, respuestas JSON) y se autentica con la
@@ -63,7 +63,7 @@ export default function McpPage() {
       </DocTable>
       <p>
         Las instrucciones del servidor le piden al agente enviar la intención antes de pagar y no pagar nunca algo que
-        Custodio retuvo o escaló.
+        Blinka Keeper retuvo o escaló.
       </p>
 
       <h2 id="claude-desktop">Claude Desktop</h2>

@@ -16,7 +16,7 @@ export function RouteError({ error, reset }: { error: Error & { digest?: string 
   if (reloading) {
     return (
       <p role="status" className="card-surface m-4 p-5 text-ink-2">
-        Hay una versión nueva de Custodio. Actualizando…
+        Hay una versión nueva de Blinka Keeper. Actualizando…
       </p>
     );
   }

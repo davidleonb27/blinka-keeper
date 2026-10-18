@@ -34,7 +34,7 @@ export function SimulationStep({ answers, update, frame }: StepProps) {
       busy={!result && !complete.error}
       busyLabel="Decidiendo tu primera semana…"
       title="Tu primera semana, decidida"
-      helper="Custodio pasó por tus reglas una factura de cada proveedor con acuerdo, tal como se pactó. Así se habría comportado; nada de esto se pagó."
+      helper="Blinka Keeper pasó por tus reglas una factura de cada proveedor con acuerdo, tal como se pactó. Así se habría comportado; nada de esto se pagó."
     >
       {complete.error ? <p className="text-[13.5px] text-crit">{messageOf(complete.error)}</p> : null}
       {result && metrics ? (
@@ -80,7 +80,7 @@ export function ReadyStep({ answers }: Pick<StepProps, "answers">) {
       <Seal className="size-16" />
       <div>
         <h1 className="font-serif text-[34px] leading-[1.05] font-semibold tracking-[-0.015em] sm:text-[44px]">
-          Custodio está listo
+          Blinka Keeper está listo
         </h1>
         <p className="mt-3 max-w-[54ch] text-base text-ink-2">
           {name} ya tiene reglas, {answers.suppliers.length} beneficiarios permitidos y {approvers}{" "}

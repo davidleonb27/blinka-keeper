@@ -34,7 +34,7 @@ export function RulesStep({ answers, update, frame }: StepProps) {
       busy={compile.isPending}
       busyLabel="Compilando tus reglas…"
       title="Tus reglas, en tus palabras"
-      helper="Escríbelas como se las dirías a tu contador. Custodio las compila en vivo; lo que no entienda, te lo pregunta en vez de adivinar."
+      helper="Escríbelas como se las dirías a tu contador. Blinka Keeper las compila en vivo; lo que no entienda, te lo pregunta en vez de adivinar."
     >
       <div className="flex flex-col gap-1.5">
         <label htmlFor={textId} className="text-[14px] font-medium text-ink-2">

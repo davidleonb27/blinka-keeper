@@ -15,8 +15,9 @@ from pydantic import BaseModel
 from sqlalchemy import select
 
 from custodio.contracts import Amount, AuditReport, CompanyState, InvoiceCase, LedgerKind, Metrics, Policy
+from custodio.corrections import demo as correction_demo
 from custodio.db.models import WorkspaceRow
-from custodio.services import ledger_service, policy_service, records
+from custodio.services import approval_history, ledger_service, policy_service, records
 from custodio.services.context import ServiceContext
 from custodio.services.errors import InvalidApiKey, WorkspaceNotFound
 
@@ -75,7 +76,9 @@ def create(ctx: ServiceContext, mode: WorkspaceMode) -> CreatedWorkspace:
         return _create(ctx, WorkspaceKind.BLANK, *_blank_company(ctx.now().date()))
     state, policy = ctx.lanes.demo_company()
     created = _create(ctx, WorkspaceKind.DEMO, state, policy)
+    approval_history.seed_demo(ctx, get(ctx, created.workspace_id), policy_service.current(ctx, created.workspace_id))
     _seed_invoices(ctx, created.workspace_id, ctx.lanes.demo_cases())
+    _seed_invoices(ctx, created.workspace_id, correction_demo.seed_cases(policy, state.company_name))
     return created
 
 

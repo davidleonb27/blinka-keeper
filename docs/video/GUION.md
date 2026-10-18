@@ -9,10 +9,10 @@ script). Los subtítulos quemados en el video salen de este mismo texto.
 
 ### 0:00.0–0:09.1 · open
 
-**Se ve:** Tarjeta: «Una maqueta lo dice» se tacha; «Custodio lo demuestra». En producción · pagos reales · bajo ataque.
+**Se ve:** Tarjeta: «Una maqueta lo dice» se tacha; «Blinka Keeper lo demuestra». En producción · pagos reales · bajo ataque.
 
 - `0:00.3` (2.3 s) Cualquiera puede hacer una maqueta bonita.
-- `0:02.9` (5.4 s) Esto es Custodio funcionando de verdad: en producción, con pagos reales y bajo ataque.
+- `0:02.9` (5.4 s) Esto es Blinka Keeper funcionando de verdad: en producción, con pagos reales y bajo ataque.
 
 20 palabras en 9.1 s (2.2 por segundo).
 
@@ -53,10 +53,10 @@ script). Los subtítulos quemados en el video salen de este mismo texto.
 
 ### 0:51.3–1:06.3 · attack
 
-**Se ve:** Producto: «Róbale a Custodio», se sube el PDF, FRENADO, las reglas que se dispararon (R2, R4) y la cita destapada.
+**Se ve:** Producto: «Róbale a Blinka Keeper», se sube el PDF, FRENADO, las reglas que se dispararon (R2, R4) y la cita destapada.
 
 - `0:51.6` (2.8 s) La subimos al reto público. Frenada.
-- `0:54.7` (5.6 s) Custodio destapa la frase oculta, cita las reglas que la frenan y no obedece al documento.
+- `0:54.7` (5.6 s) Blinka Keeper destapa la frase oculta, cita las reglas que la frenan y no obedece al documento.
 
 22 palabras en 15.0 s (1.5 por segundo).
 
@@ -74,7 +74,7 @@ script). Los subtítulos quemados en el video salen de este mismo texto.
 **Se ve:** Producto: acta de Joaquín Méndez (F-038): cuenta cambiada y dominio parecido; a quién llamar (R15) y la lista OFAC del 15 de octubre (R14).
 
 - `1:17.8` (5.1 s) Cada decisión trae su acta: por qué, qué regla aplicó y qué tendría que cambiar.
-- `1:23.2` (7.3 s) Aquí cambió la cuenta y el correo imita el dominio: Custodio la retiene y pide llamar al contacto registrado.
+- `1:23.2` (7.3 s) Aquí cambió la cuenta y el correo imita el dominio: Blinka Keeper la retiene y pide llamar al contacto registrado.
 - `1:30.8` (3.5 s) Y cruza cada proveedor con la lista de sanciones de la OFAC.
 
 46 palabras en 18.4 s (2.5 por segundo).
@@ -118,7 +118,7 @@ script). Los subtítulos quemados en el video salen de este mismo texto.
 **Se ve:** Producto: Reglas: se escribe «Nada sobre 1.000 USD sin que lo apruebe Ana» → compilar y simular (acelerado ×3).
 
 - `2:15.2` (3.1 s) ¿Quieres cambiar una regla? Escríbela en español.
-- `2:18.5` (4.5 s) Custodio la compila y te muestra qué facturas cambiarían antes de aplicarla.
+- `2:18.5` (4.5 s) Blinka Keeper la compila y te muestra qué facturas cambiarían antes de aplicarla.
 
 19 palabras en 12.7 s (1.5 por segundo).
 
@@ -133,16 +133,16 @@ script). Los subtítulos quemados en el video salen de este mismo texto.
 
 ### 2:36.0–2:47.5 · compare
 
-**Se ve:** Tarjeta: «Una maqueta lo dice» frente a «Custodio lo demuestra, en producción», fila por fila.
+**Se ve:** Tarjeta: «Una maqueta lo dice» frente a «Blinka Keeper lo demuestra, en producción», fila por fila.
 
-- `2:36.4` (6.3 s) Una maqueta lo dice. Custodio lo demuestra: ataque real, pago real y un registro verificable.
+- `2:36.4` (6.3 s) Una maqueta lo dice. Blinka Keeper lo demuestra: ataque real, pago real y un registro verificable.
 - `2:42.9` (3.8 s) Código abierto, con licencia MIT y autoalojable con Docker.
 
 24 palabras en 11.5 s (2.1 por segundo).
 
 ### 2:47.1–2:54.6 · stage
 
-**Se ve:** Producto: «Róbale a Custodio» en modo escenario: el QR a /reto y «Pagos indebidos 0» en vivo.
+**Se ve:** Producto: «Róbale a Blinka Keeper» en modo escenario: el QR a /reto y «Pagos indebidos 0» en vivo.
 
 - `2:47.4` (5.2 s) Y el reto sigue abierto. Jurado: escaneen el código e intenten robarnos ahora.
 - `2:52.9` (1.2 s) Pagos indebidos: cero.
@@ -151,9 +151,9 @@ script). Los subtítulos quemados en el video salen de este mismo texto.
 
 ### 2:54.2–2:59.0 · close
 
-**Se ve:** Tarjeta: «Custodio decide; Blinka paga.», enlace de la demo, repo, MIT y el equipo.
+**Se ve:** Tarjeta: «Blinka Keeper decide; Blinka paga.», enlace de la demo, repo, MIT y el equipo.
 
-- `2:54.5` (2.1 s) Custodio decide; Blinka paga.
+- `2:54.5` (2.1 s) Blinka Keeper decide; Blinka paga.
 - `2:56.9` (1.3 s) Somos DreamMakers.
 
 6 palabras en 4.8 s (1.3 por segundo).
@@ -162,9 +162,9 @@ script). Los subtítulos quemados en el video salen de este mismo texto.
 
 ### 0:00.0–0:07.2 · v-open
 
-**Se ve:** Tarjeta vertical: «Una maqueta lo dice. Custodio lo demuestra.»
+**Se ve:** Tarjeta vertical: «Una maqueta lo dice. Blinka Keeper lo demuestra.»
 
-- `0:00.3` (4.1 s) Otros te muestran maquetas. Esto es Custodio, en producción.
+- `0:00.3` (4.1 s) Otros te muestran maquetas. Esto es Blinka Keeper, en producción.
 
 9 palabras en 7.2 s (1.2 por segundo).
 
@@ -180,7 +180,7 @@ script). Los subtítulos quemados en el video salen de este mismo texto.
 
 **Se ve:** Producto: resultado del reto, FRENADO, con la cita destapada.
 
-- `0:13.8` (2.4 s) Custodio la frena y destapa la trampa.
+- `0:13.8` (2.4 s) Blinka Keeper la frena y destapa la trampa.
 
 7 palabras en 7.6 s (0.9 por segundo).
 
@@ -210,8 +210,8 @@ script). Los subtítulos quemados en el video salen de este mismo texto.
 
 ### 0:35.7–0:40.2 · v-close
 
-**Se ve:** Tarjeta vertical: «Custodio decide; Blinka paga.»
+**Se ve:** Tarjeta vertical: «Blinka Keeper decide; Blinka paga.»
 
-- `0:36.0` (2.1 s) Custodio decide; Blinka paga.
+- `0:36.0` (2.1 s) Blinka Keeper decide; Blinka paga.
 
 4 palabras en 4.5 s (0.9 por segundo).

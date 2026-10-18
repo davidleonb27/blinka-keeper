@@ -22,6 +22,7 @@ from custodio.contracts import (
     BatchResult,
     Beneficiary,
     CompanyState,
+    CrossCheckStatus,
     Decision,
     DecisionStatus,
     ExtractedField,
@@ -29,6 +30,7 @@ from custodio.contracts import (
     InvoiceCase,
     PaymentRecord,
     Policy,
+    ReadingCrossCheck,
 )
 from custodio.engine.bank_details import Check, account_checks, tax_id_check
 from custodio.engine.domains import DomainLikeness, compare_domains, email_domain
@@ -225,7 +227,36 @@ def _reading_problems(read: ExtractedInvoice, policy: Policy) -> list[str]:
         problems.append("lectura no confiable (identificación fiscal)")
     if _currency_unclear(read.currency):
         problems.append("moneda ambigua")
-    return problems
+    return [*problems, *_cross_check_problems(read.cross_check)]
+
+
+def _cross_check_problems(cross_check: ReadingCrossCheck | None) -> list[str]:
+    """Recomputed from each reader's raw value: the flags and status that travel with the reading are not trusted."""
+    if cross_check is None:
+        return []
+    values: dict[str, list[str | None]] = {
+        comparison.field: [_comparable(comparison.field, reading.value) for reading in comparison.readings]
+        for comparison in cross_check.fields
+    }
+    agreed = all(_same(values.get(name, [])) for name in TRUSTED_FIELDS)
+    if agreed and cross_check.status is CrossCheckStatus.AGREE:
+        return []
+    return ["las dos lecturas independientes no coinciden"]
+
+
+def _same(values: list[str | None]) -> bool:
+    return len(values) >= 2 and None not in values and len(set(values)) == 1
+
+
+def _comparable(field: str, value: str | None) -> str | None:
+    if not value or not value.strip():
+        return None
+    if field == "amount":
+        amount = parse_amount(value)
+        return str(amount.normalize()) if amount is not None else None
+    if field == "supplier_name":
+        return normalize_name(value) or None
+    return normalize_code(value) or None
 
 
 def _currency_unclear(field: ExtractedField) -> bool:

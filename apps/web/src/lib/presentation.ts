@@ -40,7 +40,7 @@ export const NETWORK_LABEL: Record<PaymentNetwork, string> = {
 };
 
 export const RAIL_PITCH =
-  "Custodio decide; el riel paga. Hoy: Stripe en modo prueba. En producción: el riel de la empresa, por ejemplo Blinka (ACH, wire, Bre-B, SPEI, Pix).";
+  "Blinka Keeper decide; el riel paga. Hoy: Stripe en modo prueba. En producción: el riel de la empresa, por ejemplo Blinka (ACH, wire, Bre-B, SPEI, Pix).";
 
 export const COUNTRY_NAMES: Record<string, string> = {
   CO: "Colombia",

@@ -36,17 +36,25 @@ export const browserWorkspaceStore: WorkspaceStore = {
   },
 };
 
-// Blank workspaces this page made for a visitor who arrived to set up a company: the onboarding sets the company up
-// in it instead of making a second one.
-const freshBlank = new Set<string>();
+// The blank workspace this tab made for a visitor who arrived to set up a company: the onboarding sets the company
+// up in it instead of making a second one. In sessionStorage, so a reload in the middle of the set-up keeps it.
+const FRESH_BLANK_STORAGE = "custodio_fresh_blank";
+
+function sessionStorageOrNull(): Storage | null {
+  try {
+    return typeof window === "undefined" ? null : window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
 
 export function isFreshBlank(workspaceId: string): boolean {
-  return freshBlank.has(workspaceId);
+  return sessionStorageOrNull()?.getItem(FRESH_BLANK_STORAGE) === workspaceId;
 }
 
 /** Once the company is set up in a fresh blank workspace, a new onboarding gets a workspace of its own. */
 export function forgetFreshBlank(workspaceId: string): void {
-  freshBlank.delete(workspaceId);
+  if (isFreshBlank(workspaceId)) sessionStorageOrNull()?.removeItem(FRESH_BLANK_STORAGE);
 }
 
 export async function ensureWorkspace(
@@ -58,7 +66,7 @@ export async function ensureWorkspace(
   if (existing) return existing;
   const created = await api.createWorkspace(mode);
   store.write(created);
-  if (mode === "blank") freshBlank.add(created.workspace_id);
+  if (mode === "blank") sessionStorageOrNull()?.setItem(FRESH_BLANK_STORAGE, created.workspace_id);
   return created.workspace_id;
 }
 

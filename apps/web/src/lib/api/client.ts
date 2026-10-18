@@ -35,6 +35,14 @@ export type WorkspaceSummary = ResponseOf<"/api/v1/workspaces/current", "get">;
 export type DecisionListItem = ResponseOf<"/api/v1/decisions", "get">[number];
 export type Acta = ResponseOf<"/api/v1/decisions/{invoice_id}", "get">;
 export type ApprovalInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/approve", "post">;
+export type ApproveOnceInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/approve-once", "post">;
+export type AgreementInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/agreement/preview", "post">;
+export type AgreementPreview = ResponseOf<"/api/v1/decisions/{invoice_id}/agreement/preview", "post">;
+export type ApproveWithAgreementInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/approve-with-agreement", "post">;
+export type ApprovedWithAgreement = ResponseOf<"/api/v1/decisions/{invoice_id}/approve-with-agreement", "post">;
+export type Suggestion = ResponseOf<"/api/v1/suggestions", "get">[number];
+export type AcceptSuggestionInput = JsonBodyOf<"/api/v1/suggestions/{suggestion_id}/accept", "post">;
+export type PolicyVersion = ResponseOf<"/api/v1/policy/versions", "get">[number];
 export type ProcessOutcome = ResponseOf<"/api/v1/invoices/process", "post">;
 export type InvoiceForm = FormOf<"/api/v1/invoices", "post">;
 export type ReceivedInvoice = ResponseOf<"/api/v1/invoices", "post">;
@@ -58,6 +66,29 @@ export type ReconciliationItem = ResponseOf<"/api/v1/reconciliations", "get">[nu
 export type ResolveInput = JsonBodyOf<"/api/v1/reconciliations/{reconciliation_id}/resolve", "post">;
 export type PeriodCloseView = ResponseOf<"/api/v1/periods/{period}/close", "post">;
 export type DemoStatementFormat = "csv" | "pdf";
+export type WhatsAppStatus = ResponseOf<"/api/v1/whatsapp/link", "get">;
+export type WhatsAppLinkCode = ResponseOf<"/api/v1/whatsapp/link-codes", "post">;
+export type PaymentsOverview = ResponseOf<"/api/v1/payments", "get">;
+export type PaymentListRow = PaymentsOverview["payments"][number];
+export type RailMatchView = PaymentsOverview["stripe"];
+export type RailMatchLine = RailMatchView["lines"][number];
+export type StripeProof = ResponseOf<"/api/v1/payments/{invoice_id}/stripe", "get">;
+export type ProofCheck = StripeProof["checks"][number];
+export type DecisionReceipt = ResponseOf<"/api/v1/decisions/{invoice_id}/receipt", "get">;
+export type ReceiptBody = DecisionReceipt["body"];
+export type ReceiptKey = ResponseOf<"/api/v1/.well-known/custodio-receipt-key", "get">;
+export type ReceiptCheck = ResponseOf<"/api/v1/receipts/verify", "post">;
+export type CorrectionOverview = ResponseOf<"/api/v1/corrections", "get">;
+export type CorrectionRequest = CorrectionOverview["requests"][number];
+export type CorrectionOffer = ResponseOf<"/api/v1/decisions/{invoice_id}/correction", "get">;
+export type CorrectionIssued = ResponseOf<"/api/v1/decisions/{invoice_id}/correction", "post">;
+export type CorrectionRequestInput = JsonBodyOf<"/api/v1/decisions/{invoice_id}/correction", "post">;
+export type CorrectionIssue = CorrectionOffer["issues"][number];
+export type CorrectionBlocker = CorrectionOffer["blockers"][number];
+export type CorrectableField = Schemas["CorrectableField"];
+export type SupplierCorrectionView = ResponseOf<"/api/v1/supplier/corrections/{token}", "get">;
+export type SupplierReceipt = ResponseOf<"/api/v1/supplier/corrections/{token}/confirm", "post">;
+export type SupplierConfirmation = JsonBodyOf<"/api/v1/supplier/corrections/{token}/confirm", "post">["values"];
 
 /** An invoice of the company's own: a PDF or image, or the text of an email. */
 export interface InvoiceInput {
@@ -94,6 +125,17 @@ export interface CustodioApi {
   getDecision(invoiceId: string): Promise<Acta>;
   approveDecision(invoiceId: string, input: ApprovalInput): Promise<Decision>;
   rejectDecision(invoiceId: string, input: ApprovalInput): Promise<Decision>;
+  /** «Aprobar sólo esta vez»: pays this invoice; the policy does not change and the reason stays in the ledger. */
+  approveOnce(invoiceId: string, input: ApproveOnceInput): Promise<Decision>;
+  /** Simulates the supplier's new agreement against everything received; changes nothing. */
+  previewAgreement(invoiceId: string, input: AgreementInput): Promise<AgreementPreview>;
+  /** Approves under the policy in force and writes the next version with the new agreement. */
+  approveWithAgreement(invoiceId: string, input: ApproveWithAgreementInput): Promise<ApprovedWithAgreement>;
+  /** «Blinka Keeper sugiere»: agreement changes drawn from repeated approvals. Nothing applies until accepted. */
+  listSuggestions(): Promise<Suggestion[]>;
+  acceptSuggestion(suggestionId: string, input: AcceptSuggestionInput): Promise<Policy>;
+  /** Every policy version, newest first, with who changed it, why and when. */
+  listPolicyVersions(): Promise<PolicyVersion[]>;
   /** Retries a payment whose execution failed; a payment that already went out comes back unchanged. */
   executePayment(invoiceId: string): Promise<Decision>;
   getPolicy(): Promise<Policy>;
@@ -131,4 +173,31 @@ export interface CustodioApi {
   closePeriod(period: string, closedBy: string): Promise<PeriodCloseView>;
   downloadEvidence(period: string): Promise<Blob>;
   downloadDemoStatement(format: DemoStatementFormat): Promise<Blob>;
+  /** Whether invoices can arrive on WhatsApp here, the phones linked (masked) and when the last one arrived. */
+  getWhatsAppStatus(): Promise<WhatsAppStatus>;
+  /** A one-time code that links the phone that sends it to this workspace. */
+  createWhatsAppCode(): Promise<WhatsAppLinkCode>;
+  /** The workspace's payments and Blinka Keeper's record matched, live, against Stripe's transfers. */
+  getPayments(): Promise<PaymentsOverview>;
+  /** Stripe's own answer about the transfer behind a payment, checked field by field against the acta. */
+  getStripeProof(invoiceId: string): Promise<StripeProof>;
+  /** The approved payments as an ISO 20022 pain.001.001.09 file for Blinka. */
+  downloadPain001(): Promise<Blob>;
+  /** The decision signed with Ed25519; anyone checks it with the public key. */
+  getReceipt(invoiceId: string): Promise<DecisionReceipt>;
+  getReceiptKey(): Promise<ReceiptKey>;
+  /** The server's own check of a pasted receipt; it names the field that was altered. */
+  verifyReceipt(receipt: unknown): Promise<ReceiptCheck>;
+  /** A receipt of a made-up decision, signed with the real key, to try the check with. */
+  getExampleReceipt(): Promise<DecisionReceipt>;
+  /** Every request to a supplier to correct a stopped invoice, and how many it resolved. */
+  listCorrections(): Promise<CorrectionOverview>;
+  /** Whether a correction can be asked for this invoice, what it would ask, and its rounds so far. */
+  getCorrectionOffer(invoiceId: string): Promise<CorrectionOffer>;
+  /** Issues a one-time link (shown once) and the message for the supplier; a new one voids the previous link. */
+  requestCorrection(invoiceId: string, input: CorrectionRequestInput): Promise<CorrectionIssued>;
+  /** The supplier's side, outside any workspace: only what that one link may see. */
+  getSupplierCorrection(token: string): Promise<SupplierCorrectionView>;
+  submitSupplierDocument(token: string, file: File): Promise<SupplierReceipt>;
+  confirmSupplierCorrection(token: string, values: SupplierConfirmation): Promise<SupplierReceipt>;
 }

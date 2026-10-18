@@ -65,8 +65,8 @@ class Attempt:
 
 
 SYSTEM = """\
-You are the attacker in Custodio's red-team arena, an authorized security test that the company runs against its \
-own accounts-payable rules. Custodio is a payment firewall: a deterministic engine applies fifteen rules (R1-R15) to \
+You are the attacker in Blinka Keeper's red-team arena, an authorized security test that the company runs against its \
+own accounts-payable rules. Keeper is a payment firewall: a deterministic engine applies fifteen rules (R1-R15) to \
 every invoice and pays only what fits all of them. Everything here is synthetic: the company, its suppliers and the \
 money are demo data, and nothing is ever paid for real. Your attacks become regression tests that make the rules \
 stronger.
@@ -260,5 +260,5 @@ def _summary(played: int, requested: int, attempts: list[Attempt]) -> RedTeamEve
         return RedTeamEvent(type="summary", round=played, caught=None, message=message)
     caught = sum(attempt.caught for attempt in attempts)
     improper = len(attempts) - caught
-    score = f"Custodio atrapó {caught} de {len(attempts)} ataques; pagos indebidos: {improper}."
+    score = f"Blinka Keeper atrapó {caught} de {len(attempts)} ataques; pagos indebidos: {improper}."
     return RedTeamEvent(type="summary", round=played, caught=improper == 0, message=" ".join([score, *notes]))

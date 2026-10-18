@@ -77,7 +77,7 @@ describe("Challenge", () => {
   it("shows the error instead of a silent gap when the counter cannot be read", async () => {
     renderWithApi(<Challenge />, apiWith({ getChallengeStats: () => Promise.reject(new NetworkError()) }));
 
-    expect(await screen.findByText(/No pudimos conectarnos con Custodio/)).toBeInTheDocument();
+    expect(await screen.findByText(/No pudimos conectarnos con Blinka Keeper/)).toBeInTheDocument();
   });
 
   it("shows a held attempt as FRENADO with each rule that fired and why", async () => {

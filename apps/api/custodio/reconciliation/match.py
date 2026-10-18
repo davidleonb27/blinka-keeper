@@ -1,4 +1,4 @@
-"""Pairs statement movements with the payments Custodio made. Pure: no I/O, no clock, no model.
+"""Pairs statement movements with the payments Blinka Keeper made. Pure: no I/O, no clock, no model.
 
 Levels run in a fixed order over the whole statement, each payment taking the first free movement that fits:
 1. exact: a reference (rail transfer id, invoice number, acta link) and the exact amount;
@@ -181,7 +181,7 @@ def _within_tolerance(payment: PaidInvoice, lines: Sequence[_Line], settings: Ma
     _, _, line, expected = min(fitting, key=lambda item: (item[0], item[1]))
     currency = _currency(line)
     reason = (
-        f"Pago en {payment.currency} convertido: el banco debitó {money(line.magnitude, currency)} y Custodio "
+        f"Pago en {payment.currency} convertido: el banco debitó {money(line.magnitude, currency)} y Blinka Keeper "
         f"calculó {money(expected, currency)}; la diferencia de {money(line.magnitude - expected, currency)} cabe "
         f"en la tolerancia de cambio de {plus_minus_percent(settings.fx_tolerance_pct)} ({_invoice(payment)})."
     )
@@ -226,7 +226,7 @@ def _payment_result(payment: PaidInvoice, match: _Match | None, account_currency
             expected=expected,
             currency=account_currency,
             status=PaymentStatus.PENDING,
-            reason=f"Custodio pagó {shown} el {day_month(payment.paid_on)} y todavía no aparece en este extracto.",
+            reason=f"Blinka Keeper pagó {shown} el {day_month(payment.paid_on)} y todavía no aparece en este extracto.",
         )
     return PaymentResult(
         **common,
@@ -292,7 +292,7 @@ def _duplicates(lines: Sequence[_Line], settled: dict[str, MovementResult]) -> d
 def _unexplained(line: _Line, payments: Sequence[PaidInvoice], unpaid: Sequence[UnpaidInvoice]) -> MovementResult:
     currency = _currency(line)
     when = f" el {day_month(line.movement.booked_on)}" if line.movement.booked_on else ""
-    base = f"Salió {money(line.magnitude, currency)}{when} y ninguna factura pagada por Custodio lo explica."
+    base = f"Salió {money(line.magnitude, currency)}{when} y ninguna factura pagada por Blinka Keeper lo explica."
     return MovementResult(
         movement_id=line.movement.id,
         status=MovementStatus.UNMATCHED_OUTFLOW,
@@ -304,16 +304,18 @@ def _hint(line: _Line, payments: Sequence[PaidInvoice], unpaid: Sequence[UnpaidI
     for invoice in unpaid:
         if _resembles_unpaid(invoice, line):
             state = _UNPAID_STATE.get(invoice.status, "no estaba autorizada")
-            return f"Coincide con {_invoice(invoice)}, que {state}: Custodio no la pagó. Revisa quién hizo este pago."
+            return (
+                f"Coincide con {_invoice(invoice)}, que {state}: Blinka Keeper no la pagó. Revisa quién hizo este pago."
+            )
     for payment in payments:
         reference = _reference(payment, line)
         expected = _expected(payment, line.currency)
         if reference and expected is not None:
             return (
-                f"La referencia apunta a {_invoice(payment)}, pero Custodio pagó {money(expected, _currency(line))}: "
-                "el monto no coincide."
+                f"La referencia apunta a {_invoice(payment)}, pero Blinka Keeper pagó "
+                f"{money(expected, _currency(line))}: el monto no coincide."
             )
-    return "Revísalo: puede ser un pago hecho por fuera de Custodio."
+    return "Revísalo: puede ser un pago hecho por fuera de Blinka Keeper."
 
 
 # --- vocabulary -------------------------------------------------------------------------------------------------

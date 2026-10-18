@@ -14,7 +14,7 @@ export default function ContributePage() {
   return (
     <DocPage
       href="/docs/contribuir"
-      lead="Custodio decide pagos, así que las reglas para contribuir son pocas pero firmes. La guía completa está en CONTRIBUTING.md."
+      lead="Blinka Keeper decide pagos, así que las reglas para contribuir son pocas pero firmes. La guía completa está en CONTRIBUTING.md."
     >
       <h2 id="compuerta">Una sola compuerta</h2>
       <p>
@@ -47,7 +47,7 @@ export default function ContributePage() {
 
       <h2 id="seguridad">Seguridad</h2>
       <p>
-        Si encontraste una forma de que Custodio pague algo indebido, no abras un issue: repórtalo en privado según{" "}
+        Si encontraste una forma de que Blinka Keeper pague algo indebido, no abras un issue: repórtalo en privado según{" "}
         <a href={repoFile("SECURITY.md")}>SECURITY.md</a>.
       </p>
 

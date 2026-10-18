@@ -18,10 +18,10 @@ export function attemptVerdict(attempt: ChallengeAttempt): AttemptVerdict {
     case "paid_human":
       return { headline: "PAGADO LEGÍTIMAMENTE", tone: "pay", note: "Era una factura válida: cumplió las quince reglas y se pagó." };
     case "pending_approval":
-      return { headline: "ESCALADO", tone: "esc", note: "Custodio no pagó: le pidió permiso a una persona." };
+      return { headline: "ESCALADO", tone: "esc", note: "Blinka Keeper no pagó: le pidió permiso a una persona." };
     case "hold":
     case "rejected":
-      return { headline: "FRENADO", tone: "hold", note: "Custodio no pagó: retuvo la factura." };
+      return { headline: "FRENADO", tone: "hold", note: "Blinka Keeper no pagó: retuvo la factura." };
   }
 }
 

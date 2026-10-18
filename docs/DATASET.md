@@ -1,6 +1,6 @@
 # Dataset
 
-Custodio se prueba contra un dataset propio, etiquetado y público: una empresa demo y facturas con las trampas que pide
+Blinka Keeper se prueba contra un dataset propio, etiquetado y público: una empresa demo y facturas con las trampas que pide
 el reto. Está en `apps/api/custodio/dataset/` y es sintético: ningún nombre, NIT ni cuenta es real.
 
 ## Cómo se construyó
@@ -18,7 +18,7 @@ el reto. Está en `apps/api/custodio/dataset/` y es sintético: ningún nombre, 
 5. **Un solo origen para todo.** Cada caso se describe como `InvoiceSpec`. De ahí salen los casos de prueba del motor, los
    PDF que genera `render_invoice` para probar la lectura y las facturas que escribe el atacante del red team. Así lo
    que se ataca es lo mismo que se lee y se decide.
-6. **El reto público alimenta el dataset.** Cada ataque atrapado en «Róbale a Custodio» se puede volver un caso nuevo.
+6. **El reto público alimenta el dataset.** Cada ataque atrapado en «Róbale a Blinka Keeper» se puede volver un caso nuevo.
 
 ## Trampas y la regla que las atrapa
 
@@ -63,7 +63,7 @@ un espacio, sus fechas se mueven al día en que ese espacio pagó su lote. Lo qu
 
 | Caso | Movimiento | Qué debe pasar |
 |---|---|---|
-| Pagos que Custodio hizo | 16 pagos con su referencia | conciliado (exacto o por monto y fecha) |
+| Pagos que Blinka Keeper hizo | 16 pagos con su referencia | conciliado (exacto o por monto y fecha) |
 | Pago partido en dos | Andes Code: USD 3.000 + USD 1.800 | conciliado como partido (suma exacta de USD 4.800) |
 | Diferencias de céntimos por cambio | Kora, Caju, María Fernanda Ríos, Sofía Herrera | conciliado con diferencia, dentro de ±0,5 % |
 | Número de factura mal escrito | «PN-1201» en vez de PN-1021 | conciliado por monto, fecha y beneficiario, diciendo el error |
@@ -94,7 +94,7 @@ tiempo. Con la misma semilla los conteos son los mismos; el tiempo cambia. Sale 
 
 Todo se midió el 2026-10-17. Lo que no aparece aquí no se midió.
 
-**Dataset dorado en producción.** Un espacio demo en https://custodio-blinka-green.vercel.app
+**Dataset dorado en producción.** Un espacio demo en https://blinka-keeper.vercel.app
 (`POST /api/v1/workspaces` con `{"mode": "demo"}`) nace con las 36 facturas del dataset sembradas como pendientes; las
 cifras son las métricas del lote una vez decidido por la API desplegada. El mismo resultado sale en local con
 `decide_all(demo_cases(), *demo_company())` y `audit` (17 pagos re-auditados, 0 indebidos).

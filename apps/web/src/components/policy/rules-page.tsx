@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePolicy } from "@/lib/api/hooks";
 import { PolicyForm } from "./policy-form";
+import { PolicyVersions } from "./policy-versions";
 import { RulesEditor } from "./rules-editor";
+import { SuggestionsPanel } from "./suggestions-panel";
 
 export function RulesPage() {
   const policy = usePolicy();
@@ -23,6 +25,7 @@ export function RulesPage() {
       </PageHeader>
       {policy.error ? <ErrorState error={policy.error} onRetry={() => void policy.refetch()} /> : null}
       {!policy.data && !policy.error ? <LoadingBlock className="h-72" /> : null}
+      {policy.data ? <SuggestionsPanel policy={policy.data} /> : null}
       {policy.data ? (
         <Tabs defaultValue="words" className="gap-4">
           <TabsList>
@@ -37,6 +40,7 @@ export function RulesPage() {
           </TabsContent>
         </Tabs>
       ) : null}
+      <PolicyVersions />
     </>
   );
 }

@@ -6,6 +6,9 @@
  */
 import type {
   ApprovalInput,
+  CorrectionOffer,
+  CorrectionOverview,
+  ApproveWithAgreementInput,
   CustodioApi,
   OnboardingRequest,
   OnboardingResult,
@@ -32,18 +35,30 @@ import { actaOf, DEMO, listItemOf, freshDemo, simulatedExecution, type DemoDatas
 import { mockSchedule, mockTrust } from "./autonomy";
 import { appendEntry, verifyChain } from "./ledger";
 import { importMockSuppliers, simulateFirstWeek } from "./onboarding";
+import { versionsOf, withAgreement } from "./agreements";
 import { compilePolicyText } from "./policy-compiler";
 import { proposeMockProfile } from "./profile";
+import { mockPayments, mockStripeProof } from "./payments";
 import { createMockReconciliations } from "./reconciliation";
+import { MOCK_RECEIPT_KEY, mockCheck, mockReceipt } from "./receipts";
 import { RED_TEAM_SCRIPT, scriptedDecision } from "./red-team-script";
 
 const DEFAULT_LATENCY_MS = 450;
 const RED_TEAM_STEP_FACTOR = 2;
 const MOCK_WORKSPACE_ID = "ws_demo";
+const EXAMPLE_WORKSPACE_ID = "ejemplo";
 export const MOCK_API_KEY = "cus_demo_7f3a91c2e4b0";
 const BLANK_COMPANY_NAME = "Mi empresa";
 const TAMPER_MARK = "alterado";
 const CONFLICT = 409;
+const REAL_API_ONLY = "La corrección con el proveedor corre en la API real, no en el modo de prueba.";
+const NO_CORRECTIONS: CorrectionOverview = {
+  requests: [],
+  requested: 0,
+  waiting: 0,
+  resolved_with_supplier: 0,
+  blocked_after_correction: 0,
+};
 const NOTHING_AUDITED: AuditReport = { agrees: true, checked: 0, improper_payments: 0, findings: [] };
 
 export interface MockClientOptions {
@@ -110,6 +125,27 @@ function policyFrom(input: PolicyInput): Policy {
     beneficiaries: input.beneficiaries.map(beneficiaryFrom),
     trust: { floor: Number(input.trust?.floor ?? 0), hard_ceiling: input.trust?.hard_ceiling ?? false },
   };
+}
+
+/** The mock has no engine to decide a corrected invoice with: it says so instead of pretending. */
+function correctionOffer(invoiceId: string): CorrectionOffer {
+  return {
+    invoice_id: invoiceId,
+    offered: false,
+    reason: REAL_API_ONLY,
+    issues: [],
+    blockers: [],
+    still_for_a_person: [],
+    confirmable_fields: [],
+    next_round: 1,
+    max_rounds: 2,
+    open_request: null,
+    history: [],
+  };
+}
+
+function realApiOnly(): never {
+  throw new InvalidRequestError(REAL_API_ONLY, CONFLICT);
 }
 
 function demoWorkspace(): MockWorkspace {
@@ -194,7 +230,7 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
         at: received_at,
         kind: "decision",
         subject_id: decision.invoice_id,
-        payload: { actor: "Custodio (agente)", status: decision.status, agent_verdict: decision.agent_verdict },
+        payload: { actor: "Blinka Keeper (agente)", status: decision.status, agent_verdict: decision.agent_verdict },
       });
     }
     const { company, audit } = workspace.data;
@@ -250,7 +286,12 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
     return decision;
   }
 
-  async function decide(invoiceId: string, input: ApprovalInput, approved: boolean): Promise<Decision> {
+  async function decide(
+    invoiceId: string,
+    input: ApprovalInput,
+    approved: boolean,
+    how: Record<string, unknown> = {},
+  ): Promise<Decision> {
     const item = findItem(invoiceId);
     if (item.decision.status !== "pending_approval") {
       throw new InvalidRequestError("Esta factura no espera aprobación.", CONFLICT);
@@ -260,18 +301,35 @@ export function createMockClient({ latencyMs = DEFAULT_LATENCY_MS }: MockClientO
       at: decision.approval?.at ?? nowIso(),
       kind: "approval",
       subject_id: invoiceId,
-      payload: { actor: input.approver, decision: decision.approval?.decision, status: decision.status },
+      payload: {
+        actor: input.approver,
+        decision: decision.approval?.decision,
+        status: decision.status,
+        policy_version: workspace.data.policy.version,
+        ...how,
+      },
     });
     return decision;
   }
 
-  async function applyPolicy(policy: Policy): Promise<Policy> {
+  async function approveWithAgreement(invoiceId: string, input: ApproveWithAgreementInput) {
+    if (input.expected_policy_version !== workspace.data.policy.version) {
+      throw new InvalidRequestError("La política cambió desde que se simuló este cambio. Vuelve a simularlo.", CONFLICT);
+    }
+    const next = withAgreement(workspace.data.policy, findItem(invoiceId).decision.beneficiary_id, input, input.reason);
+    const how = { approval_mode: "agreement_updated", agreement_policy_version: workspace.data.policy.version + 1 };
+    const decision = await decide(invoiceId, { approver: input.approver, note: input.reason }, true, how);
+    const policy = await applyPolicy(next.policy, { author: input.approver, reason: input.reason, invoice_id: invoiceId });
+    return { decision, policy_version: policy.version };
+  }
+
+  async function applyPolicy(policy: Policy, context: Record<string, unknown> = {}): Promise<Policy> {
     workspace.data.policy = { ...policy, version: workspace.data.policy.version + 1 };
     await record({
       at: nowIso(),
       kind: "policy_changed",
       subject_id: `policy-v${workspace.data.policy.version}`,
-      payload: { actor: "Tú", version: workspace.data.policy.version },
+      payload: { actor: "Tú", version: workspace.data.policy.version, ...context },
     });
     return workspace.data.policy;
   }
@@ -347,6 +405,21 @@ respond(() => decided().map(listItemOf)),
     getDecision: (id) => respond(() => actaOf(findItem(id), workspace.data.ledger)),
     approveDecision: (id, input) => respond(() => decide(id, input, true)),
     rejectDecision: (id, input) => respond(() => decide(id, input, false)),
+    approveOnce: (id, input) =>
+      respond(() => decide(id, { approver: input.approver, note: input.reason }, true, { approval_mode: "once" })),
+    previewAgreement: (id, input) =>
+      respond(() => {
+        const next = withAgreement(workspace.data.policy, findItem(id).decision.beneficiary_id, input, "");
+        const metrics = summary().metrics;
+        return { policy_version: workspace.data.policy.version, changes: next.changes, simulation: { before: metrics, after: metrics, changed: [] } };
+      }),
+    approveWithAgreement: (id, input) => respond(() => approveWithAgreement(id, input)),
+    listSuggestions: () => respond(() => []),
+    acceptSuggestion: () =>
+      respond(() => {
+        throw new NotFoundError();
+      }),
+    listPolicyVersions: () => respond(() => versionsOf(workspace.data.ledger)),
     executePayment: (id) => respond(() => executePayment(id)),
     getPolicy: () => respond(() => workspace.data.policy),
     compilePolicy: (text, base) =>
@@ -417,7 +490,36 @@ respond(() => decided().map(listItemOf)),
         ),
       ),
     downloadEvidence: () => respond(() => reconciliations.files()),
+    getReceipt: (id) =>
+      respond(() =>
+        mockReceipt(actaOf(findItem(id), workspace.data.ledger), MOCK_WORKSPACE_ID, workspace.data.policy.base_currency),
+      ),
+    getReceiptKey: () => respond(() => MOCK_RECEIPT_KEY),
+    verifyReceipt: (receipt) => respond(() => mockCheck(receipt)),
+    getExampleReceipt: () =>
+      respond(() => {
+        const paid = DEMO.items.find((item) => item.decision.status === "paid_auto") ?? DEMO.items[0];
+        return mockReceipt(actaOf(paid, []), EXAMPLE_WORKSPACE_ID, DEMO.policy.base_currency);
+      }),
     downloadDemoStatement: () => respond(() => reconciliations.files()),
+    // The demo has no WhatsApp number: the panel hides the card.
+    getWhatsAppStatus: () => respond(() => ({ enabled: false, display_number: null, phones: [], last_received_at: null })),
+    createWhatsAppCode: () =>
+      respond(() => {
+        throw new InvalidRequestError("WhatsApp funciona con la API real, no en el modo de prueba.", CONFLICT);
+      }),
+    getPayments: () => respond(() => mockPayments(decided().map((item) => item.decision), workspace.data.policy, nowIso())),
+    getStripeProof: (id) => respond(() => mockStripeProof(findItem(id).decision, nowIso())),
+    downloadPain001: () =>
+      respond(() => {
+        throw new InvalidRequestError("El archivo para Blinka se arma en la API real, no en el modo de prueba.", CONFLICT);
+      }),
+    listCorrections: () => respond(() => NO_CORRECTIONS),
+    getCorrectionOffer: (id) => respond(() => correctionOffer(findItem(id).decision.invoice_id)),
+    requestCorrection: () => respond(() => realApiOnly()),
+    getSupplierCorrection: () => respond(() => realApiOnly()),
+    submitSupplierDocument: () => respond(() => realApiOnly()),
+    confirmSupplierCorrection: () => respond(() => realApiOnly()),
     runRedTeam: async ({ rounds }, onEvent, signal) => {
       const script = RED_TEAM_SCRIPT.slice(0, rounds);
       for (const [index, round] of script.entries()) {

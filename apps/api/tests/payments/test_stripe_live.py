@@ -28,7 +28,7 @@ def test_one_dollar_reaches_a_test_connected_account() -> None:
         workspace_id=f"live-{run}",
         invoice_id="F01",
         beneficiary_id=f"B-LIVE-{run}",
-        supplier_name="Proveedor de prueba Custodio",
+        supplier_name="Proveedor de prueba Blinka Keeper",
         amount_base=Decimal("1.00"),
         currency="USD",
         amount=Decimal("1.00"),

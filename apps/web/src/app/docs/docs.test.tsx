@@ -53,12 +53,20 @@ describe("docs pages", () => {
       "DATABASE_URL",
       "CUSTODIO_PAYMENT_RAIL",
       "STRIPE_SECRET_KEY",
+      "CUSTODIO_RECEIPT_SIGNING_KEY",
       "CUSTODIO_LLM_DAILY_BUDGET_USD",
       "CUSTODIO_PUBLIC_BASE_URL",
       "API_INTERNAL_URL",
     ]) {
       expect(screen.getByRole("rowheader", { name: name })).toBeInTheDocument();
     }
+  });
+
+  it("links the security model to the public receipt check", () => {
+    render(<SecurityPage />);
+
+    expect(screen.getByRole("heading", { name: "Recibos firmados" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Verificar un recibo" })).toHaveAttribute("href", "/verificar");
   });
 
   it("sends the API reference to the interactive docs of the API itself", () => {

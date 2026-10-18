@@ -1,0 +1,370 @@
+{
+  "schema": "open-design.design-manifest.v1",
+  "title": "a2ca03a8-7eea-4e6d-b434-765a855beadc",
+  "entryFile": "ui_kits/app/index.html",
+  "sourceFiles": {
+    "all": [
+      "assets/blinka_logo_dark_mode-BzSQfsNW.svg",
+      "assets/blinka_logo_white_mode-DaeD_jLH.svg",
+      "assets/blinka-engraving-CO_0wrzm.svg",
+      "assets/blinka-visa-infinite-CzkSkf9Z.svg",
+      "assets/booking-fold-Br11kmim.png",
+      "assets/braven-Dn1fcL05.png",
+      "assets/creditop-CTHAafBc.svg",
+      "assets/dapta-BBxaVpU5.png",
+      "assets/didit-QkHhsHP9.svg",
+      "assets/geist-mono-cyrillic-ext-wght-normal-X_5orZeX.woff2",
+      "assets/geist-mono-cyrillic-wght-normal-DiZS0aHC.woff2",
+      "assets/geist-mono-latin-ext-wght-normal-Bwz-egvJ.woff2",
+      "assets/geist-mono-latin-wght-normal-XN7g48iV.woff2",
+      "assets/geist-mono-symbols2-wght-normal-CO5SzqOn.woff2",
+      "assets/geist-mono-vietnamese-wght-normal-DadHysG0.woff2",
+      "assets/index-KuSXwZG0.js",
+      "assets/inter-latin-variable-Dx4kXJAl.woff2",
+      "assets/macondo-BK3uAxHM.svg",
+      "assets/main-BuVL5JaM.js",
+      "assets/main-CqMgimik.css",
+      "assets/morgan-stanley-DK18hNUu.svg",
+      "assets/paymentDestinations-BvyaHspk.js",
+      "assets/react-vendor-DqyOGR_u.js",
+      "assets/rolldown-runtime-BVbofQct.js",
+      "assets/signa-CAOwHtsS.svg",
+      "assets/spei-DOTQ2xbj.png",
+      "assets/talentropy-DOyIP2MA.png",
+      "blinka-clone.html",
+      "colors_and_type.css",
+      "context/source-context.md",
+      "DESIGN.md",
+      "examples/blinka-landing-source.html",
+      "examples/blinka-source.css",
+      "favicons/apple-touch-icon.png",
+      "favicons/favicon-16x16.png",
+      "favicons/favicon-32x32.png",
+      "favicons/favicon.ico",
+      "favicons/favicon.svg",
+      "favicons/site.webmanifest",
+      "fonts/geist-mono-latin-wght-normal-XN7g48iV.woff2",
+      "fonts/inter-latin-variable-Dx4kXJAl.woff2",
+      "NOTES.md",
+      "preview/applied-surface.html",
+      "preview/brand-assets.html",
+      "preview/colors-night.html",
+      "preview/colors-primary.html",
+      "preview/components-buttons.html",
+      "preview/components-cards.html",
+      "preview/radius-shadows.html",
+      "preview/spacing-tokens.html",
+      "preview/typography-specimens.html",
+      "README.md",
+      "RECON/clone-1440.png",
+      "RECON/clone-with-bundle.html",
+      "RECON/index.md",
+      "RECON/original.html",
+      "RECON/screenshots/original-1440.png",
+      "RECON/screenshots/original-390.png",
+      "RECON/screenshots/original-768.png",
+      "SKILL.md",
+      "ui_kits/app/app.js",
+      "ui_kits/app/components/components.css",
+      "ui_kits/app/index.html",
+      "ui_kits/app/README.md"
+    ],
+    "html": [
+      "blinka-clone.html",
+      "examples/blinka-landing-source.html",
+      "preview/applied-surface.html",
+      "preview/brand-assets.html",
+      "preview/colors-night.html",
+      "preview/colors-primary.html",
+      "preview/components-buttons.html",
+      "preview/components-cards.html",
+      "preview/radius-shadows.html",
+      "preview/spacing-tokens.html",
+      "preview/typography-specimens.html",
+      "RECON/clone-with-bundle.html",
+      "RECON/original.html",
+      "ui_kits/app/index.html"
+    ],
+    "css": [
+      "assets/main-CqMgimik.css",
+      "colors_and_type.css",
+      "examples/blinka-source.css",
+      "ui_kits/app/components/components.css"
+    ],
+    "scriptsAndComponents": [
+      "assets/index-KuSXwZG0.js",
+      "assets/main-BuVL5JaM.js",
+      "assets/paymentDestinations-BvyaHspk.js",
+      "assets/react-vendor-DqyOGR_u.js",
+      "assets/rolldown-runtime-BVbofQct.js",
+      "ui_kits/app/app.js"
+    ],
+    "assets": [
+      "assets/blinka_logo_dark_mode-BzSQfsNW.svg",
+      "assets/blinka_logo_white_mode-DaeD_jLH.svg",
+      "assets/blinka-engraving-CO_0wrzm.svg",
+      "assets/blinka-visa-infinite-CzkSkf9Z.svg",
+      "assets/booking-fold-Br11kmim.png",
+      "assets/braven-Dn1fcL05.png",
+      "assets/creditop-CTHAafBc.svg",
+      "assets/dapta-BBxaVpU5.png",
+      "assets/didit-QkHhsHP9.svg",
+      "assets/geist-mono-cyrillic-ext-wght-normal-X_5orZeX.woff2",
+      "assets/geist-mono-cyrillic-wght-normal-DiZS0aHC.woff2",
+      "assets/geist-mono-latin-ext-wght-normal-Bwz-egvJ.woff2",
+      "assets/geist-mono-latin-wght-normal-XN7g48iV.woff2",
+      "assets/geist-mono-symbols2-wght-normal-CO5SzqOn.woff2",
+      "assets/geist-mono-vietnamese-wght-normal-DadHysG0.woff2",
+      "assets/inter-latin-variable-Dx4kXJAl.woff2",
+      "assets/macondo-BK3uAxHM.svg",
+      "assets/morgan-stanley-DK18hNUu.svg",
+      "assets/signa-CAOwHtsS.svg",
+      "assets/spei-DOTQ2xbj.png",
+      "assets/talentropy-DOyIP2MA.png",
+      "context/source-context.md",
+      "DESIGN.md",
+      "favicons/apple-touch-icon.png",
+      "favicons/favicon-16x16.png",
+      "favicons/favicon-32x32.png",
+      "favicons/favicon.ico",
+      "favicons/favicon.svg",
+      "favicons/site.webmanifest",
+      "fonts/geist-mono-latin-wght-normal-XN7g48iV.woff2",
+      "fonts/inter-latin-variable-Dx4kXJAl.woff2",
+      "NOTES.md",
+      "README.md",
+      "RECON/clone-1440.png",
+      "RECON/index.md",
+      "RECON/screenshots/original-1440.png",
+      "RECON/screenshots/original-390.png",
+      "RECON/screenshots/original-768.png",
+      "SKILL.md",
+      "ui_kits/app/README.md"
+    ]
+  },
+  "screens": [
+    {
+      "file": "blinka-clone.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "examples/blinka-landing-source.html",
+      "role": "landing-page",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "preview/applied-surface.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "preview/brand-assets.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "preview/colors-night.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "preview/colors-primary.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "preview/components-buttons.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "preview/components-cards.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "preview/radius-shadows.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "preview/spacing-tokens.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "preview/typography-specimens.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "RECON/clone-with-bundle.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "RECON/original.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "ui_kits/app/index.html",
+      "role": "launcher-overview",
+      "implementationNote": "Use this as the navigation/overview entry only; implement each linked screen file as its own route/surface."
+    }
+  ],
+  "screenFilePolicy": {
+    "mode": "screen-file-first",
+    "entryFileRole": "launcher-overview",
+    "rules": [
+      "Each distinct user-facing screen or surface must be delivered and implemented as its own file/route.",
+      "If a landing page is present or requested, keep it in landing.html and do not merge it into the product app screen.",
+      "When multiple HTML screens exist, index.html is a launcher/overview only; it must not be treated as the combined final UI.",
+      "Keep product app screens, landing pages, platform screens, and OS widget surfaces separate in production code."
+    ]
+  },
+  "appModules": [
+    "Identify domain-specific in-app modules from the exported UI; do not reduce them to generic cards.",
+    "For each major module, implement purpose, default/loading/empty/error/success states, and responsive behavior.",
+    "Keep app modules separate from OS home-screen widgets in the production component model."
+  ],
+  "osWidgets": [
+    "If the export includes home-screen, lock-screen, Live Activity, tablet glance, or Android widget surfaces, implement them as platform quick-access surfaces outside the app UI.",
+    "If none are present, do not invent OS widgets unless the product requirements request them."
+  ],
+  "landingPage": {
+    "detection": "Inspect files and screen names for a marketing/landing page surface. If present, keep it separate from product app screens.",
+    "requiredSections": [
+      "hero",
+      "value props",
+      "product proof/screenshots",
+      "feature proof",
+      "CTA"
+    ]
+  },
+  "tokens": {
+    "source": [
+      "assets/main-CqMgimik.css",
+      "colors_and_type.css",
+      "examples/blinka-source.css",
+      "ui_kits/app/components/components.css"
+    ],
+    "required": [
+      "background",
+      "surface",
+      "foreground",
+      "muted text",
+      "border",
+      "accent",
+      "radius",
+      "shadow",
+      "spacing",
+      "type scale",
+      "motion"
+    ],
+    "note": "Extract/freeze tokens before framework implementation so coding tools do not substitute default theme colors or typography."
+  },
+  "interactions": {
+    "source": [
+      "assets/index-KuSXwZG0.js",
+      "assets/main-BuVL5JaM.js",
+      "assets/paymentDestinations-BvyaHspk.js",
+      "assets/react-vendor-DqyOGR_u.js",
+      "assets/rolldown-runtime-BVbofQct.js",
+      "ui_kits/app/app.js"
+    ],
+    "requiredStates": [
+      "default",
+      "hover",
+      "focus",
+      "active",
+      "disabled",
+      "loading",
+      "empty",
+      "error",
+      "success"
+    ],
+    "requiredBehaviors": [
+      "forms/validation where present",
+      "tabs/filters where present",
+      "dialogs/sheets/drawers where present",
+      "copy/generate/share actions where present",
+      "player or quick controls where present"
+    ],
+    "note": "If the prototype is static, derive missing behavior from visible controls and document it before coding."
+  },
+  "responsiveViewports": [
+    {
+      "name": "mobile-compact",
+      "width": 360,
+      "height": 800,
+      "category": "mobile",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "mobile-standard",
+      "width": 390,
+      "height": 844,
+      "category": "mobile",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "mobile-large",
+      "width": 430,
+      "height": 932,
+      "category": "mobile",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "foldable-small-tablet",
+      "width": 600,
+      "height": 960,
+      "category": "foldable-tablet",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "tablet-portrait",
+      "width": 820,
+      "height": 1180,
+      "category": "tablet",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "tablet-landscape",
+      "width": 1024,
+      "height": 768,
+      "category": "tablet",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "laptop",
+      "width": 1366,
+      "height": 768,
+      "category": "desktop",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900,
+      "category": "desktop",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "wide",
+      "width": 1920,
+      "height": 1080,
+      "category": "wide",
+      "mustAvoidHorizontalScroll": true
+    }
+  ],
+  "implementationChecklist": [
+    "Open entryFile first and map screens, modules, tokens, and interactions.",
+    "Extract tokens before writing framework components.",
+    "Implement app-specific modules with real states instead of generic card grids.",
+    "Preserve or rebuild JS interactions for meaningful UX actions.",
+    "Validate screenshots at desktop/tablet/mobile viewports with no horizontal overflow.",
+    "Keep landing pages, in-app modules, and OS widgets as separate implementation surfaces."
+  ]
+}

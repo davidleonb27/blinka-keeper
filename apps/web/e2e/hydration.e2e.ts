@@ -10,13 +10,13 @@ import { watch } from "./problems";
 const PAGE_CODE_LATE_MS = 1_500;
 const PAGES: { path: string; heading: string | RegExp; sentence: string }[] = [
   { path: "/", heading: "Tu analista de cuentas por pagar", sentence: "El modelo lee, el código decide" },
-  { path: "/reto", heading: "Róbale a Custodio", sentence: "Intenta que pague algo indebido" },
-  { path: "/panel", heading: "Panel", sentence: "Lo que Custodio decidió este mes" },
+  { path: "/reto", heading: "Róbale a Blinka Keeper", sentence: "Intenta que pague algo indebido" },
+  { path: "/panel", heading: "Panel", sentence: "Lo que Blinka Keeper decidió este mes" },
   { path: "/reglas", heading: "Reglas", sentence: "Tú pones los límites" },
   { path: "/arena", heading: /Arena/, sentence: "Un atacante genera facturas" },
   { path: "/registro", heading: "Registro", sentence: "Cada decisión queda encadenada" },
 ];
-const PANEL_CODE = ["Lo que Custodio decidió este mes", "Acta de decisión"];
+const PANEL_CODE = ["Lo que Blinka Keeper decidió este mes", "Acta de decisión"];
 const WORKSPACE_COOKIE = "custodio_ws";
 
 interface DemoWorkspace {

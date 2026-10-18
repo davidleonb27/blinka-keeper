@@ -8,13 +8,13 @@ import HomePage from "./page";
 // The live count is an async server component; here it stands still so the page renders in jsdom.
 
 describe("HomePage", () => {
-  it("says Custodio decides and the rail pays", () => {
+  it("says Blinka Keeper decides and the rail pays", () => {
     renderWithApi(<HomePage />);
 
     expect(screen.getByText(RAIL_PITCH)).toBeInTheDocument();
   });
 
-  it("opens on what Custodio does for a finance team, with the demo first and the challenge as a quiet link", () => {
+  it("opens on what Blinka Keeper does for a finance team, with the demo first and the challenge as a quiet link", () => {
     renderWithApi(<HomePage />);
 
     expect(screen.getByRole("heading", { level: 1, name: "Tu analista de cuentas por pagar" })).toBeInTheDocument();
@@ -22,7 +22,7 @@ describe("HomePage", () => {
     const hero = screen.getByRole("region", { name: "Tu analista de cuentas por pagar" });
     expect(within(hero).getByRole("link", { name: /Probar la demo/ })).toHaveAttribute("href", "/panel");
     expect(within(hero).getByRole("link", { name: /Intenta engañarlo/ })).toHaveAttribute("href", "/reto");
-    expect(within(hero).queryByRole("link", { name: /Róbale a Custodio/ })).not.toBeInTheDocument();
+    expect(within(hero).queryByRole("link", { name: /Róbale a Blinka Keeper/ })).not.toBeInTheDocument();
     expect(within(hero).queryByRole("figure")).not.toBeInTheDocument();
   });
 
@@ -67,5 +67,22 @@ describe("HomePage", () => {
     const selfHost = screen.getByRole("region", { name: /Autoalójalo/ });
     expect(selfHost).toHaveTextContent("Vercel");
     expect(selfHost).toHaveTextContent("docker compose");
+  });
+
+  it("shows what already works in production, each card linking to try it", () => {
+    renderWithApi(<HomePage />);
+    const section = screen.getByRole("region", { name: /Del WhatsApp al cierre de mes/ });
+    const cards = within(section).getAllByRole("listitem");
+    expect(cards).toHaveLength(6);
+    expect(within(section).getByRole("link", { name: /Ver el cuadre con Stripe/ })).toHaveAttribute("href", "/pagos");
+    expect(within(section).getByRole("link", { name: /Probar un recibo alterado/ })).toHaveAttribute("href", "/verificar");
+  });
+
+  it("closes on a dark band with two questions that open the demo", () => {
+    renderWithApi(<HomePage />);
+    const closing = screen.getByRole("region", { name: /Cuántas facturas pagas al mes/ });
+    expect(within(closing).getByRole("group", { name: "Facturas al mes" })).toBeInTheDocument();
+    expect(within(closing).getByRole("button", { name: /Ver cómo lo haría Blinka Keeper/ })).toBeInTheDocument();
+    expect(within(closing).getByRole("link", { name: /Róbale a Blinka Keeper/ })).toHaveAttribute("href", "/reto");
   });
 });

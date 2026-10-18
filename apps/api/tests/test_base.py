@@ -2,6 +2,7 @@ import json
 from decimal import Decimal
 from typing import get_args
 
+import pytest
 from fastapi.testclient import TestClient
 
 from custodio.config import Settings
@@ -55,10 +56,14 @@ def test_health_reports_only_the_providers_in_use() -> None:
 
 
 def test_settings_carry_no_retired_integrations() -> None:
-    retired = {"gemini_model", "telegram_bot_token_present"}
+    assert "telegram_bot_token_present" not in Settings.model_fields
 
-    assert retired.isdisjoint(Settings.model_fields)
-    assert not hasattr(Settings, "gemini_configured")
+
+def test_gemini_is_only_the_optional_second_reader(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    assert not Settings().gemini_configured
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key-for-doubles")
+    assert Settings().gemini_configured
 
 
 def test_approvals_are_web_or_api_only() -> None:

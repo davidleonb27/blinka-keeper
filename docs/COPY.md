@@ -8,14 +8,14 @@ que pone la aplicación.
 - Se dice lo que pasó y qué puede hacer la persona. Sin culpar, sin exclamaciones, sin «¡Oops!».
 - Cantidades en formato es-CO: `USD 12.500`, `COP 4.200.000`, fechas «17 de octubre de 2026».
 - Una métrica que no se midió muestra **NO MEDIDO**, nunca 0 ni un guion. `null` no es cero.
-- Estados: **Pagada** (la pagó Custodio), **Pagada por una persona**, **Retenida**, **Pendiente de aprobación**,
+- Estados: **Pagada** (la pagó Blinka Keeper), **Pagada por una persona**, **Retenida**, **Pendiente de aprobación**,
   **Rechazada**.
 - Sin adjetivos de marketing ni promesas absolutas: no se escribe «100 % seguro» ni «inteligente».
 - El modelo nunca «decide»: «leyó», «propuso», «citó». Decide el código; autoriza la persona.
 
 ## Inicio
 
-**Título:** Custodio paga lo que cabe en tus reglas. Lo demás, te lo pregunta.
+**Título:** Blinka Keeper paga lo que cabe en tus reglas. Lo demás, te lo pregunta.
 
 **Subtítulo:** El modelo lee la factura, el código decide y tú autorizas. Cada decisión queda en un acta que se entiende.
 
@@ -49,12 +49,12 @@ Una pregunta por pantalla. Enter avanza; Escape vuelve. Barra de progreso con «
 |---|---|---|---|
 | 1 | ¿Cómo se llama tu empresa? | Y su sitio web, si tiene. Con eso proponemos un perfil que tú corriges. | Continuar |
 | 2 | Esto entendimos de {empresa} | Lo sacamos de {sitio}. Corrige lo que esté mal. | Está bien |
-| 3 | ¿En qué país y moneda trabajas? | También el saldo con el que paga Custodio y la reserva que nunca se toca. | Continuar |
-| 4 | ¿Quién aprueba lo que Custodio no decide solo? | Nombre y cargo. Verá lo pendiente en el panel y decidirá desde el acta con dos botones: aprobar o rechazar. | Continuar |
+| 3 | ¿En qué país y moneda trabajas? | También el saldo con el que paga Blinka Keeper y la reserva que nunca se toca. | Continuar |
+| 4 | ¿Quién aprueba lo que Blinka Keeper no decide solo? | Nombre y cargo. Verá lo pendiente en el panel y decidirá desde el acta con dos botones: aprobar o rechazar. | Continuar |
 | 5 | ¿Qué reglas quieres? Cuéntalas con tus palabras | Por ejemplo: «Nada sobre 3.000 USD sin que lo apruebe Ana». Te mostramos cómo las entendimos. | Ver cómo las entendí |
 | 6 | ¿A quién le pagas? | Sube una lista, un contrato o facturas viejas. Tú revisas antes de guardar. | Continuar |
 | 7 | Así habría ido tu primera semana | Simulamos tus reglas con las facturas de ejemplo. Nada se paga de verdad. | Todo bien, activar |
-| 8 | Custodio está listo | Ya puedes subir facturas. | Ir al panel |
+| 8 | Blinka Keeper está listo | Ya puedes subir facturas. | Ir al panel |
 
 **Omitir un paso opcional:** Prefiero hacerlo después
 
@@ -82,12 +82,12 @@ Una pregunta por pantalla. Enter avanza; Escape vuelve. Barra de progreso con «
 
 - **Encabezado:** Acta de {proveedor} · {número de factura}
 - **Resumen:** una oración de la explicación de la decisión.
-- **Secciones:** Qué decidió Custodio · Las quince reglas · Qué habría que cambiar · El documento · Registro
+- **Secciones:** Qué decidió Blinka Keeper · Las quince reglas · Qué habría que cambiar · El documento · Registro
 - **Regla que pasó:** Cumple
 - **Regla que falló:** Retiene / Pregunta a una persona (según el efecto de la regla)
 - **Contrafactual:** Se habría pagado si {cambio}.
 - **Citas en el documento:** Cada dato leído se resalta con el texto exacto de donde salió.
-- **Texto oculto:** Este documento tenía texto que no se ve a simple vista: “{texto}”. Custodio no lo obedece y pide revisión.
+- **Texto oculto:** Este documento tenía texto que no se ve a simple vista: “{texto}”. Blinka Keeper no lo obedece y pide revisión.
 - **Narración (opcional):** Versión en palabras simples. Escrita por el modelo; cada número se verifica con la decisión.
 - **Aprobar:** Aprobar y pagar · **Rechazar:** Rechazar
 - **Aviso al aprobar:** Si pagar deja el saldo bajo la reserva, no se paga aunque lo apruebes.
@@ -115,16 +115,16 @@ Una pregunta por pantalla. Enter avanza; Escape vuelve. Barra de progreso con «
 - **Marcador:** {atrapados} atrapados de {rondas} rondas
 - **Detener:** Detener
 
-## Róbale a Custodio
+## Róbale a Blinka Keeper
 
-- **Título:** Róbale a Custodio
+- **Título:** Róbale a Blinka Keeper
 - **Subtítulo:** Intenta que pague algo que no debe. Cambia una cuenta, repite un cobro, esconde una instrucción, parte un
   pago en dos.
 - **Campos:** Sube una factura o escribe su contenido · Tu alias (opcional) · La técnica que usaste (opcional)
 - **Botón:** Intentar
-- **Resultado atrapado:** Custodio lo atrapó. {regla}: {razón}.
-- **Resultado pagó bien:** Era una factura válida y Custodio la pagó. Eso también cuenta.
-- **Resultado pagó mal:** Lo lograste. Custodio pagó algo indebido. Queda en el muro y lo vamos a corregir.
+- **Resultado atrapado:** Blinka Keeper lo atrapó. {regla}: {razón}.
+- **Resultado pagó bien:** Era una factura válida y Blinka Keeper la pagó. Eso también cuenta.
+- **Resultado pagó mal:** Lo lograste. Blinka Keeper pagó algo indebido. Queda en el muro y lo vamos a corregir.
 - **Contador:** {intentos} intentos · {indebidos} pagos indebidos
 - **Muro:** Los ataques más creativos
 - **Aviso:** Es una demo sin dinero real. Tu intento queda en el registro público con el alias que pongas.
@@ -153,8 +153,8 @@ Una pregunta por pantalla. Enter avanza; Escape vuelve. Barra de progreso con «
 |---|---|---|
 | Panel sin facturas | Todavía no hay facturas. Sube una o carga las de ejemplo. | Subir factura · Cargar ejemplo |
 | Pendientes sin nada | No hay nada esperando tu aprobación. | — |
-| Retenidas sin nada | Custodio no ha retenido nada. | — |
-| Reglas sin proveedores | Aún no hay proveedores. Sin ellos, Custodio pregunta por cada factura. | Agregar proveedores |
+| Retenidas sin nada | Blinka Keeper no ha retenido nada. | — |
+| Reglas sin proveedores | Aún no hay proveedores. Sin ellos, Blinka Keeper pregunta por cada factura. | Agregar proveedores |
 | Arena sin rondas | Aún no hay ataques. Empieza uno y míralo en vivo. | Empezar el ataque |
 | Muro sin intentos | Nadie ha intentado todavía. Puedes ser la primera persona. | Intentar |
 | Registro sin entradas | El registro está vacío. Empieza cuando se decida la primera factura. | Subir factura |
@@ -168,7 +168,7 @@ Siempre dicen qué pasó, qué quedó a salvo y qué hacer.
 | Situación | Mensaje |
 |---|---|
 | Archivo muy grande (413) | El archivo pesa más de 4 MB. Comprímelo o súbelo por partes. |
-| Tipo de archivo no admitido | Custodio lee PDF, imágenes y texto. Este archivo no es de esos tipos. |
+| Tipo de archivo no admitido | Blinka Keeper lee PDF, imágenes y texto. Este archivo no es de esos tipos. |
 | Demasiadas peticiones (429) | Hiciste muchas peticiones seguidas. Espera {segundos} segundos e intenta de nuevo. |
 | No se pudo leer la factura (503) | No pudimos leer esta factura. No se pagó nada; queda para revisión de una persona. |
 | El modelo no responde | El servicio que lee facturas no respondió. No se pagó nada. Intenta de nuevo en unos minutos. |

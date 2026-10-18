@@ -36,7 +36,7 @@ function Scoreboard({ stats }: { stats: ChallengeStats }) {
   return (
     <section aria-label="Contador global" aria-live="polite" className="card-surface flex flex-col gap-3 p-5">
       <div className={cn("flex items-center gap-4 rounded-2xl px-4 py-3", broken ? "bg-crit-weak" : "bg-pay-weak")}>
-        <b className={cn("text-[56px] leading-none font-semibold tracking-[-0.04em] tabular", broken ? "text-crit" : "text-pay")}>
+        <b className={cn("font-serif text-[56px] leading-none tabular", broken ? "text-crit" : "text-pay")}>
           {formatCount(stats.improper_payments)}
         </b>
         <p className="text-[14px] text-ink-2">
@@ -150,7 +150,7 @@ function AttemptForm({ onResult }: { onResult: (attempt: ChallengeAttempt | null
       </label>
       {submit.error ? <p role="alert" className="text-[13.5px] text-crit">{messageOf(submit.error)}</p> : null}
       <Button type="submit" size="lg" disabled={submit.isPending || (!text.trim() && !file)}>
-        <Target aria-hidden /> {submit.isPending ? "Custodio está leyendo…" : "Intentar que pague"}
+        <Target aria-hidden /> {submit.isPending ? "Blinka Keeper está leyendo…" : "Intentar que pague"}
       </Button>
     </form>
   );
@@ -194,7 +194,7 @@ export function Challenge() {
   return (
     <>
       <PageHeader
-        title="Róbale a Custodio"
+        title="Róbale a Blinka Keeper"
         subtitle="Intenta que pague algo indebido. Cada intento pasa por las mismas quince reglas que una factura real, y cada ataque atrapado se vuelve caso de prueba."
       >
         <Button asChild variant="outline">

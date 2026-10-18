@@ -20,9 +20,9 @@ type NumericField =
   | "split_window_days";
 
 const FIELDS: { field: NumericField; label: string; help: string }[] = [
-  { field: "approval_threshold", label: "Tope de aprobación automática", help: "Sobre este monto, Custodio pide permiso a una persona." },
+  { field: "approval_threshold", label: "Tope de aprobación automática", help: "Sobre este monto, Blinka Keeper pide permiso a una persona." },
   { field: "per_payment_limit", label: "Límite por pago", help: "Ningún pago pasa de aquí sin aprobación, aunque el proveedor sea conocido." },
-  { field: "period_budget", label: "Cupo de pago automático", help: "Lo máximo que Custodio paga solo en el mes." },
+  { field: "period_budget", label: "Cupo de pago automático", help: "Lo máximo que Blinka Keeper paga solo en el mes." },
   { field: "reserve", label: "Reserva que no se toca", help: "El saldo nunca baja de aquí, ni siquiera con aprobación." },
   { field: "agreement_tolerance_pct", label: "Tolerancia frente a lo acordado", help: "Cuánto puede variar una factura frente al acuerdo, en %." },
   { field: "duplicate_window_days", label: "Ventana de duplicados", help: "Mismo proveedor y monto dentro de estos días cuenta como posible duplicado." },

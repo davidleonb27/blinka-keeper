@@ -1,4 +1,4 @@
-"""The only door to Claude. Every model call in Custodio goes through `structured()`.
+"""The only door to Claude. Every model call in Blinka Keeper goes through `structured()`.
 
 Rules that hold for every call:
 - The model returns data that matches a Pydantic schema (structured outputs). It never returns a decision

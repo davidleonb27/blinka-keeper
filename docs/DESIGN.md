@@ -1,7 +1,7 @@
-# Custodio — diseño
+# Blinka Keeper — diseño
 
 > **El modelo lee, el código decide, la persona autoriza.**
-> Custodio es el agente de cuentas por pagar que no se deja engañar: revisa las facturas de una empresa, paga solo
+> Blinka Keeper es el agente de cuentas por pagar que no se deja engañar: revisa las facturas de una empresa, paga solo
 > lo que cabe en las reglas que la empresa definió, retiene lo que es claramente indebido y le pregunta a una persona
 > todo lo demás. Cada decisión queda en un acta que cualquiera entiende y en un registro encadenado que nadie puede
 > alterar sin que se note.
@@ -10,7 +10,7 @@ Hackathon 30X, Reto Blinka. Entrega: domingo 18 de octubre de 2026, 11:59 a. m. 
 
 ## 1. Qué pide el reto y cómo lo medimos
 
-| Criterio de Blinka | Cómo lo cumple Custodio | Métrica visible en el panel |
+| Criterio de Blinka | Cómo lo cumple Blinka Keeper | Métrica visible en el panel |
 |---|---|---|
 | **Autonomía**: facturas decididas bien sin una persona | 15 reglas deterministas deciden pagar o retener solas | `autonomy_rate` = (pagadas solas + retenidas) / total; `accuracy` contra el dataset etiquetado |
 | **Seguridad**: cero pagos indebidos (uno descalifica) | el modelo nunca decide; auditor independiente recalcula cada pago; red team y reto público | `improper_payments` = 0, con el número de ataques probados |
@@ -28,7 +28,7 @@ KYC, cumplimiento, decisiones de fraude como servicio y el diseño de la app de 
    una intención de pago y recibe pagar / retener / escalar con su acta. Se vende por decisión.
 2. **Claude contra Claude.** Un atacante con Claude Opus genera facturas fraudulentas contra las reglas de esa empresa,
    lee por qué lo bloquearon y cambia de técnica. El defensor no cambia: las reglas son código.
-3. **«Róbale a Custodio».** Página pública donde cualquiera intenta que Custodio pague algo indebido. Contador en vivo de
+3. **«Róbale a Blinka Keeper».** Página pública donde cualquiera intenta que Blinka Keeper pague algo indebido. Contador en vivo de
    intentos y pagos indebidos, muro con los ataques más creativos. Cada ataque atrapado se vuelve caso de prueba.
 4. **Reglas en español, compiladas y simuladas.** «Nada sobre 3.000 USD sin que lo apruebe Ana» se compila a la política,
    se muestra el cambio y se simula contra el historial antes de aplicarlo. Lo que no se entiende se pregunta.
@@ -89,7 +89,7 @@ Se porta la semántica de `prototype/engine.js` (`decideAll` desde la línea 289
 
 | Regla | Efecto | Falla cuando |
 |---|---|---|
-| R1 Lectura confiable | escalar | proveedor, monto, moneda o cuenta con `confidence < min_confidence` o `verified = false`; caso especial: moneda ambigua («$» sin ISO) |
+| R1 Lectura confiable | escalar | proveedor, monto, moneda o cuenta con `confidence < min_confidence` o `verified = false`; caso especial: moneda ambigua («$» sin ISO); con doble lectura, las dos lecturas independientes no coinciden en esos cuatro campos o la segunda no se pudo hacer (§6.6) |
 | R2 Sin instrucciones escondidas | escalar | hay `hidden_findings`, o el texto visible trae instrucciones al agente (patrón del prototipo, ampliado) |
 | R3 Beneficiario permitido | escalar | el proveedor no casa con un beneficiario por NIT/tax id o nombre normalizado/alias, o está bloqueado |
 | R4 Cuenta registrada | retener | la cuenta leída no es la registrada del beneficiario |
@@ -129,14 +129,21 @@ Ledger: `hash = sha256(prev_hash + canonical_json({seq, at, kind, subject_id, pa
 1. PDF: `pdfplumber` extrae texto visible por carácter con color, tamaño y posición. Texto oculto = color igual al fondo
    (blanco o casi), tamaño < 2 pt, fuera de la página, tapado por un rectángulo o imagen, o en metadatos/anotaciones.
    PDF sin texto → se rasteriza y va a OCR.
-2. Imagen o PDF escaneado: Claude (`model_fast`) lo lee directamente con visión (bloque `image` o `document`). **No usamos Gemini**: un solo proveedor y una sola clave.
+2. Imagen o PDF escaneado: Claude (`model_fast`) lo lee directamente con visión (bloque `image` o `document`).
 3. Claude (`model_fast`, esfuerzo bajo) estructura los campos con salida estructurada y devuelve, por campo, el valor
    normalizado y la cita exacta.
 4. Código verifica cada cita contra el texto fuente (normalizando espacios) y que la cita respalde el valor (el monto
    citado parsea al mismo número; la fecha, a la misma fecha). Sin verificación → `verified = false`.
 5. Montos: se respetan los formatos latinos (`4.200.000,00`) y anglosajones (`4,200,000.00`); «$» solo es ambiguo.
+6. **Doble lectura independiente (L21).** Con modelo, cada documento lo lee también un segundo lector, en paralelo y
+   desde el documento mismo (la imagen, no la transcripción del primero): Gemini (`gemini_model`) si hay
+   `GEMINI_API_KEY`, otra empresa y errores no correlacionados; si no, otro modelo de Claude (`model_second_reader`)
+   con otro prompt, y además el lector por etiquetas cuando el documento trae texto propio. Código compara proveedor,
+   monto, moneda y cuenta ya normalizados (`ExtractedInvoice.cross_check`); R1 escala si no coinciden o si la segunda
+   lectura falló, tardó o no tuvo presupuesto, y el auditor lo recalcula por su cuenta. Sin modelo no hay segunda
+   lectura (`cross_check = null`) y R1 queda como antes.
 
-## 7. Claude en Custodio (L3) — modelos por tarea
+## 7. Claude en Blinka Keeper (L3) — modelos por tarea
 
 | Tarea | Modelo | Esfuerzo | Por qué |
 |---|---|---|---|
@@ -193,18 +200,39 @@ Límites: por IP y por espacio en rutas que llaman modelos; tope diario de gasto
 Diseño base: `prototype/index.html` (ya publicado y probado). Next.js App Router, TypeScript estricto, Tailwind,
 shadcn/ui, tema claro y oscuro, móvil primero.
 
+### Identidad visual: el sistema de diseño de Blinka
+
+Desde el 18 de octubre la app adopta el sistema de diseño de Blinka, guardado en `docs/design-system/blinka/`
+(`DESIGN.md`, `colors_and_type.css`, `preview/`, `ui_kits/app/`, `reference/`). Blinka Keeper está **construido para
+Blinka**, no es Blinka: conserva su logo (`components/brand/seal.tsx`, `public/logo*`) y no usa los logos de Blinka ni
+de sus socios ni la ilustración grabada (`SOURCE.md` explica qué no se copió).
+
+- **Tokens** en `apps/web/src/app/globals.css`: papel `#f7f7f4`, tinta `#1c253a`, texto secundario `#47525d` /
+  `#5c6474`, líneas `#dedfdc`, un solo acento cobalto `#2a4bd0` (acción primaria, selección, foco; nunca de fondo en
+  áreas grandes) y la paleta nocturna `#111720` para el modo oscuro, el pie y las secciones finales (`night-section`).
+  Los colores de estado son de Blinka Keeper (pagar, retener, escalar, crítico), ajustados a esa paleta; todo par de texto
+  cumple WCAG AA (4,5:1) en claro y oscuro, también sobre su propio tinte.
+- **Tipografía**: Inter («Blinka Inter») para interfaz y títulos, Geist Mono para cifras, códigos e ids; ambas
+  servidas desde `apps/web/src/app/fonts/` con `next/font/local`. Títulos en peso 450 con tracking cerrado (la clase
+  `font-serif` es el rol «display» y ya no carga una serifa); eyebrows de 11 px en mayúsculas con tracking 0,1em.
+  `typography.test.ts` lo hace cumplir.
+- **Forma**: botones en píldora de 48 px (38 px el pequeño), tarjetas de radio 16–20 con las sombras largas de Blinka,
+  chips de radio 8, filas de radio 12, cabecera pegajosa con desenfoque de 14 px sobre papel translúcido.
+- **Reglas**: un solo CTA primario por vista, sin gradientes morados ni emojis, movimiento de 0,16–0,18 s que respeta
+  `prefers-reduced-motion`.
+
 1. **Inicio**: qué es en una frase, métricas en vivo (autonomía, pagos indebidos = 0, ataques probados), dos botones:
    «Probar con una empresa demo» y «Configurar mi empresa».
 2. **Onboarding tipo Typeform**: una pregunta por pantalla, teclado (Enter avanza), barra de progreso, animaciones
    suaves. Pasos: nombre y sitio → perfil propuesto (editable) → país, moneda, saldo y reserva → quién aprueba (nombre,
    cargo y correo) → reglas en tus palabras (compiladas en vivo) → proveedores (subir lista, contrato o facturas) → simulación
-   de la primera semana → «Custodio está listo».
+   de la primera semana → «Blinka Keeper está listo».
 3. **Panel**: pagado / retenido / pendiente con razón en una línea, filtros, métricas, saldo y cupo.
 4. **Acta** (drawer): las 15 reglas con su resultado, contrafactual, documento con las citas resaltadas, texto oculto
    destapado, aprobar / rechazar, hash en el ledger.
 5. **Reglas**: editor en español con diff y simulación antes de aplicar; formulario clásico como alternativa.
 6. **Arena**: Claude contra Claude en vivo (rondas, técnica, veredicto, marcador).
-7. **Róbale a Custodio**: subir o escribir una factura trampa, resultado al instante, contador global y muro.
+7. **Róbale a Blinka Keeper**: subir o escribir una factura trampa, resultado al instante, contador global y muro.
 8. **Registro**: cadena de hashes, «verificar» y «alterar una copia».
 9. **Desarrolladores**: API key, ejemplo del firewall y configuración MCP para Claude Desktop.
 10. **Conciliación**: arrastrar el extracto (o usar el de demo), tres columnas (conciliado, con diferencia, alertas) con
@@ -232,7 +260,8 @@ shadcn/ui, tema claro y oscuro, móvil primero.
 
 ## 11. Variables de entorno
 
-`ANTHROPIC_API_KEY`, `DATABASE_URL` (Neon; normalizar `postgresql://` a `postgresql+psycopg://`),
+`ANTHROPIC_API_KEY`, `GEMINI_API_KEY` (opcional: segundo lector), `CUSTODIO_MODEL_SECOND_READER`,
+`CUSTODIO_GEMINI_MODEL`, `CUSTODIO_SECOND_READING_TIMEOUT_SECONDS`, `DATABASE_URL` (Neon; normalizar `postgresql://` a `postgresql+psycopg://`),
 `CUSTODIO_PUBLIC_BASE_URL`, `CUSTODIO_LLM_DAILY_BUDGET_USD`, `CUSTODIO_MODEL_FAST`,
 `CUSTODIO_MODEL_SMART`, `CUSTODIO_MODEL_CHEAP`, `CUSTODIO_LIVE_TESTS`, `CUSTODIO_TREASURY_YIELD_APY` (rendimiento anual
 supuesto del saldo, 4.0 por defecto; un supuesto, no un dato de Blinka), `CUSTODIO_PAYMENT_RAIL` (`simulated` por
@@ -247,7 +276,8 @@ defecto, `stripe_test` o `blinka_simulated`) y `STRIPE_SECRET_KEY` (sólo `sk_te
 
 ## 13. Cambios de alcance (2026-10-17)
 
-- **Sin Gemini**: Claude lee imágenes y PDFs escaneados con visión. Quitar `google-genai`, `gemini_model` y `gemini_configured`.
+- **Sin Gemini como lector principal**: Claude lee imágenes y PDFs escaneados con visión; `google-genai` no se usa. Desde
+  L21 Gemini vuelve sólo como segundo lector opcional (REST con `httpx`, `GEMINI_API_KEY`), ver §6.6.
 - **Sin Telegram por ahora**: las aprobaciones son sólo por la web. Desde L7 no queda código de Telegram: `Approver`
   ya no tiene `telegram_chat_id`, el canal de `Approval` es `web` o `api` y la migración `0002` quita ese campo de las
   políticas guardadas.

@@ -12,7 +12,7 @@ class StatementError(Exception):
 
 
 class StatementFormatError(StatementError):
-    """The file is not a statement Custodio can read: no date, description and amount columns, or no rows."""
+    """The file is not a statement Blinka Keeper can read: no date, description and amount columns, or no rows."""
 
     message = "El archivo no parece un extracto bancario."
 

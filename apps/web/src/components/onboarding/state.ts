@@ -92,7 +92,8 @@ export function normalizeWebsite(text: string): string | null {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
-const BLANK_TO_FILL = /\[[^\]]*\]/;
+// Blanks a model may leave for the person to fill: [monto], {monto}, <monto>, ___ or XXX.
+const BLANK_TO_FILL = /\[[^\]]*\]|\{[^}]*\}|<[^>]*>|_{3,}|\bX{3,}\b/;
 const WHOLE = new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 });
 
 /** A complete first rule set in the company's currency, for when the proposed one is missing or has blanks. */
@@ -114,12 +115,16 @@ export function withCurrency(answers: Answers, currency: string): Answers {
   const before = starterMoney(answers.currency);
   const after = starterMoney(currency);
   const untouched = (text: string, suggested: string) => text === "" || text === suggested;
+  // The profile's suggestion carries amounts in the currency it proposed; untouched, it is replaced like the example.
+  const suggestedRules = answers.profile?.base_currency !== currency ? answers.profile?.suggested_rules_text : null;
+  const rulesUntouched =
+    untouched(answers.rulesText, exampleRules(answers.currency)) || answers.rulesText === suggestedRules;
   return {
     ...answers,
     currency,
     balance: untouched(answers.balance, String(before.balance)) ? String(after.balance) : answers.balance,
     reserve: untouched(answers.reserve, String(before.reserve)) ? String(after.reserve) : answers.reserve,
-    rulesText: untouched(answers.rulesText, exampleRules(answers.currency)) ? exampleRules(currency) : answers.rulesText,
+    rulesText: rulesUntouched ? exampleRules(currency) : answers.rulesText,
   };
 }
 
@@ -165,10 +170,10 @@ const VALIDATORS: Partial<Record<StepId, Validator>> = {
   approvers: (a) => (a.approvers.some((p) => p.name.trim()) ? null : "Agrega al menos una persona que apruebe."),
   rules: (a) => {
     if (!a.rulesText.trim()) return "Escribe al menos una regla o usa la sugerida.";
-    return a.proposal && a.proposalKey === compileKey(a) ? null : "Custodio todavía está compilando tus reglas.";
+    return a.proposal && a.proposalKey === compileKey(a) ? null : "Blinka Keeper todavía está compilando tus reglas.";
   },
   suppliers: (a) => (a.suppliers.length ? null : "Sube una lista o usa la de ejemplo."),
-  simulation: (a) => (a.result ? null : "Custodio todavía está decidiendo tu primera semana."),
+  simulation: (a) => (a.result ? null : "Blinka Keeper todavía está decidiendo tu primera semana."),
 };
 
 export function validateStep(step: StepId, answers: Answers): string | null {

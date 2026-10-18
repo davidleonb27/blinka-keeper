@@ -235,7 +235,7 @@ function Closing({ view }: { view: ReconciliationView }) {
   async function download() {
     setDownloadError(null);
     try {
-      saveFile(await api.downloadEvidence(view.period), `custodio-cierre-${view.period}.zip`);
+      saveFile(await api.downloadEvidence(view.period), `blinka-keeper-cierre-${view.period}.zip`);
     } catch (error) {
       setDownloadError(error);
     }
@@ -271,7 +271,7 @@ function Closing({ view }: { view: ReconciliationView }) {
       >
         <p className="text-[13.5px] text-ink-2">
           {view.can_close
-            ? "Todo revisado. Al cerrar, Custodio escribe el cierre en el registro y arma el paquete para el contador."
+            ? "Todo revisado. Al cerrar, Blinka Keeper escribe el cierre en el registro y arma el paquete para el contador."
             : `Quedan ${counted(open, "salida sin revisar", "salidas sin revisar")}: cada una necesita la nota de una persona antes de cerrar.`}
         </p>
         <div className="flex flex-wrap items-end gap-2">
@@ -349,7 +349,7 @@ export function ReconciliationPage() {
     <>
       <PageHeader
         title="Conciliación"
-        subtitle="Custodio cruza el extracto del banco con lo que pagó. El modelo lee el extracto, el código empareja y cierra, una persona revisa cada alerta."
+        subtitle="Blinka Keeper cruza el extracto del banco con lo que pagó. El modelo lee el extracto, el código empareja y cierra, una persona revisa cada alerta."
       />
       <StatementDrop
         pending={reconcile.isPending}

@@ -1,6 +1,6 @@
-# Cómo contribuir a Custodio
+# Cómo contribuir a Blinka Keeper
 
-Gracias por querer mejorar Custodio. Es un agente de cuentas por pagar: un error aquí puede pagar algo que no se debía.
+Gracias por querer mejorar Blinka Keeper. Es un agente de cuentas por pagar: un error aquí puede pagar algo que no se debía.
 Por eso las reglas para contribuir son pocas pero firmes.
 
 *English speakers: issues and pull requests in English are welcome. The rules below apply the same way.*
@@ -8,7 +8,7 @@ Por eso las reglas para contribuir son pocas pero firmes.
 ## Antes de empezar
 
 - Lee [`docs/DESIGN.md`](docs/DESIGN.md): las invariantes de la sección 3 no se negocian.
-- Si encontraste una forma de que Custodio pague algo indebido, **no abras un issue público**: sigue
+- Si encontraste una forma de que Blinka Keeper pague algo indebido, **no abras un issue público**: sigue
   [`SECURITY.md`](SECURITY.md).
 - Para cambios grandes, abre primero un issue y acuerden el enfoque.
 
@@ -17,7 +17,7 @@ Por eso las reglas para contribuir son pocas pero firmes.
 Requisitos: Python 3.12 con [uv](https://docs.astral.sh/uv/), Node.js 24 y, si quieres probar el autoalojado, Docker.
 
 ```bash
-git clone https://github.com/davidleonb27/custodio-blinka.git
+git clone https://github.com/davidleonb27/blinka-keeper.git
 cd custodio-blinka
 cp .env.example .env                      # todas las variables son opcionales para desarrollar
 cd apps/api && uv sync && cd ../..
@@ -67,7 +67,7 @@ test: pin the duplicate window at 30 days
 ## Proponer una regla nueva
 
 Las reglas R1–R12 viven en código (`apps/api/custodio/engine/rules.py`) y su catálogo en
-`apps/api/custodio/contracts.py`. Una regla nueva cambia lo que Custodio paga, así que se discute antes de programarla:
+`apps/api/custodio/contracts.py`. Una regla nueva cambia lo que Blinka Keeper paga, así que se discute antes de programarla:
 
 1. Abre un issue con la plantilla **«Regla nueva»**: qué fraude o error detiene, un caso concreto que hoy se paga y no
    debería, el efecto que propones (`hold` si es claramente indebido, `escalate` si una persona debe mirarlo) y qué
@@ -83,7 +83,7 @@ Las reglas R1–R12 viven en código (`apps/api/custodio/engine/rules.py`) y su 
 
 ## Proponer un riel de pago nuevo
 
-Un riel mueve el dinero de un pago que Custodio **ya** aprobó; nunca decide. Abre un issue con la plantilla
+Un riel mueve el dinero de un pago que Blinka Keeper **ya** aprobó; nunca decide. Abre un issue con la plantilla
 **«Riel de pago nuevo»** y lee la guía en la web (`/docs/rieles`). Los rieles de prueba (sandbox) se aceptan; un riel
 que mueva dinero real necesita revisión de seguridad aparte.
 

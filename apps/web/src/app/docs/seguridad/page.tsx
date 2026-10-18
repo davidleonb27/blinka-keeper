@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { DocPage } from "@/components/site/doc-page";
 import { repoFile } from "@/lib/site";
 
@@ -10,6 +11,7 @@ const INVARIANTS = [
   "El motor nunca lee las etiquetas del dataset (lo esperado y la trampa).",
   "Ningún texto de un documento cambia una regla ni autoriza nada; el texto dirigido al agente escala (R2).",
   "Un valor extraído sin una cita verificada por código cuenta como no leído (R1).",
+  "Con modelo, dos lecturas independientes deben coincidir en proveedor, monto, moneda y cuenta; si no coinciden o la segunda falla, la factura no se paga sola (R1).",
   "El auditor recalcula cada pago por un camino de código distinto al del motor; si discrepa, gana el auditor y el pago no se hace.",
   "Toda escritura queda en el registro encadenado con SHA-256; verificarlo detecta cualquier alteración y dice dónde.",
   "Secretos sólo por variable de entorno; nunca en logs, errores, prompts ni respuestas de la API.",
@@ -19,7 +21,7 @@ export default function SecurityPage() {
   return (
     <DocPage
       href="/docs/seguridad"
-      lead="Custodio asume que cada factura puede ser un ataque y que el modelo puede equivocarse o ser engañado. Por eso el modelo nunca decide."
+      lead="Blinka Keeper asume que cada factura puede ser un ataque y que el modelo puede equivocarse o ser engañado. Por eso el modelo nunca decide."
     >
       <h2 id="invariantes">Invariantes</h2>
       <p>Cada una la hace cumplir un test que corre en cada commit, incluidos tests de propiedades sobre empresas aleatorias.</p>
@@ -41,6 +43,16 @@ export default function SecurityPage() {
         puntos, fuera de la página, tapado por una figura o en los metadatos. Ese texto nunca llega al modelo como si fuera
         visible y R2 lo escala. Los PDF escaneados se envían al modelo como imágenes, nunca con su capa de texto, que es
         donde vive el texto oculto.
+      </p>
+      <p>
+        <strong>Dos lecturas independientes.</strong> Cada documento lo lee también un segundo lector, en paralelo y desde
+        el documento mismo (la imagen, no la transcripción del primero): Gemini si hay <code>GEMINI_API_KEY</code>, otra
+        empresa con errores que no se parecen a los de Claude; si no, otro modelo de Claude con otro prompt, más el lector
+        por etiquetas cuando el documento trae texto propio. El código compara proveedor, monto, moneda y cuenta ya
+        normalizados (<code>1.200,00</code> y <code>1200.00</code> son lo mismo; mayúsculas, tildes y espacios no cuentan).
+        Si no coinciden, R1 escala y el acta muestra las dos lecturas con su cita; si el segundo lector falla, tarda o no
+        tiene presupuesto, también escala: nunca se paga con una sola lectura. El auditor lo recalcula por su cuenta.
+        Qué se midió y qué no, en <a href={repoFile("docs/MEASUREMENTS.md")}>MEASUREMENTS.md</a>.
       </p>
       <p>
         Sin <code>ANTHROPIC_API_KEY</code>, el texto y los PDF con texto se leen por etiquetas (<code>Proveedor:</code>,{" "}
@@ -67,6 +79,20 @@ export default function SecurityPage() {
       <p>
         Un riel sólo ejecuta pagos que el motor aprobó y el auditor confirmó, y sólo desde el panel de la empresa. El
         firewall, MCP, el reto público y el red team nunca ejecutan pagos. Stripe sólo acepta claves de prueba.
+      </p>
+
+      <h2 id="recibos">Recibos firmados</h2>
+      <p>
+        Cada decisión sale con un recibo firmado con Ed25519: la factura, los campos leídos con la huella SHA-256 del
+        documento, el resultado de cada regla con la versión y la huella de la política, la decisión, el pago (con el id
+        de Stripe cuando salió) y su posición y hash en el registro. Cualquiera lo comprueba con la clave pública de{" "}
+        <code>/api/v1/.well-known/custodio-receipt-key</code>, sin acceso al sistema, y la verificación dice qué campo se
+        alteró. Pruébalo en <Link href="/verificar">Verificar un recibo</Link>.
+      </p>
+      <p>
+        El riel de pago tiene su propio guardián: no envía nada sin un recibo válido de una decisión de pagar exactamente
+        ese monto, a ese beneficiario y a su cuenta registrada. Un código que se salte el motor, o una orden editada
+        después de decidir, no mueve dinero.
       </p>
 
       <h2 id="reportar">Reportar una vulnerabilidad</h2>

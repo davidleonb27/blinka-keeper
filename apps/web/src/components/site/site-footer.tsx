@@ -14,7 +14,9 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     links: [
       { label: "Demo", href: "/panel" },
       { label: "Usar con mi empresa", href: "/empezar" },
-      { label: "Róbale a Custodio", href: "/reto" },
+      { label: "Róbale a Blinka Keeper", href: "/reto" },
+      { label: "Guía para el jurado", href: "/jurado" },
+      { label: "Verificar un recibo", href: "/verificar" },
       { label: "Arena: ataque contra defensa", href: "/arena" },
       { label: "Desarrolladores", href: "/desarrolladores" },
     ],
@@ -41,7 +43,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
 ];
 
 function FooterLinkItem({ label, href, external }: FooterLink) {
-  const className = "text-ink-2 transition-colors hover:text-ink";
+  const className = "text-ink-2 transition-colors duration-[160ms] hover:text-ink";
   return external ? (
     <a href={href} className={className}>
       {label}
@@ -55,11 +57,11 @@ function FooterLinkItem({ label, href, external }: FooterLink) {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-line">
-      <nav aria-label="Pie de página" className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-12 text-[14px] md:grid-cols-[1.4fr_repeat(3,1fr)]">
+    <footer className="night-section">
+      <nav aria-label="Pie de página" className="mx-auto grid max-w-6xl grid-cols-2 gap-8 border-t border-line px-4 py-14 text-[13px] md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="col-span-2 flex flex-col gap-3 md:col-span-1">
           <Wordmark />
-          <p className="max-w-[34ch] text-[13px] text-ink-3">
+          <p className="max-w-[34ch] text-[13px] leading-relaxed text-ink-3">
             El modelo lee, el código decide, la persona autoriza. Código abierto bajo licencia {LICENSE_NAME}.
           </p>
         </div>
@@ -73,7 +75,7 @@ export function SiteFooter() {
         ))}
       </nav>
       <div className="border-t border-line">
-        <p className="mx-auto max-w-6xl px-4 py-5 text-[12.5px] text-ink-3">
+        <p className="mx-auto max-w-6xl px-4 py-6 text-[11px] leading-[1.7] text-ink-3">
           Hecho por el equipo DreamMakers en la Hackathon 30X, Reto Blinka. La demo no mueve dinero real; la empresa y
           los proveedores de la demo son ficticios.
         </p>

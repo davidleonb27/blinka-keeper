@@ -8,7 +8,7 @@ import { renderWithApi } from "@/test/render";
 import { ReceivedInvoices } from "./received-invoices";
 
 describe("ReceivedInvoices", () => {
-  it("says how many invoices arrived undecided and has Custodio decide them", async () => {
+  it("says how many invoices arrived undecided and has Blinka Keeper decide them", async () => {
     const api = createMockClient({ latencyMs: 0 });
     const process = vi.spyOn(api, "processInvoices");
     renderWithApi(<ReceivedInvoices count={27} />, api);
@@ -36,7 +36,7 @@ describe("ReceivedInvoices", () => {
 
     await userEvent.click(screen.getByRole("button", { name: /Decidir las 27 facturas/ }));
 
-    await vi.waitFor(() => expect(success).toHaveBeenCalledWith(expect.stringMatching(/Custodio decidió \d+ facturas/)));
+    await vi.waitFor(() => expect(success).toHaveBeenCalledWith(expect.stringMatching(/Blinka Keeper decidió \d+ facturas/)));
   });
 
   it("speaks of a single invoice in singular", () => {

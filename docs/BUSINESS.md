@@ -1,7 +1,7 @@
 # Caso de negocio
 
 Regla de este documento: **cada cifra lleva su fuente enlazada; si no hay fuente, dice NO MEDIDO.** Las cifras de
-Custodio salen del panel de la demo, no de este texto.
+Blinka Keeper salen del panel de la demo, no de este texto.
 
 ## El problema
 
@@ -29,7 +29,7 @@ tesoreros, sobre todo estadounidenses. El dato de BioCatch es de fraude en banca
 - Una cifra medida de fraude por cambio de cuenta o facturas duplicadas en pymes de América Latina: NO MEDIDO. Los
   reportes regionales que encontramos miden fraude bancario y cuentas mula, no pagos entre empresas.
 - La proporción de pymes latinoamericanas que paga a mano con una persona revisando facturas: NO MEDIDO.
-- Cuántas pérdidas habría evitado Custodio en esas empresas: NO MEDIDO. Sólo podemos decir qué atrapa en el dataset
+- Cuántas pérdidas habría evitado Blinka Keeper en esas empresas: NO MEDIDO. Sólo podemos decir qué atrapa en el dataset
   ([`DATASET.md`](DATASET.md)), y eso se publica cuando el coordinador lo mide.
 
 Por eso el argumento para América Latina es una hipótesis que hay que validar en pilotos, no un hecho medido: el patrón
@@ -47,7 +47,7 @@ escribir otro motor de reglas de pagos y necesita un freno que no dependa de lo 
 
 ## Qué vendemos
 
-1. **Custodio para cuentas por pagar.** La app: lectura de facturas, reglas en español, actas, aprobación en la web.
+1. **Blinka Keeper para cuentas por pagar.** La app: lectura de facturas, reglas en español, actas, aprobación en la web.
 2. **Firewall de pagos para agentes.** API y servidor MCP. Un agente envía una intención de pago y recibe pagar,
    retener o escalar, con su acta y su hash en el registro.
 
@@ -57,7 +57,7 @@ escribir otro motor de reglas de pagos y necesita un freno que no dependa de lo 
 |---|---|---|
 | Por decisión del firewall | quien conecta un agente | hipótesis; precio NO MEDIDO |
 | Por agente o espacio conectado | la empresa que lo usa | hipótesis; precio NO MEDIDO |
-| Reto público «Róbale a Custodio» | nadie; es prueba pública y captación | en curso |
+| Reto público «Róbale a Blinka Keeper» | nadie; es prueba pública y captación | en curso |
 
 No publicamos precios porque no hemos medido dos cosas: el costo real por decisión (modelo, base de datos, hospedaje) y
 cuánto está dispuesta a pagar una empresa. El costo se mide con el gasto estimado por llamada que registra `custodio.llm` durante la
@@ -69,7 +69,7 @@ semana del reto; el precio se averigua en entrevistas. Hasta entonces, NO MEDIDO
   vender como control, no como opinión de un modelo.
 - El costo de modelo es acotado porque sólo se usa para leer y narrar; el volumen del reto público usa el modelo más
   barato y tiene tope diario.
-- La alternativa que tiene hoy una pyme es verificar por teléfono o duplicar aprobaciones. Custodio la automatiza y deja
+- La alternativa que tiene hoy una pyme es verificar por teléfono o duplicar aprobaciones. Blinka Keeper la automatiza y deja
   evidencia.
 
 ## Riesgos y límites
@@ -77,7 +77,7 @@ semana del reto; el precio se averigua en entrevistas. Hasta entonces, NO MEDIDO
 - Todo el dataset es sintético: una pyme real traerá formatos que no vimos. Se mide cuando alguien lo pruebe.
 - Un lector que se equivoque en un valor no paga mal: sin cita verificada el valor cuenta como no leído y se escala.
   Pero escalar demasiado cansa a la persona; esa tasa de escalamiento hay que medirla en pilotos.
-- Custodio decide con las reglas que le dan. Si la empresa las deja flojas, paga conforme a ellas.
+- Blinka Keeper decide con las reglas que le dan. Si la empresa las deja flojas, paga conforme a ellas.
 - Fuera de alcance de esta entrega: mover dinero real, pasarelas, KYC y cumplimiento regulatorio.
 
 ## Siguientes pasos

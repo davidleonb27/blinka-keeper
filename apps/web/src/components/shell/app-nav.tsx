@@ -4,6 +4,7 @@ import {
   Building2,
   CalendarClock,
   Code2,
+  HandCoins,
   Landmark,
   Gauge,
   LayoutGrid,
@@ -33,6 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/panel", label: "Panel", icon: LayoutGrid },
   { href: "/autonomia", label: "Autonomía", icon: Gauge },
   { href: "/calendario", label: "Calendario", icon: CalendarClock },
+  { href: "/pagos", label: "Pagos", icon: HandCoins },
   { href: "/conciliacion", label: "Conciliación", icon: Landmark },
   { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
   { href: SUPPLIERS_PATH, label: "Proveedores", icon: Users },
@@ -46,7 +48,7 @@ function PendingBadge() {
   const pending = useWorkspaceSummary().data?.metrics.pending ?? 0;
   if (!pending) return null;
   return (
-    <span className="ml-auto grid h-5 min-w-[22px] place-items-center rounded-full bg-esc px-1.5 text-[11.5px] font-bold text-surface tabular">
+    <span className="ml-auto grid h-5 min-w-[22px] place-items-center rounded-md bg-esc px-1.5 text-[11px] font-medium text-surface tabular">
       {pending}
       <span className="sr-only"> esperan aprobación</span>
     </span>
@@ -65,7 +67,7 @@ function NavLinks({ layout }: { layout: "rail" | "strip" }) {
               href={href}
               aria-current={current ? "page" : undefined}
               className={cn(
-                "flex h-10 items-center gap-2.5 rounded-[10px] px-2.5 font-medium whitespace-nowrap text-ink-2 hover:bg-surface-2 hover:text-ink",
+                "flex h-10 items-center gap-2.5 rounded-xl px-2.5 text-[14px] font-medium whitespace-nowrap text-ink-2 transition-colors duration-[160ms] hover:bg-surface-2 hover:text-ink",
                 current && "bg-brand-weak text-ink [&>svg]:text-brand",
               )}
             >
@@ -99,8 +101,8 @@ function CompanyFooter() {
 export function AppNav() {
   return (
     <>
-      <aside className="sticky top-4 my-4 hidden h-[calc(100dvh-2rem)] min-h-[520px] flex-col gap-5 self-start rounded-[18px] border border-line bg-surface px-3 pt-[18px] pb-3.5 lg:flex">
-        <Link href="/" className="rounded-lg px-1.5" aria-label="Custodio, inicio">
+      <aside className="sticky top-4 my-4 hidden h-[calc(100dvh-2rem)] min-h-[520px] flex-col gap-5 self-start rounded-2xl border border-line bg-surface px-3 pt-[18px] pb-3.5 shadow-sm lg:flex">
+        <Link href="/" className="rounded-lg px-1.5" aria-label="Blinka Keeper, inicio">
           <Wordmark subtitle="Agente de pagos" />
         </Link>
         <nav aria-label="Secciones">
@@ -108,9 +110,9 @@ export function AppNav() {
         </nav>
         <CompanyFooter />
       </aside>
-      <header className="sticky top-0 z-40 -mx-4 border-b border-line bg-background/85 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-md lg:hidden">
+      <header className="sticky top-0 z-40 -mx-4 border-b border-line bg-(--header) px-4 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-[14px] lg:hidden">
         <div className="flex h-12 items-center justify-between gap-3">
-          <Link href="/" aria-label="Custodio, inicio" className="rounded-lg">
+          <Link href="/" aria-label="Blinka Keeper, inicio" className="rounded-lg">
             <Wordmark />
           </Link>
           <div className="flex items-center gap-1">

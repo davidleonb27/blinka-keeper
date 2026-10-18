@@ -24,6 +24,8 @@ from custodio.contracts import (
 )
 from custodio.engine.bank_details import Check, account_checks, tax_id_check
 from custodio.engine.beneficiaries import BeneficiaryMatch
+from custodio.engine.cross_check import agreement as cross_check_agreement
+from custodio.engine.cross_check import problem as cross_check_problem
 from custodio.engine.domains import DomainLikeness, compare_domains, email_domain
 from custodio.engine.facts import Charge, InvoiceFacts
 from custodio.engine.formatting import (
@@ -109,6 +111,24 @@ def check(rule_id: str, outcome: RuleOutcome, reason: str, *, fix: str | None = 
 
 
 def reading(ctx: RuleContext) -> RuleCheck:
+    """The fields themselves, then whether a second independent reading backs them."""
+    fields = _fields_reading(ctx)
+    cross_check = ctx.extraction.cross_check
+    if cross_check is None:
+        return fields
+    mismatch = cross_check_problem(cross_check)
+    if mismatch is None:
+        reason = f"{fields.result.reason} {cross_check_agreement(cross_check)}"
+        return RuleCheck(result=fields.result.model_copy(update={"reason": reason}), fix=fields.fix)
+    if fields.result.outcome is RuleOutcome.PASS:
+        return check(
+            "R1", RuleOutcome.ESCALATE, mismatch, fix="una persona confirmara cuál de las dos lecturas es la correcta"
+        )
+    reason = f"{mismatch} {fields.result.reason}"
+    return RuleCheck(result=fields.result.model_copy(update={"reason": reason}), fix=fields.fix)
+
+
+def _fields_reading(ctx: RuleContext) -> RuleCheck:
     minimum = ctx.policy.min_confidence
     currency_quote = _ambiguous_currency_quote(ctx.extraction.currency)
     problems = [

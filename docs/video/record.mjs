@@ -12,7 +12,7 @@ import {
 } from "./lib.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const BASE = process.env.CUSTODIO_URL ?? "https://custodio-blinka-green.vercel.app";
+const BASE = process.env.CUSTODIO_URL ?? "https://blinka-keeper.vercel.app";
 const OUT = path.resolve(process.argv[2] ?? path.join(HERE, "build", "raw"));
 const ONLY = process.argv.slice(3);
 const ATTACK_PDF = path.join(OUT, "factura-AC-2026-14.pdf");

@@ -13,18 +13,23 @@ from custodio.api import errors, mcp_server
 from custodio.api.body_limit import BodySizeLimit
 from custodio.api.routes import (
     challenge,
+    corrections,
     decisions,
     firewall,
     health,
     invoices,
     ledger,
     onboarding,
+    payments,
     periods,
     policy,
+    receipts,
     reconciliations,
     redteam,
     schedule,
+    suggestions,
     trust,
+    whatsapp,
     workspaces,
 )
 from custodio.config import get_settings
@@ -38,14 +43,19 @@ ROUTERS = (
     policy,
     invoices,
     decisions,
+    corrections,
+    suggestions,
     ledger,
     trust,
     schedule,
+    payments,
     reconciliations,
     periods,
     redteam,
     challenge,
     firewall,
+    whatsapp,
+    receipts,
 )
 
 
@@ -65,7 +75,7 @@ def create_app(runtime: Runtime | None = None) -> FastAPI:
             yield
 
     app = FastAPI(
-        title="Custodio API",
+        title="Blinka Keeper API",
         version=__version__,
         summary="The model reads, code decides, a person authorizes.",
         docs_url=f"{API_PREFIX}/docs",

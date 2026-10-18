@@ -143,6 +143,16 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
       call("post", "/api/v1/decisions/{invoice_id}/approve", { params: { invoice_id: id }, json: input }),
     rejectDecision: (id, input) =>
       call("post", "/api/v1/decisions/{invoice_id}/reject", { params: { invoice_id: id }, json: input }),
+    approveOnce: (id, input) =>
+      call("post", "/api/v1/decisions/{invoice_id}/approve-once", { params: { invoice_id: id }, json: input }),
+    previewAgreement: (id, input) =>
+      call("post", "/api/v1/decisions/{invoice_id}/agreement/preview", { params: { invoice_id: id }, json: input }),
+    approveWithAgreement: (id, input) =>
+      call("post", "/api/v1/decisions/{invoice_id}/approve-with-agreement", { params: { invoice_id: id }, json: input }),
+    listSuggestions: () => call("get", "/api/v1/suggestions"),
+    acceptSuggestion: (id, input) =>
+      call("post", "/api/v1/suggestions/{suggestion_id}/accept", { params: { suggestion_id: id }, json: input }),
+    listPolicyVersions: () => call("get", "/api/v1/policy/versions"),
     executePayment: (id) => call("post", "/api/v1/decisions/{invoice_id}/execute", { params: { invoice_id: id } }),
     getPolicy: () => call("get", "/api/v1/policy"),
     compilePolicy: (text, base) => call("post", "/api/v1/policy/compile", { json: { text, base: base ?? null } }),
@@ -185,6 +195,33 @@ export function createLiveClient({ fetch: fetchImpl, workspaceId, replaceWorkspa
       (await send("get", "/api/v1/periods/{period}/evidence.zip", { params: { period } })).blob(),
     downloadDemoStatement: async (format) =>
       (await send("get", "/api/v1/reconciliations/demo-statement", { query: { format } })).blob(),
+    getWhatsAppStatus: () => call("get", "/api/v1/whatsapp/link"),
+    createWhatsAppCode: () => call("post", "/api/v1/whatsapp/link-codes"),
+    getPayments: () => call("get", "/api/v1/payments"),
+    getStripeProof: (id) => call("get", "/api/v1/payments/{invoice_id}/stripe", { params: { invoice_id: id } }),
+    downloadPain001: async () => (await send("get", "/api/v1/payments/pain001.xml")).blob(),
+    getReceipt: (id) => call("get", "/api/v1/decisions/{invoice_id}/receipt", { params: { invoice_id: id } }),
+    getReceiptKey: () => call("get", "/api/v1/.well-known/custodio-receipt-key", { scoped: false }),
+    verifyReceipt: (receipt) =>
+      call("post", "/api/v1/receipts/verify", {
+        json: receipt as JsonBodyOf<"/api/v1/receipts/verify", "post">,
+        scoped: false,
+      }),
+    getExampleReceipt: () => call("get", "/api/v1/receipts/example", { scoped: false }),
+    listCorrections: () => call("get", "/api/v1/corrections"),
+    getCorrectionOffer: (id) => call("get", "/api/v1/decisions/{invoice_id}/correction", { params: { invoice_id: id } }),
+    requestCorrection: (id, input) =>
+      call("post", "/api/v1/decisions/{invoice_id}/correction", { params: { invoice_id: id }, json: input }),
+    getSupplierCorrection: (token) =>
+      call("get", "/api/v1/supplier/corrections/{token}", { params: { token }, scoped: false }),
+    submitSupplierDocument: (token, file) =>
+      call("post", "/api/v1/supplier/corrections/{token}/document", {
+        params: { token },
+        form: formOf<FormOf<"/api/v1/supplier/corrections/{token}/document", "post">>({ file }),
+        scoped: false,
+      }),
+    confirmSupplierCorrection: (token, values) =>
+      call("post", "/api/v1/supplier/corrections/{token}/confirm", { params: { token }, json: { values }, scoped: false }),
     runRedTeam: async (input, onEvent, signal) => {
       const response = await send("post", "/api/v1/redteam/runs", { json: input, signal });
       if (!response.body) throw new UnexpectedResponseError(response.status);

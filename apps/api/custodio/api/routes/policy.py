@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from custodio.api.deps import CurrentWorkspace, ModelCallLimit, Services
 from custodio.contracts import Beneficiary, Policy, PolicyProposal
 from custodio.services import policy_service
+from custodio.services.policy_service import PolicyVersion
 
 router = APIRouter(prefix="/policy", tags=["policy"])
 
@@ -29,6 +30,12 @@ class NewBeneficiaries(BaseModel):
 @router.get("", response_model=Policy)
 def read_policy(ctx: Services, workspace: CurrentWorkspace) -> Policy:
     return policy_service.current(ctx, workspace.id)
+
+
+@router.get("/versions", response_model=list[PolicyVersion])
+def read_versions(ctx: Services, workspace: CurrentWorkspace) -> list[PolicyVersion]:
+    """Every version, newest first, with who changed it, why and when."""
+    return policy_service.versions(ctx, workspace.id)
 
 
 @router.put("", response_model=Policy)

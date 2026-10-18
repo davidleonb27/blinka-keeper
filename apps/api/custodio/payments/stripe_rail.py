@@ -150,7 +150,7 @@ class StripeTestRail:
                 "amount": cents,
                 "currency": CURRENCY,
                 "destination": account,
-                "description": f"Custodio · factura {order.invoice_id}",
+                "description": f"Blinka Keeper · factura {order.invoice_id}",
                 "transfer_group": transfer_group(order),
                 "metadata": {
                     "workspace_id": order.workspace_id,
@@ -171,7 +171,7 @@ class StripeTestRail:
                 "payment_method": TOP_UP_CARD,
                 "automatic_payment_methods": {"enabled": True, "allow_redirects": "never"},
                 "confirm": True,
-                "description": "Custodio · recarga del saldo de prueba",
+                "description": "Blinka Keeper · recarga del saldo de prueba",
             },
             options={"idempotency_key": f"{key}:{TOP_UP_SUFFIX}"},
         )
@@ -259,7 +259,7 @@ def _account_params(beneficiary_id: str, supplier_name: str) -> AccountCreatePar
         "business_profile": {
             "name": supplier_name,
             "mcc": SOFTWARE_MCC,
-            "product_description": "Proveedor de prueba pagado por Custodio",
+            "product_description": "Proveedor de prueba pagado por Blinka Keeper",
         },
         "metadata": {"beneficiary_id": beneficiary_id},
     }

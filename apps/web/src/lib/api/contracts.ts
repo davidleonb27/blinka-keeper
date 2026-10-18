@@ -58,6 +58,9 @@ export type HiddenTextKind = Schemas["HiddenTextKind"];
 export type HiddenTextFinding = Schemas["HiddenTextFinding"];
 export type InvoiceSource = Schemas["InvoiceSource"];
 export type ExtractedInvoice = Schemas["ExtractedInvoice"];
+export type ReadingCrossCheck = Schemas["ReadingCrossCheck"];
+export type FieldCrossCheck = Schemas["FieldCrossCheck"];
+export type ReaderValue = Schemas["ReaderValue"];
 export type InvoiceView = Schemas["InvoiceView"];
 
 export const EXTRACTED_FIELD_NAMES = [

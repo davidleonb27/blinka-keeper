@@ -1,6 +1,6 @@
 """Reading measurement: the golden dataset, rendered to documents, read by the deployed API with the real model.
 
-Usage: uv run python scripts/measure_reading.py --base-url https://custodio-blinka-green.vercel.app --max-uploads 36
+Usage: uv run python scripts/measure_reading.py --base-url https://blinka-keeper.vercel.app --max-uploads 36
 
 Creates one demo workspace, counts the golden invoices it was seeded with, then uploads the rendered documents one at
 a time and compares supplier, amount, currency and account with the specs that produced them. Prints one JSON report.
@@ -30,7 +30,7 @@ from custodio.dataset import demo_specs
 from custodio.extraction import render_invoice
 from custodio.extraction.text import fold
 
-PRODUCTION = "https://custodio-blinka-green.vercel.app"
+PRODUCTION = "https://blinka-keeper.vercel.app"
 UPLOAD_CAP = 40  # the most uploads one run may spend against production, retries included
 SECONDS_BETWEEN_UPLOADS = 4.0  # stays under the 20 model calls per minute per IP the API allows
 RATE_LIMITED = 429

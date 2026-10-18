@@ -1,6 +1,6 @@
 # L1 · Motor de decisión, ledger y dataset
 
-**Objetivo**: el corazón determinista. Si este carril es perfecto, Custodio nunca paga algo indebido.
+**Objetivo**: el corazón determinista. Si este carril es perfecto, Blinka Keeper nunca paga algo indebido.
 
 ## Archivos tuyos
 `apps/api/custodio/engine/**`, `apps/api/custodio/dataset/**`, `apps/api/tests/engine/**`,

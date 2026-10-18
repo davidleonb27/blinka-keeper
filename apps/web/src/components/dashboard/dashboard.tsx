@@ -8,7 +8,10 @@ import { RailBadge } from "@/components/shell/rail-badge";
 import { UploadDialog } from "@/components/intake/upload-dialog";
 import { EmptyInbox } from "@/components/panel/empty-inbox";
 import { ErrorState, LoadingBlock } from "@/components/states";
-import { useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
+import { CorrectionsStat } from "@/components/corrections/corrections-stat";
+import { waitingInvoices } from "@/components/corrections/labels";
+import { WhatsAppCard } from "@/components/whatsapp/whatsapp-card";
+import { useCorrections, useDecisions, useWorkspaceSummary } from "@/lib/api/hooks";
 import { formatDate, formatMoney } from "@/lib/format";
 import { DecisionList } from "./decision-list";
 import { GuidedTour } from "./guided-tour";
@@ -37,11 +40,12 @@ function TotalTile({ label, total, tone, base }: { label: string; total: Total; 
 export function Dashboard() {
   const summary = useWorkspaceSummary();
   const decisions = useDecisions();
+  const corrections = useCorrections();
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [query, setQuery] = useState("");
 
   const header = (
-    <PageHeader title="Panel" subtitle="Lo que Custodio decidió este mes y por qué puedes confiar en eso.">
+    <PageHeader title="Panel" subtitle="Lo que Blinka Keeper decidió este mes y por qué puedes confiar en eso.">
       {summary.data ? (
         <>
           <Chip tone="live">Hoy {formatDate(summary.data.today)}</Chip>
@@ -77,7 +81,18 @@ export function Dashboard() {
 
   const base = summary.data.base_currency;
   const totals = statusTotals(decisions.data);
-  if (!decisions.data.length && !summary.data.pending_invoices) return <>{header}<UploadDialog /><EmptyInbox /></>;
+  if (!decisions.data.length && !summary.data.pending_invoices) {
+    return (
+      <>
+        {header}
+        <UploadDialog />
+        <div className="flex flex-col gap-4">
+          <WhatsAppCard />
+          <EmptyInbox />
+        </div>
+      </>
+    );
+  }
   const pending = summary.data.pending_invoices;
   const firstActa = decisions.data[0]?.decision.invoice_id ?? null;
   const tour = <GuidedTour decided={decisions.data.length > 0} firstActa={firstActa} />;
@@ -89,9 +104,10 @@ export function Dashboard() {
         <UploadDialog />
         <div className="flex flex-col gap-4">
           <ReceivedInvoices count={pending} first />
+          <WhatsAppCard />
           {tour}
           <p className="text-[13px] text-ink-3">
-            Las métricas aparecen aquí en cuanto Custodio decida: pagos indebidos, autonomía y lo que espera tu aprobación.
+            Las métricas aparecen aquí en cuanto Blinka Keeper decida: pagos indebidos, autonomía y lo que espera tu aprobación.
           </p>
         </div>
       </>
@@ -103,6 +119,7 @@ export function Dashboard() {
       <UploadDialog />
       <div className="flex flex-col gap-4">
         {pending > 0 ? <ReceivedInvoices count={pending} /> : null}
+        <WhatsAppCard />
         {tour}
         <Overview summary={summary.data} pendingTotal={totals.pending.total} onShowPending={() => setFilter("pending")} />
         <section aria-label="Pagado, retenido y pendiente" className="grid grid-cols-3 gap-2 sm:gap-4">
@@ -110,6 +127,7 @@ export function Dashboard() {
           <TotalTile label="Retenido" total={totals.held} tone="bg-hold" base={base} />
           <TotalTile label="Pendiente" total={totals.pending} tone="bg-esc" base={base} />
         </section>
+        {corrections.data ? <CorrectionsStat overview={corrections.data} /> : null}
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
           <DecisionList
             items={decisions.data}
@@ -118,6 +136,7 @@ export function Dashboard() {
             query={query}
             onFilterChange={setFilter}
             onQueryChange={setQuery}
+            waitingCorrection={waitingInvoices(corrections.data?.requests ?? [])}
           />
           <div className="xl:sticky xl:top-6 xl:self-start">
             <DecisionsChart days={decisionsByDay(decisions.data)} />

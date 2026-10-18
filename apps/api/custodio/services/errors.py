@@ -32,6 +32,11 @@ class DecisionNotFound(NotFound):
     message = "No encontramos esa decisión en este espacio."
 
 
+class ReceiptUnavailable(NotFound):
+    code = "receipt_unavailable"
+    message = "Esta factura aún no tiene una decisión en el registro, así que no hay recibo que firmar."
+
+
 class LedgerEntryNotFound(NotFound):
     code = "ledger_entry_not_found"
     message = "Esa posición no existe en el registro."
@@ -45,6 +50,26 @@ class InvalidApiKey(ServiceError):
 class DecisionNotPending(ServiceError):
     code = "decision_not_pending"
     message = "Esta decisión ya no está esperando aprobación."
+
+
+class ApprovalNotAllowed(ServiceError):
+    code = "approval_not_allowed"
+    message = "Esta factura no se puede aprobar: falla una regla que ninguna aprobación salta."
+
+
+class PolicyChanged(ServiceError):
+    code = "policy_changed"
+    message = "La política cambió desde que se simuló este cambio. Vuelve a simularlo antes de confirmar."
+
+
+class AgreementNotAvailable(ServiceError):
+    code = "agreement_not_available"
+    message = "Esta factura no es de un proveedor registrado, así que no hay acuerdo que actualizar."
+
+
+class SuggestionNotFound(NotFound):
+    code = "suggestion_not_found"
+    message = "Esa sugerencia ya no está vigente en este espacio."
 
 
 class PaymentNotRetryable(ServiceError):
@@ -63,7 +88,14 @@ class InvoiceInputMissing(ServiceError):
 
 class UnsupportedMediaType(ServiceError):
     code = "unsupported_media_type"
-    message = "Sólo leemos PDF, PNG, JPEG, WEBP o texto."
+    message = "Sólo leemos PDF, PNG, JPEG, WEBP, texto o la factura electrónica en XML (DIAN o CFDI)."
+
+
+class EInvoiceRejected(ServiceError):
+    """An XML refused before any reading: unsafe to parse, malformed, or not a DIAN or CFDI invoice."""
+
+    code = "einvoice_rejected"
+    message = "No pudimos leer la factura electrónica."
 
 
 class UnreadableSupplierFile(ServiceError):
@@ -168,3 +200,51 @@ class PeriodClosed(ReconciliationConflict):
 class PeriodNotClosed(ReconciliationConflict):
     code = "period_not_closed"
     message = "Cierra el mes para descargar su paquete de evidencia."
+
+
+class NothingToExport(ServiceError):
+    code = "nothing_to_export"
+    message = "No hay pagos aprobados en este lote: no se armó ningún archivo para Blinka."
+
+
+class CorrectionNotOffered(ServiceError):
+    code = "correction_not_offered"
+    message = "Esta factura no tiene una causa que el proveedor pueda corregir."
+
+
+class CorrectionLinkInvalid(NotFound):
+    code = "correction_link_invalid"
+    message = "Este enlace de corrección no existe."
+
+
+class CorrectionLinkGone(ServiceError):
+    code = "correction_link_gone"
+    message = "Este enlace ya no sirve. Pídale a la empresa uno nuevo si aún hace falta."
+
+
+class CorrectionLinkExpired(CorrectionLinkGone):
+    code = "correction_link_expired"
+    message = "Este enlace venció. Pídale a la empresa uno nuevo si aún hace falta."
+
+
+class CorrectionLinkUsed(CorrectionLinkGone):
+    code = "correction_link_used"
+    message = "Con este enlace ya se envió una corrección. Cada enlace sirve una sola vez."
+
+
+class CorrectionClosed(CorrectionLinkGone):
+    code = "correction_closed"
+    message = "La empresa ya resolvió esta factura por otro camino; no hace falta corregirla."
+
+
+class CorrectionInputInvalid(ServiceError):
+    code = "correction_input_invalid"
+    message = "Envíe la factura corregida (PDF o imagen) o confirme los datos que se piden."
+
+
+class CorrectionOtherSupplier(CorrectionInputInvalid):
+    code = "correction_other_supplier"
+    message = (
+        "La factura enviada no es de este proveedor, o no se pudo leer de quién es. Este enlace sólo recibe la "
+        "corrección de esta factura; envíe una copia legible."
+    )

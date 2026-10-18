@@ -21,6 +21,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/health/gemini": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gemini Health
+         * @description Why the second reader is or is not Gemini, without exposing the key and without spending tokens.
+         */
+        get: operations["gemini_health_api_v1_health_gemini_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workspaces": {
         parameters: {
             query?: never;
@@ -117,6 +137,26 @@ export interface paths {
         get: operations["read_policy_api_v1_policy_get"];
         /** Apply Policy */
         put: operations["apply_policy_api_v1_policy_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/policy/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Versions
+         * @description Every version, newest first, with who changed it, why and when.
+         */
+        get: operations["read_versions_api_v1_policy_versions_get"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -229,6 +269,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/decisions/{invoice_id}/receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Receipt
+         * @description The decision signed with Ed25519: anyone checks it with GET /.well-known/custodio-receipt-key.
+         */
+        get: operations["read_receipt_api_v1_decisions__invoice_id__receipt_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/decisions/{invoice_id}/approve": {
         parameters: {
             query?: never;
@@ -240,6 +300,63 @@ export interface paths {
         put?: never;
         /** Approve */
         post: operations["approve_api_v1_decisions__invoice_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/approve-once": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve Once
+         * @description Pays this invoice only; the policy does not change.
+         */
+        post: operations["approve_once_api_v1_decisions__invoice_id__approve_once_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/agreement/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Agreement
+         * @description Simulates the supplier's new agreement against everything received; changes nothing.
+         */
+        post: operations["preview_agreement_api_v1_decisions__invoice_id__agreement_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/approve-with-agreement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve With Agreement */
+        post: operations["approve_with_agreement_api_v1_decisions__invoice_id__approve_with_agreement_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -294,6 +411,129 @@ export interface paths {
         get: operations["read_narrative_api_v1_decisions__invoice_id__narrative_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Corrections */
+        get: operations["list_corrections_api_v1_corrections_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/decisions/{invoice_id}/correction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Correction */
+        get: operations["read_correction_api_v1_decisions__invoice_id__correction_get"];
+        put?: never;
+        /** Request Correction */
+        post: operations["request_correction_api_v1_decisions__invoice_id__correction_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/supplier/corrections/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Supplier Correction */
+        get: operations["read_supplier_correction_api_v1_supplier_corrections__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/supplier/corrections/{token}/document": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Corrected Document */
+        post: operations["submit_corrected_document_api_v1_supplier_corrections__token__document_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/supplier/corrections/{token}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Confirmation */
+        post: operations["submit_confirmation_api_v1_supplier_corrections__token__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Suggestions
+         * @description Agreement changes drawn from repeated approvals, each with its evidence and simulation. Nothing is applied.
+         */
+        get: operations["list_suggestions_api_v1_suggestions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/suggestions/{suggestion_id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept Suggestion */
+        post: operations["accept_suggestion_api_v1_suggestions__suggestion_id__accept_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -425,6 +665,63 @@ export interface paths {
          * @description Pays what is due today or earlier through the configured rail. Running it twice pays nothing twice.
          */
         post: operations["run_due_api_v1_schedule_run_due_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Payments */
+        get: operations["read_payments_api_v1_payments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/pain001.xml": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Pain001
+         * @description The approved payments as an ISO 20022 pain.001.001.09 file, ready for Blinka to pay.
+         */
+        get: operations["export_pain001_api_v1_payments_pain001_xml_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/{invoice_id}/stripe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Stripe Proof
+         * @description Asks Stripe, live, for the transfer behind this payment and checks it against the acta.
+         */
+        get: operations["read_stripe_proof_api_v1_payments__invoice_id__stripe_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -617,10 +914,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/whatsapp/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Link */
+        get: operations["read_link_api_v1_whatsapp_link_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/whatsapp/link-codes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Link Code */
+        post: operations["create_link_code_api_v1_whatsapp_link_codes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/.well-known/custodio-receipt-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Receipt Key */
+        get: operations["receipt_key_api_v1__well_known_custodio_receipt_key_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/receipts/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify Receipt
+         * @description Checks a receipt with Blinka Keeper's public key and names the field that was altered, if any.
+         */
+        post: operations["verify_receipt_api_v1_receipts_verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/receipts/example": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Example Receipt
+         * @description A receipt of a made-up decision (workspace «ejemplo»), signed with the real key, to try the check with.
+         */
+        get: operations["example_receipt_api_v1_receipts_example_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AcceptBody */
+        AcceptBody: {
+            /** Approver */
+            approver: string;
+            /** Expected Policy Version */
+            expected_policy_version: number;
+        };
         /** Acta */
         Acta: {
             decision: components["schemas"]["Decision"];
@@ -673,11 +1068,26 @@ export interface components {
              */
             critical: boolean;
         };
+        /** AgreementBody */
+        AgreementBody: {
+            /** Amount */
+            amount?: number | string | null;
+            /** Tolerance Pct */
+            tolerance_pct?: number | string | null;
+        };
         /**
          * AgreementKind
          * @enum {string}
          */
         AgreementKind: "fixed" | "monthly_cap";
+        /** AgreementPreview */
+        AgreementPreview: {
+            /** Policy Version */
+            policy_version: number;
+            /** Changes */
+            changes: components["schemas"]["PolicyChange"][];
+            simulation: components["schemas"]["SimulationReport"];
+        };
         /** Approval */
         Approval: {
             /** Invoice Id */
@@ -708,6 +1118,58 @@ export interface components {
             approver: string;
             /** Note */
             note?: string | null;
+        };
+        /** ApprovalEvidence */
+        ApprovalEvidence: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Amount */
+            amount: number;
+            /** Currency */
+            currency: string;
+            /** Deviation Pct */
+            deviation_pct: number;
+            /** Approver */
+            approver: string;
+            /**
+             * Approved At
+             * Format: date-time
+             */
+            approved_at: string;
+            /** Note */
+            note: string | null;
+        };
+        /**
+         * ApproveOnceBody
+         * @description «Aprobar sólo esta vez»: the reason is mandatory and stays in the ledger.
+         */
+        ApproveOnceBody: {
+            /** Approver */
+            approver: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * ApproveWithAgreementBody
+         * @description «Aprobar y actualizar el acuerdo», confirmed after seeing the simulation of `expected_policy_version`.
+         */
+        ApproveWithAgreementBody: {
+            /** Amount */
+            amount?: number | string | null;
+            /** Tolerance Pct */
+            tolerance_pct?: number | string | null;
+            /** Approver */
+            approver: string;
+            /** Reason */
+            reason: string;
+            /** Expected Policy Version */
+            expected_policy_version: number;
+        };
+        /** ApprovedWithAgreement */
+        ApprovedWithAgreement: {
+            decision: components["schemas"]["Decision"];
+            /** Policy Version */
+            policy_version: number;
         };
         /** Approver */
         Approver: {
@@ -788,6 +1250,21 @@ export interface components {
             /** Balance */
             balance: number;
         };
+        /** BalanceView */
+        BalanceView: {
+            /** Id */
+            id: string;
+            /** Amount */
+            amount: number;
+            /** Fee */
+            fee: number;
+            /** Net */
+            net: number;
+            /** Status */
+            status: string;
+            /** Available On */
+            available_on: string | null;
+        };
         /** BatchResult */
         BatchResult: {
             /** Decisions */
@@ -862,6 +1339,19 @@ export interface components {
             /** Email Domain */
             email_domain?: string | null;
         };
+        /** Blocker */
+        Blocker: {
+            kind: components["schemas"]["BlockerKind"];
+            /** Rule Id */
+            rule_id: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * BlockerKind
+         * @enum {string}
+         */
+        BlockerKind: "account_changed" | "bank_details" | "duplicate" | "hidden_instruction" | "unregistered_supplier" | "sanctions" | "sender_domain" | "split" | "reserve" | "policy_currency";
         /** Body_create_reconciliation_api_v1_reconciliations_post */
         Body_create_reconciliation_api_v1_reconciliations_post: {
             /** File */
@@ -891,6 +1381,11 @@ export interface components {
             alias?: string | null;
             /** Technique */
             technique?: string | null;
+        };
+        /** Body_submit_corrected_document_api_v1_supplier_corrections__token__document_post */
+        Body_submit_corrected_document_api_v1_supplier_corrections__token__document_post: {
+            /** File */
+            file: string;
         };
         /** Body_upload_invoice_api_v1_invoices_post */
         Body_upload_invoice_api_v1_invoices_post: {
@@ -958,7 +1453,7 @@ export interface components {
         };
         /**
          * CompanyProfile
-         * @description What Custodio infers about a company from its website and first answers, before asking anything else.
+         * @description What Blinka Keeper infers about a company from its website and first answers, before asking anything else.
          */
         CompanyProfile: {
             /** Company Name */
@@ -995,11 +1490,123 @@ export interface components {
             text: string;
             base?: components["schemas"]["Policy-Input"] | null;
         };
+        /** ConfirmationBody */
+        ConfirmationBody: {
+            /** Values */
+            values: {
+                [key: string]: string;
+            };
+        };
+        /**
+         * CorrectableField
+         * @description What a supplier may type instead of sending a new document. Never an account or a supplier identity.
+         * @enum {string}
+         */
+        CorrectableField: "amount" | "currency" | "invoice_number" | "issue_date";
+        /** CorrectionIssued */
+        CorrectionIssued: {
+            request: components["schemas"]["CorrectionRequest"];
+            /** Link */
+            link: string;
+            /** Message */
+            message: string;
+            whatsapp: components["schemas"]["WhatsAppDelivery"];
+        };
+        /** CorrectionOffer */
+        CorrectionOffer: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Offered */
+            offered: boolean;
+            /** Reason */
+            reason: string | null;
+            /** Issues */
+            issues: components["schemas"]["Issue"][];
+            /** Blockers */
+            blockers: components["schemas"]["Blocker"][];
+            /** Still For A Person */
+            still_for_a_person: string[];
+            /** Confirmable Fields */
+            confirmable_fields: components["schemas"]["CorrectableField"][];
+            /** Next Round */
+            next_round: number;
+            /** Max Rounds */
+            max_rounds: number;
+            open_request: components["schemas"]["CorrectionRequest"] | null;
+            /** History */
+            history: components["schemas"]["CorrectionRequest"][];
+        };
+        /** CorrectionOverview */
+        CorrectionOverview: {
+            /** Requests */
+            requests: components["schemas"]["CorrectionRequest"][];
+            /** Requested */
+            requested: number;
+            /** Waiting */
+            waiting: number;
+            /** Resolved With Supplier */
+            resolved_with_supplier: number;
+            /** Blocked After Correction */
+            blocked_after_correction: number;
+        };
+        /** CorrectionRequest */
+        CorrectionRequest: {
+            /** Id */
+            id: string;
+            /** Invoice Id */
+            invoice_id: string;
+            /** Root Invoice Id */
+            root_invoice_id: string;
+            /** Round */
+            round: number;
+            status: components["schemas"]["CorrectionStatus"];
+            /** Issues */
+            issues: components["schemas"]["Issue"][];
+            /** Message */
+            message: string;
+            /** Channels */
+            channels: string[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Submitted At */
+            submitted_at: string | null;
+            /** Corrected Invoice Id */
+            corrected_invoice_id: string | null;
+            outcome: components["schemas"]["DecisionStatus"] | null;
+            /** Alert */
+            alert: string | null;
+        };
+        /** CorrectionRequestBody */
+        CorrectionRequestBody: {
+            /**
+             * Whatsapp
+             * @default false
+             */
+            whatsapp: boolean;
+        };
+        /**
+         * CorrectionStatus
+         * @enum {string}
+         */
+        CorrectionStatus: "open" | "received" | "closed" | "expired";
         /** CreateWorkspace */
         CreateWorkspace: {
             /** @default demo */
             mode: components["schemas"]["WorkspaceMode"];
         };
+        /**
+         * CrossCheckStatus
+         * @enum {string}
+         */
+        CrossCheckStatus: "agree" | "disagree" | "unavailable";
         /** Decision */
         Decision: {
             /** Invoice Id */
@@ -1048,6 +1655,36 @@ export interface components {
             source: components["schemas"]["InvoiceSource"];
             /** Invoice Number */
             invoice_number: string | null;
+        };
+        /**
+         * DecisionReceipt
+         * @description `signature` signs the canonical body; `digests_signature` signs one SHA-256 per field of the body, which is how
+         *     a verifier names the field that was altered instead of only saying that something was.
+         */
+        DecisionReceipt: {
+            /**
+             * Format
+             * @default custodio-receipt/1
+             * @constant
+             */
+            format: "custodio-receipt/1";
+            /**
+             * Algorithm
+             * @default Ed25519
+             * @constant
+             */
+            algorithm: "Ed25519";
+            /** Key Id */
+            key_id: string;
+            body: components["schemas"]["ReceiptBody"];
+            /** Signature */
+            signature: string;
+            /** Field Digests */
+            field_digests: {
+                [key: string]: string;
+            };
+            /** Digests Signature */
+            digests_signature: string;
         };
         /**
          * DecisionStatus
@@ -1126,6 +1763,28 @@ export interface components {
             reader: string;
             /** Overall Confidence */
             overall_confidence: number;
+            cross_check?: components["schemas"]["ReadingCrossCheck"] | null;
+        };
+        /** FieldCrossCheck */
+        FieldCrossCheck: {
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "supplier_name" | "amount" | "currency" | "account_number";
+            /** Readings */
+            readings: components["schemas"]["ReaderValue"][];
+            /** Agree */
+            agree: boolean;
+        };
+        /** GeminiHealth */
+        GeminiHealth: {
+            /** Configured */
+            configured: boolean;
+            /** Model */
+            model: string;
+            /** Status */
+            status: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1196,6 +1855,24 @@ export interface components {
             read_ok: boolean;
             extraction: components["schemas"]["ExtractedInvoice"];
         };
+        /** Issue */
+        Issue: {
+            kind: components["schemas"]["IssueKind"];
+            /** Rule Id */
+            rule_id: string | null;
+            /** Fields */
+            fields: components["schemas"]["CorrectableField"][];
+            /** Problem */
+            problem: string;
+            /** Expected */
+            expected: string;
+        };
+        /**
+         * IssueKind
+         * @enum {string}
+         */
+        IssueKind: "amount_mismatch" | "currency_mismatch" | "currency_not_allowed" | "amount_unreadable" | "currency_unclear" | "field_unreadable" | "missing_invoice_number" | "invalid_date" | "total_mismatch";
+        JsonValue: unknown;
         /** LedgerEntry */
         LedgerEntry: {
             /** Seq */
@@ -1233,11 +1910,57 @@ export interface components {
             /** Head Hash */
             head_hash: string | null;
         };
+        /** LinkCodeView */
+        LinkCodeView: {
+            /** Code */
+            code: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Message */
+            message: string;
+            /** Link Url */
+            link_url: string;
+            /** Display Number */
+            display_number: string;
+        };
+        /** LinkedPhone */
+        LinkedPhone: {
+            /** Masked */
+            masked: string;
+            /**
+             * Linked At
+             * Format: date-time
+             */
+            linked_at: string;
+        };
         /**
          * MatchLevel
          * @enum {string}
          */
         MatchLevel: "exact" | "amount_date" | "split" | "tolerance";
+        /** MatchLineView */
+        MatchLineView: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "matched" | "amount_differs" | "missing_in_stripe" | "missing_in_registry";
+            /** Invoice Id */
+            invoice_id: string | null;
+            /** Supplier Name */
+            supplier_name: string | null;
+            /** Recorded Amount */
+            recorded_amount: number | null;
+            /** Stripe Amount */
+            stripe_amount: number | null;
+            /** Transfer Id */
+            transfer_id: string;
+            /** Dashboard Url */
+            dashboard_url: string;
+        };
         /**
          * MatchSettings
          * @description Explicit and shown to the person: nothing is reconciled under a tolerance nobody can see.
@@ -1389,7 +2112,7 @@ export interface components {
         };
         /**
          * PaymentInstruction
-         * @description Exactly what Custodio hands a bank partner (Blinka) to pay one invoice: original amount and currency.
+         * @description Exactly what Blinka Keeper hands a bank partner (Blinka) to pay one invoice: original amount and currency.
          */
         PaymentInstruction: {
             /**
@@ -1476,11 +2199,41 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /** PaymentRow */
+        PaymentRow: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Supplier Name */
+            supplier_name: string | null;
+            status: components["schemas"]["DecisionStatus"];
+            /** Amount */
+            amount: number | null;
+            /** Currency */
+            currency: string | null;
+            /** Amount Base */
+            amount_base: number | null;
+            execution: components["schemas"]["PaymentExecution"] | null;
+        };
         /**
          * PaymentStatus
          * @enum {string}
          */
         PaymentStatus: "confirmed" | "pending";
+        /** PaymentsOverview */
+        PaymentsOverview: {
+            /**
+             * Rail
+             * @enum {string}
+             */
+            rail: "simulated" | "stripe_test" | "blinka_simulated";
+            /** Base Currency */
+            base_currency: string;
+            /** Payments */
+            payments: components["schemas"]["PaymentRow"][];
+            stripe: components["schemas"]["RailMatchView"];
+            /** Exportable */
+            exportable: number;
+        };
         /** PeriodClose */
         PeriodClose: {
             /** Period */
@@ -1725,6 +2478,28 @@ export interface components {
             proposed: components["schemas"]["Policy-Output"];
             simulation?: components["schemas"]["SimulationReport"] | null;
         };
+        /** PolicyVersion */
+        PolicyVersion: {
+            /** Version */
+            version: number;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Author */
+            author: string | null;
+            /** Reason */
+            reason: string | null;
+            /** Invoice Id */
+            invoice_id: string | null;
+            /** Suggestion Id */
+            suggestion_id: string | null;
+            /** Changed Fields */
+            changed_fields: string[];
+            /** Hash */
+            hash: string;
+        };
         /** ProfileRequest */
         ProfileRequest: {
             /** Company Name */
@@ -1738,6 +2513,224 @@ export interface components {
             answers: {
                 [key: string]: string;
             };
+        };
+        /** ProofCheck */
+        ProofCheck: {
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "amount" | "currency" | "beneficiary" | "invoice" | "livemode" | "reversal";
+            /** Expected */
+            expected: string;
+            /** Actual */
+            actual: string | null;
+            /** Ok */
+            ok: boolean;
+        };
+        /**
+         * RailMatchView
+         * @description «Registro de Blinka Keeper ↔ Stripe»: amounts in USD, the currency the rail sends.
+         */
+        RailMatchView: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "balanced" | "differences" | "unavailable" | "not_applicable";
+            /** Message */
+            message: string | null;
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            /** Complete */
+            complete: boolean;
+            /** Lines */
+            lines: components["schemas"]["MatchLineView"][];
+            /** Recorded Total */
+            recorded_total: number;
+            /** Stripe Total */
+            stripe_total: number;
+            /** Difference */
+            difference: number;
+        };
+        /** ReadField */
+        ReadField: {
+            /** Value */
+            value: string | null;
+            /** Verified */
+            verified: boolean;
+        };
+        /** ReaderValue */
+        ReaderValue: {
+            /** Reader */
+            reader: string;
+            /** Value */
+            value: string | null;
+            /** Quote */
+            quote?: string | null;
+        };
+        /**
+         * ReadingCrossCheck
+         * @description Two independent readings of the same document, compared field by field by code (R1 and the auditor).
+         */
+        ReadingCrossCheck: {
+            status: components["schemas"]["CrossCheckStatus"];
+            /**
+             * Fields
+             * @default []
+             */
+            fields: components["schemas"]["FieldCrossCheck"][];
+            /** Error */
+            error?: string | null;
+        };
+        /** ReceiptBody */
+        ReceiptBody: {
+            /**
+             * Format
+             * @default custodio-receipt/1
+             * @constant
+             */
+            format: "custodio-receipt/1";
+            /** Key Id */
+            key_id: string;
+            /** Workspace Id */
+            workspace_id: string;
+            /** Issued At */
+            issued_at: string;
+            invoice: components["schemas"]["ReceiptInvoice"];
+            /** Reading */
+            reading: {
+                [key: string]: components["schemas"]["ReadField"];
+            };
+            /** Rules */
+            rules: components["schemas"]["ReceiptRule"][];
+            policy: components["schemas"]["ReceiptPolicy"];
+            decision: components["schemas"]["ReceiptDecision"];
+            payment: components["schemas"]["ReceiptPayment"] | null;
+            ledger: components["schemas"]["ReceiptLedger"];
+        };
+        /** ReceiptCheck */
+        ReceiptCheck: {
+            /** Valid */
+            valid: boolean;
+            /** Message */
+            message: string;
+            /** Key Id */
+            key_id?: string | null;
+            /** Invoice Id */
+            invoice_id?: string | null;
+            /** Verdict */
+            verdict?: ("pay" | "hold" | "escalate" | "reject") | null;
+            /** Altered Fields */
+            altered_fields?: string[];
+            /** Altered Labels */
+            altered_labels?: string[];
+        };
+        /** ReceiptDecision */
+        ReceiptDecision: {
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "pay" | "hold" | "escalate" | "reject";
+            status: components["schemas"]["DecisionStatus"];
+            agent_verdict: components["schemas"]["AgentVerdict"];
+            /** Approved By */
+            approved_by: string | null;
+        };
+        /** ReceiptInvoice */
+        ReceiptInvoice: {
+            /** Id */
+            id: string;
+            /** Number */
+            number: string | null;
+            /** Received At */
+            received_at: string;
+            /** Source */
+            source: string;
+            /** Document Id */
+            document_id: string | null;
+            /** Document Sha256 */
+            document_sha256: string | null;
+        };
+        /**
+         * ReceiptKey
+         * @description The public half, served at /api/v1/.well-known/custodio-receipt-key.
+         */
+        ReceiptKey: {
+            /**
+             * Format
+             * @default custodio-receipt/1
+             * @constant
+             */
+            format: "custodio-receipt/1";
+            /**
+             * Algorithm
+             * @default Ed25519
+             * @constant
+             */
+            algorithm: "Ed25519";
+            /** Key Id */
+            key_id: string;
+            /** Public Key */
+            public_key: string;
+            /** Public Key Pem */
+            public_key_pem: string;
+        };
+        /** ReceiptLedger */
+        ReceiptLedger: {
+            /** Seq */
+            seq: number;
+            /** Hash */
+            hash: string;
+            /** Kind */
+            kind: string;
+        };
+        /**
+         * ReceiptPayment
+         * @description Only for a decision to pay: what the rail may send, to whom and where. The account travels as a fingerprint.
+         */
+        ReceiptPayment: {
+            /** Beneficiary Id */
+            beneficiary_id: string | null;
+            /** Beneficiary Name */
+            beneficiary_name: string;
+            /** Account Last4 */
+            account_last4: string | null;
+            /** Account Sha256 */
+            account_sha256: string | null;
+            /** Amount */
+            amount: string;
+            /** Currency */
+            currency: string | null;
+            /** Amount Base */
+            amount_base: string;
+            /** Base Currency */
+            base_currency: string;
+            /** Rail */
+            rail: string | null;
+            /** External Id */
+            external_id: string | null;
+        };
+        /** ReceiptPolicy */
+        ReceiptPolicy: {
+            /** Version */
+            version: number;
+            /** Sha256 */
+            sha256: string | null;
+            /** Ledger Seq */
+            ledger_seq: number | null;
+            /** Ledger Hash */
+            ledger_hash: string | null;
+        };
+        /** ReceiptRule */
+        ReceiptRule: {
+            /** Rule Id */
+            rule_id: string;
+            outcome: components["schemas"]["RuleOutcome"];
         };
         /** ReconciliationItem */
         ReconciliationItem: {
@@ -2002,6 +2995,118 @@ export interface components {
          * @enum {string}
          */
         StatementSource: "csv" | "document" | "demo";
+        /**
+         * StripeProof
+         * @description The acta's «Pago en Stripe»: Stripe's own answer about the transfer and how it compares with the acta.
+         */
+        StripeProof: {
+            /** Invoice Id */
+            invoice_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "verified" | "mismatch" | "missing" | "unavailable" | "not_applicable";
+            /** Message */
+            message: string | null;
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            transfer: components["schemas"]["StripeTransferView"] | null;
+            /** Checks */
+            checks: components["schemas"]["ProofCheck"][];
+            /** Dashboard Url */
+            dashboard_url: string | null;
+            /** Raw */
+            raw: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** StripeTransferView */
+        StripeTransferView: {
+            /** Id */
+            id: string;
+            /** Amount */
+            amount: number;
+            /** Currency */
+            currency: string;
+            /** Destination */
+            destination: string | null;
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Livemode */
+            livemode: boolean;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "paid" | "partially_reversed" | "reversed";
+            /** Amount Reversed */
+            amount_reversed: number;
+            balance_transaction: components["schemas"]["BalanceView"] | null;
+        };
+        /** Suggestion */
+        Suggestion: {
+            /** Id */
+            id: string;
+            /** Beneficiary Id */
+            beneficiary_id: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Rule Id */
+            rule_id: string;
+            /** Question */
+            question: string;
+            /** Current Tolerance Pct */
+            current_tolerance_pct: number;
+            /** Proposed Tolerance Pct */
+            proposed_tolerance_pct: number;
+            /** Evidence */
+            evidence: components["schemas"]["ApprovalEvidence"][];
+            /** Changes */
+            changes: components["schemas"]["PolicyChange"][];
+            simulation: components["schemas"]["SimulationReport"];
+            /** Policy Version */
+            policy_version: number;
+        };
+        /**
+         * SupplierCorrectionView
+         * @description All a supplier sees: this one invoice, what to fix and what is expected. Never a status or another invoice.
+         */
+        SupplierCorrectionView: {
+            /** Company Name */
+            company_name: string;
+            /** Supplier Name */
+            supplier_name: string;
+            /** Reference */
+            reference: string | null;
+            /** Amount */
+            amount: number | null;
+            /** Currency */
+            currency: string | null;
+            /** Issues */
+            issues: components["schemas"]["SupplierIssue"][];
+            /** Fields */
+            fields: components["schemas"]["CorrectableField"][];
+            /** Confirmable */
+            confirmable: boolean;
+            /** Round */
+            round: number;
+            /** Max Rounds */
+            max_rounds: number;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Accepted Media Types */
+            accepted_media_types: string[];
+        };
         /** SupplierImport */
         SupplierImport: {
             /** Beneficiaries */
@@ -2011,6 +3116,22 @@ export interface components {
              * @default []
              */
             warnings: string[];
+        };
+        /** SupplierIssue */
+        SupplierIssue: {
+            /** Problem */
+            problem: string;
+            /** Expected */
+            expected: string;
+            /** Fields */
+            fields: components["schemas"]["CorrectableField"][];
+        };
+        /** SupplierReceipt */
+        SupplierReceipt: {
+            /** Received */
+            received: boolean;
+            /** Message */
+            message: string;
         };
         /** SupplierTrust */
         SupplierTrust: {
@@ -2184,6 +3305,22 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /**
+         * WhatsAppDelivery
+         * @enum {string}
+         */
+        WhatsAppDelivery: "sent" | "off" | "unavailable" | "not_whatsapp" | "no_phone" | "failed";
+        /** WhatsAppStatus */
+        WhatsAppStatus: {
+            /** Enabled */
+            enabled: boolean;
+            /** Display Number */
+            display_number: string | null;
+            /** Phones */
+            phones: components["schemas"]["LinkedPhone"][];
+            /** Last Received At */
+            last_received_at: string | null;
+        };
         /** WorkspaceCreated */
         WorkspaceCreated: {
             /** Workspace Id */
@@ -2257,6 +3394,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    gemini_health_api_v1_health_gemini_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeminiHealth"];
                 };
             };
         };
@@ -2496,6 +3653,37 @@ export interface operations {
             };
         };
     };
+    read_versions_api_v1_policy_versions_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyVersion"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     add_beneficiaries_api_v1_policy_beneficiaries_post: {
         parameters: {
             query?: never;
@@ -2698,6 +3886,39 @@ export interface operations {
             };
         };
     };
+    read_receipt_api_v1_decisions__invoice_id__receipt_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionReceipt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     approve_api_v1_decisions__invoice_id__approve_post: {
         parameters: {
             query?: never;
@@ -2722,6 +3943,117 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Decision"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_once_api_v1_decisions__invoice_id__approve_once_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveOnceBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Decision"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_agreement_api_v1_decisions__invoice_id__agreement_preview_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgreementBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgreementPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_with_agreement_api_v1_decisions__invoice_id__approve_with_agreement_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveWithAgreementBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovedWithAgreement"];
                 };
             };
             /** @description Validation Error */
@@ -2825,6 +4157,278 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Narrative"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_corrections_api_v1_corrections_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrectionOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_correction_api_v1_decisions__invoice_id__correction_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrectionOffer"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_correction_api_v1_decisions__invoice_id__correction_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionRequestBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrectionIssued"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_supplier_correction_api_v1_supplier_corrections__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierCorrectionView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_corrected_document_api_v1_supplier_corrections__token__document_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_submit_corrected_document_api_v1_supplier_corrections__token__document_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierReceipt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_confirmation_api_v1_supplier_corrections__token__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmationBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierReceipt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_suggestions_api_v1_suggestions_get: {
+        parameters: {
+            query?: {
+                min_approvals?: number;
+            };
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Suggestion"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    accept_suggestion_api_v1_suggestions__suggestion_id__accept_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                suggestion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Policy-Output"];
                 };
             };
             /** @description Validation Error */
@@ -3046,6 +4650,103 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RunDue"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_payments_api_v1_payments_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentsOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_pain001_api_v1_payments_pain001_xml_get: {
+        parameters: {
+            query?: {
+                decided_on?: string | null;
+            };
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ISO 20022 pain.001.001.09 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/xml": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_stripe_proof_api_v1_payments__invoice_id__stripe_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path: {
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StripeProof"];
                 };
             };
             /** @description Validation Error */
@@ -3420,6 +5121,141 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_link_api_v1_whatsapp_link_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WhatsAppStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_link_code_api_v1_whatsapp_link_codes_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-custodio-workspace"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LinkCodeView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    receipt_key_api_v1__well_known_custodio_receipt_key_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReceiptKey"];
+                };
+            };
+        };
+    };
+    verify_receipt_api_v1_receipts_verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JsonValue"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReceiptCheck"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    example_receipt_api_v1_receipts_example_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionReceipt"];
                 };
             };
         };

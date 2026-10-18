@@ -1,4 +1,4 @@
-"""Pairing statement movements with what Custodio paid: deterministic, in a fixed order of levels, with reasons."""
+"""Pairing statement movements with what Blinka Keeper paid: deterministic, in a fixed order of levels, with reasons."""
 
 from decimal import Decimal
 

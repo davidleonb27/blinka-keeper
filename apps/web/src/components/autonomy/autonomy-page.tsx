@@ -102,7 +102,7 @@ function AutonomyChart({ overview }: { overview: TrustOverview }) {
     <article className="card-surface p-5">
       <h2 className="font-semibold">Autonomía por día</h2>
       <p className="mb-3 text-[12.5px] text-ink-3">
-        Parte de las facturas de cada día que Custodio pagó o retuvo sin una persona.
+        Parte de las facturas de cada día que Blinka Keeper pagó o retuvo sin una persona.
       </p>
       <div style={{ height: CHART_HEIGHT }} aria-hidden>
         <ResponsiveContainer width="100%" height="100%">

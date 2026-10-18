@@ -104,7 +104,7 @@ export function DevelopersPage() {
     <>
       <PageHeader
         title="Desarrolladores"
-        subtitle="Custodio es un firewall de pagos: cualquier agente, de tu ERP o de Claude, envía una intención de pago y recibe la misma decisión que una factura subida, con su acta."
+        subtitle="Blinka Keeper es un firewall de pagos: cualquier agente, de tu ERP o de Claude, envía una intención de pago y recibe la misma decisión que una factura subida, con su acta."
       />
       <p className="-mt-2 mb-4 max-w-[70ch] text-[13.5px] text-ink-2">{RAIL_PITCH}</p>
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">

@@ -21,7 +21,7 @@ class Narration(Model):
 
 
 SYSTEM = """\
-You explain one payment decision of Custodio, an accounts-payable agent, to a person with no finance background \
+You explain one payment decision of Blinka Keeper, an accounts-payable agent, to a person with no finance background \
 (a shop owner, a new assistant). You receive the decision record ("acta") as JSON: the fifteen rules with their \
 outcomes and reasons, the verdict, the status, the engine's own explanation and what would have made it payable.
 

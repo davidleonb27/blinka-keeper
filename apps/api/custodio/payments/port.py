@@ -15,6 +15,8 @@ from typing import Final, Literal, Protocol
 from sqlalchemy.orm import Session
 
 from custodio.contracts import Beneficiary, PaymentExecution
+from custodio.payments.stripe_lookup import StripeLookup
+from custodio.receipts import DecisionReceipt
 
 RailName = Literal["simulated", "stripe_test", "blinka_simulated"]
 SIMULATED: Final = "simulated"
@@ -39,6 +41,7 @@ class PaymentOrder:
     amount: Decimal  # as invoiced
     acta_url: str
     beneficiary: Beneficiary | None = None  # the registered one: its bank details, never the invoice's
+    decision_receipt: DecisionReceipt | None = None  # the guard sends nothing without it (custodio.payments.guard)
 
 
 class PaymentRail(Protocol):
@@ -54,3 +57,4 @@ class RailChoice:
 
     name: RailName
     build: Callable[[Session, Clock], PaymentRail]
+    lookup: StripeLookup | None = None  # reads Stripe back, so the acta and /pagos can prove what was sent

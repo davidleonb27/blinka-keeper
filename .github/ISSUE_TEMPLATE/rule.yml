@@ -19,7 +19,7 @@ body:
     id: case
     attributes:
       label: Caso concreto que hoy se paga y no debería
-      description: Factura o intención de pago de ejemplo (datos inventados) y la decisión que da Custodio hoy.
+      description: Factura o intención de pago de ejemplo (datos inventados) y la decisión que da Blinka Keeper hoy.
     validations:
       required: true
   - type: dropdown

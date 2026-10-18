@@ -13,6 +13,11 @@ describe("invoiceInputOf", () => {
     expect(await invoiceInputOf(photo)).toEqual({ ok: true, input: { file: photo } });
   });
 
+  it("sends the electronic invoice XML as a file, so the API reads it by code", async () => {
+    const xml = fileOf("FE-1042.xml", "<Invoice/>", "text/xml");
+    expect(await invoiceInputOf(xml)).toEqual({ ok: true, input: { file: xml } });
+  });
+
   it("sends emails and text files as text, which the API reads as the body of an email", async () => {
     expect(await invoiceInputOf(fileOf("correo.eml", "From: a@b.co\n\nFactura 12", "message/rfc822"))).toEqual({
       ok: true,
@@ -27,7 +32,7 @@ describe("invoiceInputOf", () => {
   it("refuses, before sending, what the API would refuse", async () => {
     expect(await invoiceInputOf(fileOf("hoja.xlsx"))).toEqual({
       ok: false,
-      message: "Sólo leemos PDF, PNG, JPEG, WEBP, .eml o .txt.",
+      message: "Sólo leemos PDF, PNG, JPEG, WEBP, XML (factura electrónica), .eml o .txt.",
     });
     expect(await invoiceInputOf(fileOf("grande.pdf", new Uint8Array(MAX_INVOICE_BYTES + 1)))).toEqual({
       ok: false,

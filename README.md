@@ -1,34 +1,58 @@
-# Custodio
+# Blinka Keeper
 
-[![CI](https://github.com/davidleonb27/custodio-blinka/actions/workflows/ci.yml/badge.svg)](https://github.com/davidleonb27/custodio-blinka/actions/workflows/ci.yml)
+> **Para el jurado · For the judges:** <https://blinka-keeper.vercel.app/jurado> (cada prueba a un clic · every proof one click away; [texto ES/EN](docs/JUDGE-GUIDE.md)) \
+> **Recorrido de 2 min · 2-min walkthrough:** 1 [/panel](https://blinka-keeper.vercel.app/panel) «Decidir las facturas» · decide the batch → 2 [acta F-004](https://blinka-keeper.vercel.app/panel?acta=F-004) pago verificado en Stripe · payment checked in Stripe → 3 [/reto](https://blinka-keeper.vercel.app/reto) engáñalo · fool it → 4 [/reglas](https://blinka-keeper.vercel.app/reglas) reglas en español · plain-Spanish rules → 5 [/verificar](https://blinka-keeper.vercel.app/verificar) recibo alterado · tampered receipt
+> - **Impacto 30 % · Impact:** paga sola lo que cabe en las reglas, retiene lo indebido, pide permiso en lo demás; pagos reales en Stripe modo prueba · pays what fits, holds what is improper, asks about the rest; real Stripe test-mode payments.
+> - **Innovación 20 % · Innovation:** el modelo lee, 15 reglas en código deciden, doble lectura, reglas en español · the model reads, 15 coded rules decide, double reading, rules in plain Spanish.
+> - **Viabilidad técnica 20 % · Technical:** reto público, recibos Ed25519, registro encadenado, 0 pagos indebidos medidos · public challenge, Ed25519 receipts, hash-chained ledger, 0 improper payments measured.
+> - **Implementación 20 % · Implementation:** `/empezar`, archivo pain.001 para Blinka, WhatsApp, autohospedable; lo no medido dice «NO MEDIDO» · onboarding, pain.001 for Blinka, WhatsApp, self-hostable; unmeasured is marked.
+> - **Presentación 10 % · Presentation:** cada afirmación con su prueba y una tabla real vs. simulado · every claim with its proof and a real-vs-simulated table.
+
+[![CI](https://github.com/davidleonb27/blinka-keeper/actions/workflows/ci.yml/badge.svg)](https://github.com/davidleonb27/blinka-keeper/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-047857.svg)](LICENSE)
 
 **El agente de cuentas por pagar de código abierto.** *El modelo lee, el código decide, la persona autoriza.*
 Revisa las facturas, paga sólo lo que cabe en tus reglas, retiene lo indebido y le pregunta a una persona lo demás.
 
-- **Demo:** <https://custodio-blinka-green.vercel.app>, sin registro y sin dinero real.
+- **Demo:** <https://blinka-keeper.vercel.app>, sin registro y sin dinero real.
 - **Autoalojar en un comando:** `docker compose up --build` ([guía](docs/SELF_HOSTING.md)) o
-  [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fcustodio-blinka&project-name=custodio&repository-name=custodio&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
-- **Licencia:** [MIT](LICENSE). Documentación en [/docs](https://custodio-blinka-green.vercel.app/docs).
+  [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fblinka-keeper&project-name=blinka-keeper&repository-name=blinka-keeper&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D)
+- **Licencia:** [MIT](LICENSE). Documentación en [/docs](https://blinka-keeper.vercel.app/docs).
 
 **The open-source accounts-payable agent.** *The model reads, code decides, a person authorizes.*
 It reviews invoices, pays only what fits your rules, holds what is clearly improper and asks a person about the rest.
 
-- **Demo:** <https://custodio-blinka-green.vercel.app>, no sign-up, no real money.
+- **Demo:** <https://blinka-keeper.vercel.app>, no sign-up, no real money.
 - **Self-host in one command:** `docker compose up --build` ([guide, in Spanish](docs/SELF_HOSTING.md)) or the
   Vercel button above.
 - **License:** [MIT](LICENSE).
 
 ## Pruébalo en 30 segundos
 
-1. Abre **https://custodio-blinka-green.vercel.app** y pulsa **«Probar la demo»**. No hay registro: recibes tu propio espacio.
-2. En el panel verás una semana de facturas ya decidida: pagado, retenido y pendiente, cada una con su razón.
-3. Abre cualquier fila para ver el acta con las 15 reglas. Prueba «Róbale a Custodio» e intenta que pague algo indebido.
+1. Abre **https://blinka-keeper.vercel.app** y pulsa **«Probar la demo»**. No hay registro: recibes tu propio espacio.
+2. En el panel pulsa **«Decidir las facturas»**: 39 facturas se deciden en segundos (pagadas, retenidas y las que esperan a una persona), cada una con su razón.
+3. Abre cualquier fila para ver el acta con las 15 reglas. Prueba «Róbale a Blinka Keeper» e intenta que pague algo indebido.
 
-Es dinero de prueba: lo que Custodio paga sale como una transferencia de Stripe en modo prueba, sin cuentas reales.
+Es dinero de prueba: lo que Blinka Keeper paga sale como una transferencia de Stripe en modo prueba, sin cuentas reales.
 
 <!-- Captura: docs/img/demo.gif (ver docs/img/LEEME.md) -->
 > *Aquí va el GIF de la demo (`docs/img/demo.gif`), pendiente de grabar sobre la versión desplegada.*
+
+## Qué hace, todo en producción
+
+Del correo al cierre de mes, en un solo agente. Cada punto se prueba en un clic en [/jurado](https://blinka-keeper.vercel.app/jurado).
+
+| | Qué hace | Dónde se ve |
+|---|---|---|
+| **Recibe** | Facturas por correo, PDF, foto, **WhatsApp real** (Cloud API de Meta, webhook firmado: mandas la foto y responde con el acta) y **factura electrónica DIAN UBL 2.1 / CFDI 4.0 leída sin IA**, con dígito de verificación del NIT. | Panel → «Recibe facturas por WhatsApp» |
+| **Lee** | **Dos modelos de dos empresas distintas** (Claude y Gemini) leen cada factura; si no coinciden en monto, moneda, beneficiario o cuenta, no se paga. | Acta → «Dos lecturas independientes» |
+| **Decide** | 15 reglas deterministas en código; el modelo nunca decide. Un auditor independiente recalcula cada pago. | Acta con cifras y «qué tendría que cambiar» |
+| **Paga** | **Transferencias reales en Stripe (modo prueba)**, verificadas en vivo campo por campo, y el lote en **ISO 20022 pain.001** listo para que Blinka lo pague. | /pagos → cuadre Registro ↔ Stripe |
+| **Pide permiso** | «Aprobar sólo esta vez» o «Aprobar y actualizar el acuerdo» (con versión y simulación). Si apruebas lo mismo varias veces, **Blinka Keeper sugiere la regla**; nunca la aplica solo. | Acta y /reglas |
+| **Corrige** | Si algo corregible no cuadra, **le pide al proveedor que lo corrija** por un enlace de un solo uso y lo vuelve a decidir con las mismas reglas. Un cambio de cuenta nunca se negocia. | Acta → «Pedir corrección al proveedor» |
+| **Cuida la caja** | Paga el día que vence, respeta la reserva y cada proveedor **gana autonomía** con pagos limpios. | /calendario, /autonomia |
+| **Cierra el mes** | Concilia el extracto del banco, marca en rojo lo que salió sin factura y entrega la evidencia al contador. | /conciliacion |
+| **Lo prueba** | Cada decisión sale con **recibo firmado Ed25519** verificable por cualquiera, en un registro encadenado con SHA-256, y el riel se niega a pagar sin recibo válido. Reto público para intentar engañarlo. | /verificar, /registro, /reto |
 
 ## Por qué existe
 
@@ -42,11 +66,11 @@ No encontramos una cifra comparable y medida para pymes de América Latina; el d
 [`docs/BUSINESS.md`](docs/BUSINESS.md).
 
 Un agente de IA que lee facturas y paga es el objetivo ideal de ese fraude: una instrucción escondida en el PDF puede
-convencerlo. Por eso en Custodio el modelo sólo lee y cita; quien decide es código determinista.
+convencerlo. Por eso en Blinka Keeper el modelo sólo lee y cita; quien decide es código determinista.
 
 ## Cómo cumple el reto
 
-| Criterio de Blinka | Cómo lo cumple Custodio |
+| Criterio de Blinka | Cómo lo cumple Blinka Keeper |
 |---|---|
 | **Autonomía** | 15 reglas deterministas pagan o retienen solas lo que está claro; sólo lo ambiguo va a una persona. |
 | **Seguridad** (un pago indebido descalifica) | El modelo nunca decide. Un auditor independiente recalcula cada pago por otro camino de código y, si discrepa, gana el auditor. Hay red team y un reto público. |
@@ -54,7 +78,7 @@ convencerlo. Por eso en Custodio el modelo sólo lee y cita; quien decide es có
 
 ## Métricas
 
-Sólo se publican cifras medidas, todas el 2026-10-17. Lo que no se midió dice NO MEDIDO. El detalle y los comandos están
+Sólo se publican cifras medidas, el 17 y el 18 de octubre de 2026. Lo que no se midió dice NO MEDIDO. El detalle y los comandos están
 en [`docs/DATASET.md`](docs/DATASET.md) y [`docs/MEASUREMENTS.md`](docs/MEASUREMENTS.md).
 
 | Métrica | Valor | Cómo se midió (2026-10-17) |
@@ -67,8 +91,10 @@ en [`docs/DATASET.md`](docs/DATASET.md) y [`docs/MEASUREMENTS.md`](docs/MEASUREM
 | Latencia del narrador | 4,2 s (N=1, sin intervalo) | una llamada real a Claude en producción |
 | Latencia del compilador de políticas | 6,0 s (N=1, sin intervalo) | una llamada real a Claude en producción |
 | Lectura de facturas con el modelo real | 36 de 36 con proveedor, monto, moneda y cuenta correctos; 0 rechazos | `apps/api/scripts/measure_reading.py` contra producción, una corrida ([detalle](docs/MEASUREMENTS.md)) |
+| **Set ciego con doble lectura (producción, 2026-10-18)** | 19 de 20 correctas, 0 pagos indebidos; la única lectura errada, atrapada y escalada | `scripts/measure_double_reading.py --base-url https://blinka-keeper.vercel.app`, 20 facturas que nadie usó para afinar ([reporte](docs/lanes/reports/L21/blind-set-production-dual-reading.json)) |
+| Latencia por factura con doble lectura | 3,88 s (p50) · 6,44 s (p95) | misma corrida |
 | Ataques probados del red team | NO MEDIDO | rondas de Claude contra las reglas |
-| Intentos del reto público | NO MEDIDO | contador en vivo de «Róbale a Custodio» |
+| Intentos del reto público | NO MEDIDO | contador en vivo de «Róbale a Blinka Keeper» |
 | Decisiones con acta | NO MEDIDO | actas / decisiones |
 | Cadena de hashes verificable | NO MEDIDO | `GET /api/v1/ledger/verify` |
 
@@ -78,7 +104,7 @@ en [`docs/DATASET.md`](docs/DATASET.md) y [`docs/MEASUREMENTS.md`](docs/MEASUREM
    por API o MCP y recibe pagar, retener o escalar, con su acta.
 2. **Claude contra Claude.** Un atacante con Claude Opus escribe facturas fraudulentas contra las reglas de la empresa,
    lee por qué lo bloquearon y cambia de técnica. El defensor no cambia: las reglas son código.
-3. **«Róbale a Custodio».** Página pública donde cualquiera intenta que pague algo indebido. Contador en vivo de
+3. **«Róbale a Blinka Keeper».** Página pública donde cualquiera intenta que pague algo indebido. Contador en vivo de
    intentos y de pagos indebidos. Cada ataque atrapado se vuelve un caso de prueba.
 4. **Reglas en español, compiladas y simuladas.** «Nada sobre 3.000 USD sin que lo apruebe Ana» se compila a la
    política, se muestra el cambio y se simula contra el historial antes de aplicarlo. Lo que no se entiende se pregunta.
@@ -107,11 +133,11 @@ están en [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ## Autoalójalo
 
-Custodio corre en tu infraestructura con un comando. Todas las variables son opcionales y están explicadas en
+Blinka Keeper corre en tu infraestructura con un comando. Todas las variables son opcionales y están explicadas en
 [`.env.example`](.env.example).
 
 ```bash
-git clone https://github.com/davidleonb27/custodio-blinka.git && cd custodio-blinka
+git clone https://github.com/davidleonb27/blinka-keeper.git && cd custodio-blinka
 docker compose up --build            # Postgres 16, API en :8000 y web en :3000; migraciones al arrancar
 curl http://localhost:8000/api/v1/health
 ```
@@ -120,7 +146,7 @@ Sin `ANTHROPIC_API_KEY` siguen funcionando el motor, el auditor, el registro, el
 texto y de PDF con texto (por etiquetas `Campo: valor`). Lo que necesita al modelo responde «requiere
 ANTHROPIC_API_KEY» (503, `model_not_configured`) sin decidir nada.
 
-- **Vercel + Neon:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fcustodio-blinka&project-name=custodio&repository-name=custodio&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D) clona el repositorio, crea la base
+- **Vercel + Neon:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdavidleonb27%2Fblinka-keeper&project-name=blinka-keeper&repository-name=blinka-keeper&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D) clona el repositorio, crea la base
   en Neon y despliega la web y la API como servicios de un proyecto.
 - **Railway, Fly.io o un VPS:** los mismos Dockerfiles; los pasos están en [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md).
 
@@ -156,16 +182,16 @@ Para Claude Desktop u otro cliente MCP, apunta al servidor `…/api/v1/mcp`. Her
 
 ## Cómo paga
 
-Custodio decide; el riel paga. Hoy: Stripe en modo prueba. En producción: el riel de la empresa, por ejemplo Blinka
+Blinka Keeper decide; el riel paga. Hoy: Stripe en modo prueba. En producción: el riel de la empresa, por ejemplo Blinka
 (ACH, wire, Bre-B, SPEI, Pix). Cuando una factura queda pagada desde el panel y el auditor no la vetó, el pago sale por
 el riel activo y su recibo queda en el acta y en el registro. Por defecto el riel es simulado; con
 `CUSTODIO_PAYMENT_RAIL=stripe_test` y una `STRIPE_SECRET_KEY` de prueba (`sk_test_…`) sale como una transferencia real
-de Stripe en modo prueba. Una clave `live` se rechaza. Con `CUSTODIO_PAYMENT_RAIL=blinka_simulated`, Custodio elige la
+de Stripe en modo prueba. Una clave `live` se rechaza. Con `CUSTODIO_PAYMENT_RAIL=blinka_simulated`, Blinka Keeper elige la
 red de Blinka (ACH, wire, Bre-B, SPEI o Pix) y arma la instrucción exacta que le enviaría, sin enviarla: Blinka aún no
 tiene API pública. El firewall, el reto y el red team nunca pagan. Los rieles, sus guardias y la idempotencia están en
 [`docs/PAYMENTS.md`](docs/PAYMENTS.md#los-rieles).
 
-**Para el equipo de Blinka:** qué resuelve Custodio en sus clientes, cómo se integra en 2 semanas, el precio propuesto
+**Para el equipo de Blinka:** qué resuelve Blinka Keeper en sus clientes, cómo se integra en 2 semanas, el precio propuesto
 y lo que falta para producción, en [`docs/BLINKA.md`](docs/BLINKA.md).
 
 ## Dataset
@@ -183,12 +209,12 @@ vulnerabilidad en privado, [`SECURITY.md`](SECURITY.md).
 
 ## English summary
 
-Custodio is an accounts-payable agent that cannot be tricked into paying. A model reads each invoice and must quote
+Blinka Keeper is an accounts-payable agent that cannot be tricked into paying. A model reads each invoice and must quote
 the text behind every value; deterministic code (12 pure rules) decides pay, hold or escalate; a person authorizes what
 is ambiguous. An independent auditor recomputes every payment through a different code path and overrides the engine if
 they disagree. Every decision ships with a plain-language record and a SHA-256 hash chain that shows where it was
-altered. Other agents can use Custodio as a payment firewall through an API or an MCP server, and anyone can try to
-break it on the public "Róbale a Custodio" challenge. Try it: **https://custodio-blinka-green.vercel.app**. Figures are published only when
+altered. Other agents can use Blinka Keeper as a payment firewall through an API or an MCP server, and anyone can try to
+break it on the public "Róbale a Blinka Keeper" challenge. Try it: **https://blinka-keeper.vercel.app**. Figures are published only when
 measured (2026-10-17: 36 golden invoices in production, 0 improper payments, 61.1 % autonomy; 1,000 simulated companies
 and 25,139 invoices in the stress run, 0 improper payments); the rest reads NO MEDIDO ("not measured"). Built by team DreamMakers for the 30X hackathon, Blinka
 challenge. MIT licensed.
