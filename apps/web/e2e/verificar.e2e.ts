@@ -25,7 +25,7 @@ test("anyone checks a signed receipt in the browser and on the server", async ({
     await page.getByLabel("Recibo (JSON)").fill(example);
     await page.getByRole("button", { name: "Verificar", exact: true }).click();
     await expect(page.getByRole("region", { name: "En tu navegador" })).toContainText("Válido: firmado por Custodio");
-    await expect(page.getByRole("region", { name: "En el servidor de Custodio" })).toContainText("la decisión fue «Pagar»");
+    await expect(page.getByRole("region", { name: "En el servidor de Custodio" })).toContainText("La decisión fue «Pagar»");
   });
 
   expect(problems.list, problems.list.join("\n")).toEqual([]);
