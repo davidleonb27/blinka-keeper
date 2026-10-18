@@ -12,7 +12,7 @@ export default function JuryPage() {
   return (
     <div className="site min-h-dvh">
       <SiteHeader />
-      <main id="contenido">
+      <main id="contenido" className="pt-20 lg:pt-36">
         <JudgePage />
       </main>
       <SiteFooter />
