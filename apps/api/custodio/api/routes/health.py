@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from custodio import __version__
 from custodio.config import get_settings
 from custodio.engine.sanctions import bundled_sanctions
-from custodio.extraction import gemini
+from custodio.extraction import gemini, second_reading
 from custodio.payments import RailName
 from custodio.services.context import Runtime
 
@@ -43,9 +43,14 @@ def health(request: Request) -> Health:
 
 
 @router.get("/health/gemini", response_model=GeminiHealth)
-def gemini_health() -> GeminiHealth:
-    """Why the second reader is or is not Gemini, without exposing the key and without spending tokens."""
+def gemini_health(leer: bool = False) -> GeminiHealth:
+    """Why the second reader is or is not Gemini, without exposing the key. With `leer`, Gemini reads a one-line
+    invoice exactly as a second reading does (a fraction of a cent, under the daily budget) and the status says
+    whether that reading came back usable."""
     settings = get_settings()
     if not settings.gemini_configured:
         return GeminiHealth(configured=False, model=settings.gemini_model, status="sin configurar")
-    return GeminiHealth(configured=True, model=settings.gemini_model, status=gemini.probe(settings.gemini_model))
+    status = gemini.probe(settings.gemini_model)
+    if status == "ok" and leer:
+        status = second_reading.gemini_check()
+    return GeminiHealth(configured=True, model=settings.gemini_model, status=status)

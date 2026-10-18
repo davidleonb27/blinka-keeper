@@ -326,3 +326,15 @@ def test_an_accepted_key_probes_ok(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GEMINI_API_KEY", "test-key-for-doubles")
     monkeypatch.setattr(httpx, "get", lambda *args, **kwargs: httpx.Response(200, json={"name": "models/x"}))
     assert gemini.probe("gemini-2.5-flash") == "ok"
+
+
+def test_the_reading_check_says_ok_when_gemini_reads(gemini_reader: FakeGemini) -> None:
+    gemini_reader.response = gemini_answer(second(amount="1000"))
+    assert second_reading.gemini_check() == "ok"
+
+
+def test_the_reading_check_names_why_gemini_would_fall_back(gemini_reader: FakeGemini) -> None:
+    gemini_reader.response = httpx.Response(429, json={"error": {"code": 429, "status": "RESOURCE_EXHAUSTED"}})
+    status = second_reading.gemini_check()
+    assert status.startswith("Gemini respondió con estado 429")
+    assert "test-key-for-doubles" not in status

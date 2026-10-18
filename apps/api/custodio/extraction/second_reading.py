@@ -135,9 +135,18 @@ def _with_gemini_or_claude(document: Document) -> tuple[CriticalReading, str]:
     does not send every invoice to a person. Both failing still raises: no second reading, no payment."""
     try:
         return _with_gemini(document)
-    except (gemini.GeminiError, MalformedReading):
-        logger.warning("Gemini could not give the second reading; Claude reads it instead")
+    except (gemini.GeminiError, MalformedReading) as error:
+        logger.warning("Gemini could not give the second reading (%s); Claude reads it instead", error)
         return _with_claude(document)
+
+
+def gemini_check() -> str:
+    """Read a one-line invoice with Gemini alone: "ok", or why its reading would fall back to Claude."""
+    try:
+        reading, _ = _with_gemini(Document(text="Factura de Kora SAS por COP 1.000 a la cuenta 123-456."))
+    except (gemini.GeminiError, MalformedReading) as error:
+        return str(error)
+    return "ok" if reading.amount.value else "lectura vacía"
 
 
 def _with_claude(document: Document) -> tuple[CriticalReading, str]:

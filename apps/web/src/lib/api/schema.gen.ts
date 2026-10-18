@@ -30,7 +30,9 @@ export interface paths {
         };
         /**
          * Gemini Health
-         * @description Why the second reader is or is not Gemini, without exposing the key and without spending tokens.
+         * @description Why the second reader is or is not Gemini, without exposing the key. With `leer`, Gemini reads a one-line
+         *     invoice exactly as a second reading does (a fraction of a cent, under the daily budget) and the status says
+         *     whether that reading came back usable.
          */
         get: operations["gemini_health_api_v1_health_gemini_get"];
         put?: never;
@@ -3400,7 +3402,9 @@ export interface operations {
     };
     gemini_health_api_v1_health_gemini_get: {
         parameters: {
-            query?: never;
+            query?: {
+                leer?: boolean;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3414,6 +3418,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GeminiHealth"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
