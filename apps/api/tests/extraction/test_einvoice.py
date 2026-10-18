@@ -105,6 +105,32 @@ def test_totals_that_do_not_add_up_leave_the_amount_unread() -> None:
     assert reading.overall_confidence == 0
 
 
+def test_an_invoice_without_the_supplier_nit_does_not_leave_every_critical_field_trusted() -> None:
+    xml = dian_invoice(VALID_DIAN).replace('schemeID="1" schemeName="31">900771245</cbc:CompanyID>', "/>", 1)
+    xml = xml.replace('<cbc:CompanyID schemeAgencyID="195"/>', "", 1)
+
+    reading = read(xml)
+
+    assert reading.supplier_tax_id.value is None
+    assert any("identificación fiscal del emisor" in line for line in failed_lines(reading))
+    assert not reading.amount.verified  # R1 skips an absent tax id, so the failure must reach a critical field
+    assert reading.overall_confidence == 0
+
+
+@pytest.mark.parametrize("amount", ["NaN", "sNaN", "Infinity"])
+def test_a_total_that_is_not_a_finite_number_fails_the_check_instead_of_breaking(amount: str) -> None:
+    xml = dian_invoice(VALID_DIAN).replace(">4100000.00</cbc:PayableAmount>", f">{amount}</cbc:PayableAmount>")
+
+    reading = read(xml)
+
+    assert not reading.amount.verified
+    assert any("no es un número" in line for line in failed_lines(reading))
+
+
+def test_a_customer_tax_id_with_a_dash_that_is_not_a_nit_is_shown_whole() -> None:
+    assert "Identificación fiscal del receptor: 88-4410273 [" in read(dian_invoice(VALID_DIAN)).visible_text
+
+
 def test_an_invoice_for_another_company_is_not_trusted() -> None:
     reading = read(dian_invoice(VALID_DIAN), company="Otra Empresa SAS")
 

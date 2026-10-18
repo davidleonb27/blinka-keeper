@@ -106,3 +106,24 @@ def test_a_pdf_with_another_account_than_the_xml_goes_to_a_person() -> None:
     assert merged.account_number.value == "0612-6614"
     assert not merged.account_number.verified
     assert any("cuenta" in line for line in merged.visible_text.splitlines() if line.startswith("✗"))
+
+
+def test_a_pdf_never_fills_a_field_the_xml_check_distrusted() -> None:
+    without_total = official(
+        dian_invoice(VALID_DIAN).replace('<cbc:PayableAmount currencyID="COP">4100000.00</cbc:PayableAmount>', "")
+    )
+    pdf = pdf_of(
+        supplier_name="Ruta Legal Abogados SAS",
+        supplier_tax_id="900.771.245-1",
+        tax_label="NIT",
+        invoice_number="RL-561",
+        amount=Decimal("4100000"),
+        currency="COP",
+        account_number="0612-6614",
+    )
+
+    merged = merge(without_total, pdf)
+
+    assert merged.amount.value is None
+    assert not merged.amount.verified
+    assert merged.overall_confidence == 0
