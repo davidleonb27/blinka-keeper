@@ -24,8 +24,8 @@ export function StatusPill({ status, size = "md" }: { status: DecisionStatus; si
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full font-semibold whitespace-nowrap",
-        size === "lg" ? "h-8 pr-3 pl-2.5 text-[13px]" : "h-6 pr-2.5 pl-2 text-xs",
+        "inline-flex items-center gap-1.5 rounded-md font-medium whitespace-nowrap",
+        size === "lg" ? "h-8 pr-3 pl-2.5 text-[13px]" : "h-6 pr-2 pl-1.5 text-xs",
         TONE_CLASSES[tone],
       )}
     >
