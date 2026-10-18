@@ -29,6 +29,8 @@ const queryKeys = {
   challenge: ["challenge-stats"] as const,
   trust: ["trust"] as const,
   schedule: ["schedule"] as const,
+  payments: ["payments"] as const,
+  stripeProof: (id: string) => ["payments", id, "stripe"] as const,
   reconciliations: ["reconciliations"] as const,
   reconciliation: (id: string) => ["reconciliations", id] as const,
 };
@@ -97,6 +99,17 @@ export function useSchedule() {
   return useQuery({ queryKey: queryKeys.schedule, queryFn: () => api.getSchedule() });
 }
 
+export function usePayments() {
+  const api = useApi();
+  return useQuery({ queryKey: queryKeys.payments, queryFn: () => api.getPayments() });
+}
+
+/** Asked live each time the acta opens; the API keeps Stripe's answer a few seconds. */
+export function useStripeProof(invoiceId: string, enabled: boolean) {
+  const api = useApi();
+  return useClientQuery({ queryKey: queryKeys.stripeProof(invoiceId), queryFn: () => api.getStripeProof(invoiceId), enabled });
+}
+
 export function useSimulateMonth() {
   const api = useApi();
   const invalidate = useInvalidateWorkspace();
@@ -129,6 +142,7 @@ function useInvalidateWorkspace() {
         queryKeys.policy,
         queryKeys.trust,
         queryKeys.schedule,
+        queryKeys.payments,
       ].map((queryKey) =>
         client.invalidateQueries({ queryKey }),
       ),

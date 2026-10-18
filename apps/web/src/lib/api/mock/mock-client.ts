@@ -34,6 +34,7 @@ import { appendEntry, verifyChain } from "./ledger";
 import { importMockSuppliers, simulateFirstWeek } from "./onboarding";
 import { compilePolicyText } from "./policy-compiler";
 import { proposeMockProfile } from "./profile";
+import { mockPayments, mockStripeProof } from "./payments";
 import { createMockReconciliations } from "./reconciliation";
 import { RED_TEAM_SCRIPT, scriptedDecision } from "./red-team-script";
 
@@ -418,6 +419,12 @@ respond(() => decided().map(listItemOf)),
       ),
     downloadEvidence: () => respond(() => reconciliations.files()),
     downloadDemoStatement: () => respond(() => reconciliations.files()),
+    getPayments: () => respond(() => mockPayments(decided().map((item) => item.decision), workspace.data.policy, nowIso())),
+    getStripeProof: (id) => respond(() => mockStripeProof(findItem(id).decision, nowIso())),
+    downloadPain001: () =>
+      respond(() => {
+        throw new InvalidRequestError("El archivo para Blinka se arma en la API real, no en el modo de prueba.", CONFLICT);
+      }),
     runRedTeam: async ({ rounds }, onEvent, signal) => {
       const script = RED_TEAM_SCRIPT.slice(0, rounds);
       for (const [index, round] of script.entries()) {
