@@ -6,12 +6,14 @@ so the canonical JSON that is signed reads the same in Python, in a browser and 
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Final, Literal
+
+from pydantic import Field
 
 from custodio.contracts import AgentVerdict, DecisionStatus, Model, RuleOutcome
 
-RECEIPT_FORMAT = "custodio-receipt/1"
-ALGORITHM = "Ed25519"
+RECEIPT_FORMAT: Final = "custodio-receipt/1"
+ALGORITHM: Final = "Ed25519"
 
 Verdict = Literal["pay", "hold", "escalate", "reject"]
 
@@ -113,5 +115,5 @@ class ReceiptCheck(Model):
     key_id: str | None = None
     invoice_id: str | None = None
     verdict: Verdict | None = None
-    altered_fields: list[str] = []  # paths, e.g. "payment.amount"
-    altered_labels: list[str] = []  # the same, as a person reads them: «monto»
+    altered_fields: list[str] = Field(default_factory=list)  # paths, e.g. "payment.amount"
+    altered_labels: list[str] = Field(default_factory=list)  # the same, as a person reads them: «monto»

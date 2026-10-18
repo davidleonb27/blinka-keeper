@@ -35,7 +35,10 @@ def test_a_configured_pem_is_used_as_is() -> None:
     assert signer_from_secrets(pem, DATABASE_URL).key_id == ReceiptSigner.from_seed(FIXED_SEED).key_id
 
 
-@pytest.mark.parametrize("configured", ["abc", "-----BEGIN PRIVATE KEY-----\nnope\n-----END PRIVATE KEY-----", "zz" * 32])
+BAD_PEM = "-----BEGIN PRIVATE KEY-----\nnope\n-----END PRIVATE KEY-----"
+
+
+@pytest.mark.parametrize("configured", ["abc", BAD_PEM, "zz" * 32])
 def test_an_unusable_configured_key_stops_the_boot_without_echoing_it(configured: str) -> None:
     with pytest.raises(ReceiptKeyError) as error:
         signer_from_secrets(configured, DATABASE_URL)
