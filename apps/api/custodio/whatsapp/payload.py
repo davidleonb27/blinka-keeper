@@ -45,7 +45,7 @@ class _Metadata(_Lenient):
 
 
 class _Value(_Lenient):
-    metadata: _Metadata
+    metadata: _Metadata | None = None  # only `messages` changes carry it; other fields must not fail the delivery
     messages: list[InboundMessage] = []
 
 
@@ -72,6 +72,10 @@ def inbound_messages(body: bytes, phone_number_id: str) -> list[InboundMessage]:
         message
         for entry in delivery.entry
         for change in entry.changes
-        if change.field == MESSAGES_FIELD and change.value.metadata.phone_number_id == phone_number_id
+        if change.field == MESSAGES_FIELD and _addressed_to(change.value, phone_number_id)
         for message in change.value.messages
     ]
+
+
+def _addressed_to(value: _Value, phone_number_id: str) -> bool:
+    return value.metadata is not None and value.metadata.phone_number_id == phone_number_id
