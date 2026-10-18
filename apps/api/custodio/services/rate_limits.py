@@ -17,6 +17,7 @@ from custodio.services.context import Runtime
 from custodio.services.errors import RateLimited
 
 MINUTE = 60
+HOUR = 60 * MINUTE
 DAY = 24 * 60 * 60
 CHALLENGE_CLOSED = "El reto público alcanzó su tope de intentos por hoy. Vuelve mañana."
 
@@ -31,6 +32,16 @@ def check_challenge_attempt(runtime: Runtime, *, ip: str) -> None:
     limits = runtime.limits
     _hit(runtime, f"challenge:ip:{_anonymous(ip)}", limits.challenge_attempts_per_minute_per_ip, MINUTE)
     _hit(runtime, "challenge:all", limits.challenge_attempts_per_day, DAY, CHALLENGE_CLOSED)
+
+
+def check_whatsapp_message(runtime: Runtime, *, phone: str) -> None:
+    limit = runtime.limits.whatsapp_messages_per_minute_per_phone
+    _hit(runtime, f"whatsapp:msg:{_anonymous(phone)}", limit, MINUTE)
+
+
+def check_whatsapp_link_attempt(runtime: Runtime, *, phone: str) -> None:
+    limit = runtime.limits.whatsapp_link_attempts_per_hour_per_phone
+    _hit(runtime, f"whatsapp:link:{_anonymous(phone)}", limit, HOUR)
 
 
 def _hit(runtime: Runtime, key: str, limit: int, window_seconds: int, message: str | None = None) -> None:
@@ -58,6 +69,6 @@ def _window_start(now: datetime, window_seconds: int) -> int:
     return seconds - seconds % window_seconds
 
 
-def _anonymous(ip: str) -> str:
-    """IP addresses are personal data: counters keep a short digest, never the address."""
-    return hashlib.sha256(ip.encode()).hexdigest()[:16]
+def _anonymous(value: str) -> str:
+    """IP addresses and phone numbers are personal data: counters keep a short digest, never the value."""
+    return hashlib.sha256(value.encode()).hexdigest()[:16]

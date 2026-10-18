@@ -25,6 +25,7 @@ from custodio.api.routes import (
     redteam,
     schedule,
     trust,
+    whatsapp,
     workspaces,
 )
 from custodio.config import get_settings
@@ -46,6 +47,7 @@ ROUTERS = (
     redteam,
     challenge,
     firewall,
+    whatsapp,
 )
 
 

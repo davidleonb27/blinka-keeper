@@ -62,8 +62,15 @@ class Outcome(BaseModel):
 
 
 def receive_document(
-    ctx: ServiceContext, workspace: WorkspaceRow, data: bytes, *, filename: str, media_type: str
+    ctx: ServiceContext,
+    workspace: WorkspaceRow,
+    data: bytes,
+    *,
+    filename: str,
+    media_type: str,
+    source: InvoiceSource | None = None,
 ) -> InvoiceView:
+    """`source` names the channel when it is not the file itself (a photo sent on WhatsApp)."""
     if len(data) > MAX_DOCUMENT_BYTES:
         raise PayloadTooLarge()
     if media_type == TEXT_MEDIA_TYPE:
@@ -71,12 +78,13 @@ def receive_document(
     if media_type not in DOCUMENT_MEDIA_TYPES:
         raise UnsupportedMediaType()
     document = _store_document(ctx, workspace.id, data, filename=filename, media_type=media_type)
-    source = InvoiceSource.PDF if media_type == "application/pdf" else InvoiceSource.IMAGE
+    channel = source or (InvoiceSource.PDF if media_type == "application/pdf" else InvoiceSource.IMAGE)
 
     def read() -> ExtractedInvoice:
-        return ctx.lanes.extract_document(data, filename=filename, media_type=media_type, document_id=document.id)
+        reading = ctx.lanes.extract_document(data, filename=filename, media_type=media_type, document_id=document.id)
+        return reading.model_copy(update={"source": channel})
 
-    return _receive(ctx, workspace, document, read, source=source, visible_text="")
+    return _receive(ctx, workspace, document, read, source=channel, visible_text="")
 
 
 def receive_text(

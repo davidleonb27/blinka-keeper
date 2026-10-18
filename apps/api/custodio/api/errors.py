@@ -10,12 +10,15 @@ from fastapi.responses import JSONResponse
 
 from custodio.llm import LLMError
 from custodio.services import errors
+from custodio.whatsapp import errors as whatsapp_errors
 
 logger = logging.getLogger(__name__)
 
 STATUS_BY_ERROR: dict[type[errors.ServiceError], int] = {
     errors.WorkspaceHeaderMissing: 400,
     errors.InvalidApiKey: 401,
+    whatsapp_errors.WebhookSignatureInvalid: 401,
+    whatsapp_errors.WebhookForbidden: 403,
     errors.NotFound: 404,
     errors.DecisionNotPending: 409,
     errors.PaymentNotRetryable: 409,
@@ -30,6 +33,7 @@ STATUS_BY_ERROR: dict[type[errors.ServiceError], int] = {
     errors.StatementInputMissing: 422,
     errors.StatementUnreadable: 422,
     errors.UnreadableSupplierFile: 422,
+    whatsapp_errors.WebhookPayloadInvalid: 422,
     errors.RateLimited: 429,
     errors.ModelUnavailable: 503,
     errors.ReadingUnavailable: 503,
