@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { CorrectionIssued, CorrectionOffer, CorrectionRequest, SupplierCorrectionView } from "@/lib/api/client";
-import { InvalidRequestError } from "@/lib/api/errors";
+import { InvalidRequestError, NotFoundError } from "@/lib/api/errors";
 import { createMockClient } from "@/lib/api/mock/mock-client";
 import { renderWithApi } from "@/test/render";
 import { CorrectionPanel } from "./correction-panel";
@@ -151,6 +151,15 @@ describe("SupplierCorrection", () => {
     renderWithApi(<SupplierCorrection token="tok" />, client);
 
     expect(await screen.findByText(/Cada enlace sirve una sola vez/)).toBeInTheDocument();
+  });
+
+  it("speaks to the supplier, not to a workspace, when the link does not exist", async () => {
+    const client = api();
+    vi.spyOn(client, "getSupplierCorrection").mockRejectedValue(new NotFoundError());
+    renderWithApi(<SupplierCorrection token="tok" />, client);
+
+    expect(await screen.findByText(/Este enlace de corrección no existe/)).toBeInTheDocument();
+    expect(screen.queryByText(/espacio de trabajo/)).not.toBeInTheDocument();
   });
 });
 
