@@ -238,7 +238,7 @@
  */
 .font-serif {
   font-weight: 450;
-  letter-spacing: -0.035em;
+  letter-spacing: var(--display-tracking, -0.035em);
 }
 .tabular {
   font-family: var(--font-mono);
@@ -247,8 +247,8 @@
 }
 /* A display-size figure stays in Inter: Geist Mono's slashed zero reads as a symbol at that size. */
 .font-serif.tabular {
+  --display-tracking: -0.045em;
   font-family: var(--font-sans);
-  letter-spacing: -0.045em;
 }
 
 @utility eyebrow {
