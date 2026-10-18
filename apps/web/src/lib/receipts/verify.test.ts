@@ -84,6 +84,22 @@ describe("receipts checked in the browser", () => {
     },
   );
 
+  it("orders keys by code point, as Python does, even past the basic plane", () => {
+    expect(canonicalJson({ "\u{1F600}": 2, "\uFFFF": 1, "é": 3 })).toBe('{"é":3,"\uFFFF":1,"\u{1F600}":2}');
+  });
+
+  it("answers a body nested past the stack as not a receipt instead of throwing", () => {
+    const receipt = copy(golden.receipt) as unknown as { body: Record<string, unknown> };
+    let nested: unknown = [];
+    for (let depth = 0; depth < 200_000; depth += 1) nested = [nested];
+    receipt.body.payment = nested;
+
+    const check = verifyReceiptInBrowser(receipt, golden.key);
+
+    expect(check.valid).toBe(false);
+    expect(check.message).toBe("Inválido: esto no tiene la forma de un recibo firmado de Custodio.");
+  });
+
   it("ignores key order and whitespace", () => {
     const shuffled = JSON.parse(JSON.stringify(Object.fromEntries(Object.entries(golden.receipt.body).reverse()), null, 4));
 
