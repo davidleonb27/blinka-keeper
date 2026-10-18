@@ -5,7 +5,7 @@ import { useId, useState } from "react";
 import { SimulationView } from "@/components/policy/simulation-view";
 import { Button } from "@/components/ui/button";
 import type { AgreementInput, AgreementPreview } from "@/lib/api/client";
-import type { Decision, PolicyChange } from "@/lib/api/contracts";
+import type { Agreement, Decision, PolicyChange } from "@/lib/api/contracts";
 
 /** No approval skips these; the API checks them again when someone approves. */
 const HARD_RULES = new Set(["R2", "R4", "R5", "R14"]);
@@ -19,6 +19,7 @@ export type HumanChoice =
 export interface ApprovalChoicesProps {
   decision: Decision;
   approvers: string[];
+  agreement?: Agreement | null; // the supplier's agreement now, if it has one
   onDecide: (choice: HumanChoice) => void;
   onPreviewAgreement: (agreement: AgreementInput) => Promise<AgreementPreview>;
   deciding: boolean;
@@ -51,15 +52,18 @@ function numberOrNull(text: string): string | null {
 
 interface AgreementPanelProps {
   decision: Decision;
+  agreement: Agreement | null;
   onPreview: (agreement: AgreementInput) => Promise<AgreementPreview>;
   preview: { input: AgreementInput; result: AgreementPreview } | null;
   setPreview: (preview: { input: AgreementInput; result: AgreementPreview } | null) => void;
 }
 
-function AgreementPanel({ decision, onPreview, preview, setPreview }: AgreementPanelProps) {
+function AgreementPanel({ decision, agreement, onPreview, preview, setPreview }: AgreementPanelProps) {
   const amountId = useId();
   const toleranceId = useId();
-  const [amount, setAmount] = useState(decision.amount === null ? "" : String(decision.amount));
+  // A monthly cap is not one invoice's amount: suggesting this invoice's would cut the month's cap to it.
+  const monthlyCap = agreement?.kind === "monthly_cap";
+  const [amount, setAmount] = useState(monthlyCap || decision.amount === null ? "" : String(decision.amount));
   const [tolerance, setTolerance] = useState("");
   const [simulating, setSimulating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +95,8 @@ function AgreementPanel({ decision, onPreview, preview, setPreview }: AgreementP
       </p>
       <div className="grid grid-cols-2 gap-2.5">
         <label htmlFor={amountId} className="flex flex-col gap-1 text-[12.5px] text-ink-3">
-          Nuevo monto acordado ({decision.currency ?? "moneda del acuerdo"})
+          {monthlyCap ? "Nuevo tope mensual" : "Nuevo monto acordado"} (
+          {agreement?.currency ?? decision.currency ?? "moneda del acuerdo"})
           <input
             id={amountId}
             inputMode="decimal"
@@ -132,7 +137,14 @@ function AgreementPanel({ decision, onPreview, preview, setPreview }: AgreementP
  * The approval zone of a pending acta: reject, approve only this once (with a mandatory reason), or approve and update
  * the supplier's agreement after simulating it. A failing hard rule leaves only «Rechazar».
  */
-export function ApprovalChoices({ decision, approvers, onDecide, onPreviewAgreement, deciding }: ApprovalChoicesProps) {
+export function ApprovalChoices({
+  decision,
+  approvers,
+  agreement = null,
+  onDecide,
+  onPreviewAgreement,
+  deciding,
+}: ApprovalChoicesProps) {
   const selectId = useId();
   const reasonId = useId();
   const [approver, setApprover] = useState(approvers[0] ?? "");
@@ -181,7 +193,7 @@ export function ApprovalChoices({ decision, approvers, onDecide, onPreviewAgreem
         )}
         {updating && canApprove ? (
           <>
-            <AgreementPanel decision={decision} onPreview={onPreviewAgreement} preview={preview} setPreview={setPreview} />
+            <AgreementPanel decision={decision} agreement={agreement} onPreview={onPreviewAgreement} preview={preview} setPreview={setPreview} />
             <div>
               <Button variant="approve" disabled={!preview || !hasReason || deciding} onClick={approveWithAgreement}>
                 <FileSignature aria-hidden /> Confirmar: aprobar y guardar la versión{" "}

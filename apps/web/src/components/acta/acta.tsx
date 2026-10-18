@@ -17,7 +17,7 @@ import { RuleList } from "./rule-list";
 
 export interface ActaProps {
   detail: ActaData;
-  policy: Pick<Policy, "approvers" | "min_confidence" | "base_currency">;
+  policy: Pick<Policy, "approvers" | "min_confidence" | "base_currency"> & Partial<Pick<Policy, "beneficiaries">>;
   onDecide: (choice: HumanChoice) => void;
   onPreviewAgreement: (agreement: AgreementInput) => Promise<AgreementPreview>;
   deciding: boolean;
@@ -127,6 +127,7 @@ export function Acta({ detail, policy, onDecide, onPreviewAgreement, deciding, o
         <ApprovalChoices
           decision={decision}
           approvers={policy.approvers.map((a) => a.name)}
+          agreement={policy.beneficiaries?.find((b) => b.id === decision.beneficiary_id)?.agreement ?? null}
           onDecide={onDecide}
           onPreviewAgreement={onPreviewAgreement}
           deciding={deciding}

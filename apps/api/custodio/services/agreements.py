@@ -13,6 +13,7 @@ from custodio.contracts import Agreement, AgreementKind, Beneficiary, Policy, Po
 from custodio.services.errors import AgreementNotAvailable, PolicyInvalid
 
 MAX_TOLERANCE_PCT = Decimal(100)
+AMOUNT_LABELS = {AgreementKind.FIXED: "Monto acordado con", AgreementKind.MONTHLY_CAP: "Tope mensual acordado con"}
 
 
 @dataclass(frozen=True)
@@ -78,7 +79,7 @@ def _changes(
     old_amount = before.amount if before else None
     old_tolerance = effective_tolerance(before, policy) if before else None
     pairs = [
-        ("amount", f"Monto acordado con {supplier.name}", old_amount, after.amount),
+        ("amount", f"{AMOUNT_LABELS[after.kind]} {supplier.name}", old_amount, after.amount),
         ("tolerance_pct", f"Tolerancia de {supplier.name} (%)", old_tolerance, effective_tolerance(after, policy)),
     ]
     return [

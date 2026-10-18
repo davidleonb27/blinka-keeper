@@ -39,6 +39,18 @@ function renderChoices(id: string, preview = vi.fn().mockResolvedValue(PREVIEW))
 }
 
 describe("ApprovalChoices", () => {
+  it("never suggests one invoice's amount as a supplier's monthly cap", async () => {
+    const decision = decisionOf("F-019");
+    const cap = { kind: "monthly_cap" as const, amount: 60000000, currency: "COP", critical: false };
+    render(
+      <ApprovalChoices decision={decision} approvers={["Ana Gómez"]} agreement={cap} onDecide={vi.fn()} onPreviewAgreement={vi.fn()} deciding={false} />,
+    );
+    await userEvent.type(screen.getByLabelText(/Motivo/), "Nuevo contrato");
+    await userEvent.click(screen.getByRole("button", { name: /Aprobar y actualizar el acuerdo/ }));
+
+    expect(screen.getByLabelText(/Nuevo tope mensual \(\s*COP\)/)).toHaveValue("");
+  });
+
   it("asks for a reason before approving only this once", async () => {
     const { onDecide } = renderChoices("F-019");
     const once = screen.getByRole("button", { name: /Aprobar sólo esta vez/ });
