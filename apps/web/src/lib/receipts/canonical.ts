@@ -8,10 +8,20 @@ export function canonicalJson(value: unknown): string {
   if (value !== null && typeof value === "object") {
     const entries = Object.entries(value as Record<string, unknown>)
       .filter(([, item]) => item !== undefined)
-      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+      .sort(([a], [b]) => byCodePoint(a, b));
     return `{${entries.map(([key, item]) => `${JSON.stringify(key)}:${canonicalJson(item)}`).join(",")}}`;
   }
   return JSON.stringify(value) ?? "null";
+}
+
+/** Python sorts keys by code point; `<` on JS strings compares UTF-16 units, which differs past U+FFFF. */
+function byCodePoint(a: string, b: string): number {
+  const left = Array.from(a, (char) => char.codePointAt(0) as number);
+  const right = Array.from(b, (char) => char.codePointAt(0) as number);
+  for (let index = 0; index < Math.min(left.length, right.length); index += 1) {
+    if (left[index] !== right[index]) return left[index] - right[index];
+  }
+  return left.length - right.length;
 }
 
 const encoder = new TextEncoder();

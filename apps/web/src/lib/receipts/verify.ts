@@ -86,16 +86,26 @@ function alteredFields(envelope: Envelope, publicKey: Uint8Array): string[] {
   return [...paths].filter((path) => now[path] !== envelope.digests[path]).sort();
 }
 
+const EMPTY = { keyId: null, invoiceId: null, verdict: null, alteredFields: [], alteredLabels: [] };
+
 export function verifyReceiptInBrowser(raw: unknown, key: PublicReceiptKey): BrowserCheck {
-  const empty = { keyId: null, invoiceId: null, verdict: null, alteredFields: [], alteredLabels: [] };
+  try {
+    return check(raw, key);
+  } catch {
+    // a body nested past the stack: no receipt is spelled like that
+    return { ...EMPTY, valid: false, message: NOT_A_RECEIPT };
+  }
+}
+
+function check(raw: unknown, key: PublicReceiptKey): BrowserCheck {
   const envelope = parse(raw);
   const publicKey = fromBase64(key.public_key);
-  if (!envelope || !publicKey) return { ...empty, valid: false, message: NOT_A_RECEIPT };
+  if (!envelope || !publicKey) return { ...EMPTY, valid: false, message: NOT_A_RECEIPT };
   if (envelope.keyId !== key.key_id) {
     const message = `Inválido: el recibo dice estar firmado con la clave ${envelope.keyId} y la clave de Custodio es ${key.key_id}.`;
-    return { ...empty, keyId: envelope.keyId, valid: false, message };
+    return { ...EMPTY, keyId: envelope.keyId, valid: false, message };
   }
-  const seen = { ...empty, keyId: key.key_id, invoiceId: textAt(envelope.body, "invoice", "id") };
+  const seen = { ...EMPTY, keyId: key.key_id, invoiceId: textAt(envelope.body, "invoice", "id") };
   if (verifies(publicKey, envelope.signature, envelope.body) && envelope.body.key_id === key.key_id) {
     const verdict = textAt(envelope.body, "decision", "verdict");
     const label = VERDICT_LABELS[verdict ?? ""] ?? "sin decisión";
