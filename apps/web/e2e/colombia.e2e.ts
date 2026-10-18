@@ -56,7 +56,7 @@ async function uploadAndDecide(page: Page, text: string) {
   await dialog.getByLabel("O pega el texto de un correo con la factura").fill(text);
   await dialog.getByRole("button", { name: "Enviar el texto" }).click();
   await dialog.getByRole("button", { name: "Decidir 1 factura" }).click();
-  await expect(page.getByText("Custodio decidió 1 factura.")).toBeVisible();
+  await expect(page.getByText("Blinka Keeper decidió 1 factura.")).toBeVisible();
   await expect(dialog).toHaveCount(0);
 }
 

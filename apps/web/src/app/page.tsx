@@ -27,6 +27,7 @@ import {
 import Link from "next/link";
 import { CodeBlock } from "@/components/developers/code-block";
 import { ActaPreview } from "@/components/landing/acta-preview";
+import { ClosingForm } from "@/components/landing/closing-form";
 import { UseCompanyButton } from "@/components/landing/use-company-button";
 import { GitHubLink } from "@/components/site/github-link";
 import { SiteFooter } from "@/components/site/site-footer";
@@ -34,6 +35,51 @@ import { SiteHeader } from "@/components/site/site-header";
 import { Button } from "@/components/ui/button";
 import { RAIL_PITCH } from "@/lib/presentation";
 import { LICENSE_NAME, MEASURED_FIGURES, MEASUREMENTS_URL, REPO_URL, VERCEL_DEPLOY_URL, repoFile } from "@/lib/site";
+
+const ONLY_HERE: { title: string; text: string; icon: LucideIcon; href: string; action: string }[] = [
+  {
+    title: "Paga de verdad",
+    text: "Transferencias reales en Stripe (modo prueba), verificadas en vivo campo por campo, y el lote en ISO 20022 pain.001 listo para que Blinka lo pague.",
+    icon: Banknote,
+    href: "/pagos",
+    action: "Ver el cuadre con Stripe",
+  },
+  {
+    title: "Recibe por WhatsApp",
+    text: "Mandas la foto de la factura al número de la empresa y en segundos está decidida en el panel, con su acta de respuesta.",
+    icon: Link2,
+    href: "/panel",
+    action: "Ligar mi teléfono",
+  },
+  {
+    title: "Dos lectores, dos empresas",
+    text: "Claude y Gemini leen cada factura por separado. Si no coinciden en monto, moneda, beneficiario o cuenta, no se paga.",
+    icon: ScanText,
+    href: "/panel",
+    action: "Abrir un acta",
+  },
+  {
+    title: "El proveedor corrige",
+    text: "Si algo corregible no cuadra, le pide la corrección por un enlace de un solo uso y la vuelve a decidir con las mismas reglas.",
+    icon: UserCheck,
+    href: "/panel",
+    action: "Pedir una corrección",
+  },
+  {
+    title: "Factura electrónica sin IA",
+    text: "Lee el XML de la DIAN (UBL 2.1) y el CFDI 4.0 de México directo, valida el dígito del NIT y que los totales cuadren.",
+    icon: FileText,
+    href: "/jurado",
+    action: "Ver cómo se prueba",
+  },
+  {
+    title: "Cada decisión, firmada",
+    text: "Recibo Ed25519 que cualquiera verifica fuera del sistema; si alguien cambia una cifra, se nota. El riel no paga sin recibo válido.",
+    icon: ShieldCheck,
+    href: "/verificar",
+    action: "Probar un recibo alterado",
+  },
+];
 
 const METRIC_ICONS: LucideIcon[] = [ShieldCheck, CheckCircle2, Sliders];
 
@@ -326,6 +372,31 @@ function Metrics() {
   );
 }
 
+function OnlyHere() {
+  return (
+    <section id="en-produccion" aria-labelledby="en-produccion-title-eyebrow en-produccion-title" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-20 sm:pt-24">
+      <SectionTitle
+        id="en-produccion-title"
+        eyebrow="En producción, hoy"
+        title={<>Del WhatsApp al cierre de mes</>}
+        lead="Lo que hace distinto a Blinka Keeper ya funciona en esta demo. Cada tarjeta te lleva a probarlo."
+      />
+      <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {ONLY_HERE.map(({ title, text, icon: Icon, href, action }) => (
+          <li key={title} className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-6 shadow-card">
+            <Icon aria-hidden className="size-5 text-brand" />
+            <h3 className="text-[17px] font-semibold text-ink">{title}</h3>
+            <p className="text-[14.5px] text-ink-2">{text}</p>
+            <Link href={href} className="mt-auto inline-flex items-center gap-1.5 text-[14px] font-semibold text-brand underline-offset-4 hover:underline">
+              {action} <ArrowRight aria-hidden className="size-4" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function Features() {
   return (
     <section id="funciones" aria-labelledby="funciones-title-eyebrow funciones-title" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:py-24">
@@ -470,26 +541,22 @@ function SelfHost() {
 
 function FinalCall() {
   return (
-    <section aria-labelledby="final-title" className="mx-auto max-w-6xl px-4 pb-24">
-      <div className="flex flex-col items-start gap-6 rounded-3xl border border-line bg-surface p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h2 id="final-title" className="font-serif text-3xl font-semibold tracking-[-0.015em] text-ink">
-            🎯 Intenta que pague <span className="wavy-highlight">algo indebido</span>
+    <section aria-labelledby="final-title" className="night-section">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-24 sm:py-28 lg:grid-cols-2 lg:gap-16">
+        <div className="min-w-0">
+          <p className="eyebrow mb-4">Pruébalo con tus números</p>
+          <h2 id="final-title" className="text-[32px] leading-[1.05] font-semibold tracking-[-0.035em] text-ink sm:text-[44px]">
+            ¿Cuántas facturas pagas al mes?
           </h2>
-          <p className="mt-2 max-w-[52ch] text-ink-2">
-            Entra con una empresa demo y una semana de facturas con trampas, o escribe tu propia factura en «Róbale a
-            Blinka Keeper».
+          <p className="mt-5 max-w-[48ch] text-[17px] text-ink-2">
+            Dos preguntas y entras a tu propia empresa demo, con un mes de facturas con trampas, para ver qué pagaría
+            Blinka Keeper, qué retendría y qué te preguntaría. ¿Prefieres atacarlo? Escribe tu propia factura tramposa.
           </p>
+          <Link href="/reto" className="mt-6 inline-flex items-center gap-1.5 font-semibold text-ink underline-offset-4 hover:underline">
+            Róbale a Blinka Keeper <ArrowRight aria-hidden className="size-4" />
+          </Link>
         </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button asChild size="lg">
-            <Link href="/panel">Probar con una empresa demo</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/reto">Róbale a Blinka Keeper</Link>
-          </Button>
-        </div>
+        <ClosingForm />
       </div>
     </section>
   );
@@ -502,6 +569,7 @@ export default function HomePage() {
       <main id="contenido">
         <Hero />
         <Metrics />
+        <OnlyHere />
         <Features />
         <HowItDecides />
         <OpenSource />

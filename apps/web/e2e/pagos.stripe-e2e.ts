@@ -4,7 +4,7 @@ import path from "node:path";
 import { watch } from "./problems";
 
 /**
- * How Custodio pays through Stripe, as the demo shows it: the payment on its way to Stripe and back with its tr_ id,
+ * How Blinka Keeper pays through Stripe, as the demo shows it: the payment on its way to Stripe and back with its tr_ id,
  * the acta's live proof checked field by field, /pagos with the record matched against Stripe and the pain.001 file
  * for Blinka. Stripe is the fake transport under the real SDK (see stripe.config.ts), so every id is tr_fake….
  */
@@ -32,7 +32,7 @@ test("pagar por Stripe se ve: el envío, el comprobante en vivo, el cuadre y el 
     await expect(page).toHaveURL(/\/panel$/);
     const received = page.getByRole("region", { name: "Facturas por decidir" });
     await received.getByRole("button", { name: /Decidir las \d+ facturas/ }).click();
-    await expect(page.getByText(/Custodio decidió \d+ facturas/)).toBeVisible();
+    await expect(page.getByText(/Blinka Keeper decidió \d+ facturas/)).toBeVisible();
     await expect(page.getByText("Riel: Stripe · modo prueba").first()).toBeVisible();
   });
 
@@ -75,10 +75,10 @@ test("pagar por Stripe se ve: el envío, el comprobante en vivo, el cuadre y el 
     await page.keyboard.press("Escape");
   });
 
-  await test.step("pagos: el registro de Custodio cuadra con Stripe y el lote sale en pain.001", async () => {
+  await test.step("pagos: el registro de Blinka Keeper cuadra con Stripe y el lote sale en pain.001", async () => {
     await page.getByRole("navigation", { name: "Secciones" }).getByRole("link", { name: "Pagos" }).first().click();
     await expect(page.getByRole("heading", { level: 1, name: "Pagos" })).toBeVisible();
-    const match = page.getByRole("region", { name: "Registro de Custodio ↔ Stripe" });
+    const match = page.getByRole("region", { name: "Registro de Blinka Keeper ↔ Stripe" });
     await expect(match).toContainText(/Cuadra: \d+ pagos del registro, \d+ transferencias en Stripe/);
     await expect(match.getByText("Diferencia").locator("..")).toContainText("USD 0,00");
     await expect(page.getByRole("region", { name: "Pagos del espacio" }).getByRole("link", { name: /tr_fake/ }).first()).toBeVisible();

@@ -67,7 +67,7 @@ async function setUpCompany(page: Page) {
     }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Continuar" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Custodio está listo" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Blinka Keeper está listo" })).toBeVisible();
   await page.getByRole("link", { name: /Ir al panel/ }).click();
 }
 
@@ -155,7 +155,7 @@ test("a real company sets up, uploads its own invoices, decides them and exports
     await expect(decide).toBeVisible();
     await shot("subir");
     await decide.click();
-    await expect(page.getByText("Custodio decidió 3 facturas.")).toBeVisible();
+    await expect(page.getByText("Blinka Keeper decidió 3 facturas.")).toBeVisible();
     await expect(dialog).toHaveCount(0);
   });
 
@@ -187,7 +187,7 @@ test("a real company sets up, uploads its own invoices, decides them and exports
       { name: "LE-77.pdf", mimeType: "application/pdf", buffer: Buffer.from(invoice("LE-77", "300.00", ESPIGA)) },
     ]);
     await dialog.getByRole("button", { name: "Decidir 2 facturas" }).click();
-    await expect(page.getByText("Custodio decidió 2 facturas.")).toBeVisible();
+    await expect(page.getByText("Blinka Keeper decidió 2 facturas.")).toBeVisible();
     await list.getByRole("link", { name: new RegExp(ESPIGA.name) }).click();
     const acta = page.getByRole("dialog");
     await expect(acta).toContainText(`${ESPIGA.name} no está entre tus proveedores registrados`);
@@ -243,7 +243,7 @@ test("a real company sets up, uploads its own invoices, decides them and exports
     await dialog.getByLabel("O pega el texto de un correo con la factura").fill(invoice("LE-78", "300.00", ESPIGA));
     await dialog.getByRole("button", { name: "Enviar el texto" }).click();
     await dialog.getByRole("button", { name: "Decidir 1 factura" }).click();
-    await expect(page.getByText("Custodio decidió 1 factura.")).toBeVisible();
+    await expect(page.getByText("Blinka Keeper decidió 1 factura.")).toBeVisible();
     const workspace = (await page.context().cookies()).find((cookie) => cookie.name === "custodio_ws")?.value ?? "";
     const decisions = await (
       await page.request.get("/api/v1/decisions", { headers: { "X-Custodio-Workspace": workspace } })
