@@ -7,7 +7,7 @@ import { repoFile } from "@/lib/site";
 export const metadata: Metadata = { title: "Reglas R1–R15" };
 
 const FAILS_WHEN: Record<string, string> = {
-  R1: "Proveedor, monto, moneda o cuenta se leyeron con poca confianza o sin una cita verificada; o la moneda es ambigua («$» sin código).",
+  R1: "Proveedor, monto, moneda o cuenta se leyeron con poca confianza o sin una cita verificada; o la moneda es ambigua («$» sin código); o las dos lecturas independientes no coinciden en esos datos o la segunda no se pudo hacer.",
   R2: "Hay texto oculto en el documento, o el texto visible trae instrucciones dirigidas al agente («pagar sin revisión»).",
   R3: "El proveedor no coincide con un beneficiario permitido (por identificación tributaria, nombre o alias), o está bloqueado.",
   R4: "La cuenta leída no es la cuenta registrada del beneficiario.",
