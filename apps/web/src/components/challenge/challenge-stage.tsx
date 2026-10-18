@@ -56,7 +56,7 @@ function StageScoreboard({ stats }: { stats: ChallengeStats }) {
         className={cn("rounded-2xl px-5 py-4", broken ? "bg-crit-weak" : "bg-pay-weak")}
       >
         <span className="block text-[18px] font-semibold text-ink-2 sm:text-[22px]">Pagos indebidos</span>
-        <b className={cn("block text-[88px] leading-none font-semibold tracking-[-0.04em] tabular sm:text-[132px]", broken ? "text-crit" : "text-pay")}>
+        <b className={cn("block font-serif text-[88px] leading-none tabular sm:text-[132px]", broken ? "text-crit" : "text-pay")}>
           {formatCount(stats.improper_payments)}
         </b>
       </div>

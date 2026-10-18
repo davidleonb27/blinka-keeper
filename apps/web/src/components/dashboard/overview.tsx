@@ -19,7 +19,7 @@ function ImproperPaymentsHero({ summary }: { summary: WorkspaceSummary }) {
         <p className="eyebrow">Pagos indebidos</p>
         <p
           className={cn(
-            "my-3 text-[88px] leading-[0.95] font-semibold tracking-[-0.05em] tabular sm:text-[112px]",
+            "my-3 font-serif text-[88px] leading-[0.95] tabular sm:text-[112px]",
             improper > 0 && "text-crit",
           )}
         >
