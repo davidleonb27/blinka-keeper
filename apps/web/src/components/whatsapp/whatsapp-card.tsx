@@ -20,28 +20,30 @@ export function WhatsAppCard() {
   const requestCode = () => create.mutate(undefined, { onError: (error) => toast.error(messageOf(error)) });
   return (
     <section aria-label="Canal de WhatsApp" className="card-surface flex flex-col gap-4 p-5">
-      <div className="flex min-w-0 items-start gap-3">
-        <MessageCircle aria-hidden className="size-6 shrink-0 text-brand" />
-        <div className="min-w-0 flex-1">
-          <h2 className="text-[15px] font-semibold text-ink">Recibe facturas por WhatsApp</h2>
-          <p className="mt-1 text-ink-2">
-            {linked
-              ? `Envía la foto o el PDF de cada factura al +${number}. Custodio la decide con tus reglas y te responde ahí mismo.`
-              : "Liga tu celular con un código de un solo uso y envía las facturas en foto o PDF."}{" "}
-            Las aprobaciones se hacen sólo aquí, en la app.
-          </p>
-          {linked ? (
-            <ul aria-label="Teléfonos ligados" className="mt-2 flex flex-wrap gap-2">
-              {phones.map((phone) => (
-                <li key={phone.masked} className="flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-[13px] text-ink-2">
-                  <Smartphone aria-hidden className="size-3.5" />
-                  <span className="tabular">{phone.masked}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <MessageCircle aria-hidden className="size-6 shrink-0 text-brand" />
+          <div className="min-w-0 flex-1">
+            <h2 className="text-[15px] font-semibold text-ink">Recibe facturas por WhatsApp</h2>
+            <p className="mt-1 text-ink-2">
+              {linked
+                ? `Envía la foto o el PDF de cada factura al +${number}. Custodio la decide con tus reglas y te responde ahí mismo.`
+                : "Liga tu celular con un código de un solo uso y envía las facturas en foto o PDF."}{" "}
+              Las aprobaciones se hacen sólo aquí, en la app.
+            </p>
+            {linked ? (
+              <ul aria-label="Teléfonos ligados" className="mt-2 flex flex-wrap gap-2">
+                {phones.map((phone) => (
+                  <li key={`${phone.masked}-${phone.linked_at}`} className="flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-[13px] text-ink-2">
+                    <Smartphone aria-hidden className="size-3.5" />
+                    <span className="tabular">{phone.masked}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         </div>
-        <Button variant={linked ? "outline" : "default"} onClick={requestCode} disabled={create.isPending} className="shrink-0">
+        <Button variant={linked ? "outline" : "default"} onClick={requestCode} disabled={create.isPending} className="self-start sm:shrink-0">
           {create.isPending ? "Generando…" : linked ? "Ligar otro teléfono" : "Ligar mi teléfono"}
         </Button>
       </div>
