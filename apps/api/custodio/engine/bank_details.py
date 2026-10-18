@@ -129,11 +129,16 @@ def nit(value: str) -> Check:
             value,
             f"el NIT {value} tiene {len(digits)} dígitos antes del dígito de verificación; deben ser de 5 a 15",
         )
-    remainder = sum(int(d) * w for d, w in zip(reversed(digits), DIAN_WEIGHTS, strict=False)) % 11
-    expected = str(remainder if remainder < 2 else 11 - remainder)
+    expected = nit_check_digit(digits)
     if given != expected:
         return _bad_digit("NIT", value, f"el NIT {value} no pasa el dígito de verificación DIAN", expected, given)
     return Check("NIT", value)
+
+
+def nit_check_digit(digits: str) -> str:
+    """The DIAN's check digit (módulo 11) of a NIT written as digits only, without its own check digit."""
+    remainder = sum(int(d) * w for d, w in zip(reversed(digits), DIAN_WEIGHTS, strict=False)) % 11
+    return str(remainder if remainder < 2 else 11 - remainder)
 
 
 def breb_key(value: str) -> Check | None:

@@ -36,6 +36,7 @@ from custodio.contracts import (
     SupplierImport,
 )
 from custodio.dataset import MonthInvoice
+from custodio.extraction import einvoice
 from custodio.reconciliation.models import Statement
 from custodio.services.triage import AttackTriage, triage_attack
 
@@ -56,6 +57,12 @@ class ExtractDocument(Protocol):
 
 class ExtractText(Protocol):
     def __call__(self, text: str, *, document_id: str, source: InvoiceSource = ...) -> ExtractedInvoice: ...
+
+
+class ReadEInvoice(Protocol):
+    def __call__(
+        self, data: bytes, *, document_id: str, company_name: str | None, source: InvoiceSource = ...
+    ) -> ExtractedInvoice: ...
 
 
 class NextLedgerEntry(Protocol):
@@ -109,6 +116,8 @@ class Lanes:
     simulated_month: SimulatedMonth
     # L14 reads statements in PDF or image with the model; a default keeps the lanes built before it valid.
     read_statement: ReadStatement = reconciliation.read_statement_document
+    # L26 reads DIAN and CFDI XML by code alone; a default keeps the lanes built before it valid.
+    read_einvoice: ReadEInvoice = einvoice.read_einvoice
 
 
 def _engine_ledger(name: str) -> Any:
