@@ -127,8 +127,8 @@ def _totals(invoice: EInvoice) -> CheckResult:
     if invoice.total is None:
         return _failed("La factura no trae el total a pagar.", DOCUMENT_FIELD)
     try:
-        total = Decimal(invoice.total.text)
-        addends = [(term, Decimal(term.value.text)) for term in invoice.terms]
+        total = _finite(invoice.total.text)
+        addends = [(term, _finite(term.value.text)) for term in invoice.terms]
     except InvalidOperation:
         return _failed("Un monto del XML no es un número; no se puede comprobar el total.", DOCUMENT_FIELD)
     if not addends:
@@ -141,6 +141,14 @@ def _totals(invoice: EInvoice) -> CheckResult:
             DOCUMENT_FIELD,
         )
     return _passed(f"Los totales cuadran: {sum_text} = total {invoice.total.text}.")
+
+
+def _finite(text: str) -> Decimal:
+    """A Decimal that is a real amount: NaN and Infinity parse, but are not numbers an invoice can state."""
+    amount = Decimal(text)
+    if not amount.is_finite():
+        raise InvalidOperation(text)
+    return amount
 
 
 def _sum_text(addends: list[tuple[Term, Decimal]]) -> str:
