@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/seal";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
@@ -21,7 +22,7 @@ export function SiteHeader() {
           </Link>
           <nav aria-label="Principal" className="hidden items-center gap-0.5 text-[14px] font-medium text-ink-2 lg:flex">
             {NAV.map(({ href, label }) => (
-              <Link key={href} href={href} className="rounded-lg px-3 py-2 transition-colors hover:text-ink">
+              <Link key={href} href={href} className="rounded-full px-3 py-2 transition-colors hover:text-ink">
                 {label}
               </Link>
             ))}
@@ -34,7 +35,9 @@ export function SiteHeader() {
           <GitHubLink className="hidden sm:inline-flex" />
           <ThemeToggle />
           <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link href="/panel">Probar la demo</Link>
+            <Link href="/panel">
+              Probar la demo <ArrowRight aria-hidden />
+            </Link>
           </Button>
         </div>
       </div>

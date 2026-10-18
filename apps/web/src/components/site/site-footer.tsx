@@ -54,7 +54,7 @@ function FooterLinkItem({ label, href, external }: FooterLink) {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-line">
+    <footer className="inverse border-t border-line">
       <nav aria-label="Pie de página" className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-12 text-[14px] md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="col-span-2 flex flex-col gap-3 md:col-span-1">
           <Wordmark />
@@ -73,8 +73,8 @@ export function SiteFooter() {
       </nav>
       <div className="border-t border-line">
         <p className="mx-auto max-w-6xl px-4 py-5 text-[12.5px] text-ink-3">
-          Hecho por el equipo DreamMakers en la Hackathon 30X, Reto Blinka. La demo no mueve dinero real; la empresa y
-          los proveedores de la demo son ficticios.
+          Hecho por el equipo DreamMakers en la Hackathon 30X, Reto Blinka. Custodio decide; Blinka paga. La demo no
+          mueve dinero real; la empresa y los proveedores de la demo son ficticios.
         </p>
       </div>
     </footer>

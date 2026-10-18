@@ -18,7 +18,7 @@ export function ActaPreview() {
         <p className="eyebrow">Acta de decisión · F-020</p>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="font-serif text-xl font-semibold">Andes Code SAS</p>
+            <p className="headline text-xl">Andes Code SAS</p>
             <p className="text-[26px] leading-none font-semibold tracking-[-0.02em] tabular">USD 1.200</p>
           </div>
           <StatusPill status="hold" size="lg" />

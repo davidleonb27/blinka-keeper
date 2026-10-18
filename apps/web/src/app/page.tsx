@@ -1,15 +1,12 @@
 import {
   ArrowRight,
-  Banknote,
+  ArrowUpRight,
   BookOpenCheck,
   Bot,
-  CheckCircle2,
   Cloud,
   Container,
-  FileCheck,
   FileSearch,
   GitPullRequest,
-  Landmark,
   Link2,
   Plug,
   Scale,
@@ -17,14 +14,16 @@ import {
   Server,
   ShieldAlert,
   ShieldCheck,
-  Sliders,
   UserCheck,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { CodeBlock } from "@/components/developers/code-block";
 import { ActaPreview } from "@/components/landing/acta-preview";
-import { UseCompanyButton } from "@/components/landing/use-company-button";
+import { ClosingForm } from "@/components/landing/closing-form";
+import { PanelMockup, ReconciliationMockup } from "@/components/landing/product-mockups";
+import { UseCompanyLink } from "@/components/landing/use-company-button";
+import { WaveArt } from "@/components/landing/wave-art";
 import { GitHubLink } from "@/components/site/github-link";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
@@ -32,7 +31,6 @@ import { Button } from "@/components/ui/button";
 import { RAIL_PITCH } from "@/lib/presentation";
 import { LICENSE_NAME, MEASURED_FIGURES, MEASUREMENTS_URL, REPO_URL, VERCEL_DEPLOY_URL, repoFile } from "@/lib/site";
 
-const METRIC_ICONS: LucideIcon[] = [ShieldCheck, CheckCircle2, Sliders];
 
 
 const SELF_HOST_COMMANDS = `# Postgres, API y web en tu máquina
@@ -88,14 +86,6 @@ const FEATURES: { title: string; text: string; icon: LucideIcon; href: string }[
   },
 ];
 
-const FINANCE_WEEK: { title: string; text: string; icon: LucideIcon }[] = [
-  { title: "Lee", icon: FileSearch, text: "Facturas por correo, PDF, foto o WhatsApp, con la cita de cada dato." },
-  { title: "Decide", icon: Scale, text: "Quince reglas en código: paga, retiene o te pide permiso." },
-  { title: "Paga", icon: Banknote, text: "Sólo lo aprobado, por tu riel de pagos, con su acta." },
-  { title: "Concilia", icon: Landmark, text: "Cruza el extracto del banco con cada pago y te muestra lo que no cuadra." },
-  { title: "Cierra el mes", icon: Link2, text: "Un registro encadenado que cualquiera puede verificar." },
-];
-
 const FLOW: { title: string; tag: string; text: string; icon: LucideIcon }[] = [
   { title: "Lee", tag: "Modelo", icon: FileSearch, text: "Quién cobra, cuánto, en qué moneda y a qué cuenta, con la cita de dónde lo leyó." },
   { title: "Decide", tag: "Código", icon: Scale, text: "Quince reglas revisan cada factura. El modelo no decide ni hace cuentas." },
@@ -132,16 +122,18 @@ const COMMUNITY: { title: string; text: string; icon: LucideIcon; href: string }
   { title: "Reporta en privado", icon: ShieldAlert, href: repoFile("SECURITY.md"), text: "Cualquier camino que pague algo indebido está en el alcance. Se reporta por GitHub Security Advisories." },
 ];
 
+const SECTION_TITLE = "text-[32px] leading-[1.05] font-bold tracking-[-0.035em] text-ink sm:text-[44px]";
+
 function SectionTitle({ id, eyebrow, title, lead }: { id: string; eyebrow: string; title: React.ReactNode; lead?: string }) {
   return (
-    <div className="max-w-[60ch]">
-      <p id={`${id}-eyebrow`} className="eyebrow mb-3 text-brand">
+    <div className="max-w-[62ch]">
+      <p id={`${id}-eyebrow`} className="eyebrow mb-4">
         {eyebrow}
       </p>
-      <h2 id={id} className="font-serif text-3xl font-semibold tracking-[-0.015em] text-ink sm:text-4xl">
+      <h2 id={id} className={SECTION_TITLE}>
         {title}
       </h2>
-      {lead ? <p className="mt-4 text-[17px] text-ink-2">{lead}</p> : null}
+      {lead ? <p className="mt-5 text-[17px] text-ink-2">{lead}</p> : null}
     </div>
   );
 }
@@ -149,48 +141,34 @@ function SectionTitle({ id, eyebrow, title, lead }: { id: string; eyebrow: strin
 function Hero() {
   return (
     <section aria-labelledby="hero-title" className="relative overflow-hidden">
-      <div aria-hidden className="site-grid pointer-events-none absolute inset-0" />
-      <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 pt-14 pb-16 sm:pt-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
-        <div className="min-w-0">
-          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-line-2 bg-surface px-3 py-1 text-[12.5px] font-medium text-ink-2">
-            <span aria-hidden className="size-1.5 rounded-full bg-brand" /> Código abierto · {LICENSE_NAME}
+      <WaveArt className="pointer-events-none absolute top-1/2 right-[-18rem] hidden h-[640px] w-auto -translate-y-1/2 md:block lg:right-[-6rem] xl:right-0" />
+      <div className="relative mx-auto max-w-6xl px-4 pt-16 pb-20 sm:pt-28 sm:pb-28">
+        <div className="max-w-[50rem]">
+          <p className="mb-8 inline-flex items-center gap-2 rounded-full border border-line-2 bg-surface px-3 py-1 text-[12.5px] font-medium text-ink-2">
+            <span aria-hidden className="size-1.5 rounded-full bg-brand" /> Hecho para el reto Blinka · Hackathon 30X
           </p>
-          <h1 id="hero-title" className="font-serif text-[40px] leading-[1.03] font-semibold tracking-[-0.02em] text-ink sm:text-[56px] lg:text-[62px]">
-            Tu analista de <span className="wavy-highlight">cuentas por pagar</span>
+          <p className="eyebrow mb-5">Cuentas por pagar, sin sustos</p>
+          <h1 id="hero-title" className="text-[38px] leading-[0.98] font-bold tracking-[-0.045em] text-ink sm:text-[68px] lg:text-[78px]">
+            <span className="block">Tu analista de</span> <span className="block">cuentas por pagar.</span>
           </h1>
-          <p className="mt-5 max-w-[46ch] text-xl text-ink">
-            Lee, decide, paga, concilia y cierra el mes; <b className="font-semibold">tú solo apruebas lo que importa.</b>
+          <p className="mt-7 max-w-[44ch] text-[19px] leading-relaxed text-ink-2">
+            Lee, decide, paga, concilia y cierra el mes. Tú solo apruebas lo que importa.
           </p>
-          <p className="mt-3 max-w-[50ch] text-[16px] text-ink-2">
-            Paga sólo lo que cabe en tus reglas, retiene lo indebido y cada decisión queda en un acta.{" "}
-            <b className="font-semibold text-ink">El modelo lee, el código decide, la persona autoriza.</b>
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-5">
             <Button asChild size="lg">
               <Link href="/panel">
                 Probar la demo <ArrowRight aria-hidden />
               </Link>
             </Button>
-            <UseCompanyButton />
+            <UseCompanyLink />
           </div>
-          <p className="mt-4 text-[13px] text-ink-3">
+          <p className="mt-6 text-[13px] text-ink-3">
             La demo no pide registro ni mueve dinero real.{" "}
-            <Link href="/reto" className="font-medium text-brand hover:underline">
+            <Link href="/reto" className="font-semibold text-brand underline-offset-4 hover:underline">
               ¿Dudas? Intenta engañarlo →
             </Link>
           </p>
         </div>
-        <ol aria-label="Lo que hace por tu equipo de finanzas" className="flex min-w-0 flex-col gap-2.5">
-          {FINANCE_WEEK.map(({ title, text, icon: Icon }) => (
-            <li key={title} className="flex items-start gap-3.5 rounded-2xl border border-line bg-surface p-4">
-              <Icon aria-hidden className="mt-0.5 size-5 shrink-0 text-brand" strokeWidth={1.75} />
-              <span className="min-w-0">
-                <span className="block font-semibold text-ink">{title}</span>
-                <span className="block text-[14px] text-ink-2">{text}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
       </div>
     </section>
   );
@@ -199,30 +177,22 @@ function Hero() {
 function Metrics() {
   return (
     <section aria-labelledby="medido-title" className="border-y border-line bg-surface">
-      <div className="mx-auto max-w-6xl px-4 py-14">
-        <h2 id="medido-title" className="eyebrow text-brand">
-          📊 Medido, no prometido
+      <div className="mx-auto max-w-6xl px-4 py-14 sm:py-16">
+        <h2 id="medido-title" className="eyebrow">
+          Medido, no prometido
         </h2>
-        <dl className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-3">
-          {MEASURED_FIGURES.map((figure, index) => {
-            const Icon = METRIC_ICONS[index] ?? ShieldCheck;
-            return (
-              <div key={figure.label} className="flex flex-col gap-1.5">
-                <div className="order-1 flex items-center justify-between">
-                  <dd className="font-serif text-[48px] leading-none font-semibold tracking-[-0.02em] text-brand tabular">
-                    {figure.value}
-                  </dd>
-                  <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-line-2 bg-background/60 text-brand">
-                    <Icon aria-hidden className="size-5" strokeWidth={1.8} />
-                  </span>
-                </div>
-                <dt className="order-2 text-[15px] font-semibold text-ink">{figure.label}</dt>
-                <dd className="order-3 text-[13.5px] text-ink-3">{figure.detail}</dd>
-              </div>
-            );
-          })}
+        <dl className="mt-8 grid grid-cols-1 gap-10 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-line">
+          {MEASURED_FIGURES.map((figure) => (
+            <div key={figure.label} className="flex flex-col gap-2 sm:px-8 sm:first:pl-0 sm:last:pr-0">
+              <dd className="order-1 font-mono text-[52px] leading-none font-semibold tracking-[-0.04em] text-ink tabular">
+                {figure.value}
+              </dd>
+              <dt className="order-2 text-[15px] font-semibold text-ink">{figure.label}</dt>
+              <dd className="order-3 text-[13.5px] text-ink-3">{figure.detail}</dd>
+            </div>
+          ))}
         </dl>
-        <p className="mt-8 text-[13px] text-ink-3">
+        <p className="mt-10 text-[13px] text-ink-3">
           Medido el 17 de octubre de 2026. Lo que no se midió dice «NO MEDIDO».{" "}
           <a href={MEASUREMENTS_URL} className="font-semibold text-brand underline-offset-4 hover:underline">
             Cómo se midió y cómo reproducirlo
@@ -233,60 +203,65 @@ function Metrics() {
   );
 }
 
-function Features() {
+function ProductRow({
+  id,
+  eyebrow,
+  title,
+  text,
+  mockup,
+  reverse = false,
+  children,
+}: {
+  id: string;
+  eyebrow: string;
+  title: string;
+  text: string;
+  mockup: React.ReactNode;
+  reverse?: boolean;
+  children?: React.ReactNode;
+}) {
   return (
-    <section id="funciones" aria-labelledby="funciones-title-eyebrow funciones-title" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:py-24">
-      <SectionTitle
-        id="funciones-title"
-        eyebrow="⚙️ Funciones"
-        title={
-          <>
-            Todo lo que necesita un <span className="wavy-highlight">pago</span> para salir bien
-          </>
-        }
-        lead="Cada pieza hace una sola cosa y se puede leer en el código. Ninguna factura se paga porque un modelo lo dijo."
-      />
-      <ul className="mt-10 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
-        {FEATURES.map(({ title, text, icon: Icon, href }) => (
-          <li key={title} className="flex flex-col gap-3 bg-background p-6">
-            <Icon aria-hidden className="size-6 text-brand" strokeWidth={1.75} />
-            <h3 className="text-[16px] font-semibold text-ink">{title}</h3>
-            <p className="text-[14px] text-ink-2">{text}</p>
-            <Link href={href} className="mt-auto inline-flex items-center gap-1 pt-1 text-[13px] font-semibold text-brand">
-              Leer en la documentación <ArrowRight aria-hidden className="size-3.5" />
-              <span className="sr-only">: {title}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <section aria-labelledby={id} className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+      <div className={reverse ? "min-w-0 lg:order-2" : "min-w-0"}>
+        <p className="eyebrow mb-4">{eyebrow}</p>
+        <h3 id={id} className="text-[28px] leading-[1.08] font-bold tracking-[-0.03em] text-ink sm:text-[36px]">
+          {title}
+        </h3>
+        <p className="mt-4 max-w-[52ch] text-[16px] text-ink-2">{text}</p>
+        {children}
+      </div>
+      <div className="min-w-0">{mockup}</div>
     </section>
   );
 }
 
-function HowItDecides() {
+function Product() {
   return (
-    <section aria-labelledby="como-decide-title-eyebrow como-decide-title" className="mx-auto max-w-6xl px-4 pb-20 sm:pb-24">
-      <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-        <div className="min-w-0">
-          <SectionTitle
-            id="como-decide-title"
-            eyebrow="🧠 Cómo decide"
-            title={
-              <>
-                Lee, decide, explica y <span className="wavy-highlight">pide permiso</span>
-              </>
-            }
-          />
+    <section id="producto" aria-labelledby="producto-title-eyebrow producto-title" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 sm:py-32">
+      <SectionTitle
+        id="producto-title"
+        eyebrow="El producto"
+        title="Cada pago, explicado antes de salir"
+        lead="El modelo lee, el código decide, la persona autoriza. Así se ve en la demo, con una empresa ficticia y una semana de facturas con trampas."
+      />
+      <div className="mt-16 flex flex-col gap-24 sm:mt-20 sm:gap-32">
+        <ProductRow
+          id="acta-title"
+          eyebrow="El acta"
+          title="Lee, decide, explica y pide permiso"
+          text="Cada factura termina en un acta: qué leyó el modelo, qué regla decidió y por qué. Se entiende sin abrir el código."
+          mockup={<ActaPreview />}
+        >
           <ol className="mt-8 flex flex-col gap-4">
             {FLOW.map(({ title, tag, text, icon: Icon }) => (
               <li key={title} className="flex gap-4">
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-line-2 bg-surface">
-                  <Icon aria-hidden className="size-5 text-brand" />
+                <span className="grid size-10 shrink-0 place-items-center rounded-full border border-line-2 bg-surface">
+                  <Icon aria-hidden className="size-[18px] text-brand" />
                 </span>
                 <div>
                   <p className="flex items-center gap-2 font-semibold text-ink">
                     {title}
-                    <span className="rounded-full border border-line-2 px-2 py-0.5 text-[11px] font-medium text-ink-3">{tag}</span>
+                    <span className="rounded-full border border-line-2 px-2 py-0.5 font-mono text-[11px] font-medium text-ink-3">{tag}</span>
                   </p>
                   <p className="text-[14px] text-ink-2">{text}</p>
                 </div>
@@ -294,8 +269,50 @@ function HowItDecides() {
             ))}
           </ol>
           <p className="mt-6 max-w-[64ch] text-[14px] text-ink-2">{RAIL_PITCH}</p>
-        </div>
-        <ActaPreview />
+        </ProductRow>
+        <ProductRow
+          id="panel-title"
+          eyebrow="El panel"
+          title="Lo que se pagó, lo que se retuvo y lo que espera tu sí"
+          text="Un auditor independiente recalcula cada pago por otro camino de código. Si no está de acuerdo con el motor, el pago no sale."
+          mockup={<PanelMockup />}
+          reverse
+        />
+        <ProductRow
+          id="conciliacion-title"
+          eyebrow="La conciliación"
+          title="El extracto del banco, cruzado con cada pago"
+          text="Sube el extracto y Custodio encuentra el pago que explica cada movimiento. Lo que no cuadra queda a la vista para cerrar el mes tranquilo."
+          mockup={<ReconciliationMockup />}
+        />
+      </div>
+    </section>
+  );
+}
+
+function Features() {
+  return (
+    <section id="funciones" aria-labelledby="funciones-title-eyebrow funciones-title" className="border-t border-line">
+      <div className="mx-auto max-w-6xl scroll-mt-20 px-4 py-24 sm:py-32">
+        <SectionTitle
+          id="funciones-title"
+          eyebrow="Funciones"
+          title="Todo lo que necesita un pago para salir bien"
+          lead="Cada pieza hace una sola cosa y se puede leer en el código. Ninguna factura se paga porque un modelo lo dijo."
+        />
+        <ul className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map(({ title, text, icon: Icon, href }) => (
+            <li key={title} className="card-surface flex flex-col gap-3 p-6">
+              <Icon aria-hidden className="size-6 text-brand" strokeWidth={1.75} />
+              <h3 className="text-[17px] font-bold tracking-[-0.015em] text-ink">{title}</h3>
+              <p className="text-[14px] text-ink-2">{text}</p>
+              <Link href={href} className="mt-auto inline-flex items-center gap-1 pt-1 text-[13px] font-semibold text-brand">
+                Leer en la documentación <ArrowRight aria-hidden className="size-3.5" />
+                <span className="sr-only">: {title}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -304,16 +321,12 @@ function HowItDecides() {
 function OpenSource() {
   return (
     <section aria-labelledby="codigo-abierto-title-eyebrow codigo-abierto-title" className="border-y border-line bg-surface">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-20 lg:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-24 lg:grid-cols-2">
         <div className="min-w-0">
           <SectionTitle
             id="codigo-abierto-title"
-            eyebrow="📖 Código abierto"
-            title={
-              <>
-                Revisa cada línea que <span className="wavy-highlight">decide un pago</span>
-              </>
-            }
+            eyebrow="Código abierto"
+            title="Revisa cada línea que decide un pago"
             lead={`Custodio se publica bajo licencia ${LICENSE_NAME}: úsalo, cámbialo y llévalo a producción. Las reglas, el auditor, los tests y las cifras medidas están en el repositorio.`}
           />
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -328,7 +341,7 @@ function OpenSource() {
         <ul className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
           {COMMUNITY.map(({ title, text, icon: Icon, href }) => (
             <li key={title}>
-              <a href={href} className="flex h-full gap-4 rounded-2xl border border-line bg-background p-5 transition-colors hover:border-brand">
+              <a href={href} className="flex h-full gap-4 rounded-[1.25rem] border border-line bg-background p-6 transition-colors hover:border-brand">
                 <Icon aria-hidden className="mt-0.5 size-5 shrink-0 text-brand" />
                 <span>
                   <span className="block font-semibold text-ink">{title}</span>
@@ -345,20 +358,16 @@ function OpenSource() {
 
 function SelfHost() {
   return (
-    <section aria-labelledby="autoalojalo-title-eyebrow autoalojalo-title" className="mx-auto max-w-6xl px-4 py-20 sm:py-24">
+    <section aria-labelledby="autoalojalo-title-eyebrow autoalojalo-title" className="mx-auto max-w-6xl px-4 py-24 sm:py-32">
       <SectionTitle
         id="autoalojalo-title"
-        eyebrow="🚀 Autoalójalo"
-        title={
-          <>
-            Tus facturas, en tu <span className="wavy-highlight">infraestructura</span>
-          </>
-        }
+        eyebrow="Autoalójalo"
+        title="Tus facturas, en tu infraestructura"
         lead="Sin ANTHROPIC_API_KEY siguen funcionando las reglas, el auditor, el registro, el firewall y la lectura de texto y PDF con texto. Lo que necesita al modelo lo dice."
       />
-      <ul className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <ul className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-3">
         {SELF_HOST_OPTIONS.map(({ title, text, icon: Icon, href, action }) => (
-          <li key={title} className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-6">
+          <li key={title} className="card-surface flex flex-col gap-3 p-6">
             <Icon aria-hidden className="size-6 text-brand" strokeWidth={1.75} />
             <h3 className="font-mono text-[15px] font-semibold text-ink">{title}</h3>
             <p className="text-[14px] text-ink-2">{text}</p>
@@ -377,26 +386,22 @@ function SelfHost() {
 
 function FinalCall() {
   return (
-    <section aria-labelledby="final-title" className="mx-auto max-w-6xl px-4 pb-24">
-      <div className="flex flex-col items-start gap-6 rounded-3xl border border-line bg-surface p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h2 id="final-title" className="font-serif text-3xl font-semibold tracking-[-0.015em] text-ink">
-            🎯 Intenta que pague <span className="wavy-highlight">algo indebido</span>
+    <section aria-labelledby="final-title" className="inverse">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-24 sm:py-32 lg:grid-cols-2 lg:gap-16">
+        <div className="min-w-0">
+          <p className="eyebrow mb-4">Pruébalo con tus números</p>
+          <h2 id="final-title" className={SECTION_TITLE}>
+            ¿Cuántas facturas pagas al mes?
           </h2>
-          <p className="mt-2 max-w-[52ch] text-ink-2">
-            Entra con una empresa demo y una semana de facturas con trampas, o escribe tu propia factura en «Róbale a
-            Custodio».
+          <p className="mt-5 max-w-[48ch] text-[17px] text-ink-2">
+            Dos preguntas y entras a la empresa demo, con una semana de facturas con trampas, para ver qué pagaría
+            Custodio, qué retendría y qué te preguntaría. ¿Prefieres atacarlo? Escribe tu propia factura tramposa.
           </p>
+          <Link href="/reto" className="mt-6 inline-flex items-center gap-1.5 font-semibold text-ink underline-offset-4 hover:underline">
+            Róbale a Custodio <ArrowUpRight aria-hidden className="size-4" />
+          </Link>
         </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button asChild size="lg">
-            <Link href="/panel">Probar con una empresa demo</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/reto">Róbale a Custodio</Link>
-          </Button>
-        </div>
+        <ClosingForm />
       </div>
     </section>
   );
@@ -409,8 +414,8 @@ export default function HomePage() {
       <main id="contenido">
         <Hero />
         <Metrics />
+        <Product />
         <Features />
-        <HowItDecides />
         <OpenSource />
         <SelfHost />
         <FinalCall />

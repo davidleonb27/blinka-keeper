@@ -8,7 +8,7 @@ export function GitHubLink({ className }: { className?: string }) {
     <a
       href={REPO_URL}
       className={cn(
-        "inline-flex h-9 items-center gap-2 rounded-lg border border-line-2 bg-surface px-3 text-[13px] font-medium text-ink-2 transition-colors hover:border-brand hover:text-ink",
+        "inline-flex h-9 items-center gap-2 rounded-full border border-line-2 bg-surface px-3.5 text-[13px] font-medium text-ink-2 transition-colors hover:border-brand hover:text-ink",
         className,
       )}
     >

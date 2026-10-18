@@ -1,9 +1,13 @@
 import { screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 import { RAIL_PITCH } from "@/lib/presentation";
 import { REPO_URL } from "@/lib/site";
 import { renderWithApi } from "@/test/render";
 import HomePage from "./page";
+
+const push = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 
 // The live count is an async server component; here it stands still so the page renders in jsdom.
 
@@ -17,10 +21,13 @@ describe("HomePage", () => {
   it("opens on what Custodio does for a finance team, with the demo first and the challenge as a quiet link", () => {
     renderWithApi(<HomePage />);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Tu analista de cuentas por pagar" })).toBeInTheDocument();
-    expect(screen.getByText(/Lee, decide, paga, concilia y cierra el mes;/)).toHaveTextContent("tú solo apruebas lo que importa");
-    const hero = screen.getByRole("region", { name: "Tu analista de cuentas por pagar" });
+    expect(screen.getByRole("heading", { level: 1, name: "Tu analista de cuentas por pagar." })).toBeInTheDocument();
+    const hero = screen.getByRole("region", { name: "Tu analista de cuentas por pagar." });
+    expect(hero).toHaveTextContent("Cuentas por pagar, sin sustos");
+    expect(hero).toHaveTextContent("Lee, decide, paga, concilia y cierra el mes. Tú solo apruebas lo que importa.");
+    expect(hero).toHaveTextContent("Hecho para el reto Blinka · Hackathon 30X");
     expect(within(hero).getByRole("link", { name: /Probar la demo/ })).toHaveAttribute("href", "/panel");
+    expect(within(hero).getByRole("link", { name: "Usar con mi empresa" })).toHaveAttribute("href", "/empezar");
     expect(within(hero).getByRole("link", { name: /Intenta engañarlo/ })).toHaveAttribute("href", "/reto");
     expect(within(hero).queryByRole("link", { name: /Róbale a Custodio/ })).not.toBeInTheDocument();
     expect(within(hero).queryByRole("figure")).not.toBeInTheDocument();
@@ -32,6 +39,26 @@ describe("HomePage", () => {
     const code = within(screen.getByRole("region", { name: /Autoalójalo/ })).getByRole("figure", { name: /Autoalojado/ });
     expect(code).toHaveTextContent("docker compose up --build");
     expect(code).toHaveTextContent("/api/v1/firewall/intents");
+  });
+
+  it("shows the acta, the panel and the reconciliation as the product", () => {
+    renderWithApi(<HomePage />);
+
+    const product = screen.getByRole("region", { name: /Cada pago, explicado/ });
+    for (const name of ["Ejemplo de acta", "Ejemplo del panel", "Ejemplo de conciliación"]) {
+      expect(within(product).getByRole("figure", { name })).toBeInTheDocument();
+    }
+  });
+
+  it("closes with two questions that lead to the demo", async () => {
+    renderWithApi(<HomePage />);
+
+    const closing = screen.getByRole("region", { name: "¿Cuántas facturas pagas al mes?" });
+    expect(within(closing).getAllByRole("group")).toHaveLength(2);
+    await userEvent.click(within(closing).getByRole("radio", { name: "Más de 500" }));
+    await userEvent.click(within(closing).getByRole("button", { name: /Ver cómo lo haría Custodio/ }));
+    expect(push).toHaveBeenCalledWith("/panel");
+    expect(within(closing).getByRole("link", { name: /Róbale a Custodio/ })).toHaveAttribute("href", "/reto");
   });
 
   it("lists the six features with their docs", () => {
