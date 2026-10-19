@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Phone, Menu, X, ArrowRight } from "lucide-react";
-import { Wordmark, Seal } from "@/components/brand/seal";
-import { ThemeToggle } from "@/components/shell/theme-toggle";
+import { Phone, Menu, X, ArrowRight } from "lucide-react";
+import { Wordmark } from "@/components/brand/seal";
 import { Button } from "@/components/ui/button";
 
 const MENU_ITEMS = [
@@ -34,9 +34,11 @@ export function SiteHeader() {
                             title="Blinka Keeper"
                             aria-label="Blinka Keeper, inicio"
                         >
-                            <img
+                            <Image
                                 src="/blinka-keeper-logo.svg"
                                 alt="Blinka Keeper"
+                                width={64}
+                                height={64}
                                 className="w-16 h-16 object-contain"
                                 loading="eager"
                             />
@@ -169,9 +171,12 @@ export function SiteHeader() {
                 </button>
 
                 <Link href="/" aria-label="Blinka Keeper, inicio" className="flex items-center gap-2">
-                    <img
+                    <Image
                         src="/blinka-keeper-logo.svg"
                         alt="Blinka Keeper"
+                        width={24}
+                        height={32}
+                        loading="eager"
                         className="h-8 w-auto object-contain dark:invert"
                     />
                     <span className="font-serif font-bold text-ink">Blinka Keeper</span>

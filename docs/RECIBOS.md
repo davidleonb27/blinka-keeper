@@ -51,7 +51,7 @@
 
 ## Verificar
 
-**En la web:** [`/verificar`](https://custodio-blinka.vercel.app/verificar) comprueba el recibo en el navegador (con la
+**En la web:** [`/verificar`](https://blinka-keeper.vercel.app/verificar) comprueba el recibo en el navegador (con la
 clave pública) y en el servidor (`POST /api/v1/receipts/verify`), y dice «Válido: … la decisión fue «Pagar»» o
 «Inválido: el campo monto fue alterado…». «Probar con un recibo alterado» toma un recibo de ejemplo firmado con la clave
 real y le multiplica el monto.
@@ -60,7 +60,7 @@ real y le multiplica el monto.
 `recibos/clave_publica.json` y `recibos/verificar_recibo.py` (Ed25519 del RFC 8032 con la biblioteca estándar):
 
 ```bash
-curl -s https://custodio-blinka.vercel.app/api/v1/.well-known/custodio-receipt-key > clave_publica.json
+curl -s https://blinka-keeper.vercel.app/api/v1/.well-known/custodio-receipt-key > clave_publica.json
 python3 verificar_recibo.py recibo.json clave_publica.json
 # VÁLIDO: firmado por Blinka Keeper; la decisión fue «pay»
 # INVÁLIDO: se alteró payment.amount

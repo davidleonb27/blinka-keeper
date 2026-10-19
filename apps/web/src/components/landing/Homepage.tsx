@@ -2,6 +2,7 @@
 
 // NO CAMBIAR, SE DEBE QUEDAR LA NUEVA PAGINA
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
     Play,
@@ -280,9 +281,12 @@ export function Homepage() {
                                             key={i}
                                             className="flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold text-white shrink-0 transition cursor-default select-none h-9"
                                         >
-                                            <img
+                                            <Image
                                                 src={brand.logo}
                                                 alt={brand.name}
+                                                width={90}
+                                                height={20}
+                                                loading="eager"
                                                 className="h-5 max-w-[90px] w-auto object-contain"
                                             />
                                         </div>
@@ -361,7 +365,7 @@ export function Homepage() {
             </section>
 
             {/* SECTION 2: QUE HACEMOS / VALUE PROPS */}
-            <section className="relative pb-24 bg-white" id="como-funciona">
+            <section className="relative pb-24 bg-white overflow-x-clip" id="como-funciona">
                 {/* Mathematical grid paper background */}
                 <div
                     className="absolute inset-0 pointer-events-none z-0 opacity-60"
@@ -500,7 +504,7 @@ export function Homepage() {
                                 <div className="relative flex items-center justify-center h-fit">
                                     <div className="relative w-full max-w-xl">
                                         {/* Circle 1 */}
-                                        <img
+                                        <Image
                                             src="/img/homepage/section-2/circle-animated-1.svg"
                                             alt="Circle background decoration 1"
                                             loading="lazy"
@@ -510,7 +514,7 @@ export function Homepage() {
                                         />
 
                                         {/* Picture 1 */}
-                                        <img
+                                        <Image
                                             src="/img/homepage/section-2/picture-1.webp"
                                             alt="Featured image 1"
                                             loading="lazy"
@@ -520,7 +524,7 @@ export function Homepage() {
                                         />
 
                                         {/* Picture 2 */}
-                                        <img
+                                        <Image
                                             src="/img/homepage/section-2/picture-2.webp"
                                             alt="Featured image 2"
                                             loading="lazy"
@@ -530,7 +534,7 @@ export function Homepage() {
                                         />
 
                                         {/* Picture 3 */}
-                                        <img
+                                        <Image
                                             src="/img/homepage/section-2/picture-3.webp"
                                             alt="Featured image 3"
                                             loading="lazy"
@@ -540,7 +544,7 @@ export function Homepage() {
                                         />
 
                                         {/* Circle 2 */}
-                                        <img
+                                        <Image
                                             src="/img/homepage/section-2/circle-animated-2.svg"
                                             alt="Circle background decoration 2"
                                             loading="lazy"
@@ -1280,8 +1284,10 @@ export function Homepage() {
                         {/* Columna 1: La Muralla Financiera de tu Empresa */}
                         <div>
                             <div className="mb-4">
-                                <img
+                                <Image
                                     src="/blinka-keeper-logo-full.svg"
+                                    width={108}
+                                    height={40}
                                     alt="Blinka Keeper"
                                     className="h-10 w-auto object-contain"
                                 />
