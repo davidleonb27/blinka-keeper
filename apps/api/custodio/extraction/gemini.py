@@ -18,6 +18,7 @@ from custodio import llm
 
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}"
+MODELS_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 TIMEOUT_SECONDS = 60.0
 MAX_OUTPUT_TOKENS = 4096
 # Gemini 2.5 thinks by default and its thoughts count against MAX_OUTPUT_TOKENS: an unbounded budget can end the
@@ -114,6 +115,23 @@ def probe(model: str) -> str:
     if response.status_code == httpx.codes.OK:
         return "ok"
     return f"estado {response.status_code}{_reason(response)}"
+
+
+def generating_models() -> list[str]:
+    """The Gemini models this key may call generateContent on, so a 404 says which name to use instead."""
+    headers = {"x-goog-api-key": os.environ.get("GEMINI_API_KEY", "")}
+    try:
+        response = httpx.get(MODELS_URL, headers=headers, timeout=TIMEOUT_SECONDS, params={"pageSize": 1000})
+        models = response.json().get("models", []) if response.status_code == httpx.codes.OK else []
+    except (httpx.HTTPError, ValueError):
+        return []
+    return sorted(
+        str(model["name"]).removeprefix("models/")
+        for model in models
+        if isinstance(model, dict)
+        and "gemini" in str(model.get("name", ""))
+        and "generateContent" in (model.get("supportedGenerationMethods") or [])
+    )
 
 
 def _reason(response: httpx.Response) -> str:
